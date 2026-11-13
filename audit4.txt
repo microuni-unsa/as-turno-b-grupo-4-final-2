@@ -1,0 +1,929 @@
+Loading 'turbo' model on cpu...
+Transcribing 'audit4.mp3'...
+Detected language: 'es' (probability: 1.00)
+
+[0.00s -> 4.72s]  Estos que tenemos aquí presentes en el 7.001, en la región anterior, en el 7.015 todavía,
+[5.52s -> 10.00s]  para que estos estén apuntos y estén listos para el 7.701, pues es que...
+[10.00s -> 15.38s]  darle una manita de datos, traer esos cambios, ajustes, listos, ya lo tienen, como formato, en plan.
+[17.26s -> 19.50s]  Pero nadie ha escrito. Nadie.
+[20.60s -> 25.18s]  Entonces, ¿qué conclusión? Es que no tenemos nada de esto.
+[25.18s -> 35.20s]  O sea, el agente está respondiendo, los agentes que preparaban estaban respondiendo, preguntas, todo, alrededor solamente de esto,
+[35.20s -> 46.12s]  o de esto, de normativas referenciadas, referencias normativas.
+[47.26s -> 50.06s]  Y eso es lo que debe hacer una agente de PIN.
+[51.56s -> 52.98s]  ¿Una asociación argentica PIN?
+[55.18s -> 62.50s]  Otra prueba de que no han hecho eso, no han hecho todo lo que se tendría que hacer.
+[63.44s -> 67.80s]  En la aplicación esta de la OSTIN, completamente en blanco,
+[68.52s -> 71.42s]  donde a través de los delegados todos los grupos tenían su cuenta y pasos,
+[72.12s -> 75.34s]  y confirmaron que sí podía entrar, la base alta estaba aquí.
+[76.14s -> 84.92s]  O sea, no han llegado a ningún momento registros de una pseudoimplementación del PIN a la universidad.
+[85.18s -> 86.46s]  Porque ese era el propósito, ¿no?
+[87.46s -> 90.70s]  Entonces, ¿qué puedo pensar? O sea, en sus latos sí lo han hecho.
+[90.80s -> 92.24s]  O sea, en sus latos, en sus latos, en sus latos están completos.
+[92.32s -> 93.88s]  O sea, hay cosas como estas.
+[95.44s -> 97.00s]  A ver, este es acá ya, ¿no?
+[97.00s -> 98.14s]  Este es el discote, esto.
+[98.88s -> 100.68s]  Procedimiento para el control de puestos y registros.
+[101.72s -> 105.00s]  Plan de proyecto de implementación del PIN a la medida de la universidad.
+[105.00s -> 108.44s]  Procedimiento para la identificación de requisitos de privacidad de información.
+[109.38s -> 110.46s]  Documentos sobre el alcance.
+[110.60s -> 111.26s]  Función del alcance.
+[111.84s -> 112.84s]  Política de seguridad de información.
+[113.22s -> 114.34s]  Política de privacidad de información.
+[115.96s -> 117.66s]  Metodología para evaluación y tratamiento de riesgos.
+[117.96s -> 119.02s]  También necesitan una cosa de estas.
+[119.58s -> 120.50s]  Declaración de aplicaridad.
+[120.74s -> 121.06s]  SOA.
+[122.36s -> 123.42s]  Plan de tratamiento de riesgos.
+[124.56s -> 125.16s]  El anexo A.
+[125.58s -> 128.48s]  Acá tengo el anexo A con los controles propios de la 27001.
+[129.08s -> 131.80s]  Ustedes necesitan los controles propios de la 27007.
+[133.82s -> 134.34s]  Después.
+[135.68s -> 137.60s]  Plan de capacitación y concientización.
+[140.66s -> 142.30s]  Procedimiento para auditorías internas.
+[144.16s -> 145.48s]  Procedimiento para auditoría interna.
+[146.16s -> 148.48s]  En la pérdice 1, programa armando auditoría interna.
+[149.28s -> 151.40s]  En la pérdice 2, informe de auditoría interna.
+[151.70s -> 156.28s]  Y en la pérdice 3, lista de apoyo para auditoría interna.
+[156.78s -> 157.48s]  Formato más.
+[158.48s -> 158.88s]  ¿Qué más?
+[159.18s -> 160.64s]  Minutas de revisión por parte de la dirección.
+[160.84s -> 161.08s]  O sea, no hace.
+[163.66s -> 165.12s]  Sí, la alta dirección, la alta credencia.
+[165.28s -> 169.68s]  Normalmente los resultados de la pérdice interna se llevan a la alta dirección.
+[169.76s -> 173.42s]  Y ahí se toman decisiones de financiar, para adaptar recursos responsables.
+[174.76s -> 175.62s]  Internos o externos.
+[175.62s -> 178.62s]  Para que implementen, supere las...
+[178.62s -> 181.02s]  Ya en el diseño.
+[181.12s -> 183.62s]  Se vamos a dar cuenta de que existen los hallazgos.
+[184.34s -> 185.16s]  Y son dos sabores.
+[185.50s -> 186.66s]  O sea, son no conformidades.
+[186.66s -> 192.42s]  O sea, que chocan contra un debe de la norma, del sistema de gestión que está bien aguitado.
+[192.92s -> 193.88s]  O es una observación también.
+[194.26s -> 195.14s]  Puede ser las dos cosas, ¿no?
+[195.56s -> 197.96s]  Y la observación puede ser algo bueno, ¿no es cierto?
+[198.06s -> 199.04s]  Que debe perpetuarse.
+[199.60s -> 201.32s]  O debe ser algo malo que debe erradicarse.
+[201.32s -> 203.46s]  Los estudios están en la edición del 0-1.
+[203.58s -> 204.28s]  No puedes poner eso.
+[205.00s -> 207.82s]  O sea, son minutos por parte de la edición por parte de la edición.
+[208.26s -> 209.84s]  Procedimiento para medidas correctivas.
+[211.16s -> 214.34s]  Entonces, acá hay como más o menos 40, hay algo de documentos.
+[214.34s -> 222.64s]  En el 27701, si lo revisan así como un lupa, hay algo de 38 años en la zona.
+[223.34s -> 227.18s]  Entonces, tendría que haber esperado ya un día, pues, el profesor Gase, pues, hasta donde tenga, ¿no?
+[227.18s -> 228.10s]  Los 38 años formados.
+[228.52s -> 234.66s]  Es decir, que tengo no exactamente el mismo, pero tengo un avance del primo hermano, que es la seguridad de información.
+[234.66s -> 264.64s]  Si tengo esto de acá, tengo el mismo.
+[264.64s -> 271.62s]  Bueno, acá, tengo esta parte que es común, ya pues, o sea, simplemente hay que hacer los ajustes y ya estamos probados para ello.
+[272.62s -> 273.42s]  Ese es el trabajito.
+[274.10s -> 277.02s]  O sea, no es tan exacto, pero ese es el trabajito que tiene el solo grupo.
+[277.68s -> 283.40s]  El formato que le doy de base, le hacen los ajustes, es el caso, lo que sea, como para el 27701, ya lo tienes.
+[284.02s -> 289.10s]  Ahora, ¿qué hace un agente inteligente, un verdadero agente inteligente?
+[289.10s -> 295.48s]  Si ese agente inteligente estuviese encargado, no sé, de la parte de gestión documental,
+[296.48s -> 301.88s]  si estuviese encargado, por ejemplo, digamos, del alcance nada más, del alcance, del documento del alcance.
+[302.32s -> 305.20s]  El alcance, ¿qué dijimos?
+[305.44s -> 307.68s]  Que tiene que decir un proceso de misión crítica y no de apoyo.
+[308.36s -> 311.12s]  O sea, misión crítica, admisión y apoyo,
+[311.12s -> 315.34s]  respecto a todo lo que hace el personal administrativo, ¿no?
+[315.34s -> 321.34s]  O sea, un proceso de gestión del personal administrativo y el otro es el proceso mismo de admisión.
+[322.28s -> 325.08s]  Pero el alcance no es un paradito, pues, ¿no?
+[325.24s -> 326.28s]  Es un documento, ¿no?
+[326.82s -> 327.76s]  Con todo esto.
+[328.56s -> 331.32s]  Con control de versiones, quién lo creó, quién lo aprueba,
+[332.12s -> 335.76s]  quién lo revisa, el medio de confesión es el mismo, ¿no?
+[336.14s -> 337.92s]  En historial de versiones, por ejemplo, el cambio de versión,
+[337.92s -> 342.22s]  su índice, los procesos, unidades administrativas,
+[342.30s -> 343.18s]  su índice.
+[344.66s -> 348.10s]  Todo esto está listo para que acá, entre el corchete cuadrado,
+[348.22s -> 349.10s]  se cambie un, ¿sabe?
+[350.02s -> 350.60s]  Nada más.
+[351.50s -> 355.96s]  Y acá los stickers que te dicen exactamente qué hacer, ¿no?
+[356.06s -> 357.64s]  Hacer el cambio y luego se mueve el sticker.
+[358.78s -> 361.42s]  La definición del alcance, el corchete cuadrado, todo eso.
+[362.12s -> 363.54s]  Es el constructor que está en la mano,
+[363.54s -> 366.62s]  que permitiría hacer una implementación, pues,
+[366.62s -> 371.12s]  una implementación sintética, no real.
+[372.00s -> 372.96s]  La implementación real, ¿no?
+[372.96s -> 374.16s]  Sería un montón de tiempo y dinero, ¿no?
+[374.16s -> 374.80s]  Lo que debería hacer.
+[375.28s -> 376.74s]  Ustedes necesitan que esto esté cargado.
+[377.78s -> 379.96s]  ¿Cómo se hace un promo?
+[382.90s -> 383.42s]  Rafa, ¿no?
+[383.42s -> 384.18s]  Para trabajar esto.
+[384.26s -> 385.06s]  Por ejemplo, este acá, ¿no?
+[385.64s -> 386.80s]  El alcance del SGCI.
+[387.34s -> 388.06s]  ¿Qué haría yo?
+[388.18s -> 389.88s]  O sea, a ver, alcance.
+[389.96s -> 390.62s]  Alcance del SGCI.
+[390.62s -> 391.62s]  Alcance del SGCI, claro, ¿ok?
+[392.18s -> 394.14s]  Alcance del SGCI, pues,
+[394.28s -> 395.24s]  hay que hacer sobreinformación.
+[395.42s -> 396.48s]  El alcance del FINS, ¿no?
+[397.84s -> 399.32s]  La versión 1 de qué fecha sería.
+[400.28s -> 400.38s]  ¿No?
+[400.44s -> 402.22s]  Se pone el grupo, el cuarto grupo,
+[402.32s -> 403.12s]  es la primera versión.
+[403.88s -> 405.86s]  De la ciudad se habló del año 2019.
+[406.12s -> 408.50s]  Ahí tendría que haber un renunciado del alcance del SGCI, ¿no?
+[408.50s -> 410.74s]  Después, ¿qué sabremos?
+[411.28s -> 413.54s]  Que cada tres años se recertifica.
+[414.40s -> 417.44s]  O sea, tendría que haber mínimo una versión 2022.
+[417.44s -> 423.66s]  Y, obviamente, en 2022, una tercera versión de ese alcance en el año 2025, ¿no?
+[424.02s -> 427.52s]  Y ahí nada más, porque no ha pasado tres años todavía, pues, desde 2025, ¿no?
+[428.10s -> 429.86s]  Se tendría que haber más tres versiones de ese alcance.
+[430.00s -> 432.70s]  Ese documento de los otros del alcance, tres versiones, ¿no?
+[432.82s -> 434.22s]  Que esta forma exige, ¿no?
+[434.54s -> 437.02s]  Ustedes saben que esta forma está desde el año 2009.
+[437.58s -> 438.36s]  La versión 1, ¿no?
+[438.92s -> 439.86s]  La versión 2, de 2025.
+[440.80s -> 441.76s]  Después, ¿qué más sabes?
+[442.44s -> 446.08s]  Que en el alcance debe ir un proceso de decisión política y uno no.
+[446.72s -> 447.20s]  Ya está.
+[447.98s -> 451.08s]  Y tengo el formato de cómo se debe hacer un alcance.
+[451.20s -> 452.42s]  ¿Cómo debe ser un alcance?
+[452.56s -> 453.30s]  Un documento así, ¿no?
+[453.80s -> 458.32s]  Entonces, ¿cómo se me dice Rafa para que la guía nos ayude a hacer eso?
+[458.98s -> 461.22s]  El primer párrafo es el rol, ¿no?
+[461.70s -> 463.88s]  Se me dice, eres un ingeniero informático, ¿no?
+[463.88s -> 466.98s]  Especializado en seguridad, privacidad de datos, ¿no?
+[467.98s -> 473.08s]  Y tienes, no sé, pues, no sé cuántas experiencias.
+[473.18s -> 474.08s]  Desde el 2019, ¿no?
+[474.08s -> 475.22s]  Que aparece esto.
+[475.22s -> 478.86s]  Tienes ocho años, en el mercado, ¿no?
+[478.86s -> 485.18s]  Tienes ocho años, en la experiencia, llevando a cabo implementación de sistemas de gestión,
+[485.26s -> 486.28s]  inclusive información, ¿no?
+[486.28s -> 488.80s]  En, en, en, ¿dónde?
+[488.80s -> 489.92s]  En, en, este...
+[489.92s -> 491.38s]  No hay nada más.
+[491.76s -> 492.32s]  En el mercado, ¿no?
+[493.42s -> 494.04s]  Nada más.
+[494.10s -> 496.26s]  Es experiencia de formación y experiencia profesional de FD.
+[496.74s -> 497.64s]  Ahí está el rol, ¿no?
+[497.64s -> 498.12s]  El Rafa.
+[498.26s -> 498.50s]  O sea, ¿no?
+[498.50s -> 499.38s]  Luego viene el A.
+[499.46s -> 500.50s]  El A es el alcance.
+[500.58s -> 501.30s]  ¿Qué es lo que quiero que hagas?
+[502.14s -> 502.82s]  Quiero que me...
+[502.82s -> 504.06s]  Y alcanza la norma, ¿no?
+[504.50s -> 505.08s]  Subes la norma.
+[505.68s -> 510.70s]  Y le dices, quiero que me hagas el enunciado del alcance del sistema de gestión de privacidad de información.
+[510.70s -> 512.70s]  ¿Qué es lo que quiero que hagas el enunciado del Rafa?
+[512.70s -> 514.88s]  Y hasta que me hagas el enunciado del alcance, ¿no?
+[514.88s -> 516.70s]  Y le dices, este...
+[517.24s -> 518.28s]  La primera versión del alcance.
+[519.06s -> 520.74s]  Después viene el formato, el F, ¿sí o no?
+[520.82s -> 521.56s]  El Rafa, ¿no?
+[521.66s -> 523.30s]  El formato le das ese formato en blanco.
+[523.68s -> 524.90s]  O sea, bien pulido, visto.
+[525.06s -> 528.04s]  Por ejemplo, sacando todo lo que excede.
+[528.16s -> 531.48s]  Lo que es, es el sistema de gestión a caso de privacidad de información, ¿no?
+[532.34s -> 533.44s]  Español, PIS, el hijo.
+[533.44s -> 538.20s]  Y así, esto hay que personalizar y ponerlo en la medida justo para 27, 708.
+[538.34s -> 539.22s]  En casi dos años, no se apunta.
+[539.82s -> 547.90s]  Solo leyendo y entendiendo la norma, si no, no se va a valorar, no se va a valorar.
+[548.42s -> 550.34s]  Entonces, prepara el formato, ya está la EFE, ¿no?
+[550.70s -> 551.38s]  Falta la última.
+[551.94s -> 554.98s]  La última es que le dices, ¿sabes qué?
+[554.98s -> 557.94s]  En el ámbito del contexto, esto es para San Agustín.
+[558.34s -> 560.82s]  Y ahí sí le suben para que entienda qué es San Agustín.
+[560.82s -> 564.14s]  El estatuto, el, ¿qué más?
+[564.26s -> 569.46s]  El organigrama, el cuadro de asignaciones personales, el set para que funcionales hay que no lo dicen más.
+[570.06s -> 573.30s]  Y basta, creo que ya seguimos excesos, subimos el como, ¿no?
+[573.76s -> 576.26s]  Más de dos excesos, ya, si gustan, no lo vamos a hacer.
+[576.60s -> 578.22s]  Y le dan un poco, ¿no?
+[578.22s -> 578.52s]  Listo.
+[579.02s -> 584.86s]  ¿Y qué va a ser el clavado de Copaio, del Chirnay, el que ustedes les gusta?
+[585.64s -> 587.86s]  Les va a entregar el formato, pues, este, Y.
+[588.30s -> 588.74s]  Listo.
+[588.80s -> 590.12s]  Ya tienen la primera versión, ¿no?
+[590.12s -> 591.46s]  Y luego le dicen, ¿sabes qué?
+[592.14s -> 593.62s]  Este, quiero la segunda versión de este tema.
+[594.60s -> 596.26s]  Y va a generar una nota sintética, pues, ¿no?
+[596.62s -> 597.78s]  Va a generar un nuevo alcance.
+[598.02s -> 601.26s]  Con más procesos, menos procesos, ¿no?
+[601.66s -> 608.84s]  Podrían comentarme ahí en el alcance que saque una versión simulada, sintética del año 2022, ¿no?
+[609.24s -> 611.76s]  Donde todavía estamos saliendo del pandémio y una cosa así.
+[612.32s -> 615.56s]  Y ahí podría pasar que el alcance, a mí lo dijimos en clase, ¿no?
+[615.56s -> 618.32s]  Que el tipo de procesos se puedan reducir, ¿no?
+[618.32s -> 618.44s]  ¿No es cierto?
+[619.48s -> 622.76s]  Empezó así con varios y se reduce a cuando, ¿no?
+[622.76s -> 625.98s]  Y, ¿qué otro hito ha habido del año 2025?
+[626.98s -> 633.20s]  Que la universidad es una filial más en Camanal y en Pedregal, ¿sabes o no?
+[633.42s -> 636.46s]  Podría decirle que la idea que saque la tercera versión de este alcance,
+[636.86s -> 639.22s]  pero considerando las dos series nuevas que hay ahorita.
+[639.82s -> 640.12s]  Listo.
+[640.62s -> 643.26s]  Toda esa información que la conozco porque vivo acá, cohesión, ¿no?
+[643.56s -> 645.02s]  Y ustedes pueden hacer un pro de eso, ¿sabes o no?
+[645.54s -> 647.62s]  Y tendrían tres opciones de este alcance, ¿sabes o no?
+[647.96s -> 649.08s]  Tres de un cuento bien hechos, ¿no?
+[649.30s -> 652.56s]  Eso lo suelen a la base documental.
+[652.98s -> 656.30s]  Y este agente inteligente tiene que responder sobre esto.
+[657.12s -> 659.50s]  O sea, el agente inteligente tiene que responder una pregunta, como por ejemplo, ¿no?
+[659.96s -> 660.44s]  ¿Sabes qué?
+[660.88s -> 661.82s]  Imagínense el cambio de autoría.
+[661.82s -> 664.96s]  Viene el rector, un nuevo rector y pregunta, ¿no?
+[665.22s -> 667.44s]  Un nuevo rector, un nuevo responsable de estos temas, ¿no?
+[667.44s -> 672.78s]  Y quiere ahorrarse el tiempo de estar buscando, pues, ¿cómo estará en el alcance de versión 1, versión 2, versión 3?
+[673.12s -> 677.44s]  ¿Quién lo hizo? ¿Quién lo revisó? ¿Quién lo aprobó? ¿En qué fechas? ¿En qué circunstancias?
+[678.32s -> 681.96s]  ¿Cuál era el alcance? ¿Se incrementó? ¿Se redujo? ¿Por qué razón? ¿No?
+[682.46s -> 683.60s]  Quisiera tener todas esas respuestas.
+[684.30s -> 688.36s]  Tendría que tener un especialista, un trono ahí, ahí ha estado todo este tiempo, ¿no?
+[688.76s -> 689.90s]  Dentras de este tema, ¿no?
+[690.52s -> 692.52s]  Pero no, pues para eso necesitamos un agente inteligente, ¿no?
+[692.88s -> 696.78s]  Que responda así, que le diga, a ver, yo quisiera saber la evolución de...
+[696.78s -> 700.82s]  Del alcance, del línea y del tiempo de este sistema de gestión.
+[702.18s -> 703.74s]  Así que, bueno, ahí está.
+[704.22s -> 706.08s]  Era un comienzo así de procesos, ¿no?
+[707.04s -> 711.58s]  Luego se ha reducido, luego se ha ampliado su alcance, pero ya no en términos de procesos,
+[711.62s -> 714.46s]  sino en términos de espacios, de gráficos, ¿no?
+[714.46s -> 718.74s]  Para incluir datos de las otras filiales, ¿no?
+[719.20s -> 720.40s]  Y así, también así.
+[720.40s -> 722.32s]  Eso es más inteligente.
+[724.72s -> 729.18s]  Ahora, esa consulta que le estoy haciendo, ¿lo podrá responder Charly Pity?
+[730.60s -> 733.52s]  No, porque se usa, se usa.
+[734.00s -> 735.18s]  A lo más, claro, o sea, ni puede ser.
+[735.38s -> 736.80s]  O sea, lo de ellos, ¿eh?
+[736.80s -> 738.26s]  Y, pero vamos a usar.
+[739.54s -> 740.26s]  Acá, ¿sí?
+[740.26s -> 742.44s]  Va a alucinar cualquier cosa.
+[743.12s -> 743.66s]  Pero no sirve.
+[744.36s -> 748.26s]  Entonces, eso es una técnica que reemplace a alguien que se acabe ese tema, pero...
+[749.38s -> 749.94s]  Otra.
+[750.68s -> 751.76s]  A ver, otra, otra.
+[751.84s -> 753.66s]  Por ejemplo, este, auditorías, ya.
+[753.78s -> 755.44s]  Hay una gente que dice que es una auditoría.
+[756.48s -> 760.26s]  El resultado de las auditorías, por un lado, un corto, un corto, debe estar...
+[760.26s -> 762.00s]  Porque ustedes saben que hay auditorías, ¿no?
+[762.14s -> 764.20s]  2019, la certificación, ¿no?
+[764.20s -> 770.60s]  2022, la resta de publicación, en el medio, hay auditorías de seguimiento anuales, ¿no?
+[770.96s -> 774.46s]  Y dentro del año, hay auditorías internas, por lo menos dos.
+[774.80s -> 775.92s]  Las mismas están auditorías, ¿no?
+[776.20s -> 778.40s]  Todas esas están registradas, se transforman a todos, ¿no?
+[778.50s -> 779.44s]  Y guardadas ahí, ¿no?
+[779.86s -> 784.70s]  Entonces, llega la nueva autoridad, el nuevo rector, el rector administrativo, el rector administrativo,
+[786.02s -> 787.96s]  Rosas, y dice, ¿sabes qué?
+[790.58s -> 792.36s]  Estamos mal, sí hay unos problemas, ¿no?
+[792.36s -> 798.36s]  Quiero que cinco minutos aparezcan aquí los responsables, que vengan aquí los responsables
+[798.36s -> 802.40s]  de haber levantado las observaciones de las auditorías de los últimos dos años,
+[802.68s -> 802.88s]  ¿no?
+[803.58s -> 804.76s]  Que no han cumplido, pues.
+[805.64s -> 806.34s]  Están en rojo.
+[807.50s -> 808.80s]  A ver, hagan eso a mano.
+[810.08s -> 811.34s]  ¿Alguien entendido de eso?
+[811.80s -> 816.26s]  Dame dos días, levantar la información, buscar el informe, preguntar en qué está.
+[816.96s -> 818.88s]  Otra cosa sería, pues, que una gente inteligente sepa, ¿no?
+[818.88s -> 822.24s]  O sea, tengan todas las auditorías, cuantas observaciones tuvieron.
+[823.28s -> 829.66s]  Cuando se colocó el informe, este, ¿quién estuvo a cargo de levantar la observación?
+[830.46s -> 833.90s]  Se le dio recursos para ello, se le dio un plazo para ello, listo.
+[834.46s -> 836.52s]  Y tendría que rendir cuentas, que es lo que hizo, ¿no?
+[836.88s -> 840.90s]  Y aparecen ahí observaciones en color rojo, o sea, que alguien no ha hecho nada, ¿no?
+[840.90s -> 847.94s]  En Ámbar, que ha hecho algo, pero está en medio, y alguien que le han dado observaciones a levantar,
+[848.04s -> 849.30s]  y está en carne a los levantar.
+[849.70s -> 856.04s]  Entonces, como vice-rector académico, diría, este, a ver, al agente inteligente, ¿no?
+[856.04s -> 861.80s]  ¿Sabes qué? Necesito que estén aquí en cinco minutos, este, todos aquellos que están, que no han levantado, o sea, los que están en rojo.
+[862.30s -> 862.58s]  Listo.
+[863.80s -> 868.72s]  Y el agente inteligente, pues, pues, está en medio correo, si todo el mundo recibe su mensaje, va a estar en medio correo,
+[868.72s -> 874.42s]  y aparecen, pues, los, los, los, los, los, los, los que están en rojo, ¿no?
+[874.80s -> 876.88s]  Y el discurso es diferente, ¿no? ¿Qué pasó aquí, no?
+[878.40s -> 881.00s]  Primera vez, llamar a la atención por escrito.
+[881.14s -> 883.12s]  Segunda, suspensión.
+[883.32s -> 888.06s]  Tercera, si está en el reglamento interno de trabajo, pues, lamentablemente, se tiene que ir.
+[890.40s -> 896.90s]  Después, le pasa un poco a la cólera, y va, la que viene, eso, rica, eso mucho, ¿no?
+[896.90s -> 903.32s]  A las diez, quiero una segunda reunión, porque los que están con los indicadores de cumplimiento de las observaciones en Ámbar.
+[904.10s -> 905.14s]  El discurso es distinto, ¿no?
+[905.34s -> 906.46s]  Ahí con la, ¿qué pasó, le decía, no?
+[906.92s -> 907.46s]  ¿Qué faltó?
+[908.00s -> 909.42s]  ¿Qué faltó en el asistema anterior?
+[909.50s -> 910.64s]  ¿Qué faltó apoyo, dinero?
+[910.80s -> 912.18s]  ¿Qué faltó tiempo, recursos?
+[913.38s -> 913.78s]  ¿Qué faltó?
+[914.88s -> 919.46s]  No, proveedores, contactos, no es lo mismo en Lima, y acá, ya, pues, pero hablo dicho antes, ¿no?
+[919.86s -> 921.64s]  Y a ustedes les van a dar una mano una vez más, ya, ¿no?
+[921.76s -> 926.16s]  El apoyo para que levanten ya, porque ahorita, en un mes, vienen los auditores, ¿no?
+[926.16s -> 927.98s]  El seguimiento, los externos, ¿no?
+[928.26s -> 933.14s]  Y si nos encuentran con observaciones, vamos a perder la credencial, vamos a perder la certificación.
+[933.62s -> 934.56s]  Pues todavía estamos a tiempo, ¿no?
+[934.56s -> 935.14s]  De levantar esto.
+[936.74s -> 937.42s]  Manos a los ojos.
+[938.36s -> 941.48s]  Y después, a mediodía, a la hora del almuerzo, ahí les digo a la gente,
+[941.54s -> 944.38s]  a nosotros que invitan a todos los que están en tarde, que vengan, ¿no?
+[944.86s -> 948.60s]  Para, no sé, nos invitamos a vamos a dar, por su cuenta de algo que no hay.
+[948.60s -> 953.50s]  O sea, un discurso distinto, tres momentos distintos, pero en la gente tiene que ayudar a los autores.
+[954.64s -> 955.66s]  Esa es una agencia dirigente.
+[955.74s -> 957.24s]  Ahora, ¿qué es el chat y mi fin?
+[957.56s -> 958.04s]  ¿Qué hagas eso?
+[960.20s -> 964.56s]  Que está en el ámbar, en el rojo, y sabía con nombre y apellido, y con su correo, y quería servir.
+[966.90s -> 967.30s]  ¿Por qué?
+[968.62s -> 969.18s]  ¿Qué voy a decir?
+[969.26s -> 970.08s]  Nada, no tengo que hacer nada.
+[970.98s -> 972.70s]  Ahora, otro, otro agente de capacitación.
+[973.42s -> 976.60s]  En la gente que hace capacitación, ¿qué debe haber de capacitación?
+[976.60s -> 983.66s]  El de capacitación.
+[984.16s -> 986.98s]  Dice que debe haber un plan de capacitación y concientización.
+[988.84s -> 989.70s]  Es un plan.
+[990.72s -> 995.64s]  Cargo, nombre, o sea, para las diferentes personas que pertenecen a la universidad,
+[995.78s -> 997.78s]  el cuadro de asignación de personas, ese existe, ¿ah?
+[998.12s -> 998.72s]  Público.
+[999.38s -> 1003.94s]  Después, conocimiento y habilidades necesarias para implementar la cotidia de negocio.
+[1003.94s -> 1007.62s]  Bueno, acá sería para implementar la privacidad de información.
+[1008.04s -> 1009.46s]  Que personalizar y se compilizar.
+[1010.60s -> 1012.20s]  ¿Qué capacitación es necesaria?
+[1013.20s -> 1020.28s]  Igual, o sea, aquí habría que poner, diferenciar acá, cuánto prefieres, ¿ah?
+[1020.38s -> 1022.42s]  Y eso también, o sea, eso también.
+[1022.42s -> 1026.86s]  Le pregunto, pues, para eso es una guía, para buscarle al chat y decir, oye, en términos
+[1026.86s -> 1032.52s]  de capacitación y sensibilización en esta norma, por ejemplo, ¿qué tax, qué cursos,
+[1032.52s -> 1034.18s]  ¿qué habría para hacer?
+[1035.24s -> 1036.78s]  Yo les adelanto, ¿sabes qué?
+[1037.22s -> 1040.66s]  Primero hay un curso que se llama awareness, sensibilización.
+[1041.16s -> 1041.90s]  Todos los hijos, ¿sabes?
+[1042.34s -> 1043.88s]  Que es sensibilización.
+[1044.58s -> 1045.26s]  Tome conciencia.
+[1046.10s -> 1046.58s]  Ocho horas.
+[1047.08s -> 1048.62s]  Están dirigidos aquí en esas autoridades.
+[1049.26s -> 1050.20s]  Las máximas autoridades.
+[1050.88s -> 1053.42s]  Que están muy arriba como para ocupar esos temas.
+[1053.78s -> 1055.10s]  O sea, son los otros temas más importantes, ¿no?
+[1055.10s -> 1060.48s]  O también para las personas que no van a ser, en este caso, no son ni controladores ni operadores,
+[1060.58s -> 1063.24s]  sino son masivamente el público general.
+[1064.68s -> 1070.72s]  Personal de vigilancia, limpieza, avinaría, alguno de una contratista.
+[1071.18s -> 1072.98s]  O sea, tome conciencia en algo.
+[1073.12s -> 1073.70s]  Tome conciencia.
+[1073.86s -> 1074.04s]  ¿Visto?
+[1074.56s -> 1075.02s]  Ocho horas.
+[1075.70s -> 1078.88s]  Entonces, el agente inteligente, ¿qué tiene que hacer?
+[1080.18s -> 1083.10s]  Tiene que prepararnos una batería de...
+[1083.10s -> 1083.82s]  De una manera así, ¿no?
+[1083.82s -> 1087.48s]  Para ese público objetivo, o sea, preparar material para ellos.
+[1088.20s -> 1088.96s]  Línea base.
+[1089.40s -> 1090.50s]  Un examen de entrada, ¿no?
+[1090.50s -> 1092.78s]  Para ese público objetivo, ¿no?
+[1093.32s -> 1094.60s]  A ver, ¿cuánto sabe de este tema?
+[1094.72s -> 1097.48s]  Seguramente las preguntas serán de 29.100.
+[1098.70s -> 1100.72s]  Glosarios, la misma norma que existe, pero no.
+[1100.84s -> 1101.78s]  O sea, preguntas disueltas.
+[1102.40s -> 1104.14s]  A ver cómo es la foto, cómo es la cosa.
+[1104.78s -> 1106.64s]  Luego tendrá que dosificar cierto contenido.
+[1107.64s -> 1109.56s]  De esto, de este video, de lo que estamos haciendo.
+[1109.56s -> 1111.78s]  Entonces, y volver a esta parte.
+[1111.78s -> 1113.36s]  Al cabo de...
+[1113.36s -> 1114.92s]  Son ocho horas.
+[1115.12s -> 1116.32s]  Al cabo de dos horas, una evaluación.
+[1117.16s -> 1118.08s]  Y bien, ¿no?
+[1118.08s -> 1118.36s]  O sea, ¿no?
+[1118.70s -> 1122.40s]  Y al cabo de participar del segundo tema, y otro trabajo.
+[1122.78s -> 1125.94s]  Así como los cursos de Cisco, de Apple Academy.
+[1126.32s -> 1132.04s]  Y luego, después de las últimas seis horas, tres horas, dos horas.
+[1132.04s -> 1132.96s]  Una evaluación.
+[1133.30s -> 1133.90s]  Y una evaluación, mira.
+[1134.66s -> 1135.08s]  Una evaluación así.
+[1135.16s -> 1136.46s]  Repetimos a la señora, muchas evaluaciones.
+[1136.60s -> 1137.32s]  Cada cuatro evaluaciones.
+[1138.02s -> 1138.78s]  Cada dos evaluaciones.
+[1139.22s -> 1140.38s]  Y medir, y medir, ¿no?
+[1140.76s -> 1141.54s]  ¿Para qué medir?
+[1141.60s -> 1144.32s]  Porque después, de todo después, en algún otro momento,
+[1145.60s -> 1148.02s]  la autoridad, la responsabilidad, todo el tema,
+[1148.12s -> 1151.64s]  y decir, oye, ¿y cómo va la gente en términos de sensibilización?
+[1151.64s -> 1154.10s]  Bueno, ¿han ido los que tenían que ir?
+[1154.88s -> 1157.64s]  Los, los Coyolá, los Coyolá, los Coyolá, los Coyolá, los Coyolá.
+[1158.32s -> 1159.02s]  Han ido, ¿qué?
+[1159.36s -> 1160.40s]  Minimamente que tenían que ir.
+[1160.70s -> 1161.24s]  No han ido.
+[1161.86s -> 1163.96s]  ¿Qué buen, qué buen dato?
+[1164.70s -> 1168.08s]  Después, los que han ido, ¿cuántos sabían?
+[1169.38s -> 1170.46s]  No sabían nada.
+[1171.00s -> 1171.66s]  Qué bueno.
+[1172.56s -> 1177.34s]  Qué bueno, porque si sabían mucho de esto, pues estamos perdiendo tiempo y dinero, ¿no?
+[1177.68s -> 1179.48s]  No necesitamos, tiempo sobre todo, ¿no?
+[1179.48s -> 1184.60s]  Si es que no sabían, después de la presentación, ¿sabían qué bueno?
+[1184.72s -> 1187.34s]  Entonces, qué bueno, qué bueno que no sabían.
+[1187.90s -> 1190.58s]  No dio la pena, perdí, ni medio, ni medio, ni medio, ni nada.
+[1191.44s -> 1194.26s]  Y después de la segunda presentación, o sea, pasaron con 20,
+[1195.02s -> 1198.64s]  o sea, la gente está trabajando bien, está haciendo bien las cosas, ¿no?
+[1198.64s -> 1201.44s]  De otro modo, si el resultado no está siendo bueno,
+[1201.82s -> 1203.72s]  pues la gente tiene que preparar un trabajo en todo otro material,
+[1204.08s -> 1205.68s]  otra pregunta, no, hay otra forma,
+[1206.22s -> 1207.62s]  pero que consigue el objetivo, ¿no?
+[1207.62s -> 1210.36s]  que es realmente sensibilizado, ¿no?
+[1210.36s -> 1212.26s]  Entonces, ese es un grupo, ¿ah?
+[1212.26s -> 1214.94s]  Un grupo de organización, o sea, awareness, ¿no?
+[1215.26s -> 1215.66s]  Ocho horas.
+[1216.04s -> 1218.62s]  Después, otro, otra organización que se llama interpretación del amor.
+[1218.84s -> 1221.16s]  Eso es lo que han hecho, para el examen 2,
+[1221.36s -> 1222.62s]  interpretar el amor, o sea,
+[1223.02s -> 1226.14s]  meterse en las clausuras y entender la de, el propósito, o sea,
+[1226.92s -> 1229.34s]  qué es la base de documental, cómo funciona un tibis, ¿no?
+[1230.40s -> 1231.94s]  Ya, entonces, ese ocho es,
+[1232.54s -> 1234.48s]  interpretación del amor,
+[1234.48s -> 1237.18s]  que las clausuras que tienen la mejor aportiva,
+[1237.50s -> 1238.70s]  planta y checaja, y todo esto.
+[1239.66s -> 1240.80s]  O sea, interpretación del amor.
+[1241.50s -> 1243.60s]  Otra, para ser de ocho horas, o por último, ¿no?
+[1243.84s -> 1246.08s]  Después, que el otro curso, para aparecer la gila,
+[1246.52s -> 1249.40s]  ese ya está pensado, sería para topas o los implementadores.
+[1250.34s -> 1252.78s]  Ahí, la capacitación gira alrededor de los formatos.
+[1254.02s -> 1256.82s]  O sea, que, ¿dónde hay información y así?
+[1257.08s -> 1258.00s]  Alrededor de los formatos.
+[1258.62s -> 1261.16s]  Porque eso es, la implementación se la generaliza en los formatos.
+[1261.16s -> 1264.02s]  Bien llenados y generando registros.
+[1264.08s -> 1266.40s]  Hay nomás los que tienen que, diariamente, ir creando.
+[1267.00s -> 1269.24s]  Son más y más, y cuantando.
+[1270.04s -> 1270.72s]  Implementación.
+[1271.58s -> 1274.10s]  Seguramente los que van a terminar siendo dentro de la organización,
+[1274.26s -> 1276.52s]  los diarios y procesos, hacen seguro.
+[1277.54s -> 1279.76s]  Y como principio, ya hay la interpretación del amor.
+[1280.16s -> 1281.12s]  El de sensibilización, no.
+[1281.68s -> 1281.94s]  Total.
+[1282.94s -> 1284.98s]  La gente, que nunca va a tocarse,
+[1284.98s -> 1287.66s]  no está siempre tirando, salvando y aplaudiendo.
+[1287.66s -> 1291.00s]  O, audiendo, o arqueando.
+[1291.62s -> 1292.24s]  Eso no va bien.
+[1292.94s -> 1295.28s]  Y la última formación sería para los auditores internos.
+[1296.08s -> 1297.80s]  Porque dentro de un sistema de gestión,
+[1297.88s -> 1298.70s]  los auditores internos.
+[1299.10s -> 1300.54s]  Entonces, tienen que formarse como auditores internos.
+[1300.88s -> 1302.28s]  Y ellos tienen que saber, entre otras cosas,
+[1302.40s -> 1303.16s]  también algo de distraer,
+[1303.22s -> 1304.24s]  y serlo, o sea, que recién vamos a ver.
+[1304.86s -> 1305.22s]  ¿Sí o no?
+[1305.66s -> 1307.66s]  Entonces, la gente tiene que capacitar a...
+[1307.66s -> 1310.12s]  a cuatro grupos, ¿no?
+[1310.12s -> 1313.70s]  de participantes objetivos, ¿no?
+[1313.70s -> 1316.00s]  con diferentes contenidos y con diferentes situaciones.
+[1316.00s -> 1317.70s]  ¿Qué habla de eso?
+[1317.90s -> 1319.46s]  O sea, ¿qué habla de lo que hace una gente inteligente?
+[1319.54s -> 1321.22s]  O sea, ¿quiero reemplazar a un trader?
+[1321.94s -> 1323.28s]  No, yo soy el trope de preparamiento.
+[1323.62s -> 1324.76s]  Quiero reemplazarme, pues.
+[1325.58s -> 1326.36s]  ¿Qué habla de lo que hago yo?
+[1326.78s -> 1329.12s]  Preparar materiales, evaluar, tener estadísticas,
+[1329.18s -> 1330.58s]  o sea, eso es una gente inteligente.
+[1331.02s -> 1331.96s]  Pero, ¿de pines?
+[1332.96s -> 1333.60s]  ¿De pines?
+[1333.90s -> 1334.36s]  ¿Qué es eso?
+[1334.36s -> 1334.40s]  ¿Qué es eso?
+[1334.40s -> 1334.42s]  ¿Qué es eso?
+[1334.42s -> 1334.70s]  ¿Qué es eso?
+[1335.70s -> 1337.04s]  Que debe haber una cosa distinta.
+[1337.76s -> 1340.44s]  Un plan de capacitación y concietización.
+[1341.06s -> 1342.98s]  Cargo, conocimiento de habilidades necesarias,
+[1343.42s -> 1344.54s]  qué capacitación es necesaria,
+[1344.54s -> 1346.68s]  el registro de implementación de capacitación necesaria.
+[1347.14s -> 1348.48s]  El registro de implementación y capacitación
+[1348.48s -> 1350.56s]  se han logrado los objetivos de capacitación
+[1350.56s -> 1352.38s]  conocimiento de habilidades que se han logrado.
+[1352.66s -> 1354.40s]  O sea, el ASIS y el TUDIDIS.
+[1356.08s -> 1356.82s]  Y acá, ¿no?
+[1357.06s -> 1358.14s]  Método de capacitación.
+[1359.22s -> 1361.04s]  El día informativo, capacitación inicial,
+[1361.18s -> 1361.82s]  capacitación habitual.
+[1362.28s -> 1363.58s]  El día de la febrero, todo un plan.
+[1364.20s -> 1365.04s]  ¿Cómo se va a hacer todo eso?
+[1365.04s -> 1370.66s]  Esto se llena, pero después el plan se ejecuta, pues, ¿no?
+[1370.86s -> 1371.50s]  ¿Qué es el plan?
+[1372.18s -> 1377.46s]  Pero el plan, si se queda un plan, es planeamiento.
+[1378.02s -> 1378.94s]  Es un plan que nunca se cumple.
+[1379.18s -> 1379.58s]  Planeamiento.
+[1380.78s -> 1384.72s]  Necesito el registro, la evidencia que se está cumpliendo.
+[1385.28s -> 1386.54s]  Comunicadores, todo eso, ¿no?
+[1386.98s -> 1388.38s]  Entonces, alguien quiere ver...
+[1388.38s -> 1390.16s]  ¿Y cómo va el tema del auditor externo?
+[1390.28s -> 1391.78s]  ¿Cómo va el tema de sensibilización?
+[1392.00s -> 1394.60s]  La evidencia, registro, la asistencia, la calificación, ¿no?
+[1395.24s -> 1396.56s]  Y así comunicadores, ¿no?
+[1396.56s -> 1397.52s]  O sea, es que el grupo de...
+[1397.52s -> 1400.60s]  ¿Qué es el grupo de interpretación, el animal?
+[1401.32s -> 1403.80s]  El grupo de formadores, el grupo de procesadores.
+[1404.22s -> 1407.60s]  Ahí los controladores están, digamos, bien.
+[1408.78s -> 1411.62s]  Entonces, y si la cosa no camina, pues, hay que cambiar la gente.
+[1412.26s -> 1414.76s]  Y bueno, y así.
+[1415.48s -> 1417.02s]  Entonces, tiene que ser bastante...
+[1417.02s -> 1420.44s]  Imaginativos, creados, lo que les decía, ¿no?
+[1421.28s -> 1423.60s]  Y sí, que anima y implica pro-organismo.
+[1424.20s -> 1425.78s]  Lo podemos imaginar por lo que nos puede llegar.
+[1427.90s -> 1429.24s]  Esa es la imagen inteligente.
+[1430.12s -> 1431.76s]  La persona está hablando de la persona más bien consciente.
+[1432.40s -> 1434.48s]  Entonces, en resumen, ¿no?
+[1435.04s -> 1438.62s]  El 80% de los datos que se trabajan con la gente
+[1438.62s -> 1442.36s]  son propios de una pseudo-implementación de fines trans-austí.
+[1442.96s -> 1444.36s]  Y si no han hecho nada de esto,
+[1444.36s -> 1447.06s]  no tenemos nada.
+[1447.96s -> 1449.62s]  Solamente tenemos un...
+[1449.62s -> 1451.36s]  un LLM, ¿no?
+[1451.54s -> 1455.32s]  Que tiene mejorizado los medios de estándar, generales.
+[1455.54s -> 1456.66s]  Y sobre eso responde.
+[1457.22s -> 1458.12s]  Y eso no es...
+[1458.12s -> 1459.62s]  no es un sistema agéntico.
+[1460.30s -> 1460.62s]  Para fin.
+[1461.08s -> 1464.60s]  Tiene 20% de los datos.
+[1465.04s -> 1467.10s]  De repente, hasta se han enseguido.
+[1467.18s -> 1468.88s]  O sea, con un montón de información.
+[1468.88s -> 1471.08s]  Solamente me gira alrededor de la cláusula 2.
+[1471.70s -> 1473.30s]  Pero con eso no...
+[1473.30s -> 1474.04s]  No tenemos nada.
+[1475.10s -> 1475.82s]  ¿Qué sigue?
+[1476.42s -> 1477.06s]  ¿Qué sigue?
+[1477.22s -> 1478.02s]  Pues, bueno...
+[1478.02s -> 1478.56s]  De inmediato.
+[1478.68s -> 1480.00s]  O sea, ya está informando.
+[1480.08s -> 1480.98s]  Trabajar, llenar.
+[1481.22s -> 1481.78s]  Contraías.
+[1482.30s -> 1482.80s]  Y poblar.
+[1482.88s -> 1483.40s]  Poblar esto.
+[1484.68s -> 1485.12s]  Incidentes.
+[1485.48s -> 1485.88s]  Todo.
+[1486.74s -> 1487.26s]  Capacitaciones.
+[1487.42s -> 1488.10s]  Auditorías.
+[1488.10s -> 1490.10s]  Podríticas.
+[1490.90s -> 1491.80s]  De inmediato de aplicabilidad.
+[1491.92s -> 1492.84s]  Dos, tres versiones.
+[1493.10s -> 1493.74s]  No solo una.
+[1494.76s -> 1495.08s]  ¿Por qué?
+[1495.18s -> 1497.62s]  Porque también, o sea...
+[1497.62s -> 1499.08s]  Tendría que responder una cosa de estas, ¿no?
+[1499.16s -> 1500.26s]  Hay el...
+[1500.26s -> 1502.94s]  ¿Qué variantes han tenido los controles?
+[1503.00s -> 1503.58s]  O sea, ¿cuántos controles?
+[1503.64s -> 1504.72s]  ¿Con cuántos controles hemos empezado?
+[1506.06s -> 1507.24s]  ¿Con cuántos estamos ahorita?
+[1508.38s -> 1508.98s]  Por ejemplo, ¿no?
+[1509.90s -> 1510.92s]  De inmediato de aplicabilidad.
+[1511.02s -> 1511.60s]  No vas a comunar.
+[1511.68s -> 1512.08s]  O mejor.
+[1512.80s -> 1513.46s]  Dos, tres.
+[1513.96s -> 1514.50s]  ¿Por qué tres?
+[1514.50s -> 1516.08s]  Porque desde que esto existe.
+[1516.58s -> 1517.58s]  Ya pasó por XIX.
+[1518.64s -> 1521.24s]  XIX, XX, XXX, XXII, XXII, XXIII, XXIV, XXX.
+[1522.40s -> 1522.64s]  Ocho años.
+[1523.18s -> 1523.76s]  Ocho años.
+[1523.86s -> 1525.02s]  Y esto no es un congelador.
+[1525.28s -> 1526.58s]  O sea, no puede haber una sola versión.
+[1527.10s -> 1528.26s]  Ya cambió por lo menos dos veces.
+[1528.88s -> 1530.92s]  La versión inicial, la una, la dos, la tres.
+[1531.90s -> 1533.36s]  Entonces, tres anunciados de aplicabilidad.
+[1533.42s -> 1534.00s]  Por lo menos.
+[1534.76s -> 1536.20s]  Tres anunciados de alcance.
+[1536.90s -> 1538.32s]  La justificación es esa, ¿no?
+[1538.66s -> 1539.52s]  Este Juan Exigen.
+[1540.64s -> 1541.52s]  Y ahí sí.
+[1541.68s -> 1543.84s]  La segunda cosa se ha sido.
+[1543.92s -> 1544.32s]  El 3D.
+[1545.36s -> 1546.02s]  El Juan.
+[1546.02s -> 1548.60s]  y así la explicación va más
+[1548.60s -> 1550.48s]  los formatos
+[1550.48s -> 1551.58s]  ¿quién los hizo los formatos?
+[1553.34s -> 1555.08s]  una persona común corriente
+[1555.08s -> 1556.74s]  son los que han extendido la norma
+[1556.74s -> 1558.38s]  y hay los formatos
+[1558.38s -> 1559.50s]  no hay nada
+[1559.50s -> 1561.32s]  uno lee
+[1561.32s -> 1562.22s]  no hay nada
+[1562.22s -> 1562.98s]  no hay nada
+[1562.98s -> 1564.20s]  si, nada
+[1564.20s -> 1566.24s]  no hay ningún ordenado, metódico
+[1566.24s -> 1567.50s]  si no hace columna
+[1567.50s -> 1569.86s]  si no cumplan, tranquila
+[1569.86s -> 1571.04s]  no me va sacando
+[1571.04s -> 1575.60s]  falta trabajarlos
+[1575.60s -> 1576.46s]  si, pues, no está bien
+[1576.46s -> 1577.36s]  nada, lo prestado, está bien
+[1577.36s -> 1577.92s]  no está acabando
+[1577.92s -> 1578.68s]  hay un espacio, no hay eso
+[1578.68s -> 1580.88s]  plan de tratamiento de riesgo
+[1580.88s -> 1581.94s]  a ver
+[1581.94s -> 1583.08s]  plan de tratamiento de riesgo
+[1583.08s -> 1585.36s]  ¿cómo haría para que se vuelva a PIS?
+[1586.56s -> 1588.34s]  para cumplir los objetivos de meses
+[1588.34s -> 1589.38s]  ese que seguir es PIS
+[1589.38s -> 1589.88s]  acá
+[1589.88s -> 1593.96s]  acá, no
+[1593.96s -> 1595.54s]  acá, acá va a San Agustín
+[1595.54s -> 1597.38s]  acá niveles de confidencialidad
+[1597.38s -> 1598.00s]  top simple
+[1598.00s -> 1598.66s]  top simple
+[1598.66s -> 1599.38s]  es la que quieran
+[1599.38s -> 1600.84s]  decisión de actividad
+[1600.84s -> 1602.42s]  recursos verdaderos financieros
+[1602.42s -> 1602.98s]  necesarios
+[1602.98s -> 1603.84s]  personas responsables
+[1603.84s -> 1604.48s]  bien
+[1605.60s -> 1606.92s]  ¿qué haces?
+[1606.92s -> 1608.38s]  para levantar un riesgo
+[1608.38s -> 1608.76s]  que es todo
+[1608.76s -> 1609.24s]  en este caso
+[1609.24s -> 1612.62s]  que el dato personal
+[1612.62s -> 1613.94s]  salga
+[1613.94s -> 1615.80s]  de mala manera
+[1615.80s -> 1617.76s]  hay que llevar a cabo
+[1617.76s -> 1618.26s]  a habilidades
+[1618.26s -> 1619.52s]  se requieren
+[1619.52s -> 1620.14s]  recursos
+[1620.14s -> 1620.80s]  generales
+[1620.80s -> 1621.32s]  y financieros
+[1621.32s -> 1621.80s]  necesarios
+[1621.80s -> 1622.18s]  porque las cosas
+[1622.18s -> 1622.50s]  no se hacen
+[1622.50s -> 1623.10s]  solo con la mano
+[1623.10s -> 1623.32s]  sino
+[1623.32s -> 1624.76s]  no se hacen inversiones
+[1624.76s -> 1626.68s]  persona responsable
+[1626.68s -> 1627.00s]  necesitamos
+[1627.00s -> 1627.50s]  alguien
+[1627.50s -> 1629.46s]  que sea responsable
+[1629.46s -> 1630.24s]  porque si eso queda
+[1630.24s -> 1631.60s]  el área
+[1631.60s -> 1632.14s]  del área
+[1632.14s -> 1632.44s]  del área
+[1632.44s -> 1634.36s]  de informática
+[1634.36s -> 1634.92s]  es nadie
+[1634.92s -> 1636.70s]  necesitamos un responsable
+[1636.70s -> 1637.52s]  con el riesgo
+[1637.52s -> 1638.58s]  después
+[1638.58s -> 1639.62s]  plazos de inicio
+[1639.62s -> 1639.98s]  y fin
+[1639.98s -> 1640.30s]  ya
+[1640.30s -> 1641.18s]  tiene que terminar
+[1641.18s -> 1641.46s]  eso
+[1641.46s -> 1642.82s]  ¿de cuándo
+[1642.82s -> 1643.34s]  hasta cuándo?
+[1643.84s -> 1645.02s]  programas de capacitación
+[1645.02s -> 1645.76s]  y concientización
+[1645.76s -> 1646.68s]  ¿es necesario
+[1646.68s -> 1647.44s]  que pase
+[1647.44s -> 1648.24s]  esta actividad
+[1648.24s -> 1648.80s]  para que se llegue
+[1648.80s -> 1649.28s]  a esta actividad
+[1649.28s -> 1650.46s]  pase por
+[1650.46s -> 1651.22s]  capacitación
+[1651.22s -> 1651.94s]  y concientización?
+[1651.94s -> 1652.36s]  si
+[1652.36s -> 1653.18s]  expliquemos
+[1653.18s -> 1654.40s]  el cual
+[1654.40s -> 1655.72s]  después
+[1655.72s -> 1656.94s]  método para evaluación
+[1656.94s -> 1657.32s]  de resultados
+[1657.32s -> 1659.74s]  hay un indicador
+[1659.74s -> 1662.22s]  así como hay KPIs
+[1662.22s -> 1663.12s]  hay también
+[1663.12s -> 1665.44s]  un indicador
+[1665.44s -> 1665.78s]  de esto
+[1665.78s -> 1690.04s]  para medir
+[1690.04s -> 1691.22s]  el riesgo
+[1691.22s -> 1691.70s]  posiciones
+[1691.70s -> 1694.24s]  y en caso
+[1694.24s -> 1694.74s]  se encuentran
+[1694.74s -> 1695.90s]  esta actividad
+[1695.90s -> 1697.26s]  está completada
+[1697.26s -> 1697.92s]  está
+[1697.92s -> 1698.72s]  venido a hacer
+[1698.72s -> 1701.66s]  pero no se ha hecho nada
+[1701.66s -> 1702.28s]  y esto es claro
+[1702.28s -> 1702.90s]  que yo les he hecho
+[1702.90s -> 1703.36s]  en el inicio
+[1703.36s -> 1704.74s]  una cosa así
+[1704.74s -> 1706.06s]  algo tiene que llegar acá
+[1706.06s -> 1707.80s]  después
+[1707.80s -> 1708.84s]  está
+[1708.84s -> 1709.36s]  el nombre
+[1709.36s -> 1709.58s]  pues
+[1709.58s -> 1709.78s]  al
+[1709.78s -> 1710.06s]  al
+[1710.06s -> 1710.50s]  al
+[1710.50s -> 1710.98s]  al
+[1710.98s -> 1711.22s]  al
+[1711.22s -> 1711.74s]  al
+[1711.74s -> 1712.22s]  al
+[1712.22s -> 1712.50s]  al
+[1712.50s -> 1713.22s]  al
+[1713.22s -> 1714.50s]  al
+[1714.50s -> 1715.22s]  al
+[1715.22s -> 1715.62s]  al
+[1715.62s -> 1715.70s]  al
+[1715.70s -> 1716.22s]  al
+[1716.22s -> 1721.66s]  al
+[1721.66s -> 1739.90s]  al
+[1739.90s -> 1743.36s]  al
+[1743.96s -> 1744.46s]  al
+[1744.46s -> 1745.06s]  al
+[1745.06s -> 1746.10s]  al
+[1746.10s -> 1746.20s]  al
+[1746.20s -> 1746.22s]  al
+[1746.22s -> 1751.06s]  Proceso de servicio, unidad de manifestación, ubicaciones, redes, institucionales, instituciones,
+[1751.06s -> 1755.10s]  o sea, tal cual, nada, solo esto.
+[1757.06s -> 1763.46s]  Todo lo que hace es que se viste acá, los límites del sistema de gestión de seguridad
+[1763.46s -> 1768.20s]  de información, no, los límites del sistema de gestión de la privacidad de información
+[1768.20s -> 1768.76s]  sería eso, ¿no?
+[1769.38s -> 1771.08s]  Y acá sigue la cárcel, ¿ok?
+[1771.08s -> 1781.22s]  Entonces, documentación de referencia, norma 27001.4.3, acá sería norma 27701.
+[1782.02s -> 1785.22s]  ¿En qué cláusula se habla de la cárcel?
+[1785.54s -> 1788.40s]  No es la 4.3, en la que es.
+[1789.32s -> 1793.34s]  En la norma, en la que se hace el cambio de cárcel, el cambio de cárcel, el cambio de cárcel.
+[1794.44s -> 1800.58s]  Y todo esto, se hace un buen pro, se puede dar incluso, miren,
+[1800.58s -> 1802.88s]  le puede decir, no, sube a la 20.
+[1802.98s -> 1806.78s]  Mira cómo lo haría yo, subo a la 27001.2015.
+[1807.52s -> 1817.20s]  Y le digo, este formato le pertenecía a el deseo de alcance de esta norma, 27001.2015.
+[1817.92s -> 1820.08s]  Ahora, le subo a la otra norma, 27001.01, ¿no?
+[1820.40s -> 1820.66s]  Listo.
+[1821.08s -> 1825.22s]  Y le digo, este, aquí también se hace falta un deseo de alcance, ¿no?
+[1825.22s -> 1828.38s]  Así que corrige ese formato para que trabaje con esta otra norma.
+[1828.64s -> 1828.86s]  Listo.
+[1828.94s -> 1829.40s]  Y lo va a hacer.
+[1831.16s -> 1832.54s]  O sea, cláusula, todo lo va a hacer.
+[1832.86s -> 1833.64s]  ¿Sabes qué actividad?
+[1833.76s -> 1834.14s]  Nada más.
+[1835.58s -> 1837.98s]  Ustedes manejan, después en el elemento, como soy yo.
+[1838.94s -> 1841.20s]  O sea, en tener el formato a la medida.
+[1841.20s -> 1846.30s]  Incluso si falta alguno y no tengo alguno, o sea, me han subido tantos que pueden decir,
+[1846.38s -> 1850.62s]  mira, hay más ni semejantes a los otros que hemos trabajado, está cortando este otro.
+[1851.20s -> 1853.20s]  Yo pues, hazte una, ¿no?
+[1853.20s -> 1859.04s]  Y le dices que, ya, ya va a tener el modelo de cómo son, como, por qué tijeras han sido
+[1859.04s -> 1862.20s]  cortadas y después se va a dar formato la pantalla.
+[1863.10s -> 1863.76s]  Todo se puede hacer.
+[1864.82s -> 1866.46s]  Pero tiene que trabajar en equipo, ¿no?
+[1867.42s -> 1868.26s]  Rápido, página.
+[1868.26s -> 1870.84s]  Acá estas cosas, pues, no todas las que se entienden.
+[1871.72s -> 1873.08s]  O sea, acá esto ya es forzado, ¿no?
+[1873.32s -> 1876.26s]  Plantilla para clientes de FFB de service, y de...
+[1876.26s -> 1877.32s]  Esto sí que es acá.
+[1877.42s -> 1879.54s]  Ya sea un contrato de licencia, el código tiene que desaparecer, ¿no?
+[1880.04s -> 1883.72s]  Que ya hay una suerte de propiedad intelectual, que por ejemplo sí desaparece, ¿no?
+[1884.22s -> 1886.04s]  Documentos sobre el alcance, y esto sí queda, ¿no?
+[1886.42s -> 1890.48s]  Versión, de qué fecha, página 3, de 4, o sea, todo tiene control de computar.
+[1890.92s -> 1892.48s]  Todo tiene así, todo está bien.
+[1893.14s -> 1893.94s]  Pero es como esto, ¿no?
+[1894.54s -> 1897.74s]  Versión, de qué fecha, documentos sobre el alcance, esto sí es lo que está bien.
+[1897.74s -> 1902.34s]  Y después, esto ya desaparece, ¿no?
+[1902.46s -> 1902.92s]  Eso no.
+[1903.38s -> 1905.46s]  Mírense, confírense que acá aparezca.
+[1905.46s -> 1915.88s]  No sé, en Grima, el domino estaba manejando exactamente igual.
+[1916.02s -> 1920.32s]  Pero no, para minimizar era con los dos dedos a la vez, y así, y acá vamos.
+[1920.32s -> 1921.32s]  Gracias.
+[1921.32s -> 1922.32s]  Gracias.
+[1922.32s -> 1923.32s]  Gracias.
+[1923.32s -> 1924.32s]  Gracias.
+[1924.32s -> 1925.32s]  Gracias.
+[1925.32s -> 1926.32s]  Gracias.
+[1926.32s -> 1927.32s]  Gracias.
+[1927.32s -> 1928.32s]  Gracias.
+[1928.32s -> 1929.32s]  Gracias.
+[1929.32s -> 1930.32s]  Gracias.
+[1930.32s -> 1931.32s]  Gracias.
+[1931.32s -> 1932.32s]  Gracias.
+[1932.32s -> 1933.32s]  Gracias.
+[1933.32s -> 1934.32s]  Gracias.
+[1934.32s -> 1935.32s]  Gracias.
+[1935.32s -> 1936.32s]  Gracias.
+[1936.32s -> 1937.32s]  Gracias.
+[1937.32s -> 1938.32s]  Gracias.
+[1938.32s -> 1939.32s]  Gracias.
+[1939.32s -> 1940.32s]  Gracias.
+[1940.32s -> 1941.32s]  Gracias.
+[1941.32s -> 1942.32s]  Gracias.
+[1942.32s -> 1943.32s]  Gracias.
+[1943.32s -> 1944.32s]  Gracias.
+[1944.32s -> 1945.32s]  Gracias.
+[1945.32s -> 1946.32s]  Gracias.
+[1946.32s -> 1947.32s]  Gracias.
+[1947.32s -> 1948.32s]  Gracias.
+[1948.32s -> 1949.32s]  Gracias.
+[1949.32s -> 1950.32s]  Gracias.
+[1950.32s -> 1951.32s]  Gracias.
+[1951.32s -> 1952.32s]  Gracias.
+[1952.32s -> 1953.32s]  Gracias.
+[1953.32s -> 1954.32s]  Gracias.
+[1954.32s -> 1955.32s]  Gracias.
+[1955.32s -> 1956.32s]  Gracias.
+[1956.32s -> 1957.32s]  Gracias.
+[1957.32s -> 1958.32s]  Gracias.
+[1958.32s -> 1959.32s]  Gracias.
+[1959.32s -> 1960.32s]  Gracias.
+[1960.32s -> 1961.32s]  Gracias.
+[1961.32s -> 1962.32s]  Gracias.
+[1962.32s -> 1963.32s]  Gracias.
+[1963.32s -> 1964.32s]  Gracias.
+[1964.32s -> 1965.32s]  Gracias.
+[1965.32s -> 1966.32s]  Gracias.
+[1966.32s -> 1967.32s]  Gracias.
+[1967.32s -> 1968.32s]  Gracias.
+[1968.32s -> 1969.32s]  Gracias.
+[1969.32s -> 1970.32s]  Gracias.
+[1970.32s -> 1971.32s]  Gracias.
+[1971.32s -> 1972.32s]  Gracias.
+[1972.32s -> 1973.32s]  Gracias.
+[1973.32s -> 1974.32s]  Gracias.
+[1974.32s -> 1975.32s]  Gracias.
+[1975.32s -> 1976.32s]  Gracias.
+[1976.32s -> 1977.32s]  Gracias.
+[1977.32s -> 1978.32s]  Gracias.
+[1978.32s -> 1979.32s]  Gracias.
+[1979.32s -> 1980.32s]  Gracias.
+[1980.32s -> 1981.32s]  Gracias.
+[1981.32s -> 1982.32s]  Gracias.
+[1982.32s -> 1983.32s]  Gracias.
+[1983.32s -> 1984.32s]  Gracias.
+[1984.32s -> 1985.32s]  Gracias.
+[1985.32s -> 1986.32s]  Gracias.
+[1986.32s -> 1987.32s]  Gracias.
+[1987.32s -> 1988.32s]  Gracias.
+[1988.32s -> 1989.32s]  Gracias.
+[1989.32s -> 1990.32s]  Gracias.
+[1990.32s -> 1991.32s]  Gracias.
+[1991.32s -> 1992.32s]  Gracias.
+[1992.32s -> 1993.32s]  Gracias.
+[1993.32s -> 1994.32s]  Gracias.
+[1994.32s -> 1995.32s]  Gracias.
+[1995.32s -> 1996.32s]  Gracias.
+[1996.32s -> 1997.32s]  Gracias.
+[1997.32s -> 1998.32s]  Gracias.
+[1998.32s -> 1999.32s]  Gracias.
+[1999.32s -> 2000.32s]  Gracias.
+[2000.32s -> 2001.32s]  Gracias.
+[2001.32s -> 2002.32s]  Gracias.
+[2002.32s -> 2003.32s]  Gracias.
+[2003.32s -> 2004.32s]  Gracias.
+[2004.32s -> 2005.32s]  Gracias.
+[2005.32s -> 2006.32s]  Gracias.
+[2006.32s -> 2007.32s]  Gracias.
+[2007.32s -> 2008.32s]  Gracias.
+[2008.32s -> 2009.32s]  Gracias.
+[2009.32s -> 2010.32s]  Gracias.
+[2010.32s -> 2011.32s]  Gracias.
+[2011.32s -> 2012.32s]  Gracias.
+[2012.32s -> 2013.32s]  Gracias.
+[2013.32s -> 2014.32s]  Gracias.
+[2014.32s -> 2015.32s]  Gracias.
+[2015.32s -> 2016.32s]  Gracias.
+[2016.32s -> 2017.32s]  Gracias.
+[2017.32s -> 2018.32s]  Gracias.
+[2018.32s -> 2019.32s]  Gracias.
+[2019.32s -> 2020.32s]  Gracias.
+[2020.32s -> 2021.32s]  Gracias.
+[2021.32s -> 2022.32s]  Gracias.
+[2022.32s -> 2023.32s]  Gracias.
+[2023.32s -> 2024.32s]  Gracias.
+[2024.32s -> 2025.32s]  Gracias.
+[2025.32s -> 2026.32s]  Gracias.
+[2026.32s -> 2027.32s]  Gracias.
+[2027.32s -> 2028.32s]  Gracias.
+[2028.32s -> 2029.32s]  Gracias.
+[2029.32s -> 2030.32s]  Gracias.
+[2030.32s -> 2031.32s]  Gracias.
+[2031.32s -> 2032.32s]  Gracias.
+[2032.32s -> 2033.32s]  Gracias.
+[2033.32s -> 2034.32s]  Gracias.
+[2034.32s -> 2035.32s]  Gracias.
+[2063.32s -> 2064.32s]  Gracias.
+[2064.32s -> 2065.32s]  Gracias.
+[2065.32s -> 2066.32s]  Gracias.
+[2066.32s -> 2067.32s]  Gracias.
+[2067.32s -> 2068.32s]  Gracias.
+[2068.32s -> 2069.32s]  Gracias.
+[2069.32s -> 2070.32s]  Gracias.
+[2070.32s -> 2071.32s]  Gracias.
+[2071.32s -> 2072.32s]  Gracias.
+[2072.32s -> 2073.32s]  Gracias.
+[2073.32s -> 2074.32s]  Gracias.
+[2074.32s -> 2075.32s]  Gracias.
+[2075.32s -> 2076.32s]  Gracias.
+[2076.32s -> 2077.32s]  Gracias.
+[2077.32s -> 2078.32s]  Gracias.
+[2078.32s -> 2079.32s]  Gracias.
+[2079.32s -> 2080.32s]  Gracias.
+[2080.32s -> 2081.32s]  Gracias.
+[2081.32s -> 2082.32s]  Gracias.
+[2082.32s -> 2083.32s]  Gracias.
+[2083.32s -> 2084.32s]  Gracias.
+[2084.32s -> 2085.32s]  Gracias.
+[2085.32s -> 2086.32s]  Gracias.
+[2086.32s -> 2087.32s]  Gracias.
+[2087.32s -> 2088.32s]  Gracias.
+[2088.32s -> 2089.32s]  Gracias.
+[2089.32s -> 2090.32s]  Gracias.
+[2090.32s -> 2091.32s]  Gracias.
+[2091.32s -> 2092.32s]  Gracias.
+[2092.32s -> 2093.32s]  Gracias.
+[2093.32s -> 2094.32s]  Gracias.
+[2094.32s -> 2095.32s]  Gracias.
+[2095.32s -> 2096.32s]  Gracias.
+[2096.32s -> 2097.32s]  Gracias.
+[2097.32s -> 2098.32s]  Gracias.
+[2098.32s -> 2099.32s]  Gracias.
+[2099.32s -> 2100.32s]  Gracias.
+[2100.32s -> 2101.32s]  Gracias.
+[2101.32s -> 2102.32s]  Gracias.
+[2102.32s -> 2103.32s]  Gracias.
+[2103.32s -> 2104.32s]  Gracias.
+[2104.32s -> 2105.32s]  Gracias.
+[2105.32s -> 2106.32s]  Gracias.
+[2106.32s -> 2107.32s]  Gracias.
+[2107.32s -> 2108.32s]  Gracias.
+[2108.32s -> 2109.32s]  Gracias.
+[2109.32s -> 2110.32s]  Gracias.
+[2110.32s -> 2111.32s]  Gracias.
+[2111.32s -> 2112.32s]  Gracias.
+[2112.32s -> 2113.32s]  Gracias.
+[2113.32s -> 2114.32s]  Gracias.
+[2114.32s -> 2115.32s]  Gracias.
+[2115.32s -> 2116.32s]  Gracias.
+[2116.32s -> 2117.32s]  Gracias.
