@@ -1,0 +1,46 @@
+# ==============================================================================
+# Docker Ignore Configuration
+# ==============================================================================
+
+# Version control
+.git/
+.gitignore
+
+# Environment configurations and secrets
+.env
+.env.*
+!.env.example
+*.age
+*.key
+key.txt
+secrets/
+
+# Large ISO documents and PDFs (keep build context light and fast)
+docs/*.pdf
+*.pdf
+*.svg
+*.png
+
+# Node / Bun dependencies and caches
+node_modules/
+.bun/
+dist/
+
+# Corpus mirror storage
+corpus_mirror/
+
+# omp sessions and runtime caches
+.omp/sessions/
+.omp/cache/
+
+# Zellij runtime artifacts
+.zellij/
+
+# IDE and OS junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

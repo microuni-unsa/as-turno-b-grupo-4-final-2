@@ -1,0 +1,162 @@
+{
+  "pims_doc_id": "G4-DOC-001",
+  "code": "G4-PR-INC-001",
+  "dimensions": 1024,
+  "model": "mistral-embed",
+  "versions": {
+    "1": [
+      {
+        "pims_doc_id": "G4-DOC-001",
+        "pims_version": "1",
+        "status": "V",
+        "citation": "pims:G4-DOC-001:v1:0:L1-L9",
+        "chunk_id": "0",
+        "lines": "L1-L9",
+        "text": "# UNIVERSIDAD NACIONAL DE SAN AGUSTIN DE AREQUIPA\n# SISTEMA DE GESTION DE PRIVACIDAD DE LA INFORMACION (SGPI / PIMS)\n# CODIGO: G4-PR-INC-001\n# VERSION: 1.0 (2019-06-15) - Certificacion Inicial\n# ESTADO: V (Vigente)\n# RESPONSABLE: Comite de Seguridad y Privacidad Digital\n\n## 1. OBJETIVO Y ALCANCE\nEl presente procedimiento establece las directrices para la deteccion, reporte, clasificacion y respuesta ante incidentes que comprometan Datos de Caracter Personal (PII) bajo la responsabilidad de la UNSA, de conformidad con la norma ISO/IEC 27701:2025 (Clausula 8.1 y Control A.3.11).",
+        "sha256": "73e547a6c9987707dca2e69a79583bd8bc4683a13383a7135dc2cf4505758f26"
+      },
+      {
+        "pims_doc_id": "G4-DOC-001",
+        "pims_version": "1",
+        "status": "V",
+        "citation": "pims:G4-DOC-001:v1:1:L8-L10",
+        "chunk_id": "1",
+        "lines": "L8-L10",
+        "text": "## 1. OBJETIVO Y ALCANCE\nEl presente procedimiento establece las directrices para la deteccion, reporte, clasificacion y respuesta ante incidentes que comprometan Datos de Caracter Personal (PII) bajo la responsabilidad de la UNSA, de conformidad con la norma ISO/IEC 27701:2025 (Clausula 8.1 y Control A.3.11).\nEl alcance comprende exclusivamente las operaciones de Admision y Procesamiento de Planillas de la sede central de Arequipa.",
+        "sha256": "2caebe271a82a03dc05f62879b8ae35806a0a77a2e144de8dde1d8b2dc016e4d"
+      },
+      {
+        "pims_doc_id": "G4-DOC-001",
+        "pims_version": "1",
+        "status": "V",
+        "citation": "pims:G4-DOC-001:v1:2:L9-L11",
+        "chunk_id": "2",
+        "lines": "L9-L11",
+        "text": "El presente procedimiento establece las directrices para la deteccion, reporte, clasificacion y respuesta ante incidentes que comprometan Datos de Caracter Personal (PII) bajo la responsabilidad de la UNSA, de conformidad con la norma ISO/IEC 27701:2025 (Clausula 8.1 y Control A.3.11).\nEl alcance comprende exclusivamente las operaciones de Admision y Procesamiento de Planillas de la sede central de Arequipa.\n",
+        "sha256": "ef740670710797c574981bd3f6019c0217fedea869cb598aac0ef02e463338d5"
+      },
+      {
+        "pims_doc_id": "G4-DOC-001",
+        "pims_version": "1",
+        "status": "V",
+        "citation": "pims:G4-DOC-001:v1:3:L10-L15",
+        "chunk_id": "3",
+        "lines": "L10-L15",
+        "text": "El alcance comprende exclusivamente las operaciones de Admision y Procesamiento de Planillas de la sede central de Arequipa.\n\n## 2. RESPONSABILIDADES\n- Oficial de Privacidad PII: Coordina la gestion integral del incidente y lidera las acciones de mitigacion inmediata.\n- Equipo de Respuesta a Incidentes (CSIRT-UNSA): Ejecuta las tareas operativas de contencion tecnica y analisis forense.\n- Personal Administrativo: Obligado a reportar cualquier sospecha de brecha de datos en un plazo no mayor a 24 horas laborables.",
+        "sha256": "4f0f97ef83f24308768916a2adee68205fc612fdf0be287a757b2f388ace6a97"
+      },
+      {
+        "pims_doc_id": "G4-DOC-001",
+        "pims_version": "1",
+        "status": "V",
+        "citation": "pims:G4-DOC-001:v1:4:L14-L18",
+        "chunk_id": "4",
+        "lines": "L14-L18",
+        "text": "- Equipo de Respuesta a Incidentes (CSIRT-UNSA): Ejecuta las tareas operativas de contencion tecnica y analisis forense.\n- Personal Administrativo: Obligado a reportar cualquier sospecha de brecha de datos en un plazo no mayor a 24 horas laborables.\n\n## 3. PROCEDIMIENTO DE RESPUESTA OPERATIVA\n3.1 Fase de Deteccion y Registro: Todo incidente debe registrarse inmediatamente en el sistema GESTITEL asignando codigo G4-INC y estado borrador.",
+        "sha256": "ccea9faa89d6e85b3622afc71cb626d78fedab12649a873cbf54f908f21df1fc"
+      },
+      {
+        "pims_doc_id": "G4-DOC-001",
+        "pims_version": "1",
+        "status": "V",
+        "citation": "pims:G4-DOC-001:v1:5:L17-L20",
+        "chunk_id": "5",
+        "lines": "L17-L20",
+        "text": "## 3. PROCEDIMIENTO DE RESPUESTA OPERATIVA\n3.1 Fase de Deteccion y Registro: Todo incidente debe registrarse inmediatamente en el sistema GESTITEL asignando codigo G4-INC y estado borrador.\n3.2 Fase de Evaluacion de Impacto: El CSIRT evalua el volumen de titulares de datos afectados y la sensibilidad de las categorias PII vulneradas.\n3.3 Fase de Contencion: Se aisla la estacion de trabajo o subred afectada para prevenir la propagacion de la fuga de datos.",
+        "sha256": "07592d1ce16018356587ca721bb3157a3947cb4fca2cb5ab0de62b3db47cea8b"
+      },
+      {
+        "pims_doc_id": "G4-DOC-001",
+        "pims_version": "1",
+        "status": "V",
+        "citation": "pims:G4-DOC-001:v1:6:L19-L22",
+        "chunk_id": "6",
+        "lines": "L19-L22",
+        "text": "3.2 Fase de Evaluacion de Impacto: El CSIRT evalua el volumen de titulares de datos afectados y la sensibilidad de las categorias PII vulneradas.\n3.3 Fase de Contencion: Se aisla la estacion de trabajo o subred afectada para prevenir la propagacion de la fuga de datos.\n3.4 Fase de Cierre: Se emite informe de lecciones aprendidas dentro de los 15 dias calendario posteriores a la contencion.\n",
+        "sha256": "3fb2826194e0afc8ee333547946dd55237c1a4ae16776d4aace34cf2e072e7a0"
+      }
+    ],
+    "2": [
+      {
+        "pims_doc_id": "G4-DOC-001",
+        "pims_version": "2",
+        "status": "V",
+        "citation": "pims:G4-DOC-001:v2:0:L1-L10",
+        "chunk_id": "0",
+        "lines": "L1-L10",
+        "text": "# UNIVERSIDAD NACIONAL DE SAN AGUSTIN DE AREQUIPA\n# SISTEMA DE GESTION DE PRIVACIDAD DE LA INFORMACION (SGPI / PIMS)\n# CODIGO: G4-PR-INC-001\n# VERSION: 2.0 (2022-10-20) - Actualizacion Post-Pandemia y Filiales\n# ESTADO: V (Vigente)\n# SUPERSEDES: 1.0\n# RESPONSABLE: Direccion de Tecnologias de Informacion y Comunicaciones\n\n## 1. OBJETIVO Y ALCANCE\nEl presente procedimiento establece las directrices actualizadas para la deteccion, contencion inmediata, escalamiento y notificacion de incidentes que comprometan Datos de Caracter Personal (PII) en la UNSA, bajo ISO/IEC 27701:2025 (Clausulas 8.1, 10.2 y Controles A.3.11, A.3.12).",
+        "sha256": "e10c46f022f4a65fe62ea943c6250df5e5acc8bb1d8501794d7bbe34967b05c7"
+      },
+      {
+        "pims_doc_id": "G4-DOC-001",
+        "pims_version": "2",
+        "status": "V",
+        "citation": "pims:G4-DOC-001:v2:1:L9-L11",
+        "chunk_id": "1",
+        "lines": "L9-L11",
+        "text": "## 1. OBJETIVO Y ALCANCE\nEl presente procedimiento establece las directrices actualizadas para la deteccion, contencion inmediata, escalamiento y notificacion de incidentes que comprometan Datos de Caracter Personal (PII) en la UNSA, bajo ISO/IEC 27701:2025 (Clausulas 8.1, 10.2 y Controles A.3.11, A.3.12).\nEl alcance se amplía para abarcar la sede central de Arequipa y las sedes desconcentradas de Camana y Pedregal.",
+        "sha256": "372106003e3039e3eb9ba3ed86e289b0fca49b0f912e0dc5fc4aa000830ac542"
+      },
+      {
+        "pims_doc_id": "G4-DOC-001",
+        "pims_version": "2",
+        "status": "V",
+        "citation": "pims:G4-DOC-001:v2:2:L10-L13",
+        "chunk_id": "2",
+        "lines": "L10-L13",
+        "text": "El presente procedimiento establece las directrices actualizadas para la deteccion, contencion inmediata, escalamiento y notificacion de incidentes que comprometan Datos de Caracter Personal (PII) en la UNSA, bajo ISO/IEC 27701:2025 (Clausulas 8.1, 10.2 y Controles A.3.11, A.3.12).\nEl alcance se amplía para abarcar la sede central de Arequipa y las sedes desconcentradas de Camana y Pedregal.\n\n## 2. RESPONSABILIDADES Y GOBERNANZA",
+        "sha256": "f235761db02a80216478d8330d255847e558ed10679c1d73c18e3a21bac1277e"
+      },
+      {
+        "pims_doc_id": "G4-DOC-001",
+        "pims_version": "2",
+        "status": "V",
+        "citation": "pims:G4-DOC-001:v2:3:L12-L17",
+        "chunk_id": "3",
+        "lines": "L12-L17",
+        "text": "\n## 2. RESPONSABILIDADES Y GOBERNANZA\n- Comite de Crisis de Privacidad: Maxima autoridad colegiada que aprueba las medidas extraordinarias y comunicaciones a titulares.\n- Oficial de Privacidad PII: Evalua la gravedad del incidente segun matriz de criticidad (Rojo/Ambar/Verde) y lidera la cadena de no conformidades (NC).\n- CSIRT-UNSA: Guardias 24/7 y analisis de vulnerabilidades en tiempo real.\n- Todo usuario institucional: Debe reportar inmediatamente a traves del portal de incidentes o canal hotline de privacidad.",
+        "sha256": "6d7b3b5bf3ec3bdacd0687c1e618948cdb846c70efa6ccbb2fb8eb7849ad06c1"
+      },
+      {
+        "pims_doc_id": "G4-DOC-001",
+        "pims_version": "2",
+        "status": "V",
+        "citation": "pims:G4-DOC-001:v2:4:L16-L21",
+        "chunk_id": "4",
+        "lines": "L16-L21",
+        "text": "- CSIRT-UNSA: Guardias 24/7 y analisis de vulnerabilidades en tiempo real.\n- Todo usuario institucional: Debe reportar inmediatamente a traves del portal de incidentes o canal hotline de privacidad.\n\n## 3. PROCEDIMIENTO DE RESPUESTA OPERATIVA\n3.1 Deteccion y Clasificacion Automatizada: Integracion de telemetria en tiempo real hacia el registro GESTITEL bajo prefijo G4-.\n3.2 Cadena de Acciones Correctivas: Cada incidente con severidad alta genera automaticamente un registro de No Conformidad (NC) vinculado a un plan de accion correctiva con dueno y fecha limite.",
+        "sha256": "918af9280c3599cfcd203616761ba8e2a46ac737c88ab47efbb6ab8aec4aa908"
+      },
+      {
+        "pims_doc_id": "G4-DOC-001",
+        "pims_version": "2",
+        "status": "V",
+        "citation": "pims:G4-DOC-001:v2:5:L20-L22",
+        "chunk_id": "5",
+        "lines": "L20-L22",
+        "text": "3.1 Deteccion y Clasificacion Automatizada: Integracion de telemetria en tiempo real hacia el registro GESTITEL bajo prefijo G4-.\n3.2 Cadena de Acciones Correctivas: Cada incidente con severidad alta genera automaticamente un registro de No Conformidad (NC) vinculado a un plan de accion correctiva con dueno y fecha limite.\n3.3 Contencion y Erradicacion: Aislamiento automatico de credenciales comprometidas y segmentacion zero-trust de filiales Camana y Pedregal.",
+        "sha256": "183452a167948f5b412d354dce35d160761103c22c9a57fb7f006fab19fc3582"
+      },
+      {
+        "pims_doc_id": "G4-DOC-001",
+        "pims_version": "2",
+        "status": "V",
+        "citation": "pims:G4-DOC-001:v2:6:L21-L23",
+        "chunk_id": "6",
+        "lines": "L21-L23",
+        "text": "3.2 Cadena de Acciones Correctivas: Cada incidente con severidad alta genera automaticamente un registro de No Conformidad (NC) vinculado a un plan de accion correctiva con dueno y fecha limite.\n3.3 Contencion y Erradicacion: Aislamiento automatico de credenciales comprometidas y segmentacion zero-trust de filiales Camana y Pedregal.\n3.4 Notificacion y Cierre: Evaluacion de necesidad de comunicacion a la Autoridad Nacional de Proteccion de Datos Personales y a los titulares afectados, conforme a la clausula B.3.12.",
+        "sha256": "2d9d192c23712839ee2fbf9594b7a150213ec627c17ebd4e37f81141e2e225f7"
+      },
+      {
+        "pims_doc_id": "G4-DOC-001",
+        "pims_version": "2",
+        "status": "V",
+        "citation": "pims:G4-DOC-001:v2:7:L22-L24",
+        "chunk_id": "7",
+        "lines": "L22-L24",
+        "text": "3.3 Contencion y Erradicacion: Aislamiento automatico de credenciales comprometidas y segmentacion zero-trust de filiales Camana y Pedregal.\n3.4 Notificacion y Cierre: Evaluacion de necesidad de comunicacion a la Autoridad Nacional de Proteccion de Datos Personales y a los titulares afectados, conforme a la clausula B.3.12.\n",
+        "sha256": "cb458a48990a46a4492fbfafb9c36843b1d55ac284f4515df1409ef1d0ecccec"
+      }
+    ]
+  }
+}

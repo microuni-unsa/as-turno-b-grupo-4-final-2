@@ -1,0 +1,23 @@
+# UNIVERSIDAD NACIONAL DE SAN AGUSTIN DE AREQUIPA
+# SISTEMA DE GESTION DE PRIVACIDAD DE LA INFORMACION (SGPI / PIMS)
+# CODIGO: G4-PR-INC-001
+# VERSION: 2.0 (2022-10-20) - Actualizacion Post-Pandemia y Filiales
+# ESTADO: V (Vigente)
+# SUPERSEDES: 1.0
+# RESPONSABLE: Direccion de Tecnologias de Informacion y Comunicaciones
+
+## 1. OBJETIVO Y ALCANCE
+El presente procedimiento establece las directrices actualizadas para la deteccion, contencion inmediata, escalamiento y notificacion de incidentes que comprometan Datos de Caracter Personal (PII) en la UNSA, bajo ISO/IEC 27701:2025 (Clausulas 8.1, 10.2 y Controles A.3.11, A.3.12).
+El alcance se amplía para abarcar la sede central de Arequipa y las sedes desconcentradas de Camana y Pedregal.
+
+## 2. RESPONSABILIDADES Y GOBERNANZA
+- Comite de Crisis de Privacidad: Maxima autoridad colegiada que aprueba las medidas extraordinarias y comunicaciones a titulares.
+- Oficial de Privacidad PII: Evalua la gravedad del incidente segun matriz de criticidad (Rojo/Ambar/Verde) y lidera la cadena de no conformidades (NC).
+- CSIRT-UNSA: Guardias 24/7 y analisis de vulnerabilidades en tiempo real.
+- Todo usuario institucional: Debe reportar inmediatamente a traves del portal de incidentes o canal hotline de privacidad.
+
+## 3. PROCEDIMIENTO DE RESPUESTA OPERATIVA
+3.1 Deteccion y Clasificacion Automatizada: Integracion de telemetria en tiempo real hacia el registro GESTITEL bajo prefijo G4-.
+3.2 Cadena de Acciones Correctivas: Cada incidente con severidad alta genera automaticamente un registro de No Conformidad (NC) vinculado a un plan de accion correctiva con dueno y fecha limite.
+3.3 Contencion y Erradicacion: Aislamiento automatico de credenciales comprometidas y segmentacion zero-trust de filiales Camana y Pedregal.
+3.4 Notificacion y Cierre: Evaluacion de necesidad de comunicacion a la Autoridad Nacional de Proteccion de Datos Personales y a los titulares afectados, conforme a la clausula B.3.12.

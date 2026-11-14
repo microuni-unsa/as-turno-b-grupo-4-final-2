@@ -1,0 +1,201 @@
+{
+  "audits": {
+    "count": 1,
+    "next": null,
+    "previous": null,
+    "results": [
+      {
+        "id": 301,
+        "code": "G4-AUD-2026-01",
+        "title": "Auditoría Interna de Cumplimiento ISO 27701 & GDPR Fase 1",
+        "status": "completed",
+        "responsible": "Grupo 4 - Turno B",
+        "audit_date": "2026-11-08",
+        "scope": "Evaluación del registro de actividades de tratamiento (ROPA) y controles del Anexo A",
+        "findings": [
+          {
+            "id": 1,
+            "description": "Falta de procedimiento formalizado para la atención de solicitudes de derechos ARCO",
+            "severity": "mayor",
+            "non_conformity": "NC-2026-01",
+            "responsible": "Grupo 4 - Turno B",
+            "evidence_cite": "pims:101:v2:chunk:40-55"
+          }
+        ]
+      }
+    ]
+  },
+  "audit_detail": {
+    "id": 301,
+    "code": "G4-AUD-2026-01",
+    "title": "Auditoría Interna de Cumplimiento ISO 27701 & GDPR Fase 1",
+    "status": "completed",
+    "responsible": "Grupo 4 - Turno B",
+    "audit_date": "2026-11-08",
+    "scope": "Evaluación del registro de actividades de tratamiento (ROPA) y controles del Anexo A",
+    "findings": [
+      {
+        "id": 1,
+        "description": "Falta de procedimiento formalizado para la atención de solicitudes de derechos ARCO",
+        "severity": "mayor",
+        "non_conformity": "NC-2026-01",
+        "responsible": "Grupo 4 - Turno B",
+        "evidence_cite": "pims:101:v2:chunk:40-55"
+      }
+    ]
+  },
+  "risk_evaluations": {
+    "count": 1,
+    "next": null,
+    "previous": null,
+    "results": [
+      {
+        "id": 401,
+        "code": "G4-RSK-2026-001",
+        "title": "Riesgo de exposición de datos personales por configuración deficiente de CORS",
+        "asset_id": 601,
+        "asset_name": "Servidor de API PIMS",
+        "threat": "Acceso no autorizado",
+        "vulnerability": "Configuración permisiva de origen cruzado",
+        "likelihood": 3,
+        "impact": 4,
+        "score": 12,
+        "level": "Alto",
+        "responsible": "Grupo 4 - Turno B"
+      }
+    ]
+  },
+  "risk_catalogs": {
+    "categories": [
+      {
+        "id": 1,
+        "name": "Infraestructura de Servidores",
+        "description": "Servidores de base de datos y contenedores de aplicación"
+      },
+      {
+        "id": 2,
+        "name": "Datos e Información Personal (PII)",
+        "description": "Tablas y repositorios con datos identificables"
+      }
+    ],
+    "threats": [
+      {
+        "id": 10,
+        "name": "Exfiltración de credenciales",
+        "category_id": 1
+      },
+      {
+        "id": 11,
+        "name": "Inyección SQL en consultas de reportes",
+        "category_id": 2
+      }
+    ],
+    "vulnerabilities": [
+      {
+        "id": 20,
+        "name": "Falta de cifrado en reposo",
+        "category_id": 2
+      },
+      {
+        "id": 21,
+        "name": "Contraseñas débiles en cuentas de servicio",
+        "category_id": 1
+      }
+    ]
+  },
+  "assets": {
+    "count": 2,
+    "next": null,
+    "previous": null,
+    "results": [
+      {
+        "id": 601,
+        "code": "G4-AST-001",
+        "name": "Base de Datos Principal PostgreSQL PIMS",
+        "type": "database",
+        "owner": "Grupo 4 - Turno B",
+        "criticality": "alta",
+        "location": "VPS Internal Proxy"
+      },
+      {
+        "id": 602,
+        "code": "G4-AST-002",
+        "name": "Repositorio Documental PIMS Mirror",
+        "type": "storage",
+        "owner": "Grupo 4 - Turno B",
+        "criticality": "media",
+        "location": "Local VPS Disk"
+      }
+    ]
+  },
+  "eligible_assets": {
+    "count": 1,
+    "next": null,
+    "previous": null,
+    "results": [
+      {
+        "id": 601,
+        "code": "G4-AST-001",
+        "name": "Base de Datos Principal PostgreSQL PIMS",
+        "type": "database"
+      }
+    ]
+  },
+  "dashboard_kpis": {
+    "summary": {
+      "tenant": "unsa",
+      "group": "Grupo 4",
+      "compliance_rate_percent": 94.2
+    },
+    "incidents_count": 2,
+    "open_incidents_count": 1,
+    "audits_count": 1,
+    "documents_count": 2,
+    "risks_count": 1
+  },
+  "annex_a_meta": {
+    "total_controls": 4,
+    "categories": [
+      { "id": "A.5", "title": "Controles Organizacionales", "count": 2 },
+      { "id": "A.8", "title": "Controles Tecnológicos", "count": 2 }
+    ],
+    "controls": [
+      {
+        "id": "A.5.1",
+        "category_id": "A.5",
+        "title": "Políticas para la seguridad de la información",
+        "description": "Conjunto definido y aprobado de directrices de seguridad.",
+        "implemented": true
+      },
+      {
+        "id": "A.5.8",
+        "category_id": "A.5",
+        "title": "Seguridad de la información en la gestión de proyectos",
+        "description": "Integración de seguridad y privacidad en ciclo de vida.",
+        "implemented": true
+      },
+      {
+        "id": "A.8.1",
+        "category_id": "A.8",
+        "title": "Dispositivos finales de usuario",
+        "description": "Protección de endpoints y autenticación segura.",
+        "implemented": true
+      },
+      {
+        "id": "A.8.12",
+        "category_id": "A.8",
+        "title": "Prevención de fuga de datos",
+        "description": "Mecanismos técnicos para evitar exfiltración de PII.",
+        "implemented": false
+      }
+    ]
+  },
+  "trainings_403": {
+    "status": 403,
+    "detail": "Permission denied for tenant grupob4: training records live as uploaded documents in PIMS."
+  },
+  "system_catalogs_403": {
+    "status": 403,
+    "detail": "Permission denied for tenant grupob4: system-catalogs endpoint is restricted."
+  }
+}

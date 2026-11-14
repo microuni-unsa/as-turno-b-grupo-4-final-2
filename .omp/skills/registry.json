@@ -1,0 +1,48 @@
+{
+  "skills": [
+    {
+      "name": "pims-reader",
+      "contract": "Standardized fast readers over PIMS REST API with G4-/responsible filtering and mirror fallback"
+    },
+    {
+      "name": "connector-builder",
+      "contract": "Dynamic connector generation following convention with background subagent and self-heal loop"
+    },
+    {
+      "name": "ingest",
+      "contract": "Ingest PIMS documents: download, chunk, mistral-embed 1024-dim, pgvector cosine, chunk SHA-256, registry update"
+    },
+    {
+      "name": "version-compare",
+      "contract": "Download versions from PIMS, perform structural diff, narrate rationale from history tables and RAFA"
+    },
+    {
+      "name": "incident-ops",
+      "contract": "Incident response register query, ISO 27701 Cl. 8.1 / A.3.11 / A.3.12 compliance, and chain tracking"
+    },
+    {
+      "name": "audit-chain",
+      "contract": "Trace finding -> NC -> corrective action chain with RAG evidence citations and status drill-down"
+    },
+    {
+      "name": "directed-version",
+      "contract": "Directed document mutation via Typst mold and RAFA direction, bump version, upload and re-ingest"
+    },
+    {
+      "name": "cascade",
+      "contract": "Record university fact, scan impacted documents, propose remake set, render, upload, and update mirror"
+    },
+    {
+      "name": "proactive",
+      "contract": "Contextual adjacent suggestions offering related reports, audits, and evidence proactively"
+    },
+    {
+      "name": "summons-dispatch",
+      "contract": "Query NC/corrective chain, format RAG summons table, require explicit approval, and dispatch mail"
+    },
+    {
+      "name": "live-build",
+      "contract": "Spawn background subagent to build and test unbuilt connectors live while main session stays responsive"
+    }
+  ]
+}

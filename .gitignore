@@ -1,0 +1,48 @@
+# ==============================================================================
+# Git Ignore Configuration
+# ==============================================================================
+
+# Node / Bun runtime and dependencies
+node_modules/
+.bun/
+bun.lockb
+dist/
+.turbo/
+
+# Typst compilation outputs & generated registers
+*.pdf
+*.xlsx
+*.svg
+*.png
+
+# Corpus mirror: ignore all cached downloaded files except manifests and READMEs
+corpus_mirror/**
+!corpus_mirror/
+!corpus_mirror/**/
+!corpus_mirror/**/README.md
+!corpus_mirror/**/manifest.json
+
+# Environment variables, age keys, and secrets store
+.env
+.env.*
+!.env.example
+*.age
+*.key
+key.txt
+secrets/
+
+# omp local runtime sessions and cache
+.omp/sessions/
+.omp/cache/
+
+# Zellij runtime artifacts
+.zellij/
+
+# Operating system and IDE junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

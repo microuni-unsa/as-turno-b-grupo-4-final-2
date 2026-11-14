@@ -1,0 +1,25 @@
+{
+  "name": "@pims/rag-mirror",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "pgvector sidecar index + local mirror tooling for UNSA PIMS",
+  "main": "index.ts",
+  "module": "index.ts",
+  "types": "index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./schema.sql": "./schema.sql",
+    "./config": "./config.ts",
+    "./types": "./types.ts",
+    "./ingest": "./ingest.ts",
+    "./query": "./query.ts",
+    "./diff": "./diff.ts",
+    "./embedder": "./embedder.ts",
+    "./chunker": "./chunker.ts",
+    "./mirror": "./mirror.ts",
+    "./db": "./db.ts"
+  },
+  "scripts": {
+    "smoke": "bun run fixtures/smoke.ts"
+  }
+}

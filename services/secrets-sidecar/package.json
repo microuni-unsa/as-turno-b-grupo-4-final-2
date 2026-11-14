@@ -1,0 +1,28 @@
+{
+  "name": "@pims/secrets-sidecar",
+  "version": "1.0.0",
+  "description": "Secrets sidecar service and client library for PIMS AI agent",
+  "main": "client/index.js",
+  "types": "client/index.d.ts",
+  "scripts": {
+    "start": "node --loader ts-node/esm server.ts",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "secrets",
+    "sidecar",
+    "pims",
+    "age-encryption"
+  ],
+  "author": "Turno B Grupo 4",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/pg": "^8.11.0",
+    "typescript": "^5.3.3"
+  }
+}

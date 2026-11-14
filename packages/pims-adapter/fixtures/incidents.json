@@ -1,0 +1,116 @@
+{
+  "list": {
+    "count": 2,
+    "next": null,
+    "previous": null,
+    "results": [
+      {
+        "id": 501,
+        "code": "G4-INC-2026-001",
+        "title": "Fuga potencial de credenciales en repositorio de pruebas",
+        "description": "Se detectaron tokens de prueba expuestos en registros de logs locales sin cifrar.",
+        "severity": "medium",
+        "status": "resolved",
+        "incident_type": "security_breach",
+        "incident_date": "2026-11-05T08:15:00Z",
+        "responsible": "Grupo 4 - Turno B",
+        "involves_personal_data": false,
+        "actions": [
+          {
+            "id": 1,
+            "action_description": "Revocación inmediata de tokens y rotación de secretos",
+            "due_date": "2026-11-05T12:00:00Z",
+            "responsible": "Grupo 4 - Turno B",
+            "status": "completed"
+          }
+        ],
+        "created_at": "2026-11-05T08:20:00Z",
+        "updated_at": "2026-11-05T11:45:00Z"
+      },
+      {
+        "id": 502,
+        "code": "G4-INC-2026-002",
+        "title": "Acceso no autorizado a registros de prueba de estudiantes",
+        "description": "Intento de acceso masivo a endpoint no anonimizado durante simulacro de auditoría.",
+        "severity": "high",
+        "status": "open",
+        "incident_type": "privacy_breach",
+        "incident_date": "2026-11-12T16:00:00Z",
+        "responsible": "Grupo 4 - Turno B",
+        "involves_personal_data": true,
+        "actions": [
+          {
+            "id": 2,
+            "action_description": "Bloqueo de IP de origen y activación de protocolo de notificación a afectados",
+            "due_date": "2026-11-14T16:00:00Z",
+            "responsible": "Grupo 4 - Turno B",
+            "status": "in_progress"
+          }
+        ],
+        "created_at": "2026-11-12T16:10:00Z",
+        "updated_at": "2026-11-13T09:00:00Z"
+      }
+    ]
+  },
+  "detail": {
+    "id": 502,
+    "code": "G4-INC-2026-002",
+    "title": "Acceso no autorizado a registros de prueba de estudiantes",
+    "description": "Intento de acceso masivo a endpoint no anonimizado durante simulacro de auditoría.",
+    "severity": "high",
+    "status": "open",
+    "incident_type": "privacy_breach",
+    "incident_date": "2026-11-12T16:00:00Z",
+    "responsible": "Grupo 4 - Turno B",
+    "involves_personal_data": true,
+    "actions": [
+      {
+        "id": 2,
+        "action_description": "Bloqueo de IP de origen y activación de protocolo de notificación a afectados",
+        "due_date": "2026-11-14T16:00:00Z",
+        "responsible": "Grupo 4 - Turno B",
+        "status": "in_progress"
+      }
+    ],
+    "created_at": "2026-11-12T16:10:00Z",
+    "updated_at": "2026-11-13T09:00:00Z"
+  },
+  "history": [
+    {
+      "id": 801,
+      "incident_id": 502,
+      "action": "INCIDENT_CREATED",
+      "details": "Incidente registrado por alerta de monitor de tráfico",
+      "timestamp": "2026-11-12T16:10:00Z",
+      "performed_by": "Sensor de Anomalías G4"
+    },
+    {
+      "id": 802,
+      "incident_id": 502,
+      "action": "STATUS_CHANGED",
+      "details": "Estado cambiado a investigating tras confirmación de IP externa",
+      "timestamp": "2026-11-12T16:30:00Z",
+      "performed_by": "Responsable de Seguridad G4"
+    }
+  ],
+  "attachments": [
+    {
+      "id": 901,
+      "incident_id": 502,
+      "file": "/media/incidents/attachments/evidence_access_log.txt",
+      "filename": "evidence_access_log.txt",
+      "file_size_bytes": 14520,
+      "uploaded_at": "2026-11-12T16:25:00Z",
+      "uploaded_by": "Responsable de Seguridad G4"
+    },
+    {
+      "id": 902,
+      "incident_id": 502,
+      "file": "/media/incidents/attachments/network_trace_capture.png",
+      "filename": "network_trace_capture.png",
+      "file_size_bytes": 524288,
+      "uploaded_at": "2026-11-12T16:35:00Z",
+      "uploaded_by": "Responsable de Seguridad G4"
+    }
+  ]
+}

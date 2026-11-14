@@ -1,0 +1,53 @@
+# .omp/config.yml — OMP Project Configuration
+# Turno B Grupo 4: Agentic Incidents-PIMS for UNSA (ISO/IEC 27701:2025)
+
+# Branding & Startup
+startup:
+  quiet: true
+  showSplash: false
+
+# Budget Configuration
+# task.softRequestBudget: Soft limit on subagent requests to prevent token depletion during demo/loan runs.
+# Cap value: 150 requests. Crossing this triggers a wrap-up notice; hard stop at 1.5x.
+# Degraded-at-cap behavior: Retrieval and existing document inspection remain fully active;
+# autonomous generation pauses with a contact notice directing the user to the loan coordinator.
+# Best Practice: Run /new whenever a conversational topic is exhausted.
+task:
+  softRequestBudget: 150
+  softRequestBudgetNotice: true
+
+# Memory Configuration
+# memory.backend: local for behavior lessons (Memory Guidance injection); pgvector PIMS mirror is knowledge.
+# Never conflate operational behavior lessons with domain document knowledge.
+memory:
+  backend: local
+
+# Sessions Configuration
+# autoResume: false ensures clean starts; use /new for in-place reset and /resume for session history picker.
+autoResume: false
+
+# Extensions Configuration
+# Arrays replace, don't merge: specify all project-level extensions explicitly here.
+extensions:
+  - .omp/extensions/intro.ts
+
+# Skills Configuration
+skills:
+  enabled: true
+  enableSkillCommands: true
+  enableAgentsProject: true
+  enablePiProject: true
+
+# Skills Registry: Complete registry of all 11 skills (3 core + 8 behavior) with one-line contracts
+skillsRegistry:
+  pims-reader: "Standardized fast readers over PIMS REST API with G4-/responsible filtering and mirror fallback"
+  connector-builder: "Dynamic connector generation following convention with background subagent and self-heal loop"
+  ingest: "Ingest PIMS documents: download, chunk, mistral-embed 1024-dim, pgvector cosine, chunk SHA-256, registry update"
+  version-compare: "Download versions from PIMS, perform structural diff, narrate rationale from history tables and RAFA"
+  incident-ops: "Incident response register query, ISO 27701 Cl. 8.1 / A.3.11 / A.3.12 compliance, and chain tracking"
+  audit-chain: "Trace finding -> NC -> corrective action chain with RAG evidence citations and status drill-down"
+  directed-version: "Directed document mutation via Typst mold and RAFA direction, bump version, upload and re-ingest"
+  cascade: "Record university fact, scan impacted documents, propose remake set, render, upload, and update mirror"
+  proactive: "Contextual adjacent suggestions offering related reports, audits, and evidence proactively"
+  summons-dispatch: "Query NC/corrective chain, format RAG summons table, require explicit approval, and dispatch mail"
+  live-build: "Spawn background subagent to build and test unbuilt connectors live while main session stays responsive"

@@ -1,0 +1,185 @@
+# ==============================================================================
+# Turno B Grupo 4: Agentic Incidents-PIMS for UNSA - Docker Compose
+# ==============================================================================
+# Topology & Architecture Normative Reference: docs/SPEC.md (§4, §4.1, §4.2, §4.3)
+#
+# 1. Traefik Hosting Model:
+#    - Host provides Traefik and docker-proxy on the external network 'internal-proxy'.
+#    - Do NOT run a separate Traefik instance in this compose file.
+#
+# 2. Sibling Container Labels Convention (SPEC §4.1):
+#    Every service or deliverable spawned by the agent under <slug> must:
+#      - Join network: 'internal-proxy'
+#      - Configure labels:
+#          traefik.enable=true
+#          traefik.docker.network=internal-proxy
+#          traefik.http.routers.pimsai-<slug>.rule=Host(`<slug>.pimsai.mistercricro8.top`)
+#          traefik.http.routers.pimsai-<slug>.entrypoints=https
+#          traefik.http.routers.pimsai-<slug>.tls=true
+#          traefik.http.routers.pimsai-<slug>.tls.certresolver=cloudflare
+#          traefik.http.services.pimsai-<slug>.loadbalancer.server.port=<port>
+#
+# 3. Reserved Slugs (SPEC §4.1):
+#    The following slugs are strictly RESERVED and MUST NOT be claimed by any
+#    agent-spawned deliverable or generated service:
+#      - 'demo'    : Zellij web instructor terminal (port 8082, SPEC §4.2)
+#      - 'files'   : Ephemeral document upload sidecar (port 3000, SPEC §9.3)
+#      - 'secrets' : Age-encrypted secrets injection sidecar (port 3000, SPEC §4.3)
+#
+# 4. Cloudflare & Port 444 Routing Edge Case (SPEC §4.1, §13):
+#    - The Cloudflare wildcard rule maps external 443 -> 444 on the VPS.
+#    - Traefik's 'https' entrypoint listens on port 444.
+#    - Diagnostics fallback: If 'https://<slug>.pimsai.mistercricro8.top' fails,
+#      check Cloudflare proxy rules first. Direct connection fallback is:
+#      https://<slug>.pimsai.mistercricro8.top:444
+# ==============================================================================
+
+services:
+  agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pimsai-agent
+    restart: unless-stopped
+    environment:
+      # Docker API connectivity:
+      # Default connects to host docker-proxy on internal-proxy network (SPEC §4)
+      - DOCKER_HOST=${DOCKER_HOST:-tcp://docker-proxy:2375}
+
+      # Database connection (pgvector sidecar)
+      - DATABASE_URL=${DATABASE_URL:-postgresql://${POSTGRES_USER:-agent}:${POSTGRES_PASSWORD:-changeme}@db:5432/${POSTGRES_DB:-pims_agent}}
+
+      # PIMS Tenant & Authentication
+      - PIMS_BASE_URL=${PIMS_BASE_URL:-https://unsa.27k.pe}
+      - PIMS_USERNAME=${PIMS_USERNAME:-}
+      - PIMS_PASSWORD=${PIMS_PASSWORD:-}
+      - PIMS_TENANT_SCHEMA=${PIMS_TENANT_SCHEMA:-unsa}
+      - PIMS_CODE_PREFIX=${PIMS_CODE_PREFIX:-G4-}
+
+      # Embeddings & LLM Models
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY:-}
+      - MISTRAL_BASE_URL=${MISTRAL_BASE_URL:-https://api.mistral.ai/v1}
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL:-mistral-embed}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+
+      # Secrets store configuration (SPEC §4.3)
+      - SECRETS_STORE_PATH=/app/secrets
+
+      # Domain root & runtime flags
+      - DOMAIN_ROOT=${DOMAIN_ROOT:-pimsai.mistercricro8.top}
+      - PI_SKIP_VERSION_CHECK=1
+    volumes:
+      # Persistent storage for agent state, cache, and omp configuration
+      - agent_data:/home/agent
+      # Secrets store path (SPEC §4.3)
+      - secrets_data:/app/secrets
+      # Application workspace
+      - .:/app
+    networks:
+      - internal-proxy
+      - agent-internal
+    labels:
+      # Traefik routing for reserved 'demo' slug (Zellij Web instructor interface, SPEC §4.2)
+      - "traefik.enable=true"
+      - "traefik.docker.network=internal-proxy"
+      - "traefik.http.routers.pimsai-demo.rule=Host(`demo.pimsai.mistercricro8.top`)"
+      - "traefik.http.routers.pimsai-demo.entrypoints=https"
+      - "traefik.http.routers.pimsai-demo.tls=true"
+      - "traefik.http.routers.pimsai-demo.tls.certresolver=cloudflare"
+      - "traefik.http.services.pimsai-demo.loadbalancer.server.port=8082"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: pimsai-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-pims_agent}
+      POSTGRES_USER: ${POSTGRES_USER:-agent}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    volumes:
+      # Persistent vector database storage
+      - pgvector_data:/var/lib/postgresql/data
+    networks:
+      - agent-internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-agent} -d ${POSTGRES_DB:-pims_agent}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  files-sidecar:
+    build:
+      context: ./services/files-sidecar
+      dockerfile: Dockerfile
+    container_name: pimsai-files-sidecar
+    restart: unless-stopped
+    environment:
+      - PORT=3000
+      - PIMS_BASE_URL=${PIMS_BASE_URL:-https://unsa.27k.pe}
+      - PIMS_TENANT_SCHEMA=${PIMS_TENANT_SCHEMA:-unsa}
+      - PIMS_JWT_TOKEN=${PIMS_JWT_TOKEN:-}
+      - PIMS_USERNAME=${PIMS_USERNAME:-}
+      - PIMS_PASSWORD=${PIMS_PASSWORD:-}
+    networks:
+      - internal-proxy
+    labels:
+      # Traefik routing for reserved 'files' slug (Upload sidecar, SPEC §4.1, §9.3)
+      - "traefik.enable=true"
+      - "traefik.docker.network=internal-proxy"
+      - "traefik.http.routers.pimsai-files.rule=Host(`files.pimsai.mistercricro8.top`)"
+      - "traefik.http.routers.pimsai-files.entrypoints=https"
+      - "traefik.http.routers.pimsai-files.tls=true"
+      - "traefik.http.routers.pimsai-files.tls.certresolver=cloudflare"
+      - "traefik.http.services.pimsai-files.loadbalancer.server.port=3000"
+
+  secrets-sidecar:
+    build:
+      context: ./services/secrets-sidecar
+      dockerfile: Dockerfile
+    container_name: pimsai-secrets-sidecar
+    restart: unless-stopped
+    environment:
+      - PORT=3000
+      - HOST=0.0.0.0
+      - BASE_URL=${SECRETS_BASE_URL:-https://secrets.pimsai.mistercricro8.top}
+      - SECRETS_STORE_DIR=/var/lib/secrets-store
+      - DATABASE_URL=${DATABASE_URL:-postgresql://${POSTGRES_USER:-agent}:${POSTGRES_PASSWORD:-changeme}@db:5432/${POSTGRES_DB:-pims_agent}}
+    volumes:
+      # Persistent secrets store (shared age-encrypted volume)
+      - secrets_data:/var/lib/secrets-store
+    networks:
+      - internal-proxy
+      - agent-internal
+    labels:
+      # Traefik routing for reserved 'secrets' slug (Secrets injection sidecar, SPEC §4.1, §4.3)
+      - "traefik.enable=true"
+      - "traefik.docker.network=internal-proxy"
+      - "traefik.http.routers.pimsai-secrets.rule=Host(`secrets.pimsai.mistercricro8.top`)"
+      - "traefik.http.routers.pimsai-secrets.entrypoints=https"
+      - "traefik.http.routers.pimsai-secrets.tls=true"
+      - "traefik.http.routers.pimsai-secrets.tls.certresolver=cloudflare"
+      - "traefik.http.services.pimsai-secrets.loadbalancer.server.port=3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+networks:
+  # Host-provided external network hosting Traefik and docker-proxy (SPEC §4)
+  internal-proxy:
+    external: true
+  # Isolated bridge network between agent, db, and secrets-sidecar
+  agent-internal:
+    driver: bridge
+
+volumes:
+  agent_data:
+    driver: local
+  secrets_data:
+    driver: local
+  pgvector_data:
+    driver: local

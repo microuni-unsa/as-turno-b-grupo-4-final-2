@@ -1,0 +1,19 @@
+{
+  "name": "@pims/pims-adapter",
+  "version": "1.0.0",
+  "description": "Typed TypeScript client for GESTITEL PIMS with multi-tenant guards and fail-safe protocols",
+  "type": "module",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./auth": "./auth.ts",
+    "./documents": "./documents.ts",
+    "./incidents": "./incidents.ts",
+    "./reads": "./reads.ts",
+    "./config": "./config.ts",
+    "./guards": "./guards.ts",
+    "./errors": "./errors.ts",
+    "./types": "./types.ts"
+  }
+}

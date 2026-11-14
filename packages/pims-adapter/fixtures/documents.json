@@ -1,0 +1,109 @@
+{
+  "list": {
+    "count": 2,
+    "next": null,
+    "previous": null,
+    "results": [
+      {
+        "id": 101,
+        "code": "G4-POL-001",
+        "current_version": 2,
+        "name": "Política de Seguridad de la Información y Privacidad PIMS",
+        "category": "política",
+        "status": "V",
+        "responsible": "Grupo 4 - Turno B",
+        "file": "/media/documents/G4-POL-001_v2.pdf",
+        "approved_at": "2026-11-10T14:30:00Z",
+        "approved_by_name": "Auditor Líder G4",
+        "related_documents": [
+          {
+            "id": 102,
+            "code": "G4-PROC-002",
+            "name": "Procedimiento de Gestión de Incidentes"
+          }
+        ],
+        "gap_requirements": ["ISO 27001:2022 A.5.1", "ISO 27701:2025 5.2.1"]
+      },
+      {
+        "id": 102,
+        "code": "G4-PROC-002",
+        "current_version": 1,
+        "name": "Procedimiento de Gestión y Notificación de Brechas de Datos",
+        "category": "procedimiento",
+        "status": "R",
+        "responsible": "Grupo 4 - Turno B",
+        "file": "/media/documents/G4-PROC-002_v1.pdf",
+        "approved_at": null,
+        "approved_by_name": null,
+        "related_documents": [
+          {
+            "id": 101,
+            "code": "G4-POL-001",
+            "name": "Política de Seguridad de la Información y Privacidad PIMS"
+          }
+        ],
+        "gap_requirements": ["GDPR Art. 33", "ISO 27701:2025 6.13.1"]
+      }
+    ]
+  },
+  "detail": {
+    "id": 101,
+    "code": "G4-POL-001",
+    "current_version": 2,
+    "name": "Política de Seguridad de la Información y Privacidad PIMS",
+    "category": "política",
+    "status": "V",
+    "responsible": "Grupo 4 - Turno B",
+    "file": "/media/documents/G4-POL-001_v2.pdf",
+    "approved_at": "2026-11-10T14:30:00Z",
+    "approved_by_name": "Auditor Líder G4",
+    "related_documents": [
+      {
+        "id": 102,
+        "code": "G4-PROC-002",
+        "name": "Procedimiento de Gestión de Incidentes"
+      }
+    ],
+    "gap_requirements": ["ISO 27001:2022 A.5.1", "ISO 27701:2025 5.2.1"]
+  },
+  "versions": [
+    {
+      "id": 201,
+      "document_id": 101,
+      "version_number": 1,
+      "file": "/media/documents/versions/G4-POL-001_v1.pdf",
+      "change_summary": "Versión inicial borrador para revisión interna",
+      "uploaded_at": "2026-11-01T10:00:00Z",
+      "uploaded_by_name": "Responsable SGSI Grupo 4"
+    },
+    {
+      "id": 202,
+      "document_id": 101,
+      "version_number": 2,
+      "file": "/media/documents/versions/G4-POL-001_v2.pdf",
+      "change_summary": "Alineación con directrices ISO 27701:2025 y anexos de privacidad",
+      "uploaded_at": "2026-11-10T12:00:00Z",
+      "uploaded_by_name": "Responsable SGSI Grupo 4"
+    }
+  ],
+  "approved": {
+    "id": 101,
+    "code": "G4-POL-001",
+    "current_version": 2,
+    "name": "Política de Seguridad de la Información y Privacidad PIMS",
+    "category": "política",
+    "status": "V",
+    "responsible": "Grupo 4 - Turno B",
+    "file": "/media/documents/G4-POL-001_v2.pdf",
+    "approved_at": "2026-11-13T18:00:00Z",
+    "approved_by_name": "Auditor Líder G4",
+    "related_documents": [
+      {
+        "id": 102,
+        "code": "G4-PROC-002",
+        "name": "Procedimiento de Gestión de Incidentes"
+      }
+    ],
+    "gap_requirements": ["ISO 27001:2022 A.5.1", "ISO 27701:2025 5.2.1"]
+  }
+}

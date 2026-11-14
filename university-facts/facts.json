@@ -1,0 +1,105 @@
+{
+  "institution": {
+    "name": "Universidad Nacional de San Agustín de Arequipa",
+    "acronym": "UNSA",
+    "country": "PE",
+    "role": "PII Controller (Cl. 4.1 ISO/IEC 27701:2025)",
+    "statutory_law": "Ley Universitaria 30220 / Ley 29733 de Protección de Datos Personales de Perú",
+    "rector": {
+      "2019_2021": "Dr. Rohel Sánchez Sánchez",
+      "2022_2026": "Dr. Hugo José Sánchez"
+    },
+    "dutic_director": "Mg. Lucía Valdivia Paredes",
+    "osi_dpo": "Ing. Carlos M. Benítez",
+    "admission_director": "Dr. Walter Delgado Manrique",
+    "payroll_director": "Lic. Martha Elena Córdova"
+  },
+  "campuses": [
+    {
+      "id": "CAMPUS_ING",
+      "name": "Campus Área de Ingenierías",
+      "city": "Arequipa",
+      "address": "Av. Independencia s/n con Paucarpata",
+      "active_since": "1960",
+      "in_scope_v1": true,
+      "in_scope_v2": true,
+      "in_scope_v3": true
+    },
+    {
+      "id": "CAMPUS_BIO",
+      "name": "Campus Área de Biomédicas",
+      "city": "Arequipa",
+      "address": "Av. Alcides Carrión s/n",
+      "active_since": "1965",
+      "in_scope_v1": true,
+      "in_scope_v2": true,
+      "in_scope_v3": true
+    },
+    {
+      "id": "CAMPUS_SOC",
+      "name": "Campus Área de Sociales",
+      "city": "Arequipa",
+      "address": "Av. Virgen del Pilar s/n",
+      "active_since": "1972",
+      "in_scope_v1": true,
+      "in_scope_v2": true,
+      "in_scope_v3": true
+    },
+    {
+      "id": "FILIAL_CAMANA",
+      "name": "Filial Camaná",
+      "city": "Camaná",
+      "address": "Av. Costanera s/n, Camaná",
+      "active_since": "2024-12",
+      "in_scope_v1": false,
+      "in_scope_v2": false,
+      "in_scope_v3": true,
+      "incorporation_date": "2025-03-01",
+      "source": "Resolución Rectoral N° 0142-2025-UNSA [synthetic-assumed: formalización administrativa de filiales regionales]",
+      "notes": "Programas descentralizados de Administración y Contabilidad"
+    },
+    {
+      "id": "FILIAL_PEDREGAL",
+      "name": "Filial El Pedregal (Majes)",
+      "city": "Majes - Caylloma",
+      "address": "Calle 4 s/n, El Pedregal",
+      "active_since": "2024-11",
+      "in_scope_v1": false,
+      "in_scope_v2": false,
+      "in_scope_v3": true,
+      "incorporation_date": "2025-03-01",
+      "source": "Resolución Rectoral N° 0143-2025-UNSA [synthetic-assumed: formalización administrativa de filiales regionales]",
+      "notes": "Programas descentralizados de Agronomía e Ingeniería Pesquera"
+    }
+  ],
+  "timeline": [
+    {
+      "milestone": "v1_cert",
+      "date": "2019-04-15",
+      "norm": "ISO/IEC 27001:2013 / ISO/IEC 27701:2019 DIS/CD adoption",
+      "scope": "Procesos presenciales de Admisión Ordinaria y Planilla en sedes centrales Arequipa",
+      "status": "obsoleto"
+    },
+    {
+      "milestone": "v2_post_pandemic_shrink",
+      "date": "2022-09-10",
+      "norm": "ISO/IEC 27701:2019",
+      "scope": "Reducción post-pandemia: migración a admisión digital y teletrabajo de nómina; exclusión de archivos físicos históricos",
+      "status": "obsoleto"
+    },
+    {
+      "milestone": "v3_filiales_recert",
+      "date": "2025-10-28",
+      "norm": "ISO/IEC 27701:2025 (Segunda edición, standalone PIMS)",
+      "scope": "Admisión y Planilla extendidos a Sedes Centrales Arequipa y Filiales Camaná y El Pedregal",
+      "status": "vigente"
+    }
+  ],
+  "rof_placeholders": {
+    "rof_code": "ROF-UNSA-2023-REV4 [synthetic-assumed]",
+    "article_osi": "Art. 42-B: Funciones de la Oficina de Seguridad de la Información y Datos Personales [synthetic-assumed]",
+    "article_dutic": "Art. 78: Atribuciones de la DUTIC sobre infraestructura y telecomunicaciones",
+    "article_admision": "Art. 112: Competencias de la Dirección General de Admisión en custodia de padrones",
+    "article_rrhh": "Art. 95: Obligaciones de la Subdirección de Personal en tratamiento de nóminas"
+  }
+}

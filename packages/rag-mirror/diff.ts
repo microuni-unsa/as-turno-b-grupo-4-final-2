@@ -1,0 +1,288 @@
+import { createHash } from "node:crypto";
+import { chunkTextWithLines } from "./chunker.js";
+import { RAG_CONFIG } from "./config.js";
+import { readFromCorpusMirror } from "./mirror.js";
+import type {
+  ChunkDiffItem,
+  DiffStats,
+  DocumentChunk,
+  LineDiffItem,
+  PimsAdapterInterface,
+  PimsDocumentFetcher,
+  StructuralDiff,
+} from "./types.js";
+
+/**
+ * Dedicated typed error naming WHICH document and version is missing.
+ */
+export class MissingVersionError extends Error {
+  readonly pims_doc_id: string;
+  readonly missing_version: string;
+
+  constructor(pims_doc_id: string, missing_version: string, details?: string) {
+    const detailMsg = details !== undefined ? `: ${details}` : "";
+    super(
+      `Document '${pims_doc_id}' is missing version '${missing_version}'${detailMsg}`
+    );
+    this.name = "MissingVersionError";
+    this.pims_doc_id = pims_doc_id;
+    this.missing_version = missing_version;
+    Object.setPrototypeOf(this, MissingVersionError.prototype);
+  }
+}
+
+export interface VersionCompareOptions {
+  readonly fetcher?: PimsDocumentFetcher | PimsAdapterInterface;
+  readonly mirrorDir?: string;
+  readonly targetChars?: number;
+  readonly overlapLines?: number;
+}
+
+interface LoadedVersionData {
+  readonly version: string;
+  readonly text: string;
+  readonly chunks: DocumentChunk[];
+  readonly sha256: string;
+  readonly supersedes: string | null;
+}
+
+/**
+ * Fetches document version from local mirror or falls back to PIMS fetcher.
+ * Throws typed MissingVersionError naming the exact version if not found.
+ */
+async function loadVersionData(
+  pims_doc_id: string,
+  version: string,
+  options: VersionCompareOptions
+): Promise<LoadedVersionData> {
+  const mirrorDir = options.mirrorDir ?? RAG_CONFIG.CORPUS_MIRROR_DIR;
+
+  // 1. Try reading from local corpus mirror
+  try {
+    const mirror = readFromCorpusMirror(pims_doc_id, version, mirrorDir);
+    const chunks = chunkTextWithLines(mirror.text, {
+      targetChars: options.targetChars ?? RAG_CONFIG.DEFAULT_CHUNK_SIZE,
+      overlapLines: options.overlapLines ?? RAG_CONFIG.DEFAULT_CHUNK_OVERLAP,
+    });
+    return {
+      version,
+      text: mirror.text,
+      chunks,
+      sha256: mirror.sha256,
+      supersedes: mirror.manifestEntry.supersedes,
+    };
+  } catch (mirrorErr) {
+    // 2. If mirror read fails, check injected PIMS fetcher
+    if (options.fetcher !== undefined) {
+      const fetcherFn =
+        typeof options.fetcher === "function"
+          ? options.fetcher
+          : (id: string, v: string) =>
+              (options.fetcher as PimsAdapterInterface).fetchDocumentVersion(id, v);
+
+      try {
+        const doc = await fetcherFn(pims_doc_id, version);
+        if (!doc || doc.pims_version !== version) {
+          throw new MissingVersionError(
+            pims_doc_id,
+            version,
+            "PIMS fetcher returned empty or mismatched version"
+          );
+        }
+
+        const text =
+          typeof doc.content === "string"
+            ? doc.content
+            : Buffer.from(doc.content).toString("utf8");
+
+        const sha256 = createHash("sha256").update(text, "utf8").digest("hex");
+        const chunks = chunkTextWithLines(text, {
+          targetChars: options.targetChars ?? RAG_CONFIG.DEFAULT_CHUNK_SIZE,
+          overlapLines: options.overlapLines ?? RAG_CONFIG.DEFAULT_CHUNK_OVERLAP,
+        });
+
+        return {
+          version,
+          text,
+          chunks,
+          sha256,
+          supersedes: doc.supersedes ?? null,
+        };
+      } catch (fetchErr) {
+        if (fetchErr instanceof MissingVersionError) {
+          throw fetchErr;
+        }
+        throw new MissingVersionError(
+          pims_doc_id,
+          version,
+          `Failed fetching from mirror and PIMS: ${fetchErr instanceof Error ? fetchErr.message : String(fetchErr)}`
+        );
+      }
+    }
+
+    throw new MissingVersionError(
+      pims_doc_id,
+      version,
+      `Not found in local corpus mirror and no PIMS fetcher provided`
+    );
+  }
+}
+
+/**
+ * Computes structural differences between two versions of a document.
+ */
+export async function compareVersions(
+  pims_doc_id: string,
+  versionA: string,
+  versionB: string,
+  options: VersionCompareOptions = {}
+): Promise<StructuralDiff> {
+  // Load version A first; raises MissingVersionError naming versionA if missing
+  const dataA = await loadVersionData(pims_doc_id, versionA, options);
+
+  // Load version B next; raises MissingVersionError naming versionB if missing
+  const dataB = await loadVersionData(pims_doc_id, versionB, options);
+
+  // Compute chunk-level diffs
+  const chunkDiffs: ChunkDiffItem[] = [];
+  const maxChunkCount = Math.max(dataA.chunks.length, dataB.chunks.length);
+
+  let chunksAdded = 0;
+  let chunksRemoved = 0;
+  let chunksModified = 0;
+  let chunksUnchanged = 0;
+
+  for (let i = 0; i < maxChunkCount; i++) {
+    const chunkA = dataA.chunks[i];
+    const chunkB = dataB.chunks[i];
+
+    if (chunkA !== undefined && chunkB !== undefined) {
+      if (chunkA.sha256 === chunkB.sha256) {
+        chunksUnchanged++;
+        chunkDiffs.push({
+          type: "unchanged",
+          chunk_id_a: chunkA.chunk_id,
+          chunk_id_b: chunkB.chunk_id,
+          lines_a: chunkA.lines,
+          lines_b: chunkB.lines,
+          text_a: chunkA.text,
+          text_b: chunkB.text,
+          sha256_a: chunkA.sha256,
+          sha256_b: chunkB.sha256,
+        });
+      } else {
+        chunksModified++;
+        chunkDiffs.push({
+          type: "modified",
+          chunk_id_a: chunkA.chunk_id,
+          chunk_id_b: chunkB.chunk_id,
+          lines_a: chunkA.lines,
+          lines_b: chunkB.lines,
+          text_a: chunkA.text,
+          text_b: chunkB.text,
+          sha256_a: chunkA.sha256,
+          sha256_b: chunkB.sha256,
+        });
+      }
+    } else if (chunkA !== undefined && chunkB === undefined) {
+      chunksRemoved++;
+      chunkDiffs.push({
+        type: "removed",
+        chunk_id_a: chunkA.chunk_id,
+        lines_a: chunkA.lines,
+        text_a: chunkA.text,
+        sha256_a: chunkA.sha256,
+      });
+    } else if (chunkA === undefined && chunkB !== undefined) {
+      chunksAdded++;
+      chunkDiffs.push({
+        type: "added",
+        chunk_id_b: chunkB.chunk_id,
+        lines_b: chunkB.lines,
+        text_b: chunkB.text,
+        sha256_b: chunkB.sha256,
+      });
+    }
+  }
+
+  // Compute line-level diffs
+  const linesA = dataA.text.split(/\r?\n/);
+  const linesB = dataB.text.split(/\r?\n/);
+  const lineDiffs: LineDiffItem[] = [];
+
+  let linesAdded = 0;
+  let linesRemoved = 0;
+
+  const maxLines = Math.max(linesA.length, linesB.length);
+  for (let i = 0; i < maxLines; i++) {
+    const lA = linesA[i];
+    const lB = linesB[i];
+
+    if (lA !== undefined && lB !== undefined) {
+      if (lA === lB) {
+        lineDiffs.push({
+          type: "unchanged",
+          line_number_a: i + 1,
+          line_number_b: i + 1,
+          text: lA,
+        });
+      } else {
+        linesRemoved++;
+        linesAdded++;
+        lineDiffs.push({
+          type: "removed",
+          line_number_a: i + 1,
+          text: lA,
+        });
+        lineDiffs.push({
+          type: "added",
+          line_number_b: i + 1,
+          text: lB,
+        });
+      }
+    } else if (lA !== undefined && lB === undefined) {
+      linesRemoved++;
+      lineDiffs.push({
+        type: "removed",
+        line_number_a: i + 1,
+        text: lA,
+      });
+    } else if (lA === undefined && lB !== undefined) {
+      linesAdded++;
+      lineDiffs.push({
+        type: "added",
+        line_number_b: i + 1,
+        text: lB,
+      });
+    }
+  }
+
+  const stats: DiffStats = {
+    chunks_added: chunksAdded,
+    chunks_removed: chunksRemoved,
+    chunks_modified: chunksModified,
+    chunks_unchanged: chunksUnchanged,
+    lines_added: linesAdded,
+    lines_removed: linesRemoved,
+  };
+
+  const summary =
+    `Diff ${pims_doc_id} (v${versionA} -> v${versionB}): ` +
+    `${chunksModified} chunks modified, ${chunksAdded} added, ${chunksRemoved} removed, ` +
+    `${chunksUnchanged} unchanged. (${linesAdded} lines added, ${linesRemoved} lines removed).`;
+
+  return {
+    pims_doc_id,
+    version_a: versionA,
+    version_b: versionB,
+    chunks_a_count: dataA.chunks.length,
+    chunks_b_count: dataB.chunks.length,
+    sha256_a: dataA.sha256,
+    sha256_b: dataB.sha256,
+    supersedes: dataB.supersedes ?? dataA.version,
+    chunk_diffs: chunkDiffs,
+    line_diffs: lineDiffs,
+    stats,
+    summary,
+  };
+}
