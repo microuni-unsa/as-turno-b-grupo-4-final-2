@@ -12,20 +12,23 @@ interface ChatMessage {
 }
 
 export default function (pi: any) {
-  const BANNER_TEXT = `╔══════════════════════════════════════════════════════════════════════════════╗
-║                   UNSA PIMS AGENTIC OPERATOR (TURNO B GRUPO 4)               ║
-║      Gestor Agéntico de Privacidad y Seguridad — ISO/IEC 27701:2025         ║
-╚══════════════════════════════════════════════════════════════════════════════╝
+  const BANNER_TEXT = `╔════════════════════════════════════════════════════════════════════════════╗
+║                UNSA PIMS AGENTIC OPERATOR (TURNO B GRUPO 4)                ║
+║       Gestor Agéntico de Privacidad y Seguridad — ISO/IEC 27701:2025       ║
+╚════════════════════════════════════════════════════════════════════════════╝
 
-Bienvenido al operador de cumplimiento PIMS para la Universidad Nacional de San Agustín.
-• Fuente de Verdad: PIMS GESTITEL (https://unsa.27k.pe, esquema unsa)
-• Espejo Semántico: PostgreSQL pgvector con mistral-embed (1024-dim)
-• Ámbito Normativo: ISO/IEC 27701:2025 Cl. 4.1 PII Controller (Tablas A.1 y A.3 en alcance; A.2 excluida)
-• Convención de Escritura: Prefijo obligatorio G4- en todo registro
-• Gestión de Secretos: Uso estricto de identificadores opacos (secret:<nombre>@<v>)
+Bienvenido al asistente de gestión de privacidad (PIMS) para la Universidad Nacional de San Agustín.
 
-escribe 'mas ayuda' para instrucciones mas detalladas
-`.trim();
+Qué puedes consultar y gestionar aquí:
+• Documentación normativa: Políticas, procedimientos, alcance, SoA y comparación de versiones.
+• Incidentes de privacidad: Registro, seguimiento, riesgos asociados y notificaciones.
+• Auditorías y mejora continua: Trazabilidad de hallazgos, no conformidades y acciones correctivas.
+• Capacitación y cumplimiento: Controles ISO/IEC 27701:2025 (PII Controller) y planes de tratamiento.
+
+Comandos iniciales útiles:
+• /new              Iniciar una nueva conversación limpia
+• /resume           Retomar una sesión anterior
+• mas ayuda         Mostrar la guía operativa completa`.trim();
 
   // 1. Session start banner
   pi.on("session_start", async (_event: any, _ctx: any) => {

@@ -10,7 +10,6 @@ Este operador agéntico implementa, audita, versiona y remedia evidencia documen
   > **Recomendación**: Ejecute `/new` cada vez que termine una línea temática de investigación o demo para mantener el contexto limpio y preservar la cuota de peticiones (`task.softRequestBudget`).
 - `/resume`: Abre el selector interactivo para reanudar sesiones históricas previas.
 - `mas ayuda`: Muestra este manual de uso completo.
-- `/skill:<nombre>`: Invoca directamente cualquiera de las 11 habilidades registradas en el sistema.
 
 ---
 
@@ -21,7 +20,7 @@ Este operador agéntico implementa, audita, versiona y remedia evidencia documen
    - El operador interactúa directamente mediante la API REST (`/business/login/` con JWT y `/api/.../`).
 2. **Espejo y Cache Semántico (pgvector Sidecar)**:
    - Copia local versionada en `corpus_mirror/<doc_id>/v<version>.<ext>` con `manifest.json`.
-   - Vectorización con `mistral-embed` (1024 dimensiones) almacenada en PostgreSQL con índice coseno (`<=>`).
+   - Vectorización semántica (1024 dimensiones, endpoint compatible con OpenAI configurado mediante `EMBEDDINGS_BASE_URL` y `EMBEDDING_MODEL`) almacenada en PostgreSQL con índice coseno (`<=>`).
    - Citas verbatim con formato: `pims:<doc_id>:v<version>:chunk:<index>:lines:<inicio>-<fin>` y hash SHA-256 por fragmento.
    - **Regla de Cache**: El espejo es estrictamente una cache. Si la API de PIMS no responde, el operador responde desde el espejo etiquetando: `[FUENTE: Cache local pgvector mirror (PIMS no disponible)]`.
 3. **Moldes Typst (`molds/*.typ`)**:
@@ -55,19 +54,12 @@ Este operador agéntico implementa, audita, versiona y remedia evidencia documen
 
 ---
 
-## 5. CATÁLOGO DE LAS 11 HABILIDADES
+## 5. CAPACIDADES DISPONIBLES (LENGUAJE NATURAL)
 
-### Habilidades Principales (3)
-1. `pims-reader`: Lectores rápidos estandarizados sobre la API REST de PIMS con filtrado `G4-`, protocolo de contingencia ante fallos y uso de cache pgvector.
-2. `connector-builder`: Creación dinámica de conectores siguiendo la convención (`connectors/<name>/ = client.ts + SKILL-FRAG.md`), generación en segundo plano y bucle de autoreparación.
-3. `ingest`: Descarga de PIMS, fragmentación, cálculo de SHA-256, vectorización con `mistral-embed` (1024-dim), indexación en pgvector y sincronización del registro.
+No es necesario invocar comandos especiales para usar las capacidades del operador; basta con formular su solicitud en lenguaje natural:
 
-### Habilidades de Comportamiento (8)
-4. `version-compare`: Comparación estructural entre versiones descargadas de PIMS, narrando la justificación histórica y contexto RAFA.
-5. `incident-ops`: Gestión profunda del ciclo de incidentes, registro de severidad, contención y trazabilidad normativa (Cl. 8.1 / A.3.11 / A.3.12).
-6. `audit-chain`: Trazabilidad completa desde el hallazgo de auditoría hacia la No Conformidad (NC), acción correctiva y cita de evidencia documental.
-7. `directed-version`: Mutación dirigida de documentos aplicando instrucciones específicas (ampliación de sede, cambio normativo), subida como nueva versión y reindexación.
-8. `cascade`: Registro de hechos universitarios en `university-facts/`, análisis de impacto en cascada sobre los documentos afectados y propuesta de regeneración.
-9. `proactive`: Sugerencia proactiva de informes, evidencias o análisis conexos basados en la consulta actual del usuario.
-10. `summons-dispatch`: Consulta de acciones correctivas pendientes, generación de tabla de requerimientos y despacho previa aprobación explícita.
-11. `live-build`: Construcción en vivo y prueba en segundo plano de conectores no implementados manteniendo la sesión principal interactiva.
+- **Consulta y comparación documental**: Buscar políticas, procedimientos, SoA o actas, y comparar diferencias e historial entre versiones.
+- **Gestión de incidentes y riesgos**: Consultar el registro de incidentes, evaluar severidad/contención y revisar escenarios y planes de tratamiento de riesgos.
+- **Trazabilidad de auditorías**: Seguir la cadena completa desde un hallazgo de auditoría hacia su No Conformidad (NC), acción correctiva, responsables y evidencia documental.
+- **Actualización y generación de documentos**: Solicitar nuevas versiones por cambios de alcance o hechos institucionales, o subir archivos mediante enlaces temporales seguros para su indexación.
+- **Notificaciones e integraciones**: Redactar requerimientos de seguimiento (con envío únicamente tras aprobación explícita) y habilitar conectores externos según necesidad.

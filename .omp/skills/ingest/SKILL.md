@@ -7,6 +7,8 @@ description: Document ingestion pipeline: PIMS download, local mirror storage, s
 
 Executes the end-to-end ingestion pipeline to synchronize primary documents from PIMS GESTITEL into the local versioned corpus mirror and PostgreSQL pgvector semantic index.
 
+> **Ask First for User Uploads**: When a user uploads a temporary file via `files-sidecar` (`upload-and-read`), **do NOT** run the vectorization/ingestion pipeline automatically unless the user explicitly requested indexing. First inspect the file and ask whether they want temporary Q&A only, pgvector indexing, or PIMS upload.
+
 ## 1. Pipeline Execution: `ingest(pims_doc_id, version)`
 The ingestion process executes in a deterministic sequence:
 

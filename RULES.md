@@ -15,9 +15,9 @@ This file contains sticky, non-negotiable operational restrictions and positive 
 - **Handles Only**: Plaintext credentials (passwords, JWT tokens, private keys, API keys) must **NEVER** appear in chat transcripts, console logs, or repository files.
 - **Sidecar Workflow**:
   1. When a credential is required, invoke `secrets.request(label)` (or `secrets_request`).
-  2. The sidecar issues a one-time submission URL: `https://secrets.pimsai.mistercricro8.top/s/<token>` with a 5-minute expiry.
+  2. The sidecar issues a one-time submission URL: `https://secrets.pimsai.mistercricro8.top:444/s/<token>` with a 5-minute expiry.
   3. The operator provides this link to the instructor/user to securely input the secret in the browser.
-  4. The operator polls `secrets.poll(handle)` (or `secrets_poll`) to obtain an opaque handle: `secret:<name>@<version>`.
+  4. The operator polls `secrets.poll(handle)` (or `secrets_poll`) using `bash` with `async: true` to obtain an opaque handle: `secret:<name>@<version>`.
 - **Handle Resolution**: Opaque handles resolve exclusively as environment variables inside spawned sibling Docker containers (`secret:<name>@<v>` injected at `docker run`) or as Authorization headers inside the isolated connector execution runtime.
 - **Transcripts**: Any accidental exposure of tokens or passwords in conversational turns must be intercepted and replaced with redacted place markers.
 

@@ -1,4 +1,4 @@
-# Final Solution Spec — Turno B Grupo 4: Agentic Incidents-PIMS for UNSA
+# [DEPRECATED] Final Solution Spec — Turno B Grupo 4: Agentic Incidents-PIMS for UNSA
 
 Status: realigned 2026-11-13 (VPS + GESTITEL API + ISO PDF verified live).
 Owner: Turno B Grupo 4. Examiner: course instructor (volatile, escalates from Q&A to live "crazy" requests).
