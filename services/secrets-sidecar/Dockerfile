@@ -16,7 +16,7 @@ RUN mkdir -p /var/lib/secrets-store && chown -R node:node /var/lib/secrets-store
 ENV NODE_ENV=production \
     PORT=3000 \
     HOST=0.0.0.0 \
-    BASE_URL=https://secrets.pimsai.mistercricro8.top \
+    BASE_URL=https://secrets.pimsai.mistercricro8.top:444 \
     SECRETS_STORE_DIR=/var/lib/secrets-store
 
 # Copy configuration and source files

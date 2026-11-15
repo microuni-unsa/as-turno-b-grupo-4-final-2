@@ -5,7 +5,7 @@
 export const CONFIG = {
   HOST: process.env.HOST || '0.0.0.0',
   PORT: parseInt(process.env.PORT || '3000', 10),
-  BASE_URL: process.env.BASE_URL || 'https://secrets.pimsai.mistercricro8.top',
+  BASE_URL: process.env.BASE_URL || 'https://secrets.pimsai.mistercricro8.top:444',
   TOKEN_EXPIRY_MS: 5 * 60 * 1000, // 5 minutes in milliseconds
   STORE_DIR: process.env.SECRETS_STORE_DIR || '/var/lib/secrets-store',
   DEFAULT_POLL_INTERVAL_MS: 1000,

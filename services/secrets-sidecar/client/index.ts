@@ -9,7 +9,7 @@ import {
 export * from './types.js';
 export * from './errors.js';
 
-const DEFAULT_BASE_URL = process.env.SECRETS_SIDECAR_URL || 'https://secrets.pimsai.mistercricro8.top';
+const DEFAULT_BASE_URL = process.env.SECRETS_SIDECAR_URL || 'https://secrets.pimsai.mistercricro8.top:444';
 const DEFAULT_POLL_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 const DEFAULT_POLL_INTERVAL_MS = 1000; // 1 second
 
