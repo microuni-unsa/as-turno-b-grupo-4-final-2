@@ -35,6 +35,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     jq \
     ripgrep \
     file \
+    fontconfig \
+    fonts-liberation \
+    fonts-dejavu-core \
+    fonts-noto-core \
+    fonts-crosextra-carlito \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv / uvx (multi-arch via official installer)
