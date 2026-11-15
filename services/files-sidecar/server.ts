@@ -10,6 +10,7 @@ import { URL } from 'node:url';
 
 /** Traefik Host string for the upload sidecar service */
 export const TRAEFIK_HOST = 'files.pimsai.mistercricro8.top';
+export const PUBLIC_BASE_URL = (process.env.PUBLIC_BASE_URL || `https://${TRAEFIK_HOST}:444`).replace(/\/$/, '');
 
 /** Default token expiry: 5 minutes */
 export const DEFAULT_TOKEN_EXPIRY_MINUTES = 5;
@@ -23,8 +24,8 @@ export const DEFAULT_POLL_TIMEOUT_SECONDS = DEFAULT_POLL_TIMEOUT_MINUTES * 60; /
 export const DEFAULT_POLL_TIMEOUT_MS = DEFAULT_POLL_TIMEOUT_MINUTES * 60 * 1000; // 5 min
 export const POLL_TIMEOUT_DEFAULT = DEFAULT_POLL_TIMEOUT_MS;
 
-/** Maximum allowed upload size: ~10MB cap */
-export const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10,485,760 bytes (~10 MB)
+/** Maximum allowed upload size: 50MB cap */
+export const MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024; // 52,428,800 bytes (50 MB)
 
 /** Default HTTP Port */
 export const DEFAULT_PORT = 3000;
@@ -53,10 +54,15 @@ export const MIME_TYPE_MAP: Record<SupportedExtension, string> = {
 
 /** Directory for preserved uploaded files */
 export const PRESERVED_UPLOADS_DIR = path.join(process.cwd(), 'data', 'preserved_uploads');
+export const PUBLISHED_DIR = path.join(PRESERVED_UPLOADS_DIR, '_published');
+export const DEFAULT_PUBLISH_TTL_SECONDS = 3600; // 1 hour
 
-// Ensure preservation directory exists
+// Ensure preservation & publish directories exist
 if (!fs.existsSync(PRESERVED_UPLOADS_DIR)) {
   fs.mkdirSync(PRESERVED_UPLOADS_DIR, { recursive: true });
+}
+if (!fs.existsSync(PUBLISHED_DIR)) {
+  fs.mkdirSync(PUBLISHED_DIR, { recursive: true });
 }
 
 // ============================================================================
@@ -113,6 +119,7 @@ export interface UploadSession {
   expiresAt: number;
   status: SessionStatus;
   flow: UploadFlow;
+  uploadToPims: boolean;
   targetDocId?: string | number;
   changeSummary?: string;
   documentMetadata: {
@@ -310,6 +317,7 @@ export const sessionStore = new Map<string, UploadSession>();
  */
 export function mintUploadSession(options?: {
   flow?: UploadFlow;
+  uploadToPims?: boolean;
   expiryMs?: number;
   targetDocId?: string | number;
   changeSummary?: string;
@@ -326,19 +334,22 @@ export function mintUploadSession(options?: {
   const expiryMs = options?.expiryMs ?? DEFAULT_TOKEN_EXPIRY_MS;
   const expiresAt = now + expiryMs;
   const expiryMinutes = Math.round(expiryMs / 60000);
+  const flow = options?.flow ?? 'upload-and-read';
+  const uploadToPims = options?.uploadToPims ?? (flow === 'directed-version');
 
   const session: UploadSession = {
     token,
     createdAt: now,
     expiresAt,
     status: 'minted',
-    flow: options?.flow ?? 'upload-and-read',
+    flow,
+    uploadToPims,
     targetDocId: options?.targetDocId,
     changeSummary: options?.changeSummary,
     documentMetadata: {
       code: options?.metadata?.code,
       name: options?.metadata?.name,
-      category: options?.metadata?.category ?? 'Evidencias',
+      category: options?.metadata?.category,
       status: options?.metadata?.status ?? 'B',
       responsible: options?.metadata?.responsible ?? 'Instructor G4'
     }
@@ -346,7 +357,7 @@ export function mintUploadSession(options?: {
 
   sessionStore.set(token, session);
 
-  const uploadUrl = `https://${TRAEFIK_HOST}/upload/${token}`;
+  const uploadUrl = `${PUBLIC_BASE_URL}/upload/${token}`;
   const announcedMessage = `Sube tu archivo a través del siguiente enlace web seguro: ${uploadUrl} (Enlace de un solo uso, expira en ${expiryMinutes} minutos).`;
 
   return { session, uploadUrl, announcedMessage };
@@ -536,8 +547,14 @@ export async function processUploadedSession(
   }
 
   // ----------------------------------------------------
-  // STAGE 3: PIMS UPLOAD
+  // STAGE 3: PIMS UPLOAD (Only when explicitly requested)
   // ----------------------------------------------------
+  if (!session.uploadToPims) {
+    session.status = 'completed';
+    session.failure = undefined;
+    return;
+  }
+
   try {
     let ack: PimsAckResult;
     if (session.flow === 'directed-version' && session.targetDocId) {
@@ -553,11 +570,14 @@ export async function processUploadedSession(
         session.documentMetadata.code ||
         `G4-DOC-${Date.now().toString(36).toUpperCase()}`;
       const docName = session.documentMetadata.name || session.file.originalName;
+      if (!session.documentMetadata.category) {
+        throw new Error('PIMS upload requested without a valid document category in metadata.category');
+      }
 
       ack = await adapter.createDocument({
         code: docCode,
         name: docName,
-        category: session.documentMetadata.category || 'Evidencias',
+        category: session.documentMetadata.category,
         status: session.documentMetadata.status || 'B',
         responsible: session.documentMetadata.responsible || 'Instructor G4',
         fileBuffer: fileBuffer,
@@ -712,7 +732,7 @@ export function renderUploadHtml(session: UploadSession): string {
     <div class="header">
       <span class="badge">Flujo: ${session.flow}</span>
       <h1>UNSA PIMS — Subida Segura</h1>
-      <p class="sub">Este enlace es de <strong>un solo uso</strong>. Permite subir evidencias, registros o versiones de documentos directamente a PIMS.</p>
+      <p class="sub">Este enlace es de <strong>un solo uso</strong>. Permite enviar archivos de forma segura al agente${session.uploadToPims ? ' y registrarlos en PIMS' : ''}.</p>
     </div>
 
     <div class="timer-box">
@@ -724,19 +744,19 @@ export function renderUploadHtml(session: UploadSession): string {
       <div class="dropzone" id="dropzone">
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
         <p><strong>Haz clic aquí</strong> o arrastra tu archivo a esta zona</p>
-        <p>Límite máximo: 10 MB</p>
+        <p>Límite máximo: 50 MB</p>
         <input type="file" id="fileInput" name="file" accept=".pdf,.doc,.docx,.txt,.xlsx,.png" required />
       </div>
 
       <div class="file-selected" id="fileSelected"></div>
 
-      <button type="submit" class="btn" id="submitBtn" disabled>Subir Archivo a PIMS</button>
+      <button type="submit" class="btn" id="submitBtn" disabled>Subir Archivo</button>
     </form>
 
     <div id="statusBox" class="status-msg"></div>
 
     <div class="formats-note">
-      Formatos soportados: <strong>PDF, DOC, DOCX, TXT, XLSX, PNG</strong> (capacidad ~10 MB)
+      Formatos soportados: <strong>PDF, DOC, DOCX, TXT, XLSX, PNG</strong> (capacidad 50 MB)
     </div>
   </div>
 
@@ -781,8 +801,8 @@ export function renderUploadHtml(session: UploadSession): string {
     function handleFileSelect() {
       if (fileInput.files && fileInput.files[0]) {
         const file = fileInput.files[0];
-        if (file.size > 10 * 1024 * 1024) {
-          showStatus('El archivo supera el límite máximo permitido de 10 MB (' + (file.size / (1024*1024)).toFixed(2) + ' MB)', 'status-error');
+        if (file.size > ${MAX_FILE_SIZE_BYTES}) {
+          showStatus('El archivo supera el límite máximo permitido de 50 MB (' + (file.size / (1024*1024)).toFixed(2) + ' MB)', 'status-error');
           submitBtn.disabled = true;
           fileSelected.style.display = 'none';
           return;
@@ -824,8 +844,13 @@ export function renderUploadHtml(session: UploadSession): string {
           submitBtn.innerText = 'Reintentar Subida';
           submitBtn.disabled = false;
         } else {
-          showStatus('¡Subida completada con éxito! Identificador PIMS: ' + data.pims_doc_id + ' (versión: ' + data.version + ', ubicación: ' + data.placement + ')', 'status-success');
-          submitBtn.innerText = 'Archivo Ingestado';
+          if (data.upload_to_pims && data.pims_doc_id) {
+            showStatus('¡Subida completada con éxito! Identificador PIMS: ' + data.pims_doc_id + ' (versión: ' + data.version + ', ubicación: ' + data.placement + ')', 'status-success');
+            submitBtn.innerText = 'Archivo Ingestado';
+          } else {
+            showStatus('¡Archivo recibido con éxito! (' + data.file_name + ', ' + (data.file_size / 1024).toFixed(1) + ' KB). El agente ya puede leerlo.', 'status-success');
+            submitBtn.innerText = 'Archivo Enviado';
+          }
           clearInterval(timer);
         }
       } catch (err) {
@@ -844,7 +869,7 @@ export function renderUploadHtml(session: UploadSession): string {
 // ============================================================================
 
 export function sendJson(res: http.ServerResponse, statusCode: number, payload: unknown): void {
-  const body = JSON.stringify(payload, null, 2);
+  const body = JSON.stringify(payload);
   res.writeHead(statusCode, {
     'Content-Type': 'application/json; charset=utf-8',
     'Content-Length': Buffer.byteLength(body),
@@ -922,6 +947,7 @@ export async function handleRequest(
       }
 
       const flow = (payload.flow as UploadFlow) || 'upload-and-read';
+      const uploadToPims = typeof payload.upload_to_pims === 'boolean' ? payload.upload_to_pims : undefined;
       const targetDocId = payload.target_doc_id as string | number | undefined;
       const changeSummary = payload.change_summary as string | undefined;
       const metadata = payload.metadata as {
@@ -934,6 +960,7 @@ export async function handleRequest(
 
       const { session, uploadUrl, announcedMessage } = mintUploadSession({
         flow,
+        uploadToPims,
         targetDocId,
         changeSummary,
         metadata
@@ -946,6 +973,7 @@ export async function handleRequest(
         expires_in_seconds: Math.floor(DEFAULT_TOKEN_EXPIRY_MS / 1000),
         default_expiry_minutes: DEFAULT_TOKEN_EXPIRY_MINUTES,
         flow: session.flow,
+        upload_to_pims: session.uploadToPims,
         announced_message: announcedMessage
       });
     });
@@ -1041,13 +1069,13 @@ export async function handleRequest(
     const contentType = req.headers['content-type'] || '';
     const contentLength = parseInt(req.headers['content-length'] || '0', 10);
 
-    // Guard: ~10MB cap
+    // Guard: 50MB cap
     if (contentLength > MAX_FILE_SIZE_BYTES) {
       session.status = 'failed';
       session.failure = {
         stage: 'upload',
         errorCode: 'FILE_TOO_LARGE',
-        errorMessage: `El tamaño del archivo (${contentLength} bytes) excede el límite máximo de ${MAX_FILE_SIZE_BYTES} bytes (~10 MB)`,
+        errorMessage: `El tamaño del archivo (${contentLength} bytes) excede el límite máximo de ${MAX_FILE_SIZE_BYTES} bytes (50 MB)`,
         canRetry: false,
         failedAt: Date.now()
       };
@@ -1166,12 +1194,14 @@ export async function handleRequest(
       // Process pipeline: Parse -> PIMS Upload
       await processUploadedSession(session, parsed.data, adapter);
 
-      if (session.status === 'completed' && session.pimsAck) {
+      if (session.status === 'completed') {
         sendJson(res, 200, {
           status: 'completed',
-          pims_doc_id: session.pimsAck.pims_doc_id,
-          version: session.pimsAck.version,
-          placement: session.pimsAck.placement,
+          upload_to_pims: session.uploadToPims,
+          pims_doc_id: session.pimsAck?.pims_doc_id ?? null,
+          version: session.pimsAck?.version ?? null,
+          placement: session.pimsAck?.placement ?? null,
+          preserved_file_path: session.file.preservedPath,
           file_name: session.file.originalName,
           file_size: session.file.sizeBytes,
           sha256: session.file.sha256,
@@ -1258,20 +1288,22 @@ export async function handleRequest(
       }
 
       case 'completed': {
-        if (!session.pimsAck || !session.file) {
+        if (!session.file || (session.uploadToPims && !session.pimsAck)) {
           sendJson(res, 500, {
             status: 'error',
             error: 'CORRUPT_SESSION_STATE',
-            message: 'Estado de sesión completado sin confirmación de PIMS'
+            message: 'Estado de sesión completado incompleto'
           });
           return;
         }
 
         sendJson(res, 200, {
           status: 'completed',
-          pims_doc_id: session.pimsAck.pims_doc_id,
-          version: session.pimsAck.version,
-          placement: session.pimsAck.placement,
+          upload_to_pims: session.uploadToPims,
+          pims_doc_id: session.pimsAck?.pims_doc_id ?? null,
+          version: session.pimsAck?.version ?? null,
+          placement: session.pimsAck?.placement ?? null,
+          preserved_file_path: session.file.preservedPath,
           file_name: session.file.originalName,
           size_bytes: session.file.sizeBytes,
           sha256: session.file.sha256,
@@ -1363,7 +1395,154 @@ export async function handleRequest(
     return;
   }
 
-  // 7. Explicitly reject any listing endpoints or unknown paths (No listing endpoint)
+  // 7. Publish deliverable for user download/viewing: POST /api/publish or POST /publish
+  if (method === 'POST' && (pathname === '/api/publish' || pathname === '/publish')) {
+    const chunks: Buffer[] = [];
+    let totalBytes = 0;
+    req.on('data', (chunk: Buffer) => {
+      totalBytes += chunk.length;
+      if (totalBytes <= MAX_FILE_SIZE_BYTES) {
+        chunks.push(chunk);
+      }
+    });
+    req.on('end', () => {
+      if (totalBytes > MAX_FILE_SIZE_BYTES) {
+        sendJson(res, 413, { status: 'error', error: 'PAYLOAD_TOO_LARGE', message: 'El contenido excede el límite de 50 MB' });
+        return;
+      }
+
+      let payload: Record<string, unknown> = {};
+      try {
+        payload = JSON.parse(Buffer.concat(chunks).toString('utf-8'));
+      } catch {
+        sendJson(res, 400, { status: 'error', error: 'BAD_REQUEST', message: 'JSON inválido' });
+        return;
+      }
+
+      const rawSlug = typeof payload.slug === 'string' && payload.slug.trim().length > 0
+        ? payload.slug.trim()
+        : `pub-${crypto.randomBytes(6).toString('hex')}`;
+      const safeSlug = rawSlug.replace(/[^a-zA-Z0-9._-]/g, '-');
+
+      let dataBuffer: Buffer;
+      let fileName = typeof payload.filename === 'string' && payload.filename.trim().length > 0
+        ? path.basename(payload.filename.trim())
+        : safeSlug;
+
+      if (typeof payload.file_path === 'string' && payload.file_path.trim().length > 0) {
+        const resolved = path.resolve(payload.file_path.trim());
+        const allowedBase = path.resolve(PRESERVED_UPLOADS_DIR);
+        if (!resolved.startsWith(allowedBase + path.sep)) {
+          sendJson(res, 403, {
+            status: 'error',
+            error: 'FORBIDDEN_PATH',
+            message: `file_path debe estar dentro de ${PRESERVED_UPLOADS_DIR}`
+          });
+          return;
+        }
+        if (!fs.existsSync(resolved)) {
+          sendJson(res, 404, { status: 'error', error: 'FILE_NOT_FOUND', message: 'Archivo no encontrado en file_path' });
+          return;
+        }
+        dataBuffer = fs.readFileSync(resolved);
+        if (typeof payload.filename !== 'string') {
+          fileName = path.basename(resolved);
+        }
+      } else if (typeof payload.content_base64 === 'string') {
+        dataBuffer = Buffer.from(payload.content_base64, 'base64');
+      } else if (typeof payload.content === 'string') {
+        dataBuffer = Buffer.from(payload.content, 'utf-8');
+      } else {
+        sendJson(res, 400, {
+          status: 'error',
+          error: 'MISSING_CONTENT',
+          message: 'Debe proporcionar content, content_base64 o file_path'
+        });
+        return;
+      }
+
+      const ext = path.extname(fileName).toLowerCase().replace(/^\./, '');
+      const extMimeMap: Record<string, string> = {
+        ...MIME_TYPE_MAP,
+        html: 'text/html; charset=utf-8',
+        htm: 'text/html; charset=utf-8',
+        md: 'text/markdown; charset=utf-8',
+        json: 'application/json; charset=utf-8',
+        csv: 'text/csv; charset=utf-8',
+        svg: 'image/svg+xml'
+      };
+      const contentType = typeof payload.content_type === 'string' && payload.content_type.trim().length > 0
+        ? payload.content_type.trim()
+        : (extMimeMap[ext] || (typeof payload.content === 'string' && payload.content.trim().startsWith('<') ? 'text/html; charset=utf-8' : 'application/octet-stream'));
+
+      const ttlSeconds = typeof payload.ttl_seconds === 'number' && payload.ttl_seconds > 0
+        ? payload.ttl_seconds
+        : DEFAULT_PUBLISH_TTL_SECONDS;
+      const expiresAt = Date.now() + ttlSeconds * 1000;
+
+      const dataPath = path.join(PUBLISHED_DIR, `${safeSlug}.bin`);
+      const metaPath = path.join(PUBLISHED_DIR, `${safeSlug}.meta.json`);
+      fs.writeFileSync(dataPath, dataBuffer);
+      fs.writeFileSync(metaPath, JSON.stringify({
+        slug: safeSlug,
+        filename: fileName,
+        contentType,
+        sizeBytes: dataBuffer.length,
+        expiresAt
+      }));
+
+      const publicUrl = `${PUBLIC_BASE_URL}/p/${safeSlug}`;
+      sendJson(res, 201, {
+        status: 'published',
+        slug: safeSlug,
+        url: publicUrl,
+        download_url: `${publicUrl}?download=1`,
+        content_type: contentType,
+        size_bytes: dataBuffer.length,
+        expires_at: new Date(expiresAt).toISOString()
+      });
+    });
+    return;
+  }
+
+  // 8. Serve published deliverable: GET /p/:slug
+  const publishMatch = pathname.match(/^\/p\/([^/]+)$/);
+  if (method === 'GET' && publishMatch) {
+    const safeSlug = decodeURIComponent(publishMatch[1]).replace(/[^a-zA-Z0-9._-]/g, '-');
+    const dataPath = path.join(PUBLISHED_DIR, `${safeSlug}.bin`);
+    const metaPath = path.join(PUBLISHED_DIR, `${safeSlug}.meta.json`);
+
+    if (!fs.existsSync(dataPath) || !fs.existsSync(metaPath)) {
+      sendHtml(res, 404, '<h1>404 — Recurso no encontrado</h1><p>El enlace publicado no existe.</p>');
+      return;
+    }
+
+    const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8')) as {
+      filename: string;
+      contentType: string;
+      sizeBytes: number;
+      expiresAt: number;
+    };
+
+    if (Date.now() > meta.expiresAt) {
+      sendHtml(res, 410, '<h1>410 — Enlace Expirado</h1><p>Este recurso publicado ha expirado.</p>');
+      return;
+    }
+
+    const forceDownload = parsedUrl.searchParams.get('download') === '1';
+    const disposition = forceDownload ? 'attachment' : 'inline';
+    const buf = fs.readFileSync(dataPath);
+    res.writeHead(200, {
+      'Content-Type': meta.contentType,
+      'Content-Length': buf.length,
+      'Content-Disposition': `${disposition}; filename="${meta.filename.replace(/"/g, '')}"`,
+      'Cache-Control': 'no-store'
+    });
+    res.end(buf);
+    return;
+  }
+
+  // 9. Explicitly reject any listing endpoints or unknown paths (No listing endpoint)
   sendJson(res, 404, {
     status: 'error',
     error: 'NOT_FOUND',
