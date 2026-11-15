@@ -16,7 +16,7 @@ export interface EmbedderOptions {
 export function createOpenAICompatibleEmbedder(options: EmbedderOptions = {}): Embedder {
   const baseUrl = options.baseUrl ?? RAG_CONFIG.EMBEDDING_BASE_URL;
   const model = options.model ?? RAG_CONFIG.EMBEDDING_MODEL;
-  const apiKey = options.apiKey ?? process.env.MISTRAL_API_KEY ?? process.env.OPENAI_API_KEY;
+  const apiKey = options.apiKey ?? process.env.EMBEDDINGS_API_KEY;
   const fetchFn = options.fetchFn ?? fetch;
 
   return {

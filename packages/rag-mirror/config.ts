@@ -18,7 +18,7 @@ export interface RagConfig {
 export const RAG_CONFIG: RagConfig = {
   EMBEDDING_MODEL: process.env.EMBEDDING_MODEL ?? "mistral-embed",
   EMBEDDING_DIM: 1024,
-  EMBEDDING_BASE_URL: process.env.EMBEDDING_BASE_URL ?? "https://api.mistral.ai/v1",
+  EMBEDDING_BASE_URL: process.env.EMBEDDINGS_BASE_URL ?? "https://api.mistral.ai/v1",
   CORPUS_MIRROR_DIR: process.env.CORPUS_MIRROR_DIR ?? "corpus_mirror",
   DATABASE_URL: process.env.DATABASE_URL ?? "postgresql://postgres:postgres@localhost:5432/pims",
   DEFAULT_CHUNK_SIZE: 500,

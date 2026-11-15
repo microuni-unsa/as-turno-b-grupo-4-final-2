@@ -49,8 +49,8 @@ nano .env
 Ensure the following variables are configured:
 - `PIMS_USERNAME` & `PIMS_PASSWORD`: Group 4 credentials for `https://unsa.27k.pe`.
 - `POSTGRES_PASSWORD`: Strong master password for the local pgvector sidecar database.
-- `MISTRAL_API_KEY`: API key for 1024-dimension `mistral-embed`.
-- `OPENAI_API_KEY` / `ANTHROPIC_API_KEY`: Execution LLM keys for the agent.
+- `EMBEDDINGS_API_KEY` & `EMBEDDINGS_BASE_URL`: OpenAI-compatible 1024-dimension embeddings credentials.
+- `AGENT_ENV_VAR` & `AGENT_API_KEY`: Provider environment variable name (e.g. `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `OPENCODE_API_KEY`) and API key for `omp`.
 - `AGE_SECRET_KEY`: Private X25519 identity key for encrypting secrets sidecar storage.
 
 > **Warning**: Never commit `.env` into Git or share it across insecure channels.
