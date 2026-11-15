@@ -40,7 +40,7 @@ Se activa ante solicitudes para rastrear o auditar el sustento documental de des
    - Generar la ficha de trazabilidad auditable en HTML interactivo con enlaces a los visores de PIMS.
    - Desplegar el servicio temporal en contenedor Traefik bajo un slug único:
      `files_sidecar.publish(content=audit_chain_html, slug="chain-<finding_id>-<timestamp>")`
-   - Servir en `https://chain-<finding_id>-<timestamp>.pimsai.mistercricro8.top`.
+   - Servir en `https://chain-<finding_id>-<timestamp>.pimsai.mistercricro8.top:444`.
    - Concluir obligatoriamente la respuesta con la convención: `"resultado aquí: link"`.
 
 ## 3. Failure Branches
@@ -90,5 +90,5 @@ Se activa ante solicitudes para rastrear o auditar el sustento documental de des
 - **Texto Verbatim Extraído de PIMS**:
   > *"Sección 4.3: En las filiales de Camaná y Pedregal, el responsable de sede notificará de inmediato al Oficial de Privacidad del PII Controller (UNSA) cualquier incidente que comprometa datos personales de postulantes o personal docente..."*
 
-resultado aquí: https://chain-g4-fnd-002-9c1a.pimsai.mistercricro8.top
+resultado aquí: https://chain-g4-fnd-002-9c1a.pimsai.mistercricro8.top:444
 ```

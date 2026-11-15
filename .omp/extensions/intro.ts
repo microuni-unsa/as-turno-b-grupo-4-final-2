@@ -13,17 +13,20 @@ interface ChatMessage {
 
 export default function (pi: any) {
   const BANNER_TEXT = `╔════════════════════════════════════════════════════════════════════════════╗
-║                UNSA PIMS AGENTIC OPERATOR (TURNO B GRUPO 4)                ║
-║       Gestor Agéntico de Privacidad y Seguridad — ISO/IEC 27701:2025       ║
+║         UNSA PIMS — OPERADOR DE GESTIÓN DE INCIDENTES (GRUPO 4)            ║
+║       Especializado en Incidentes de Privacidad — ISO/IEC 27701:2025       ║
 ╚════════════════════════════════════════════════════════════════════════════╝
 
-Bienvenido al asistente de gestión de privacidad (PIMS) para la Universidad Nacional de San Agustín.
+Bienvenido al operador agéntico del SGPI para la Universidad Nacional de San Agustín,
+enfocado principalmente en la gestión integral de incidentes de privacidad.
 
-Qué puedes consultar y gestionar aquí:
-• Documentación normativa: Políticas, procedimientos, alcance, SoA y comparación de versiones.
-• Incidentes de privacidad: Registro, seguimiento, riesgos asociados y notificaciones.
-• Auditorías y mejora continua: Trazabilidad de hallazgos, no conformidades y acciones correctivas.
-• Capacitación y cumplimiento: Controles ISO/IEC 27701:2025 (PII Controller) y planes de tratamiento.
+Foco principal (Incidentes):
+• Registro y respuesta a incidentes: Trazabilidad Cl. 8.1, A.3.11, A.3.12 y severidad.
+• Riesgos y capacitación en incidentes: Tratamiento (6.1.2/6.1.3) y evidencias (A.3.17).
+• Hallazgos, NC y acciones correctivas: Cadena Cl. 9.2 / 10.2, semáforo y citaciones.
+
+Contexto de soporte (SGPI general):
+• Consultas breves sobre alcance, política, objetivos, control documental y versiones.
 
 Comandos iniciales útiles:
 • /new              Iniciar una nueva conversación limpia
@@ -82,7 +85,7 @@ Comandos iniciales útiles:
   const secretsRequestTool = {
     name: "secrets_request",
     label: "Secrets Request",
-    description: "Request an external secret or credential by label. Generates a one-time URL on the secrets sidecar (https://secrets.pimsai.mistercricro8.top/s/<token>) with 5-minute expiry. Instructor enters the secret via the web form. Returns request token and handle placeholder. Never handles plaintext values.",
+    description: "Request an external secret or credential by label via pimsai-secrets-sidecar. Generates a one-time URL (https://secrets.pimsai.mistercricro8.top:444/s/<token>) with 5-minute expiry. Never handles plaintext values.",
     parameters: {
       type: "object",
       properties: {
@@ -94,24 +97,21 @@ Comandos iniciales útiles:
       required: ["label"]
     },
     async execute(_toolCallId: string, params: { label: string }) {
-      const token = `req_${Math.random().toString(36).substring(2, 10)}_${Date.now()}`;
-      const url = `https://secrets.pimsai.mistercricro8.top/s/${token}`;
+      const resp = await fetch("http://pimsai-secrets-sidecar:3000/api/secrets/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ label: params.label })
+      });
+      if (!resp.ok) {
+        const body = await resp.text();
+        throw new Error(`secrets-sidecar /api/secrets/request failed (${resp.status}): ${body}`);
+      }
+      const data = await resp.json() as Record<string, unknown>;
       return {
         content: [
           {
             type: "text",
-            text: JSON.stringify(
-              {
-                status: "pending_user_input",
-                label: params.label,
-                url,
-                expires_in_seconds: 300,
-                token,
-                instructions: `Por favor proporcione el valor para '${params.label}' usando este enlace de un solo uso: ${url} (Expira en 5 minutos). Luego verifique con secrets_poll.`
-              },
-              null,
-              2
-            )
+            text: JSON.stringify(data, null, 2)
           }
         ]
       };
@@ -122,33 +122,29 @@ Comandos iniciales útiles:
   const secretsPollTool = {
     name: "secrets_poll",
     label: "Secrets Poll",
-    description: "Poll the secrets sidecar for an ingested credential handle. Returns an opaque handle (secret:<name>@<version>), NEVER the plaintext value. The handle is injected directly to container environments.",
+    description: "Poll pimsai-secrets-sidecar for an ingested credential handle. Returns an opaque handle (secret:<name>@<version>), NEVER the plaintext value.",
     parameters: {
       type: "object",
       properties: {
         handle: {
           type: "string",
-          description: "Token or secret name to poll for ingestion status"
+          description: "Token or handle returned by secrets_request"
         }
       },
       required: ["handle"]
     },
     async execute(_toolCallId: string, params: { handle: string }) {
-      const cleanName = params.handle.replace(/^(req_|secret:)/, "").split("@")[0] || "credential";
-      const handleValue = `secret:${cleanName}@v1`;
+      const resp = await fetch(`http://pimsai-secrets-sidecar:3000/api/secrets/poll/${encodeURIComponent(params.handle)}`);
+      if (!resp.ok) {
+        const body = await resp.text();
+        throw new Error(`secrets-sidecar /api/secrets/poll failed (${resp.status}): ${body}`);
+      }
+      const data = await resp.json() as Record<string, unknown>;
       return {
         content: [
           {
             type: "text",
-            text: JSON.stringify(
-              {
-                status: "resolved",
-                handle: handleValue,
-                description: `Handle ${handleValue} resuelto exitosamente. El valor ha sido almacenado cifrado con age y se inyectará en tiempo de ejecución. Nunca se expone en texto plano.`
-              },
-              null,
-              2
-            )
+            text: JSON.stringify(data, null, 2)
           }
         ]
       };

@@ -1,8 +1,9 @@
 # AGENTS.md — UNSA PIMS Agentic Operator (Turno B Grupo 4)
 
 ## 1. Identity & Purpose
-You are the **UNSA PIMS Agentic Operator**, the specialized autonomous privacy and compliance operator for the **Universidad Nacional de San Agustín (UNSA)**.
-You operate against the synthetic Privacy Information Management System (PIMS) hosted on GESTITEL, governing documents, incidents, risk assessments, and audits under **ISO/IEC 27701:2025** standards.
+You are the **UNSA PIMS Agentic Operator**, specialized **primarily in Privacy Incident Management** for the **Universidad Nacional de San Agustín (UNSA)** under **ISO/IEC 27701:2025**.
+Your core operational focus is the end-to-end incident vertical: privacy incident registration and response (Cl. 8.1, A.3.11, A.3.12), incident risk assessment and treatment (Cl. 6.1.2, 6.1.3), incident response training (Cl. 7.2, 7.3, A.3.17), and incident/audit NC → Corrective Action chains (Cl. 9.2, 10.2).
+You can also answer general PIMS questions (scope, policy, objectives, document control, management review) as secondary supporting context, keeping responses concise and clearly anchored to your primary incident-management mission.
 
 ---
 
@@ -43,20 +44,20 @@ You operate against the synthetic Privacy Information Management System (PIMS) h
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
-1. **Primary Source of Truth (PIMS GESTITEL)**:
+1. **Primary Source of Truth (PIMS GESTITEL + Launch Sync)**:
    - Base URL: `https://unsa.27k.pe`, tenant schema `unsa`.
    - Every operational record (documents, incidents, audits, risk evaluations) lives in PIMS.
-   - The agent reads from PIMS REST API and writes back to PIMS.
+   - On container launch, `scripts/sync-pims-truth.ts` checks `unsa.27k.pe` for `G4-` documents, syncs new/changed versions to `corpus_mirror/`, and re-ingests them into `pimsai-db`.
 
 2. **Mirror Cache (pgvector PostgreSQL Sidecar)**:
-   - Downloaded PIMS documents are stored in `corpus_mirror/<doc_id>/v<version>.<ext>` with `corpus_mirror/manifest.json`.
+   - Downloaded PIMS documents are stored in `corpus_mirror/<doc_id>/v<version>.<ext>` with `corpus_mirror/<doc_id>/manifest.json`.
    - Chunks are vectorized using `mistral-embed` (1024 dimensions, OpenAI-compatible endpoint with `base_url` swap) and stored in `pgvector` with cosine distance (`<=>`).
    - Every chunk maintains a SHA-256 digest. Citations follow: `pims:<doc_id>:v<version>:chunk:<index>:lines:<start>-<end>`.
-   - **Crucial Rule**: The mirror is strictly a cache, never primary truth. If a PIMS REST read fails, the agent answers from the mirror cache and explicitly labels the source.
+   - **Crucial Rule**: The mirror is a local cache of PIMS truth (never read `molds/` as if it were the live document base). If a PIMS REST read fails or PIMS has no uploaded `G4-` documents yet, answer from `corpus_mirror/` + `pimsai-db` and explicitly label the source.
 
 3. **Typst Molds (`molds/`)**:
-   - Local `.typ` templates are molds used to render PDF/XLSX artifacts.
-   - Molds are never the system of record. Only documents uploaded to and versioned within PIMS constitute authentic records.
+   - Local `.typ` templates are **stateless molds** used to render PDF/XLSX artifacts.
+   - **Never mutate `molds/` in place** during cascades or version updates: copy the relevant mold to a staging directory (e.g. `/tmp/pims-staging/`), apply changes there, compile to PDF/XLSX, store the output in `corpus_mirror/` + `pimsai-db`, and upload to PIMS (`POST /api/documents/` or `/versions/`, where `category` is a free-text string up to 50 chars) when authorized.
 
 4. **Connectors Framework**:
    - Structure: `connectors/<name>/` containing `client.ts` (typed wrapper) and `SKILL-FRAG.md` (endpoint documentation fragment).

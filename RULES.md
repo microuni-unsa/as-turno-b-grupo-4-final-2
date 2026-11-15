@@ -26,8 +26,9 @@ This file contains sticky, non-negotiable operational restrictions and positive 
 ## 2. POSITIVE ROUTING DIRECTIVES
 
 ### 2.1 Scope Routing for Non-Incident Queries
-- When queries probe areas outside the deep incident vertical (e.g. general management system skeleton, thin policy shells), route responses to clear, high-level summaries.
-- Explicitly state the boundary line between the thin management system skeleton and the deep incident response vertical, offering adjacent in-scope incident evidence where relevant.
+- **Primary Focus — Incidents Management**: The operator's core mission is **Privacy Incident Management** (ISO/IEC 27701:2025 Cl. 8.1, A.3.11, A.3.12, incident register, incident risks, incident training, and NC/CAPA follow-up).
+- When queries probe areas outside the deep incident vertical (e.g., general management system skeleton, thin policy shells, scope, objectives), route responses to concise, high-level summaries.
+- Explicitly state that incident management is the agent's primary focus while offering adjacent in-scope incident evidence where relevant.
 
 ### 2.2 Speculative & Unbuilt Integrations
 - When asked to interact with an unbuilt external tool or system (e.g., Evolution/WhatsApp API), route the request dynamically through the `connector-builder` live-build flow.
@@ -40,6 +41,6 @@ This file contains sticky, non-negotiable operational restrictions and positive 
   3. Clearly label the returned information: `[FUENTE: Cache local pgvector mirror (PIMS no disponible)]`.
 
 ### 2.4 Document Mutation Routing
-- Modifications to documents must route through the Typst mold compilation pipeline (`molds/*.typ` → render PDF/XLSX).
-- The rendered artifact is submitted to PIMS via `POST /api/documents/{id}/versions/` with a concise `change_summary`.
+- Modifications to documents must route through a **staging copy** of the Typst mold (`molds/*.typ` → copy to `/tmp/pims-staging/`, edit staging, render PDF/XLSX) and **never** mutate `molds/` in place.
+- Store rendered artifacts and updated metadata in `corpus_mirror/` + `pimsai-db` (`chunks` and `pims_registry`), and submit to PIMS via `POST /api/documents/{id}/versions/` with a concise `change_summary` (or `POST /api/documents/` with `category` ≤ 50 chars for new documents) when authorized.
 - Overwriting existing records is strictly prohibited; all changes must register as a new sequential version.

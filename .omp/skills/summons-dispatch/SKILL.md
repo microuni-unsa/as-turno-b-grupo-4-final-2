@@ -40,7 +40,7 @@ Se activa ante solicitudes para convocar o notificar a responsables según su cu
    - Generar la bitácora de citaciones despachadas en HTML/PDF.
    - Desplegar el servicio temporal en contenedor Traefik bajo un slug único:
      `files_sidecar.publish(content=dispatch_log_html, slug="summons-<timestamp>")`
-   - Servir en `https://summons-<timestamp>.pimsai.mistercricro8.top`.
+   - Servir en `https://summons-<timestamp>.pimsai.mistercricro8.top:444`.
    - Concluir la respuesta obligatoriamente con la convención: `"resultado aquí: link"`.
 
 ## 3. Failure Branches
@@ -86,5 +86,5 @@ Se ha ejecutado el envío de 3 comunicaciones mediante `connectors.mail.send`:
 - ✅ `lflores@unsa.edu.pe` [Tracking: G4-SUMMONS-20261113-02]
 - ✅ `jramos@unsa.edu.pe` [Tracking: G4-SUMMONS-20261113-03]
 
-resultado aquí: https://summons-g4-dispatch-3f91.pimsai.mistercricro8.top
+resultado aquí: https://summons-g4-dispatch-3f91.pimsai.mistercricro8.top:444
 ```

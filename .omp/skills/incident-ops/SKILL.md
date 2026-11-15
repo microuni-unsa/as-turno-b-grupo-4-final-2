@@ -47,9 +47,8 @@ Se activa ante consultas sobre la salud operativa del sistema de gestión de inc
 
 6. **Publicación del Tablero Operativo**:
    - Generar el dashboard de control de incidentes.
-   - Desplegar el servicio temporal en contenedor Traefik bajo un slug único:
-     `files_sidecar.publish(content=dashboard_html, slug="incident-ops-<timestamp>")`
-   - Servir en `https://incident-ops-<timestamp>.pimsai.mistercricro8.top`.
+   - Publicar vía `files-sidecar` (`POST http://pimsai-files-sidecar:3000/api/publish`, `slug: "incident-ops-<timestamp>"`).
+   - Servir en `https://files.pimsai.mistercricro8.top:444/p/incident-ops-<timestamp>`.
    - Concluir obligatoriamente con la convención: `"resultado aquí: link"`.
 
 ## 3. Failure Branches
@@ -90,5 +89,5 @@ Se activa ante consultas sobre la salud operativa del sistema de gestión de inc
 
 ¿Deseas que prepare el borrador de citaciones para los responsables en Rojo y Ámbar mediante el conector de correo?
 
-resultado aquí: https://incident-ops-g4-live-8b2c.pimsai.mistercricro8.top
+resultado aquí: https://incident-ops-g4-live-8b2c.pimsai.mistercricro8.top:444
 ```

@@ -14,7 +14,7 @@ Se activa ante cambios normativos, institucionales, organizacionales o de infrae
 ## 2. Step Protocol
 
 1. **Registro del Hecho Universitario (University Fact)**:
-   - Crear un registro formal, fechado y con fuente oficial en `molds/university-facts/<fact_slug>.json`:
+   - Crear un registro formal, fechado y con fuente oficial en `university-facts/<fact_slug>.json`:
      ```json
      {
        "fact_id": "FACT-2026-004",
@@ -43,19 +43,17 @@ Se activa ante cambios normativos, institucionales, organizacionales o de infrae
    - **Regla obligatoria**: Detener la ejecución hasta que el usuario apruebe explícitamente el lote propuesto (ej. "procede", "aprobado", o ajustes al conjunto).
 
 5. **Ejecución de Versionado por Documento (`directed-version`)**:
-   - Tras recibir la aprobación del usuario, ejecutar secuencialmente el protocolo del skill `directed-version` para cada documento del lote aprobado:
-     - Inyectar el hecho referenciado en el molde Typst.
-     - Incrementar versión según regla 1.x / 2.x.
-     - Compilar con Typst CLI.
-     - Subir a PIMS como NUEVA versión con `change_summary`.
-     - Re-indexar en `pgvector` mediante `rag_mirror.ingest`.
-   - **Regla del ciclo de vida**: Las versiones anteriores quedan en estado `obsoleto` en PIMS y permanecen descargables (preservación histórica / "time-machine"). Las eliminaciones definitivas (*true deletes*) solo se admiten en casos excepcionales de contaminación de datos o erratas críticas y deben quedar auditadas en bitácora.
+   - Tras recibir la aprobación del usuario, ejecutar el protocolo del skill `directed-version` para cada documento del lote aprobado:
+     - Leer la versión vigente real desde `corpus_mirror/<doc_id>/manifest.json` (nunca asumir `1.0` en singletons).
+     - Copiar el molde `.typ` a `/tmp/pims-staging/` (**NUNCA** editar `molds/` in-place), aplicar el hecho en la copia de staging y compilar con Typst CLI.
+     - Guardar el PDF resultante en `corpus_mirror/`, re-indexar en `pimsai-db` (`chunks` + `pims_registry`) y subir a PIMS si las clases documentales están habilitadas.
+   - **Regla del ciclo de vida**: Las versiones anteriores quedan en estado `obsoleto` en `corpus_mirror/` y PIMS y permanecen descargables (preservación histórica / "time-machine"). Las eliminaciones definitivas (*true deletes*) solo se admiten en casos excepcionales de contaminación de datos o erratas críticas y deben quedar auditadas en bitácora.
 
 6. **Generación del Reporte de Cascada y Publicación**:
    - Consolidar el informe final discriminando documentos actualizados (con enlaces y hashes) frente a documentos que permanecieron intactos.
-   - Desplegar el reporte en contenedor Traefik bajo un slug fresco:
-     `files_sidecar.publish(content=cascade_report_html, slug="cascade-<fact_slug>-<timestamp>")`
-   - Servir en `https://cascade-<fact_slug>-<timestamp>.pimsai.mistercricro8.top`.
+   - Publicar el reporte vía `files-sidecar`:
+     `POST http://pimsai-files-sidecar:3000/api/publish` (`slug: "cascade-<fact_slug>-<timestamp>"`)
+   - Servir en `https://files.pimsai.mistercricro8.top:444/p/cascade-<fact_slug>-<timestamp>`.
    - Concluir obligatoriamente la respuesta con: `"resultado aquí: link"`.
 
 ## 3. Failure Branches
@@ -105,5 +103,5 @@ Se ejecutó el re-versionado en PIMS y la re-indexación RAG:
 - ✅ `G4-MAN-ALC-001`: v1.0 → **v1.1** (Registrado en PIMS, 12 chunks ingestados).
 - ℹ️ Versiones anteriores preservadas en PIMS como *obsoletas* (descargables).
 
-resultado aquí: https://cascade-fact-2026-004-9a4f.pimsai.mistercricro8.top
+resultado aquí: https://cascade-fact-2026-004-9a4f.pimsai.mistercricro8.top:444
 ```

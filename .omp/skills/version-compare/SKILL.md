@@ -47,7 +47,7 @@ Se activa ante solicitudes que demanden contrastar versiones de documentos, iden
    - Compilar el reporte comparativo en HTML/PDF interactivo.
    - Desplegar el servicio temporal en la red interna de Traefik bajo un slug único:
      `files_sidecar.publish(content=diff_report_html, slug="diff-<doc_id>-v<v_A>-v<v_B>-<timestamp>")`
-   - Servir en `https://diff-<doc_id>-v<v_A>-v<v_B>-<timestamp>.pimsai.mistercricro8.top`.
+   - Servir en `https://diff-<doc_id>-v<v_A>-v<v_B>-<timestamp>.pimsai.mistercricro8.top:444`.
    - Concluir la respuesta obligatoriamente con la convención de enlace.
 
 ## 3. Failure Branches
@@ -86,5 +86,5 @@ Se activa ante solicitudes que demanden contrastar versiones de documentos, iden
 #### Racional Evolutivo
 [Narrativa fundamentada en la tabla de control de cambios de PIMS y contexto RAFA]
 
-resultado aquí: https://diff-g4-prc-inc-001-v1-v2-a7f9.pimsai.mistercricro8.top
+resultado aquí: https://diff-g4-prc-inc-001-v1-v2-a7f9.pimsai.mistercricro8.top:444
 ```

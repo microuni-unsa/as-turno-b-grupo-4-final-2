@@ -28,7 +28,7 @@ Se activa de manera transversal en cualquier interacción del usuario que presen
    - Si el usuario demanda profundidad exhaustiva en módulos fuera de la vertical profunda de incidentes (el alcance del proyecto es *profundo en incidentes y delgado en el esqueleto general*):
      - **Paso A (Respuesta concisa)**: Responder con un resumen ejecutivo basado en el esqueleto ligero (SPEC 6.3: alcance general, política de 1 página, objetivos o registro condensado).
      - **Paso B (Línea de frontera con encuadre positivo)**: Delimitar el rol con cortesía y rigor técnico:
-       `"En el marco de la certificación ISO/IEC 27701:2025 para la UNSA como Responsable del Tratamiento (PII Controller), nuestra profundidad operativa y trazabilidad documental se focaliza exhaustivamente en la vertical de gestión de incidentes, no conformidades y brechas de privacidad (Cl. 8.1, A.3.11, A.3.12)."`
+       `"Como operador especializado principalmente en gestión de incidentes de privacidad bajo ISO/IEC 27701:2025 para la UNSA (PII Controller), nuestro foco operativo y trazabilidad profunda se concentra en incidentes, riesgos asociados, capacitación y acciones correctivas (Cl. 8.1, A.3.11, A.3.12)."`
      - **Paso C (Oferta adyacente dentro de alcance)**: Brindar una alternativa de alto valor en la vertical profunda:
        `"Para esta materia dispongo del marco general aprobado; si lo deseas, podemos profundizar en el procedimiento de respuesta ante brechas de admisión/nómina (G4-PRC-INC-001) o en la trazabilidad de acciones correctivas."`
 
@@ -41,7 +41,7 @@ Se activa de manera transversal en cualquier interacción del usuario que presen
 5. **Publicación y Enlace de Entregables**:
    - Si la interacción proactiva resulta en la generación de un análisis o reporte consolidado, publicarlo bajo un slug fresco en Traefik:
      `files_sidecar.publish(content=proactive_report_html, slug="proactive-<topic>-<timestamp>")`
-   - Servir en `https://proactive-<topic>-<timestamp>.pimsai.mistercricro8.top`.
+   - Servir en `https://proactive-<topic>-<timestamp>.pimsai.mistercricro8.top:444`.
    - Concluir obligatoriamente la respuesta con la convención: `"resultado aquí: link"`.
 
 ## 3. Failure Branches
@@ -73,5 +73,5 @@ Se activa de manera transversal en cualquier interacción del usuario que presen
 > **Nota de Alcance Operativo**:  
 > Como PII Controller bajo ISO/IEC 27701:2025 para la UNSA, el núcleo de ejecución profunda está especializado en la vertical de incidentes de privacidad y auditoría. Para este punto contamos con la política base resumida; si deseas podemos profundizar en el procedimiento de respuesta ante brechas G4-PRC-INC-001.
 
-resultado aquí: https://proactive-insight-g4-5b8c.pimsai.mistercricro8.top
+resultado aquí: https://proactive-insight-g4-5b8c.pimsai.mistercricro8.top:444
 ```

@@ -31,7 +31,7 @@ Se activa ante solicitudes para conectar sistemas externos no preexistentes o le
    - Si la integración requiere credenciales sensibles (ej. API Key de Evolution, token de Jira):
      - El agente invoca: `secrets.request(label="evolution_api_key")`.
      - El sidecar de secretos genera una URL de un solo uso con expiración de 5 minutos:
-       `https://secrets.pimsai.mistercricro8.top/s/<token>`
+       `https://secrets.pimsai.mistercricro8.top:444/s/<token>`
      - Presentar el enlace al usuario para que pegue la credencial en el formulario web.
      - El agente sondea periódicamente: `secrets.poll(handle="<token>")`.
      - El sidecar retorna un handle opaco: `secret:<name>@<v>`.
@@ -41,7 +41,7 @@ Se activa ante solicitudes para conectar sistemas externos no preexistentes o le
 5. **Despliegue y Registro en Red Interna Traefik**:
    - Levantar el contenedor del servicio puente en `internal-proxy` con etiquetas de Traefik bajo un slug único:
      - Router: `pimsai-<slug>`
-     - Host: `<slug>.pimsai.mistercricro8.top`
+     - Host: `<slug>.pimsai.mistercricro8.top:444`
    - Registrar dinámicamente las herramientas del conector concatenando `SKILL-FRAG.md` al runtime de herramientas.
 
 6. **Anuncio Verificado o Diagnóstico**:
@@ -80,7 +80,7 @@ Se activa ante solicitudes para conectar sistemas externos no preexistentes o le
 ```markdown
 > 🔐 **Credencial Requerida para Conector**  
 > Para autenticar contra Evolution API, ingresa la clave de acceso de forma segura en:  
-> https://secrets.pimsai.mistercricro8.top/s/tok_8a9f2bc71  
+> https://secrets.pimsai.mistercricro8.top:444/s/tok_8a9f2bc71  
 > *(Enlace válido por 5 minutos. El valor se cifra con age y nunca se expone en la conversación).*
 ```
 
@@ -91,5 +91,5 @@ Se activa ante solicitudes para conectar sistemas externos no preexistentes o le
 - **Herramientas Registradas**: `connectors.evolution.send_message`, `connectors.evolution.webhook_listen`.
 - **Aislamiento**: Filtro de eventos restringido a prefijo `G4-` y responsables autorizados.
 
-resultado aquí: https://evolution-g4-bridge-e4a1.pimsai.mistercricro8.top
+resultado aquí: https://evolution-g4-bridge-e4a1.pimsai.mistercricro8.top:444
 ```

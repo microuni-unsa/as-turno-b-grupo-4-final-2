@@ -30,21 +30,23 @@ Se activa ante instrucciones del usuario para modificar, actualizar o crear una 
      - **Incremento Mayor (`2.x`)**: Aplica a cambios estructurales mayores: incorporación o eliminación de procesos completos, reestructuración organizativa integral o apertura de nuevas filiales/sedes con obligaciones operativas nuevas (ej. pasar de v1.x a v2.0).
    - Registrar la justificación del tipo de incremento en el resumen de cambios.
 
-4. **Modificación del Molde y Tabla de Historial**:
-   - Aplicar la directiva en el contenido del archivo Typst (`.typ`).
-   - Agregar una nueva fila obligatoria en la tabla de historial de versiones del documento:
+4. **Modificación en Staging (Nunca Mutar `molds/` In-Place)**:
+   - Leer la versión vigente real desde `corpus_mirror/<doc_id>/manifest.json` (para evitar regresiones de versión en singletons).
+   - Copiar el molde `.typ` desde `molds/<category>/` hacia `/tmp/pims-staging/` (**prohibido editar `molds/` directamente**).
+   - Aplicar la directiva en la copia de staging y agregar la nueva fila obligatoria en la tabla de historial de versiones:
      `[Versión, Fecha (ISO 8601), Autor/Rol (G4), Resumen del Cambio (change_summary), Estado (Borrador/Vigente)]`.
    - Resolver todos los corchetes o marcadores de posición pendientes.
 
 5. **Compilación y Renderizado Determinista (Typst)**:
-   - Compilar el documento reproduciblemente utilizando Typst CLI:
-     `typst compile molds/<category>/<doc_code>.typ output/<doc_code>_v<new_version>.pdf`
+   - Compilar el documento reproduciblemente desde staging utilizando Typst CLI:
+     `typst compile --root /app /tmp/pims-staging/<doc_code>.typ /tmp/pims-staging/<doc_code>_v<new_version>.pdf`
    - Validar que el archivo PDF generado cumpla con los estándares visuales (membrete UNSA, numeración "Página X de Y", clasificación de confidencialidad).
 
-6. **Carga en PIMS como NUEVA Versión**:
-   - Subir el PDF compilado a la API de GESTITEL mediante el endpoint de versionado:
-     `pims_adapter.documents.create_version(doc_id="<pims_doc_id>", file="output/<doc_code>_v<new_version>.pdf", change_summary="<resumen_cambio>")`
-   - **Regla de integridad**: En PIMS las versiones anteriores NUNCA se sobreescriben ni eliminan; pasan automáticamente a estado `obsoleto` y permanecen descargables para auditorías retrospectivas ("time-machine").
+6. **Registro Local (`corpus_mirror/`) y Carga en PIMS**:
+   - Guardar el artefacto compilado en `corpus_mirror/<doc_id>/v<new_version>.pdf` y re-indexar en `pimsai-db` (`chunks` + `pims_registry`).
+   - Cuando las clases documentales estén habilitadas en PIMS, subir el PDF compilado mediante:
+     `pims_adapter.documents.create_version(doc_id="<pims_doc_id>", file="/tmp/pims-staging/<doc_code>_v<new_version>.pdf", change_summary="<resumen_cambio>")`
+   - **Regla de integridad**: Las versiones anteriores NUNCA se sobreescriben ni eliminan; pasan a estado `obsoleto` y permanecen descargables.
 
 7. **Re-Indexación en Conocimiento RAG (Mirror)**:
    - Ejecutar la ingesta inmediata:
@@ -56,7 +58,7 @@ Se activa ante instrucciones del usuario para modificar, actualizar o crear una 
      `rag_mirror.diff(file_a="corpus_mirror/<doc_id>/v_current.pdf", file_b="output/<doc_code>_v<new_version>.pdf")`
    - Desplegar el visor del documento y su comparativa en un contenedor Traefik bajo un slug fresco:
      `files_sidecar.publish(content=rendered_artifact, slug="doc-<doc_code>-v<new_version>-<timestamp>")`
-   - Servir en `https://doc-<doc_code>-v<new_version>-<timestamp>.pimsai.mistercricro8.top`.
+   - Servir en `https://doc-<doc_code>-v<new_version>-<timestamp>.pimsai.mistercricro8.top:444`.
    - Concluir obligatoriamente la respuesta con: `"resultado aquí: link"`.
 
 ## 3. Failure Branches
@@ -98,5 +100,5 @@ Se activa ante instrucciones del usuario para modificar, actualizar o crear una 
 - `+ Cláusula 4.3`: Flujo de reporte para Filial Camaná y Filial Pedregal.
 - `~ Cláusula 7.1`: Tabla de responsables actualizada con coordinadores zonales.
 
-resultado aquí: https://doc-g4-prc-inc-001-v2-0-8d14.pimsai.mistercricro8.top
+resultado aquí: https://doc-g4-prc-inc-001-v2-0-8d14.pimsai.mistercricro8.top:444
 ```
