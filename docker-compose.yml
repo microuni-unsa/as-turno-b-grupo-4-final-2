@@ -41,6 +41,40 @@ services:
       dockerfile: Dockerfile
     container_name: pimsai-agent
     restart: unless-stopped
+    command:
+      - bash
+      - -lc
+      - |
+        if [ -n "$${AGENT_ENV_VAR:-}" ] && [ -n "$${AGENT_API_KEY:-}" ]; then
+          export "$${AGENT_ENV_VAR}=$${AGENT_API_KEY}"
+        fi
+        mkdir -p /home/agent/.config/zellij
+        if [ ! -f /home/agent/.config/zellij/config.kdl ]; then
+          zellij setup --dump-config > /home/agent/.config/zellij/config.kdl
+        fi
+        if ! grep -q '^web_sharing "on"' /home/agent/.config/zellij/config.kdl; then
+          printf '\nweb_sharing "on"\n' >> /home/agent/.config/zellij/config.kdl
+        fi
+        if ! grep -q '^default_mode "locked"' /home/agent/.config/zellij/config.kdl; then
+          printf '\ndefault_mode "locked"\n' >> /home/agent/.config/zellij/config.kdl
+        fi
+        rm -f /home/agent/.config/zellij/layouts/default.kdl
+        zellij web --ip 127.0.0.1 --port 8083 -d
+        if [ -n "$${AGENT_MODEL:-}" ]; then
+          zellij attach -b pimsai -- omp --model "$${AGENT_MODEL}" || true
+        else
+          zellij attach -b pimsai -- omp || true
+        fi
+        exec bun -e '
+          import net from "node:net";
+          net.createServer((client) => {
+            const target = net.connect(8083, "127.0.0.1");
+            client.pipe(target);
+            target.pipe(client);
+            client.on("error", () => target.destroy());
+            target.on("error", () => client.destroy());
+          }).listen(8082, "0.0.0.0");
+        '
     environment:
       # Docker API connectivity:
       # Default connects to host docker-proxy on internal-proxy network (SPEC §4)
@@ -57,12 +91,12 @@ services:
       - PIMS_CODE_PREFIX=${PIMS_CODE_PREFIX:-G4-}
 
       # Embeddings & LLM Models
-      - MISTRAL_API_KEY=${MISTRAL_API_KEY:-}
-      - MISTRAL_BASE_URL=${MISTRAL_BASE_URL:-https://api.mistral.ai/v1}
+      - EMBEDDINGS_API_KEY=${EMBEDDINGS_API_KEY:-}
+      - EMBEDDINGS_BASE_URL=${EMBEDDINGS_BASE_URL:-https://api.mistral.ai/v1}
       - EMBEDDING_MODEL=${EMBEDDING_MODEL:-mistral-embed}
-      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
-      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-https://api.openai.com/v1}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - AGENT_ENV_VAR=${AGENT_ENV_VAR:-}
+      - AGENT_API_KEY=${AGENT_API_KEY:-}
+      - AGENT_MODEL=${AGENT_MODEL:-opencode-go/muse-spark-1.3-contributor}
 
       # Secrets store configuration (SPEC §4.3)
       - SECRETS_STORE_PATH=/app/secrets
@@ -77,6 +111,8 @@ services:
       - secrets_data:/app/secrets
       # Application workspace
       - .:/app
+      # Shared uploaded files from files-sidecar
+      - uploads_data:/app/data/preserved_uploads
     networks:
       - internal-proxy
       - agent-internal
@@ -104,6 +140,8 @@ services:
     volumes:
       # Persistent vector database storage
       - pgvector_data:/var/lib/postgresql/data
+      # Initialize rag-mirror and secrets_registry tables on first boot
+      - ./packages/rag-mirror/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
     networks:
       - agent-internal
     healthcheck:
@@ -120,11 +158,14 @@ services:
     restart: unless-stopped
     environment:
       - PORT=3000
+      - PUBLIC_BASE_URL=${FILES_BASE_URL:-https://files.pimsai.mistercricro8.top:444}
       - PIMS_BASE_URL=${PIMS_BASE_URL:-https://unsa.27k.pe}
       - PIMS_TENANT_SCHEMA=${PIMS_TENANT_SCHEMA:-unsa}
       - PIMS_JWT_TOKEN=${PIMS_JWT_TOKEN:-}
       - PIMS_USERNAME=${PIMS_USERNAME:-}
       - PIMS_PASSWORD=${PIMS_PASSWORD:-}
+    volumes:
+      - uploads_data:/app/data/preserved_uploads
     networks:
       - internal-proxy
     labels:
@@ -146,7 +187,7 @@ services:
     environment:
       - PORT=3000
       - HOST=0.0.0.0
-      - BASE_URL=${SECRETS_BASE_URL:-https://secrets.pimsai.mistercricro8.top}
+      - BASE_URL=${SECRETS_BASE_URL:-https://secrets.pimsai.mistercricro8.top:444}
       - SECRETS_STORE_DIR=/var/lib/secrets-store
       - DATABASE_URL=${DATABASE_URL:-postgresql://${POSTGRES_USER:-agent}:${POSTGRES_PASSWORD:-changeme}@db:5432/${POSTGRES_DB:-pims_agent}}
     volumes:
@@ -182,4 +223,6 @@ volumes:
   secrets_data:
     driver: local
   pgvector_data:
+    driver: local
+  uploads_data:
     driver: local

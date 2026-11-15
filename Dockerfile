@@ -10,7 +10,7 @@ ARG TYPST_VERSION=0.15.0
 ARG ZELLIJ_VERSION=0.45.1
 ARG OMP_VERSION=18.18.1
 
-# Install baseline OS dependencies, postgresql-client, docker CLI, curl, git, ca-certificates
+# Install baseline OS dependencies, Python, PDF/OCR tools, postgresql-client, docker CLI, curl, git
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
@@ -23,7 +23,24 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libstdc++6 \
     zlib1g \
     procps \
+    python3 \
+    python3-pip \
+    python3-venv \
+    poppler-utils \
+    mupdf-tools \
+    ghostscript \
+    tesseract-ocr \
+    tesseract-ocr-spa \
+    tesseract-ocr-eng \
+    jq \
+    ripgrep \
+    file \
     && rm -rf /var/lib/apt/lists/*
+
+# Install uv / uvx (multi-arch via official installer)
+RUN set -eux; \
+    curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/bin UV_NO_MODIFY_PATH=1 sh; \
+    chmod +x /usr/local/bin/uv /usr/local/bin/uvx
 
 # Install Bun (multi-arch support)
 RUN set -eux; \
