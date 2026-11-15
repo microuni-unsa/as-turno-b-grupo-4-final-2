@@ -34,56 +34,65 @@ export function createOpenAICompatibleEmbedder(options: EmbedderOptions = {}): E
       }
 
       const url = `${baseUrl.replace(/\/+$/, "")}/embeddings`;
-      const response = await fetchFn(url, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          model,
-          input: texts,
-        }),
-      });
+      const batchSize = 32;
+      const allEmbeddings: number[][] = [];
 
-      if (!response.ok) {
-        const errorBody = await response.text();
-        throw new Error(
-          `Embedding API request failed [${response.status} ${response.statusText}] at ${url}: ${errorBody}`
-        );
-      }
+      for (let offset = 0; offset < texts.length; offset += batchSize) {
+        const batch = texts.slice(offset, offset + batchSize);
+        const response = await fetchFn(url, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            model,
+            input: batch,
+          }),
+        });
 
-      const json = (await response.json()) as {
-        data: Array<{ embedding: number[]; index?: number }>;
-      };
-
-      if (!Array.isArray(json.data)) {
-        throw new Error(
-          `Embedding API response invalid: expected 'data' array, got ${typeof json.data}`
-        );
-      }
-
-      if (json.data.length !== texts.length) {
-        throw new Error(
-          `Embedding API response count mismatch: requested ${texts.length}, received ${json.data.length}`
-        );
-      }
-
-      // Preserve input order
-      const sorted = [...json.data].sort((a, b) => {
-        const idxA = a.index ?? 0;
-        const idxB = b.index ?? 0;
-        return idxA - idxB;
-      });
-
-      return sorted.map((item, i) => {
-        if (!Array.isArray(item.embedding)) {
-          throw new Error(`Embedding data at index ${i} is not a valid vector array`);
-        }
-        if (item.embedding.length !== RAG_CONFIG.EMBEDDING_DIM) {
+        if (!response.ok) {
+          const errorBody = await response.text();
           throw new Error(
-            `Embedding dimension mismatch at index ${i}: expected ${RAG_CONFIG.EMBEDDING_DIM}, got ${item.embedding.length}`
+            `Embedding API request failed [${response.status} ${response.statusText}] at ${url}: ${errorBody}`
           );
         }
-        return item.embedding;
-      });
+
+        const json = (await response.json()) as {
+          data: Array<{ embedding: number[]; index?: number }>;
+        };
+
+        if (!Array.isArray(json.data)) {
+          throw new Error(
+            `Embedding API response invalid: expected 'data' array, got ${typeof json.data}`
+          );
+        }
+
+        if (json.data.length !== batch.length) {
+          throw new Error(
+            `Embedding API response count mismatch: requested ${batch.length}, received ${json.data.length}`
+          );
+        }
+
+        // Preserve input order
+        const sorted = [...json.data].sort((a, b) => {
+          const idxA = a.index ?? 0;
+          const idxB = b.index ?? 0;
+          return idxA - idxB;
+        });
+
+        for (let i = 0; i < sorted.length; i++) {
+          const item = sorted[i];
+          if (!Array.isArray(item.embedding)) {
+            throw new Error(`Embedding data at index ${offset + i} is not a valid vector array`);
+          }
+          if (item.embedding.length !== RAG_CONFIG.EMBEDDING_DIM) {
+            throw new Error(
+              `Embedding dimension mismatch at index ${offset + i}: expected ${RAG_CONFIG.EMBEDDING_DIM}, got ${item.embedding.length}`
+            );
+          }
+          allEmbeddings.push(item.embedding);
+        }
+      }
+
+      return allEmbeddings;
     },
   };
 }

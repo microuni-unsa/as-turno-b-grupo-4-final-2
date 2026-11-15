@@ -58,9 +58,9 @@ export function chunkTextWithLines(
       chunkIndex++;
 
       if (!isLastLine) {
-        // Carry over overlap lines
-        const keepCount = Math.min(overlapLines, currentChunkLines.length);
-        currentChunkLines = currentChunkLines.slice(currentChunkLines.length - keepCount);
+        // Carry over overlap lines, never exceeding currentChunkLines.length - 1
+        const keepCount = Math.min(overlapLines, Math.max(0, currentChunkLines.length - 1));
+        currentChunkLines = keepCount > 0 ? currentChunkLines.slice(currentChunkLines.length - keepCount) : [];
         currentStartLine = lineNumber - keepCount + 1;
         currentChars = currentChunkLines.reduce((acc, l) => acc + l.length + 1, 0);
       } else {
