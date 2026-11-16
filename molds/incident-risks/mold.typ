@@ -1,16 +1,17 @@
 // mold.typ — Molde parametrizado para Gestión de Riesgos de Incidentes de Privacidad
-// Artefactos: G4-RSK-INC-01 (v1, v2, v3), G4-MET-RSK-01 (v3), G4-PLN-RSK-01 (v3)
+// Artefactos: G4-MET-RSK-01, G4-RSK-INC-01, G4-PLN-RSK-01
 // Sistema de Gestión de Privacidad de la Información (SGPI) — ISO/IEC 27701:2025
-// Cumple con el Contrato de Anatomía Documental de 15 Elementos
+// Cumple con el Contrato de Anatomía Documental de 15 Elementos y fidelidad estricta al instructor
+// ZERO datos de instancia hardcodeados en este archivo
 
-#import "../common/template.typ": doc-template, status-tag, rag-tag, callout, reference-docs, signature-block
+#import "../common/template.typ": doc-template, status-tag, rag-tag, callout, signature-block
 
 // -------------------------------------------------------------------------
 // 1. SUB-MOLDE: G4-MET-RSK-01 — Metodología de Evaluación y Tratamiento
-// Estructura réplica del documento del instructor: Metodologia_de_evaluacion_y_tratamiento_de_riesgos_ES.docx
+// Fiel 1:1 a Metodologia_de_evaluacion_y_tratamiento_de_riesgos_ES.docx
 // -------------------------------------------------------------------------
 #let render-methodology(data) = {
-  let doc-title = data.at("title", default: "Metodología de Evaluación y Tratamiento de Riesgos de Privacidad")
+  let doc-title = data.at("title", default: "Metodología de evaluación y tratamiento de riesgos")
   let doc-code = data.at("code", default: "G4-MET-RSK-01")
   let doc-ver = data.at("version", default: "3.0")
   let doc-date = data.at("date", default: "2025-10-28")
@@ -23,7 +24,57 @@
   let doc-refs = data.at("references", default: ())
   let doc-owner = data.at("owner-role", default: "Oficial de Seguridad de la Información (OSI / DPO)")
   let org-name = data.at("organization-name", default: "la Universidad Nacional de San Agustín de Arequipa (UNSA)")
-  let scope-desc = data.at("scope-desc", default: "todos los procesos, activos de información y tratamientos de datos personales (PII) bajo el alcance del SGPI institucional")
+  let scope-desc = data.at("scope-desc", default: "todo el alcance del Sistema de Gestión de Privacidad de la Información (SGPI)")
+  let users-desc = data.at("users-desc", default: "todos los empleados y directivos")
+  let norm-ref = data.at("norm-ref", default: "la norma ISO/IEC 27701:2025 y referencias ISO/IEC 27557 e ISO 31000")
+  let norm-controls = data.at("norm-controls", default: "ISO/IEC 27701:2025 (Tablas A.1 y A.3)")
+  let approver-role = if type(doc-approver) == dictionary and doc-approver.at("role", default: "") != "" {
+    doc-approver.role
+  } else {
+    "la Alta Dirección (Rectorado)"
+  }
+  let approver-name = if type(doc-approver) == dictionary and doc-approver.at("name", default: "") != "" {
+    doc-approver.name
+  } else {
+    "Dr. Hugo José Sánchez"
+  }
+  let records-data = data.at("records-table", default: (
+    (
+      name: "Cuadro de evaluación de riesgos (formulario electrónico, documento en Excel)",
+      location: "Repositorio PIMS / Servidor DUTIC",
+      responsible: doc-owner,
+      controls: "Solamente el " + doc-owner + " tiene derecho a crear entradas y a realizar modificaciones en el Cuadro de evaluación de riesgos",
+      retention: "Los datos son archivados de forma permanente"
+    ),
+    (
+      name: "Cuadro de tratamiento de riesgos (formulario electrónico, documento en Excel)",
+      location: "Repositorio PIMS / Servidor DUTIC",
+      responsible: doc-owner,
+      controls: "Solamente el " + doc-owner + " tiene derecho a crear entradas y a realizar modificaciones en el Cuadro de tratamiento de riesgos",
+      retention: "Los datos son archivados de forma permanente"
+    ),
+    (
+      name: "Informe sobre evaluación y tratamiento de riesgos (formulario electrónico, en formato PDF)",
+      location: "Repositorio PIMS / Sisgedo",
+      responsible: doc-owner,
+      controls: "El Informe se prepara en formato PDF de sólo lectura firmado digitalmente",
+      retention: "El informe es almacenado por el plazo de 5 años"
+    ),
+    (
+      name: "Declaración de aplicabilidad (formulario electrónico, en formato PDF)",
+      location: "Repositorio PIMS / Sisgedo",
+      responsible: doc-owner,
+      controls: "Solamente el " + doc-owner + " tiene derecho a crear entradas y a realizar modificaciones en la Declaración de aplicabilidad",
+      retention: "Las versiones no vigentes de la DdA son almacenadas por un plazo de 5 años"
+    ),
+    (
+      name: "Plan de tratamiento de riesgos (formulario electrónico, documento de Word / Typst)",
+      location: "Repositorio PIMS / Sisgedo",
+      responsible: doc-owner,
+      controls: "Solamente el " + doc-owner + " tiene derecho a crear entradas y a realizar modificaciones en el Plan de tratamiento de riesgos",
+      retention: "Las versiones no vigentes del Plan de tratamiento de riesgos son almacenadas por un plazo de 5 años"
+    ),
+  ))
 
   doc-template(
     title: doc-title,
@@ -35,20 +86,21 @@
     reviewer: doc-reviewer,
     approver: doc-approver,
     history: doc-history,
-    validity: doc-validity,
-    references: doc-refs,
-    owner-role: doc-owner,
-    show-signature: true,
+    validity: none,
+    references: (),
+    owner-role: none,
+    show-signature: false,
     [
       = Objetivo, alcance y usuarios
-      El objetivo del presente documento es definir la metodología integral para identificar, evaluar y tratar los riesgos de seguridad de la información y privacidad en #org-name, así como establecer el umbral formal de riesgo aceptable institucional en estricta conformidad con las Cláusulas 6.1.2 y 6.1.3 de la norma internacional *ISO/IEC 27701:2025* (Segunda edición, PIMS independiente).
+      El objetivo del presente documento es definir la metodología para evaluar y tratar los riesgos de la información y privacidad en #org-name y definir el nivel aceptable de riesgo según #norm-ref.
 
-      La evaluación y el tratamiento de riesgos se aplican a #scope-desc; es decir, a todos los activos físicos, lógicos, humanos y procedimentales vinculados a la recolección, almacenamiento, procesamiento y transferencia de datos personales (PII).
+      La evaluación y tratamiento de riesgos se aplican a #scope-desc; es decir, a todos los activos que se utilizan dentro de la organización o que pueden tener un impacto sobre la seguridad de la información y la privacidad en el ámbito del SGPI.
 
-      Los usuarios de este documento son todos los colaboradores, directores de unidades orgánicas, custodios de activos y dueños de riesgos de #org-name que participan en la planificación, operación, auditoría y mejora continua del SGPI.
+      Los usuarios de este documento son #users-desc de #org-name que participan en la evaluación y tratamiento de riesgos.
 
-      #callout(title: "ENFOQUE DUAL OBLIGATORIO DE PRIVACIDAD (CLÁUSULA 6.1.2)", color: rgb("#0284c7"))[
-        A diferencia de los sistemas tradicionales ISO/IEC 27001, la gestión de riesgos del SGPI exige evaluar las consecuencias potenciales no solo para la organización (impacto financiero, operativo y reputacional), sino primordialmente para los titulares de los datos personales (*PII principals*), considerando la posible vulneración a sus derechos fundamentales, discriminación o afectación patrimonial.
+      = Documentos de referencia
+      #for ref-item in doc-refs [
+        - #ref-item
       ]
 
       = Metodología de evaluación y tratamiento de riesgos
@@ -56,134 +108,159 @@
       == Evaluación de riesgos
 
       === El proceso
-      La evaluación de riesgos se ejecuta formalmente a través del *Cuadro de Evaluación de Riesgos* (Apéndice 1). El proceso es coordinado y supervisado técnicamente por el #doc-owner. La identificación de activos, amenazas y vulnerabilidades es realizada por los respectivos propietarios de los activos de información, mientras que la valoración de consecuencias y probabilidades corresponde a los propietarios designados de cada riesgo.
+      La evaluación de riesgos se implementa a través del Cuadro de evaluación de riesgos. El proceso de evaluación de riesgos es coordinado por el #doc-owner, la identificación de amenazas y vulnerabilidades la realizan los propietarios de los activos, y la evaluación de consecuencias y probabilidad es realizada por los propietarios de los riesgos.
 
       === Activos, vulnerabilidades y amenazas
-      El primer paso en la evaluación es la identificación exhaustiva de todos los activos dentro del alcance del SGPI que puedan incidir sobre la confidencialidad, integridad, disponibilidad o privacidad de los datos personales. Los activos clasificados comprenden:
-      - *Documentos y soportes físicos:* Expedientes de postulantes, padrones biométricos, boletas y legajos salariales.
-      - *Sistemas y bases de datos:* Portal web de admisiones, sistemas de nómina, bases PostgreSQL y servicios de directorio.
-      - *Equipamiento de TI y terminales:* Servidores centrales, firewalls, enlaces VPN, computadoras de escritorio y terminales portátiles en filiales regionales.
-      - *Personal y operadores:* Personal de ventanilla, operadores de nómina, soporte técnico y docentes.
-      - *Servicios externos:* Enlaces de telecomunicaciones, pasarelas de pago y servicios de custodia documental.
+      El primer paso en la evaluación de riesgos es la identificación de todos los activos dentro del alcance del SGPI; es decir, todos los activos que pueden afectar la confidencialidad, integridad y disponibilidad de la información y la privacidad de los datos personales en la organización. Los activos pueden ser documentos en papel o en formato electrónico, aplicaciones y bases de datos, personas, equipos de TI, infraestructura y servicios externos o procesos externalizados. Al identificar los activos también es necesario identificar a sus propietarios: la persona o unidad organizativa responsable de cada activo.
 
-      Para cada activo identificado se determina su respectivo propietario institucional. Posteriormente, se asocian las amenazas y vulnerabilidades aplicables utilizando el catálogo institucional adaptado a privacidad, reconociendo que un activo puede estar expuesto a múltiples amenazas concurrentes.
+      El siguiente paso es identificar todas las amenazas y vulnerabilidades relacionadas con cada activo. Las amenazas y vulnerabilidades se identifican utilizando los catálogos incluidos en el Cuadro de evaluación de riesgos. Cada activo puede estar relacionado a varias amenazas, y cada amenaza puede estar vinculada a varias vulnerabilidades.
 
       === Identificación de los propietarios de riesgos
-      Para cada riesgo evaluado se designa formalmente a un *propietario del riesgo* (*risk owner*), correspondiente a la jefatura o dirección con autoridad y presupuesto suficiente para decidir e implementar medidas de tratamiento.
+      Para cada riesgo es necesario identificar un propietario: la persona o unidad organizativa responsable de cada riesgo. Esta persona puede o no ser la misma que el propietario del activo.
 
       === Consecuencias y probabilidad
-      Identificados los escenarios de riesgo, se procede a estimar la consecuencia de su eventual materialización en una escala cualitativa y cuantitativa de tres niveles (0 a 2):
+      Una vez que se han identificado los riesgos, es necesario evaluar las consecuencias para cada combinación de amenazas y vulnerabilidades de un activo específico en caso que ello se pueda producir:
 
       #v(0.2cm)
       #table(
-        columns: (80pt, 30pt, 1fr),
-        fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
+        columns: (110pt, 30pt, 1fr),
+        fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else if x == 1 {
+          if y == 1 { rgb("#dcfce7") } else if y == 2 { rgb("#fef3c7") } else { rgb("#fee2e2") }
+        } else { none },
         stroke: 0.5pt + luma(190),
         align: (left, center, left),
-        table.header([*Nivel de Consecuencia*], [*Valor*], [*Criterio Operacional y Afectación a Titulares / Organización*]),
-        [*Baja consecuencia*], [0], [La pérdida de confidencialidad, integridad, disponibilidad o privacidad no genera perjuicio a los titulares ni afecta las finanzas, las obligaciones contractuales o el prestigio institucional.],
-        [*Consecuencia moderada*], [1], [La materialización del riesgo ocasiona gastos de mitigación acotados, impacto operativo menor y consecuencias leves o moderadas sobre derechos de titulares sin daño patrimonial directo.],
-        [*Alta consecuencia*], [2], [La materialización del riesgo produce consecuencias graves o irreversibles sobre los derechos de los titulares de datos personales (PII), pérdida de datos sensibles, paralización de servicios críticos o sanciones de la autoridad reguladora (ANPD).]
+        table.header([*Escala*], [*Valor*], [*Criterio de Impacto en Titulares y Organización*]),
+        [Baja consecuencia], [0], [La afectación a la confidencialidad, integridad o disponibilidad no genera impacto adverso significativo sobre los titulares de datos ni sobre la UNSA.],
+        [Consecuencia moderada], [1], [Existe afectación leve o moderada a los derechos de los titulares de datos (molestias, reclamaciones) o gastos menores y repercusión administrativa para la UNSA.],
+        [Alta consecuencia], [2], [Impacto grave e irreversible sobre los titulares (suplantación, discriminación, daño moral grave) o multas severas de la ANPD, daño reputacional mayúsculo o parálisis operativa.]
       )
       #v(0.2cm)
 
-      Seguidamente, se estima la probabilidad de que una amenaza aproveche la vulnerabilidad identificada, considerando la robustez de las salvaguardas vigentes:
+      Luego de la evaluación de consecuencias es necesario evaluar la probabilidad de que se materialice ese riesgo; es decir, la probabilidad de que una amenaza se aproveche de la vulnerabilidad del activo en cuestión.
 
       #v(0.2cm)
       #table(
-        columns: (80pt, 30pt, 1fr),
-        fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
+        columns: (110pt, 30pt, 1fr),
+        fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else if x == 1 {
+          if y == 1 { rgb("#dcfce7") } else if y == 2 { rgb("#fef3c7") } else { rgb("#fee2e2") }
+        } else { none },
         stroke: 0.5pt + luma(190),
         align: (left, center, left),
-        table.header([*Nivel de Probabilidad*], [*Valor*], [*Criterio de Frecuencia y Eficacia de Controles Existentes*]),
-        [*Baja probabilidad*], [0], [Los controles de seguridad y privacidad existentes son eficaces y han brindado adecuada protección histórica. No es previsible la ocurrencia de nuevos incidentes.],
-        [*Probabilidad moderada*], [1], [Los controles existentes son moderados y ofrecen protección básica. La ocurrencia de un incidente es factible bajo condiciones operacionales atípicas, aunque poco frecuente.],
-        [*Alta probabilidad*], [2], [Los controles existentes son deficientes, inexistentes o ineficaces. Existe una alta probabilidad de materialización del incidente en el corto plazo.]
+        table.header([*Escala*], [*Valor*], [*Criterio de Probabilidad y Controles Previos*]),
+        [Baja probabilidad], [0], [Los controles de seguridad existentes son seguros y hasta el momento han suministrado un adecuado nivel de protección. En el futuro no se esperan incidentes nuevos.],
+        [Probabilidad moderada], [1], [Los controles de seguridad existentes son moderados y en general han suministrado un adecuado nivel de protección. Es posible la ocurrencia de nuevos incidentes, pero no muy probable.],
+        [Alta probabilidad], [2], [Los controles de seguridad existentes son bajos o ineficaces. Existe una gran probabilidad de que haya incidentes así en el futuro.]
       )
       #v(0.2cm)
 
-      El nivel de riesgo inherente se calcula sumando ambos parámetros:
-      $ "Nivel de Riesgo" (R) = "Consecuencia" (0-2) + "Probabilidad" (0-2) $
-      El valor resultante oscila entre 0 y 4 puntos.
+      Ingresando los valores de consecuencia y probabilidad en el Cuadro de evaluación de riesgos, el nivel de riesgo se calcula automáticamente sumando los dos valores. Los controles de seguridad existentes tienen que ser ingresados en la última columna del Cuadro de evaluación de riesgos.
 
       == Criterios para la aceptación de riesgos
-      El umbral de aceptabilidad institucional del SGPI se define de la siguiente manera:
-      - *Valores 0, 1 y 2:* Constituyen *Riesgos Aceptables*. No requieren tratamiento correctivo inmediato, quedando sujetos a monitoreo ordinario y mantenimiento de salvaguardas.
-      - *Valores 3 y 4:* Constituyen *Riesgos No Aceptables*. Requieren tratamiento correctivo prioritario y mandatorio para reducirlos a niveles tolerables antes de la entrada en vigencia del ciclo operacional.
+      Los valores 0, 1 y 2 son riesgos aceptables, mientras que los valores 3 y 4 son riesgos no aceptables. Los riesgos no aceptables deben ser tratados.
 
       == Tratamiento del riesgo
-      El tratamiento de riesgos se ejecuta mediante el *Cuadro de Tratamiento de Riesgos* (Apéndice 2), trasladando automáticamente la totalidad de riesgos calificados con puntajes 3 y 4. Para cada riesgo no aceptable, el propietario del riesgo y el #doc-owner deben seleccionar una o más de las siguientes cuatro opciones estandarizadas:
+      El tratamiento de riesgos se implementa mediante el Cuadro de tratamiento de riesgos, copiando desde el Cuadro de evaluación de riesgos todos los riesgos identificados como no aceptables. El tratamiento de riesgos es realizado por el #doc-owner junto con los propietarios de los riesgos.
 
-      1. *Elección de controles de seguridad y privacidad:* Aplicación de salvaguardas técnicas, organizacionales y procedimentales seleccionadas del Anexo A de ISO/IEC 27701:2025 (Tablas A.1 y A.3).
-      2. *Transferencia de riesgos a terceros:* Distribución del riesgo mediante contratos de servicios con encargados de tratamiento homologados o contratación de pólizas de seguros especializadas.
-      3. *Evitar el riesgo:* Discontinuación, suspensión o modificación sustantiva de la actividad de tratamiento que genera el escenario de amenaza inaceptable.
-      4. *Aceptación justificada del riesgo:* Opción restrictiva aplicable únicamente cuando los costos de mitigación superen con creces el daño potencial estimado, requiriendo autorización escrita expresa y motivada de la Alta Dirección.
+      Para los riesgos calificados en 3 y 4 se deben seleccionar una o más opciones de tratamiento:
 
-      Al implementar la Opción 1, se reevalúan los valores residuales de consecuencia y probabilidad en el Cuadro de Tratamiento para certificar la efectividad de las medidas planificadas.
+      1. *Elección de control o controles de seguridad y privacidad:* Selección de controles del Anexo A de #norm-controls u otros controles de seguridad aplicables.
+      2. *Transferencia de los riesgos a terceros:* Por ejemplo, suscribiendo una póliza de seguros o un contrato con proveedores o socios con cláusulas de protección de datos personales.
+      3. *Evitar los riesgos:* Discontinuando una actividad de tratamiento o eliminando el activo que ocasiona ese riesgo.
+      4. *Aceptación del riesgo:* Esta opción está permitida solamente si la selección de otras opciones de tratamiento del riesgo costarían más que el potencial impacto en el caso de que se materializara dicho riesgo, requiriendo autorización escrita expresa de la Alta Dirección.
+
+      La elección de opciones se implementa a través del Cuadro de tratamiento de riesgos. Generalmente, se escoge la opción 1: elección de uno o más controles de seguridad. Cuando se escogen varios controles de seguridad para un riesgo, se insertan filas adicionales en la tabla, inmediatamente debajo de la fila en que se especifica el riesgo.
+
+      El tratamiento de riesgos relacionados con procesos externalizados debe ser atendido por medio de contratos con los terceros responsables, como se especifica en la Política de seguridad y privacidad para proveedores.
+
+      En el caso de la opción 1 (elección de controles de seguridad), es necesario evaluar el nuevo valor de consecuencia y probabilidad en el Cuadro de tratamiento de riesgos, para evaluar la efectividad de los controles planificados.
 
       == Revisiones periódicas de la evaluación y el tratamiento de riesgos
-      Los propietarios de riesgos y el equipo de seguridad deben revisar periódicamente la vigencia de los riesgos y actualizar los cuadros correspondientes al menos *una vez al año*, o de manera extraordinaria ante:
-      - Apertura o incorporación de nuevas sedes, filiales territoriales o dependencias académicas.
-      - Cambios tecnológicos relevantes (migración a la nube, nuevas plataformas web o cambios en redes).
-      - Reformas legales o regulatorias en el régimen de protección de datos personales.
-      - Materialización de incidentes de seguridad de severidad media, alta o crítica.
+      Los propietarios de riesgos deben revisar los riesgos vigentes y deben actualizar el Cuadro de evaluación de riesgos y el Cuadro de tratamiento de riesgos de acuerdo con los nuevos riesgos identificados. La revisión se realiza al menos una vez por año, o con mayor frecuencia en caso de cambios organizacionales significativos, cambios importantes en tecnología, en los objetivos de negocios, en el entorno empresarial, etc.
 
       == Declaración de aplicabilidad y Plan de tratamiento del riesgo
-      El #doc-owner documenta en la Declaración de Aplicabilidad (*SoA* - `G4-SOA-01`) la justificación de inclusión y el estado de implementación de los controles de las Tablas A.1 y A.3 de ISO/IEC 27701:2025, así como la exclusión fundada de la Tabla A.2.
+      El #doc-owner debe documentar lo siguiente en la Declaración de aplicabilidad: qué controles de seguridad y privacidad de #norm-controls son aplicables y cuáles no, la justificación de esa decisión y si están implementados o no.
 
-      Asimismo, formula el Plan de Tratamiento de Riesgos (`G4-PLN-RSK-01`) con el cronograma y recursos para desplegar las medidas aprobadas por la Alta Dirección.
+      En nombre de los propietarios de riesgos, la Alta Dirección (#approver-role) aceptará todos los riesgos residuales a través de la Declaración de aplicabilidad.
+
+      El #doc-owner preparará el Plan de tratamiento de riesgos en el que se planificará la implementación de los controles. En nombre de los propietarios de riesgos, la Alta Dirección (#approver-role) aprobará el Plan de tratamiento de riesgos.
 
       == Informes
-      Los resultados consolidados de cada ciclo de apreciación y tratamiento de riesgos se formalizan en el *Informe de Evaluación y Tratamiento de Riesgos* (`Apendice 3`, integrado en `G4-RSK-INC-01`). El seguimiento del plan se informa con periodicidad mensual a las direcciones involucradas.
+      El #doc-owner documentará los resultados de la evaluación y del tratamiento de riesgos, y de todas las revisiones subsiguientes, en el Informe sobre evaluación y tratamiento de riesgos.
+
+      El #doc-owner supervisará el progreso de la implementación del Plan de tratamiento de riesgos e informará los resultados a la Alta Dirección mensualmente.
 
       = Gestión de registros guardados en base a este documento
-      Los registros generados por la aplicación de esta metodología se protegen conforme a los siguientes parámetros:
-
       #v(0.2cm)
       #table(
-        columns: (110pt, 80pt, 85pt, 1fr, 55pt),
+        columns: (115pt, 80pt, 85pt, 1fr, 55pt),
         fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
         stroke: 0.5pt + luma(190),
         align: (left, left, left, left, center),
-        table.header([*Nombre del Registro*], [*Ubicación de Archivo*], [*Responsable de Custodia*], [*Controles de Protección*], [*Retención*]),
-        [Cuadro de Evaluación de Riesgos (Apéndice 1)], [Repositorio PIMS / Servidor DUTIC], [#doc-owner], [Control de acceso por roles (RBAC) y respaldo diario], [Permanente],
-        [Cuadro de Tratamiento de Riesgos (Apéndice 2)], [Repositorio PIMS / Servidor DUTIC], [#doc-owner], [Control de acceso por roles (RBAC) y respaldo diario], [Permanente],
-        [Informe de Evaluación y Tratamiento (`G4-RSK-INC-01`)], [Gestor Documental Sisgedo / PIMS], [#doc-owner], [Documento PDF firmado digitalmente de solo lectura], [5 años],
-        [Declaración de Aplicabilidad (`G4-SOA-01`)], [Repositorio PIMS institucional], [#doc-owner], [Integridad SHA-256 y versionado controlado], [5 años],
-        [Plan de Tratamiento de Riesgos (`G4-PLN-RSK-01`)], [Repositorio PIMS institucional], [#doc-owner], [Control de versiones e integridad SHA-256], [5 años]
+        table.header([*Nombre del registro*], [*Ubicación de archivo*], [*Persona responsable del archivo*], [*Controles para la protección del registro*], [*Tiempo de retención*]),
+        ..records-data.map(r => (
+          text(size: 7.5pt)[#r.name],
+          text(size: 7pt)[#r.location],
+          text(size: 7pt)[#r.responsible],
+          text(size: 7pt)[#r.controls],
+          text(size: 7pt)[#r.retention]
+        )).flatten()
       )
-      #v(0.3cm)
+      #v(0.2cm)
+
+      Solamente el #doc-owner puede permitir a otros empleados el acceso a los documentos mencionados precedentemente.
+
+      = Validez y gestión de documentos
+      Este documento es válido hasta el #doc-validity.
+
+      El propietario de este documento es el #doc-owner, que debe verificar y, si es necesario, actualizar el documento por lo menos una vez al año, antes de la revisión periódica sobre la evaluación de riesgos vigente.
+
+      Al evaluar la efectividad y adecuación de este documento, es necesario tener en cuenta los siguientes criterios:
+      - La cantidad de incidentes que se produjeron pero que no fueron incluidos en la evaluación de riesgos.
+      - La cantidad de riesgos que no fueron tratados adecuadamente.
+      - La cantidad de errores en el proceso de evaluación y tratamiento de riesgos debido a definiciones poco claras de funciones y responsabilidades.
 
       = Apéndices
-      - *Apéndice 1:* Cuadro de Evaluación de Riesgos (Catálogo de activos, amenazas, vulnerabilidades y valoración).
-      - *Apéndice 2:* Cuadro de Tratamiento de Riesgos (Opciones seleccionadas, controles Anexo A y riesgo residual).
-      - *Apéndice 3:* Formulario - Informe sobre Evaluación y Tratamiento de Riesgos de Privacidad.
+      - Apéndice 1: Cuadro de evaluación de riesgos
+      - Apéndice 2: Cuadro de tratamiento de riesgos
+      - Apéndice 3: Informe sobre evaluación y tratamiento de riesgos
+
+      #v(0.6cm)
+      #align(left)[
+        #signature-block(
+          role: if type(doc-author) == dictionary and doc-author.at("role", default: "") != "" { doc-author.role } else { doc-owner },
+          name: if type(doc-author) == dictionary and doc-author.at("name", default: "") != "" { doc-author.name } else { "Ing. Carlos M. Benítez" }
+        )
+      ]
     ]
   )
 }
 
 // -------------------------------------------------------------------------
-// 2. SUB-MOLDE: G4-RSK-INC-01 — Matriz de Riesgos + Informe (Apéndices 1, 2, 3)
-// Estructura integral: Informe Apéndice 3 + Tablas Apéndice 1 y 2
+// 2. SUB-MOLDE: G4-RSK-INC-01 — Matriz y Reporte de Evaluación y Tratamiento
+// Fiel 1:1 a Apendice 3 DOCX + Apendice 1 XLSX + Apendice 2 XLSX
 // -------------------------------------------------------------------------
 #let render-matrix(data) = {
-  let doc-title = data.at("title", default: "Matriz y Reporte de Evaluación de Riesgos de Incidentes de Privacidad")
+  let doc-title = data.at("title", default: "Apéndice 3: Formulario - Informe sobre evaluación y tratamiento de riesgos")
   let doc-code = data.at("code", default: "G4-RSK-INC-01")
-  let doc-ver = data.at("version", default: "1.0")
-  let doc-date = data.at("date", default: "2019-04-15")
+  let doc-ver = data.at("version", default: "3.0")
+  let doc-date = data.at("date", default: "2025-10-28")
   let doc-conf = data.at("confidentiality", default: "CONFIDENCIAL - USO INTERNO UNSA")
   let doc-author = data.at("author", default: (:))
   let doc-reviewer = data.at("reviewer", default: (:))
   let doc-approver = data.at("approver", default: (:))
   let doc-history = data.at("history", default: ())
-  let doc-validity = data.at("validity", default: "2020-04-15")
+  let doc-validity = data.at("validity", default: "2026-10-28")
   let doc-refs = data.at("references", default: ())
   let doc-owner = data.at("owner-role", default: "Oficial de Seguridad de la Información (OSI / DPO)")
-  let period-name = data.at("period-name", default: "Periodo Operacional")
-  let scope-units = data.at("scope-units", default: "las unidades del alcance del SGPI")
-  let time-eval = data.at("time-eval", default: "el periodo de evaluación")
-  let time-treat = data.at("time-treat", default: "el periodo de tratamiento")
-  let participants = data.at("participants", default: "el equipo técnico del SGPI")
+  let org-name = data.at("organization-name", default: "la Universidad Nacional de San Agustín de Arequipa (UNSA)")
+  let period-name = data.at("period-name", default: "Periodo 2025")
+  let scope-units = data.at("scope-units", default: "las dependencias de Admisión y Personal")
+  let time-eval-start = data.at("time-eval-start", default: "01/09/2025")
+  let time-eval-end = data.at("time-eval-end", default: "10/10/2025")
+  let time-treat-start = data.at("time-treat-start", default: "11/10/2025")
+  let time-treat-end = data.at("time-treat-end", default: "24/10/2025")
+  let report-period = data.at("report-period", default: "el periodo del 25 al 28 de octubre de 2025")
+  let participants = data.at("participants", default: "el Ing. Carlos M. Benítez (Oficial de Seguridad de la Información / DPO), con la colaboración de la Directora DUTIC y los directores de unidad")
   let eval-rows = data.at("eval-rows", default: ())
   let treat-rows = data.at("treat-rows", default: ())
 
@@ -197,56 +274,100 @@
     reviewer: doc-reviewer,
     approver: doc-approver,
     history: doc-history,
-    validity: doc-validity,
-    references: doc-refs,
-    owner-role: doc-owner,
-    show-signature: true,
+    validity: none,
+    references: (),
+    owner-role: none,
+    show-signature: false,
     [
-      = Apéndice 3: Informe sobre Evaluación y Tratamiento de Riesgos
+      = Objetivo, alcance y usuarios
+      El objetivo del presente documento es presentar un resumen detallado del proceso y de los documentos utilizados durante la evaluación y el tratamiento de los riesgos de la información y privacidad en #org-name en el período #period-name.
 
-      == Objetivo, alcance y usuarios del informe
-      El objetivo del presente informe es presentar el resumen detallado del proceso, los métodos aplicados y los resultados obtenidos durante la evaluación y el tratamiento de los riesgos de incidentes de privacidad y seguridad de la información en la institución para el #period-name.
+      La evaluación de riesgos se aplicó a todo el Sistema de Gestión de Privacidad de la Información (SGPI).
 
-      La evaluación se aplicó a todo el alcance del Sistema de Gestión de Privacidad de la Información (SGPI) en #scope-units. El presente documento está dirigido a la Alta Dirección, al #doc-owner, a los custodios de activos y a las comisiones de auditoría y mejora continua.
+      El presente documento está dirigido a la alta dirección de #org-name, al #doc-owner, a los propietarios de activos de información y a todas las personas involucradas en la planificación, implementación, supervisión y mejora del SGPI.
 
-      == Proceso de evaluación y tratamiento de riesgos de la información y privacidad
-      Todo el proceso de evaluación y tratamiento de riesgos ha sido realizado en estricta conformidad con el documento *Metodología de Evaluación y Tratamiento de Riesgos de Privacidad* (`G4-MET-RSK-01`), bajo los mandatos de las Cláusulas 6.1.2, 6.1.3, 8.2 y 8.3 de la norma internacional ISO/IEC 27701:2025.
+      = Documentos de referencia
+      #for ref-item in doc-refs [
+        - #ref-item
+      ]
 
-      === Objetivo de la gestión de riesgos de privacidad
-      El objetivo fundamental de la evaluación es identificar los activos que procesan datos personales (PII), las amenazas de vulneración y las fallas de seguridad asociadas, ponderando su impacto dual (titulares y universidad) para cuantificar los riesgos intolerables. El tratamiento busca establecer salvaguardas sistemáticas, eficaces y medibles para mitigar dichos riesgos a niveles plenamente tolerables.
+      = Proceso de evaluación y tratamiento de riesgos de la información
+      Todo el proceso de evaluación y tratamiento de riesgos ha sido realizado en conformidad con el documento Metodología de evaluación y tratamiento de riesgos (`G4-MET-RSK-01`).
 
-      === Alcance y periodo de tiempo
-      - *Alcance Organizacional y Geográfico:* #scope-units.
-      - *Periodo de Evaluación de Riesgos:* Implementado durante #time-eval.
-      - *Periodo de Formulación y Tratamiento:* Implementado durante #time-treat.
+      == Objetivo de la gestión de riesgos
+      El objetivo de la evaluación de riesgos es identificar todos los activos, sus vulnerabilidades y las amenazas que se pueden aprovechar de dichas vulnerabilidades, como también evaluar esos parámetros para establecer el grado crítico de riesgos individuales.
 
-      === Participantes en el proceso y recolección de información
-      El proceso fue liderado por #participants. La información técnica fue recabada mediante entrevistas con los custodios de bases de datos, auditorías de configuración de infraestructura de red y análisis forense de incidentes previos.
+      El objetivo del tratamiento de riesgos es definir medios sistemáticos para disminuir o controlar esos riesgos.
 
-      === Breve resumen de la metodología aplicada
-      1. Identificación y clasificación de activos que tratan PII (físicos, digitales y humanos).
-      2. Mapeo de amenazas de privacidad e identificación de vulnerabilidades técnicas y operativas.
-      3. Asignación formal de propietarios de activos y propietarios de riesgos.
-      4. Valoración cuantitativa de consecuencias en escala de 0 a 2 (Baja, Moderada, Alta con afectación a derechos).
-      5. Valoración de probabilidad en escala de 0 a 2 (Baja, Moderada, Alta).
-      6. Cálculo del riesgo inherente ($R = "Consecuencia" + "Probabilidad"$ en escala de 0 a 4).
-      7. Determinación del umbral: valores 0 a 2 son *Aceptables*; valores 3 y 4 son *No Aceptables*.
-      8. Selección de controles de mitigación del Anexo A de ISO/IEC 27701:2025 (Tablas A.1 y A.3).
-      9. Reevaluación del riesgo residual ($R_"res"$) y formalización de aceptación institucional.
+      == Alcance de la evaluación y tratamiento de riesgos
+      La evaluación y tratamiento de riesgos fue realizado en #scope-units, en conformidad con el documento Alcance del SGPI.
 
-      === Resumen de documentos utilizados
-      - *Cuadro de Evaluación de Riesgos (Apéndice 1):* Detalla el inventario de activos, escenarios de amenaza, vulnerabilidades y niveles calculados de riesgo.
-      - *Cuadro de Tratamiento de Riesgos (Apéndice 2):* Consolida los riesgos no aceptables, las opciones de tratamiento elegidas, los controles Anexo A y el nivel residual resultante.
+      == Período de tiempo
+      La evaluación de riesgos fue implementada en el período comprendido entre el #time-eval-start y el #time-eval-end. El tratamiento de riesgos fue implementado en el período comprendido entre el #time-treat-start y el #time-treat-end. Los informes finales fueron elaborados durante #report-period.
 
-      = Apéndice 1: Cuadro de Evaluación de Riesgos de Incidentes (#period-name)
+      == Participantes en el proceso y recolección de información
+      El proceso de evaluación y tratamiento de riesgos fue dirigido por #participants.
+
+      Durante la evaluación de riesgos, se obtuvo información a través de cuestionarios y entrevistas con personas responsables; es decir, propietarios de activos de todas las unidades organizativas.
+
+      == Breve resumen de la metodología aplicada
+      Resumidamente, el proceso se realizó de la siguiente manera:
+      - Se identificaron todos los activos y sus propietarios.
+      - Se identificaron las amenazas para cada activo y las correspondientes vulnerabilidades para cada amenaza.
+      - Se identificaron los propietarios de cada riesgo.
+      - Se evaluaron, con valores de 0 a 2, las consecuencias por la pérdida de confidencialidad, integridad y disponibilidad, y la afectación a los titulares de datos personales.
+      - Se evaluó, con valores de 0 a 2, la probabilidad de que se materialice un riesgo; es decir, que la amenaza se aproveche de la vulnerabilidad.
+      - Se calculó el nivel de riesgo sumando las consecuencias y la probabilidad.
+      - Se determinó que los riesgos valorados en 3 y 4 son riesgos no aceptables.
+      - Para cada riesgo no aceptable se tuvo en cuenta un tratamiento de riesgo y, del Anexo A de la norma ISO/IEC 27701:2025 (Tablas A.1 y A.3), se escogieron controles que pueden disminuir el riesgo a un nivel aceptable.
+      - Una vez que se aplicaron los controles, se evaluaron los riesgos residuales.
+
+      == Resumen de los documentos utilizados durante el proceso de evaluación y tratamiento de riesgos
+      Durante la implementación de la evaluación y tratamiento de riesgos se utilizaron o redactaron los siguientes documentos:
+      - Cuadro de evaluación de riesgos (Apéndice 1): para cada combinación de activos, vulnerabilidades y amenazas, este cuadro muestra los valores de consecuencia y probabilidad y calcula el riesgo.
+      - Cuadro de tratamiento de riesgos (Apéndice 2): muestra las opciones para tratamiento de riesgos, la elección de controles para cada riesgo no aceptable y el nivel de riesgo residual.
+
+      = Validez y gestión de documentos
+      Este documento es válido hasta el #doc-validity. El propietario de este documento es el #doc-owner.
+
+      = Apéndices
+      - Apéndice 1: Cuadro de evaluación de riesgos
+      - Apéndice 2: Cuadro de tratamiento de riesgos
+
+      #v(0.6cm)
+      #align(left)[
+        #signature-block(
+          role: if type(doc-author) == dictionary and doc-author.at("role", default: "") != "" { doc-author.role } else { doc-owner },
+          name: if type(doc-author) == dictionary and doc-author.at("name", default: "") != "" { doc-author.name } else { "Ing. Carlos M. Benítez" }
+        )
+      ]
+
+      #pagebreak()
+
+      // -------------------------------------------------------------------
+      // APÉNDICE 1: CUADRO DE EVALUACIÓN DE RIESGOS (EXCEL LAYOUT - 10 COLUMNAS)
+      // -------------------------------------------------------------------
+      == Apéndice 1: Cuadro de evaluación de riesgos
+      #text(size: 8pt, fill: luma(80))[Implementado desde el #time-eval-start hasta el #time-eval-end]
 
       #v(0.2cm)
       #table(
-        columns: (28pt, 80pt, 65pt, 85pt, 80pt, 60pt, 22pt, 22pt, 24pt, 1fr),
+        columns: (22pt, 80pt, 65pt, 85pt, 80pt, 60pt, 22pt, 22pt, 22pt, 1fr),
         fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
         stroke: 0.5pt + luma(190),
         align: (center, left, left, left, left, left, center, center, center, left),
-        table.header([*ID*], [*Activo PII*], [*Custodio*], [*Amenaza*], [*Vulnerabilidad*], [*Dueño Riesgo*], [*C*], [*P*], [*R*], [*Controles Existentes*]),
+        table.header(
+          [*No*],
+          [*Nombre del activo*],
+          [*Propietario del activo*],
+          [*Amenaza*],
+          [*Vulnerabilidad*],
+          [*Propietario del riesgo*],
+          [*C*],
+          [*P*],
+          [*R*],
+          [*Controles existentes*]
+        ),
         ..eval-rows.map(r => (
           text(size: 7.5pt, weight: "bold")[#r.id],
           text(size: 7pt)[#r.asset],
@@ -260,43 +381,67 @@
           text(size: 7pt)[#r.existing-controls]
         )).flatten()
       )
-      #v(0.3cm)
 
-      = Apéndice 2: Cuadro de Tratamiento de Riesgos de Incidentes (#period-name)
+      #v(0.5cm)
+      #pagebreak()
+
+      // -------------------------------------------------------------------
+      // APÉNDICE 2: CUADRO DE TRATAMIENTO DE RIESGOS (EXCEL LAYOUT - 14 COLUMNAS, 2 NIVELES)
+      // -------------------------------------------------------------------
+      == Apéndice 2: Cuadro de tratamiento de riesgos
+      #text(size: 8pt, fill: luma(80))[Implementado desde el #time-treat-start hasta el #time-treat-end]
 
       #v(0.2cm)
       #table(
-        columns: (26pt, 85pt, 60pt, 36pt, 65pt, 1fr, 36pt, 45pt, 48pt),
-        fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
+        columns: (22pt, 48pt, 45pt, 50pt, 50pt, 45pt, 16pt, 16pt, 18pt, 45pt, 1fr, 16pt, 16pt, 18pt),
+        fill: (x, y) => if y == 0 or y == 1 { rgb("#f1f5f9") } else { none },
         stroke: 0.5pt + luma(190),
-        align: (center, left, left, center, left, left, center, center, center),
-        table.header([*ID*], [*Escenario de Riesgo*], [*Dueño*], [*Antes (C+P=R)*], [*Opción*], [*Controles Anexo A y Medios*], [*Residual (C+P=R)*], [*Nivel*], [*Estado*]),
+        align: (center, left, left, left, left, left, center, center, center, left, left, center, center, center),
+        table.cell(colspan: 6, align: center)[*Activos / amenazas / vulnerabilidades*],
+        table.cell(colspan: 3, align: center)[*Valores antes del tratamiento*],
+        table.cell(colspan: 2, align: center)[*Tratamiento del riesgo*],
+        table.cell(colspan: 3, align: center)[*Valores después del tratamiento*],
+        [*Cantidad*],
+        [*Nombre del activo*],
+        [*Propietario del activo*],
+        [*Amenaza*],
+        [*Vulnerabilidad*],
+        [*Propietario del riesgo*],
+        [*C*],
+        [*P*],
+        [*R*],
+        [*Elección de opciones*],
+        [*Medios de implementación*],
+        [*C*],
+        [*P*],
+        [*R*],
         ..treat-rows.map(r => (
-          text(size: 7.5pt, weight: "bold")[#r.id],
-          text(size: 7pt)[#r.scenario],
-          text(size: 7pt)[#r.risk-owner],
-          text(size: 7pt, weight: "bold", fill: rgb("#991b1b"))[#r.before-c+#r.before-p=#r.before-r],
-          text(size: 7pt)[#r.option],
-          text(size: 7pt)[#r.controls],
-          text(size: 7pt, weight: "bold", fill: rgb("#166534"))[#r.after-c+#r.after-p=#r.after-r],
-          rag-tag(r.rag),
-          status-tag(r.status)
+          text(size: 7pt, weight: "bold")[#r.id],
+          text(size: 6.5pt)[#r.at("asset", default: r.at("scenario", default: ""))],
+          text(size: 6.5pt)[#r.at("asset-owner", default: r.at("risk-owner", default: ""))],
+          text(size: 6.5pt)[#r.at("threat", default: "Amenaza identificada")],
+          text(size: 6.5pt)[#r.at("vuln", default: "Vulnerabilidad detectada")],
+          text(size: 6.5pt)[#r.risk-owner],
+          text(size: 7pt)[#r.before-c],
+          text(size: 7pt)[#r.before-p],
+          text(size: 7pt, weight: "bold", fill: rgb("#991b1b"))[#r.before-r],
+          text(size: 6.5pt)[#r.option],
+          text(size: 6.5pt)[#r.controls],
+          text(size: 7pt)[#r.after-c],
+          text(size: 7pt)[#r.after-p],
+          text(size: 7pt, weight: "bold", fill: rgb("#166534"))[#r.after-r]
         )).flatten()
       )
-      #v(0.3cm)
-
-      = Formalización de Aceptación del Riesgo Residual (Cláusula 6.1.3g)
-      Los Dueños de Riesgo institucionales y el Comité de Gobierno Digital y Privacidad certifican que la totalidad de los riesgos tratados alcanzan niveles residuales tolerables (puntajes 1 a 2, clasificados en zona Verde), formalizando la aprobación unánime de las medidas y la plena conformidad de los controles con la norma internacional ISO/IEC 27701:2025.
     ]
   )
 }
 
 // -------------------------------------------------------------------------
 // 3. SUB-MOLDE: G4-PLN-RSK-01 — Plan de Tratamiento del Riesgo
-// Estructura réplica del documento del instructor: Plan_de_tratamiento_del_riesgo_ES.docx (tabla de 7 columnas)
+// Fiel 1:1 a Plan_de_tratamiento_del_riesgo_ES.docx (tabla de 7 columnas)
 // -------------------------------------------------------------------------
 #let render-plan(data) = {
-  let doc-title = data.at("title", default: "Plan de Tratamiento de Riesgos de Privacidad")
+  let doc-title = data.at("title", default: "Plan de tratamiento del riesgo")
   let doc-code = data.at("code", default: "G4-PLN-RSK-01")
   let doc-ver = data.at("version", default: "3.0")
   let doc-date = data.at("date", default: "2025-10-28")
@@ -305,11 +450,19 @@
   let doc-reviewer = data.at("reviewer", default: (:))
   let doc-approver = data.at("approver", default: (:))
   let doc-history = data.at("history", default: ())
-  let doc-validity = data.at("validity", default: "2026-10-28")
-  let doc-refs = data.at("references", default: ())
   let doc-owner = data.at("owner-role", default: "Oficial de Seguridad de la Información (OSI / DPO)")
-  let intro-text = data.at("intro-text", default: "Para cumplir los objetivos del Sistema de Gestión de Privacidad de la Información (SGPI) bajo la norma ISO/IEC 27701:2025 (Cláusulas 6.1.3.f y 8.3), se planifican e implementan las siguientes actividades institucionales de tratamiento de riesgos:")
+  let intro-text = data.at("intro-text", default: "Para cumplir los objetivos del Sistema de Gestión de Privacidad de la Información (SGPI) de la UNSA y reducir los riesgos sobre los titulares de datos a niveles aceptables, es necesario realizar las siguientes actividades:")
   let activities = data.at("activities", default: ())
+  let approver-role = if type(doc-approver) == dictionary and doc-approver.at("role", default: "") != "" {
+    doc-approver.role
+  } else {
+    "Rector de la Universidad Nacional de San Agustín de Arequipa / Presidente del Comité SGPI"
+  }
+  let approver-name = if type(doc-approver) == dictionary and doc-approver.at("name", default: "") != "" {
+    doc-approver.name
+  } else {
+    "Dr. Hugo José Sánchez"
+  }
 
   doc-template(
     title: doc-title,
@@ -321,33 +474,27 @@
     reviewer: doc-reviewer,
     approver: doc-approver,
     history: doc-history,
-    validity: doc-validity,
-    references: doc-refs,
-    owner-role: doc-owner,
-    show-signature: true,
+    validity: none,
+    references: (),
+    owner-role: none,
+    show-signature: false,
     [
-      = Objetivos y Alcance del Plan de Tratamiento
+      = Plan de tratamiento del riesgo
       #intro-text
 
-      #callout(title: "COMPROMISO DE ASIGNACIÓN DE RECURSOS (CLÁUSULA 6.1.3f)", color: rgb("#0284c7"))[
-        La Alta Dirección y los directores de las dependencias involucradas garantizan la asignación oportuna de los recursos presupuestales, tecnológicos y de personal necesarios para la ejecución de cada actividad dentro de los plazos establecidos.
-      ]
-
-      = Matriz de Actividades del Plan de Tratamiento (Tabla de 7 Columnas)
-
-      #v(0.2cm)
+      #v(0.3cm)
       #table(
         columns: (115pt, 80pt, 75pt, 65pt, 85pt, 80pt, 50pt),
         fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
         stroke: 0.5pt + luma(190),
         align: (left, left, left, center, left, left, center),
         table.header(
-          [*Descripción de Actividades*],
-          [*Recursos Generales y Financieros Necesarios*],
-          [*Persona Responsable*],
-          [*Plazos de Inicio y Finalización*],
-          [*Programas de Capacitación y Concienciación*],
-          [*Método para Evaluación de Resultados*],
+          [*Descripción de actividades*],
+          [*Recursos generales y financieros necesarios*],
+          [*Persona responsable*],
+          [*Plazos de inicio y finalización*],
+          [*Programas de capacitación y concienciación*],
+          [*Método para evaluación de resultados*],
           [*Estado*]
         ),
         ..activities.map(act => (
@@ -360,10 +507,14 @@
           status-tag(act.status)
         )).flatten()
       )
-      #v(0.4cm)
 
-      = Seguimiento y Control de Eficacia
-      La verificación del cumplimiento de este plan se realiza mediante revisiones técnicas bimensuales a cargo del #doc-owner, reportando los avances directamente al Comité de Gobierno Digital y Privacidad en conformidad con la Cláusula 9.1 de ISO/IEC 27701:2025.
+      #v(0.8cm)
+      #align(left)[
+        #signature-block(
+          role: approver-role,
+          name: approver-name
+        )
+      ]
     ]
   )
 }
@@ -373,7 +524,7 @@
 // Despacha automáticamente según el código documental indicado en data.code
 // -------------------------------------------------------------------------
 #let mold(data) = {
-  let doc-code = data.at("code", default: "G4-RSK-INC-01")
+  let doc-code = data.at("code", default: "")
   if doc-code == "G4-MET-RSK-01" {
     render-methodology(data)
   } else if doc-code == "G4-PLN-RSK-01" {

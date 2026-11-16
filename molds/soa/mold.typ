@@ -227,6 +227,16 @@
   let org-name = data.at("organization-name", default: "la Universidad Nacional de San Agustín de Arequipa (UNSA)")
   let purpose-desc = data.at("purpose-desc", default: "documenta formalmente los controles de seguridad y privacidad necesarios para el Sistema de Gestión de Privacidad de la Información (SGPI) institucional")
   let role-desc = data.at("role-desc", default: "actúa de manera privativa y unívoca como Responsable del Tratamiento de Datos Personales (PII Controller), determinando de forma autónoma los fines y medios del tratamiento en los procesos misionales de Admisión y de soporte de Planillas de Remuneraciones")
+  let approver-role = if type(doc-approver) == dictionary and doc-approver.at("role", default: "") != "" {
+    doc-approver.role
+  } else {
+    "Rector de la Universidad Nacional de San Agustín de Arequipa / Presidente del Comité SGPI"
+  }
+  let approver-name = if type(doc-approver) == dictionary and doc-approver.at("name", default: "") != "" {
+    doc-approver.name
+  } else {
+    "Dr. Hugo José Sánchez"
+  }
 
   doc-template(
     title: doc-title,
@@ -238,49 +248,45 @@
     reviewer: doc-reviewer,
     approver: doc-approver,
     history: doc-history,
-    validity: doc-validity,
-    references: doc-refs,
-    owner-role: doc-owner,
-    show-signature: true,
+    validity: none,
+    references: (),
+    owner-role: none,
+    show-signature: false,
     [
-      = Propósito y Fundamento Normativo
-      La presente Declaración de Aplicabilidad (*Statement of Applicability - SoA*) #purpose-desc, en estricto cumplimiento de la Cláusula 6.1.3.e y la Introducción normativa del Anexo A de la norma internacional *ISO/IEC 27701:2025* (Segunda edición, PIMS independiente).
+      = Objetivo, alcance y usuarios
 
-      = Determinación del Rol Institucional (Cláusula 4.1)
-      En virtud del análisis formal del contexto organizacional y legal desarrollado bajo la Cláusula 4.1, #org-name #role-desc, en el marco de la Ley Universitaria N° 30220 y la Ley N° 29733 de Protección de Datos Personales del Perú.
+      == Objetivo
+      El objetivo del presente documento es definir la aplicabilidad y estado de implementación de los controles de seguridad de la información y privacidad de datos personales en #org-name. La presente Declaración de Aplicabilidad (*Statement of Applicability - SoA*) #purpose-desc, en estricto cumplimiento de la Cláusula 6.1.3.e y la Introducción normativa del Anexo A de la norma internacional *ISO/IEC 27701:2025* (Segunda edición, PIMS independiente).
 
-      #callout(title: "CRITERIO DE EXCLUSIÓN NORMATIVA DE LA TABLA A.2 (CLÁUSULA 6.1.3e)", color: rgb("#0284c7"))[
-        Conforme a la Cláusula 6.1.3.e y las directrices normativas del Anexo A de ISO/IEC 27701:2025, la totalidad de los dieciocho (18) controles contenidos en la Tabla A.2 ("Controles para Encargados del Tratamiento / PII Processors", controles A.2.2.2 a A.2.5.9) han sido determinados como formalmente EXCLUIDOS de la presente Declaración de Aplicabilidad, en razón de que la institución no actúa como prestadora de servicios de tratamiento por cuenta de terceros ni opera bajo el mandato de encargada en los procesos bajo el alcance del SGPI.
+      == Alcance
+      En virtud del análisis formal del contexto organizacional y legal desarrollado bajo la Cláusula 4.1 de la norma, #org-name #role-desc, en el marco de la Ley Universitaria N° 30220 y la Ley N° 29733 de Protección de Datos Personales del Perú. La aplicabilidad de controles abarca todos los activos, canales de tratamiento, repositorios de bases de datos y personal comprendidos en el alcance del SGPI.
+
+      == Usuarios
+      Los usuarios de este documento son la Alta Dirección (Rectorado), los miembros del Comité de Gobierno Digital y Privacidad, el #doc-owner, el personal técnico de la Dirección Universitaria de TIC (DUTIC), los directores y responsables de los procesos de Admisión y Planillas, y los auditores internos y externos del SGPI.
+
+      = Documentos de referencia
+      #for ref-item in doc-refs [
+        - #ref-item
       ]
 
-      = Controles de Profundidad Vertical (Incidentes y Derechos de Titulares)
+      = Declaración de aplicabilidad
 
-      == Control A.3.11 — Planificación y preparación de incidentes de seguridad (PII)
-      - *Estado:* #status-tag("IMPLEMENTADO")
-      - *Justificación Profunda (Cl. 6.1.3e / Anexo B.3.11):*
+      == Criterio de evaluación y estructura de controles
+      Conforme a la Cláusula 6.1.3.e y las directrices normativas del Anexo A de ISO/IEC 27701:2025, la totalidad de los dieciocho (18) controles contenidos en la Tabla A.2 (*Controles para Encargados del Tratamiento / PII Processors*, controles A.2.2.2 a A.2.5.9) han sido determinados como formalmente *EXCLUIDOS* de la presente Declaración de Aplicabilidad, en razón de que la institución actúa de manera privativa como Responsable del Tratamiento (*PII Controller*) y no presta servicios de tratamiento por cuenta de terceros ni opera bajo el mandato de encargada en los procesos bajo el alcance del SGPI.
+
+      Por su parte, la totalidad de los treinta y un (31) controles de la Tabla A.1 (*Controles para Responsables del Tratamiento / PII Controllers*) y los veintinueve (29) controles de la Tabla A.3 (*Controles de Seguridad de la Información con Enfoque de Privacidad*) han sido evaluados como *APLICABLES E IMPLEMENTADOS* en el SGPI.
+
+      === Controles con análisis de profundidad vertical (Incidentes y Derechos de Titulares)
+      - *Control A.3.11 — Planificación y preparación de incidentes de seguridad (PII):*
         #get-deep-a311(era)
-
-      == Control A.3.12 — Respuesta a incidentes de seguridad de la información
-      - *Estado:* #status-tag("IMPLEMENTADO")
-      - *Justificación Profunda (Cl. 6.1.3e / Anexo B.3.12):*
+      - *Control A.3.12 — Respuesta a incidentes de seguridad de la información:*
         #get-deep-a312(era)
-
-      == Control A.1.2.9 — Registros relacionados con el tratamiento de PII (ROPA / RAT)
-      - *Estado:* #status-tag("IMPLEMENTADO")
-      - *Justificación Profunda (Cl. 6.1.3e / Anexo B.1.2.9):*
+      - *Control A.1.2.9 — Registros relacionados con el tratamiento de PII (ROPA / RAT):*
         #get-deep-a129(era)
-
-      == Control A.1.3.7 — Acceso, rectificación o supresión de PII (ARCO / DSR)
-      - *Estado:* #status-tag("IMPLEMENTADO")
-      - *Justificación Profunda (Cl. 6.1.3e / Anexo B.1.3.7):*
+      - *Control A.1.3.7 — Acceso, rectificación o supresión de PII (ARCO / DSR):*
         #get-deep-a137(era)
-
-      == Control A.1.3.10 — Tramitación y respuesta a solicitudes de titulares
-      - *Estado:* #status-tag("IMPLEMENTADO")
-      - *Justificación Profunda (Cl. 6.1.3e / Anexo B.1.3.10):*
+      - *Control A.1.3.10 — Tramitación y respuesta a solicitudes de titulares:*
         #get-deep-a1310(era)
-
-      = Esqueleto Completo de la Declaración de Aplicabilidad
 
       == Tabla A.1 — Controles para Responsables del Tratamiento (PII Controllers) [31 Controles]
       #v(0.2cm)
@@ -316,7 +322,7 @@
       )
       #v(0.3cm)
 
-      == Tabla A.3 — Controles de Seguridad Comunes (Responsables y Encargados) [29 Controles]
+      == Tabla A.3 — Controles de Seguridad de la Información con Enfoque de Privacidad [29 Controles]
       #v(0.2cm)
       #table(
         columns: (52pt, 130pt, 68pt, 1fr),
@@ -333,12 +339,45 @@
       )
       #v(0.3cm)
 
-      = Resumen de Conformidad y Firma
-      La presente Declaración de Aplicabilidad comprende un total de 78 controles evaluados bajo la norma ISO/IEC 27701:2025:
+      == Resumen de aplicabilidad de controles
+      La presente Declaración de Aplicabilidad consolida la totalidad de los 78 controles normativos de la norma ISO/IEC 27701:2025:
       - *Tabla A.1 (Responsables / PII Controllers):* 31 controles evaluados como *APLICABLES / IMPLEMENTADOS*.
       - *Tabla A.2 (Encargados / PII Processors):* 18 controles formalmente *EXCLUIDOS CON JUSTIFICACIÓN FUNDADA*.
-      - *Tabla A.3 (Seguridad Común):* 29 controles evaluados como *APLICABLES / IMPLEMENTADOS*.
-      - *Total de controles implementados:* 60 controles activos y vigentes.
+      - *Tabla A.3 (Seguridad con enfoque de privacidad):* 29 controles evaluados como *APLICABLES / IMPLEMENTADOS*.
+      - *Total de controles vigentes implementados:* 60 controles activos en el SGPI institucional.
+
+      = Gestión de registros guardados en base a este documento
+      #v(0.2cm)
+      #table(
+        columns: (120pt, 90pt, 90pt, 1fr, 60pt),
+        fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
+        stroke: 0.5pt + luma(190),
+        align: (left, left, left, left, center),
+        table.header([*Nombre del registro*], [*Ubicación de archivo*], [*Persona responsable del archivo*], [*Controles para la protección del registro*], [*Tiempo de retención*]),
+        [Declaración de aplicabilidad (formulario electrónico, documento en PDF / Typst)], [Repositorio PIMS / Sisgedo], [#doc-owner], [Control de acceso por roles (RBAC) e integridad SHA-256], [Permanente],
+        [Evaluaciones y evidencias de aplicabilidad de controles], [Repositorio PIMS / Servidor DUTIC], [#doc-owner], [Control de acceso por roles (RBAC) y respaldo semanal], [5 años]
+      )
+      #v(0.2cm)
+
+      Solamente el #doc-owner puede permitir a otros empleados el acceso a los registros mencionados precedentemente.
+
+      = Validez y gestión de documentos
+      Este documento es válido hasta el #doc-validity.
+
+      El propietario de este documento es el #doc-owner, que debe verificar y, si es necesario, actualizar la Declaración de Aplicabilidad por lo menos una vez al año, antes de la revisión por la dirección y de las auditorías periódicas del SGPI.
+
+      Al evaluar la efectividad y adecuación de este documento, es necesario tener en cuenta los siguientes criterios:
+      - Cantidad de controles seleccionados cuya implementación no cuente con evidencia documental o técnica verificable.
+      - Modificaciones en el marco legal (Ley 29733 / Ley 30220), directivas de la ANPD o en el alcance institucional del SGPI que no hayan sido incorporadas oportunamente.
+      - Observaciones, oportunidades de mejora o no conformidades identificadas en auditorías internas o externas relativas a la selección o idoneidad de los controles.
+
+      #v(0.8cm)
+      #align(left)[
+        #signature-block(
+          role: approver-role,
+          name: approver-name
+        )
+      ]
     ]
   )
 }
