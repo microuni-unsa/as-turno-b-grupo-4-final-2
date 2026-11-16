@@ -12,7 +12,8 @@
   table-columns: (48pt, 115pt, 100pt, 45pt, 40pt, 40pt, 50pt),
   table-headers: ([*DNI*], [*Apellidos y Nombres*], [*Dependencia / Cargo*], [*Asist.*], [*Pre*], [*Post*], [*Condición*]),
   attendees: (),
-  statistics: (:)
+  statistics: (:),
+  ..sink
 ) = {
   show: doc-template.with(
     title: metadata.at("title", default: "Registro de Asistencia y Evaluación: Módulo de Incidentes"),

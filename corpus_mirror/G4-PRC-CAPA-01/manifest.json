@@ -1,0 +1,30 @@
+{
+  "code": "G4-PRC-CAPA-01",
+  "pims_doc_id": "G4-PRC-CAPA-01",
+  "title": "Procedimiento de No Conformidades y Acciones Correctivas",
+  "latest_version": "3.0",
+  "updated_at": "2026-11-16T15:49:06.543Z",
+  "versions": [
+    {
+      "version": "3.0",
+      "pims_version": "3.0",
+      "version_num": 3,
+      "date": "2025-10-28",
+      "source_mold": "molds/nc-corrective-actions/G4-PRC-CAPA-01-v3.typ",
+      "mold_path": "molds/nc-corrective-actions/G4-PRC-CAPA-01-v3.typ",
+      "filename": "v3.pdf",
+      "file_path": "corpus_mirror/G4-PRC-CAPA-01/v3.pdf",
+      "sha256": "3ee1a0e57fb283c2a2d15d825daec144dbd6c8253db71166bc0ccc0d07549f0f",
+      "files": [
+        {
+          "filename": "v3.pdf",
+          "file_path": "corpus_mirror/G4-PRC-CAPA-01/v3.pdf",
+          "format": "pdf",
+          "sha256": "3ee1a0e57fb283c2a2d15d825daec144dbd6c8253db71166bc0ccc0d07549f0f",
+          "size_bytes": 109179,
+          "source_mold": "molds/nc-corrective-actions/G4-PRC-CAPA-01-v3.typ"
+        }
+      ]
+    }
+  ]
+}

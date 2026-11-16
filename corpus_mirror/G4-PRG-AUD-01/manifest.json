@@ -1,0 +1,30 @@
+{
+  "code": "G4-PRG-AUD-01",
+  "pims_doc_id": "G4-PRG-AUD-01",
+  "title": "Programa Anual de Auditorías Internas del SGPI",
+  "latest_version": "3.0",
+  "updated_at": "2026-11-16T15:49:06.542Z",
+  "versions": [
+    {
+      "version": "3.0",
+      "pims_version": "3.0",
+      "version_num": 3,
+      "date": "2025-10-28",
+      "source_mold": "molds/audit-programme/G4-PRG-AUD-01-v3.typ",
+      "mold_path": "molds/audit-programme/G4-PRG-AUD-01-v3.typ",
+      "filename": "v3.pdf",
+      "file_path": "corpus_mirror/G4-PRG-AUD-01/v3.pdf",
+      "sha256": "5f59530e8682731fed3080040244395506b441eb4be519a97094b5bc117d7c2b",
+      "files": [
+        {
+          "filename": "v3.pdf",
+          "file_path": "corpus_mirror/G4-PRG-AUD-01/v3.pdf",
+          "format": "pdf",
+          "sha256": "5f59530e8682731fed3080040244395506b441eb4be519a97094b5bc117d7c2b",
+          "size_bytes": 77975,
+          "source_mold": "molds/audit-programme/G4-PRG-AUD-01-v3.typ"
+        }
+      ]
+    }
+  ]
+}

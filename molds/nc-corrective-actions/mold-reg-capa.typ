@@ -12,7 +12,8 @@
   period-label: "Periodo Evaluado",
   capa-chain-rows: (),
   form-records: (),
-  effectiveness-summary: (:)
+  effectiveness-summary: (:),
+  ..sink
 ) = {
   show: doc-template.with(
     title: metadata.at("title", default: "Registro de No Conformidades y Acciones Correctivas (CAPA)"),

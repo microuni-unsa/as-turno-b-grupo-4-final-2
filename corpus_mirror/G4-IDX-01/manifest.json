@@ -1,0 +1,30 @@
+{
+  "code": "G4-IDX-01",
+  "pims_doc_id": "G4-IDX-01",
+  "title": "Mapa e Índice Maestro de Documentos (Auditor's Map)",
+  "latest_version": "3.0",
+  "updated_at": "2026-11-16T15:49:06.542Z",
+  "versions": [
+    {
+      "version": "3.0",
+      "pims_version": "3.0",
+      "version_num": 3,
+      "date": "2025-10-28",
+      "source_mold": "molds/document-index/G4-IDX-01-v3.typ",
+      "mold_path": "molds/document-index/G4-IDX-01-v3.typ",
+      "filename": "v3.pdf",
+      "file_path": "corpus_mirror/G4-IDX-01/v3.pdf",
+      "sha256": "c2584598da0211409e8a8a2181b91ccfbaebd6e037459a3434d79ea752486edd",
+      "files": [
+        {
+          "filename": "v3.pdf",
+          "file_path": "corpus_mirror/G4-IDX-01/v3.pdf",
+          "format": "pdf",
+          "sha256": "c2584598da0211409e8a8a2181b91ccfbaebd6e037459a3434d79ea752486edd",
+          "size_bytes": 94652,
+          "source_mold": "molds/document-index/G4-IDX-01-v3.typ"
+        }
+      ]
+    }
+  ]
+}

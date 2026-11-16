@@ -1,0 +1,72 @@
+{
+  "code": "G4-REG-CAP-01",
+  "pims_doc_id": "G4-REG-CAP-01",
+  "title": "Registro de Asistencia y Evaluación: Módulo de Incidentes",
+  "latest_version": "3.0",
+  "updated_at": "2026-11-16T15:49:06.543Z",
+  "versions": [
+    {
+      "version": "1.0",
+      "pims_version": "1.0",
+      "version_num": 1,
+      "date": "2019-04-15",
+      "source_mold": "molds/incident-training/G4-REG-CAP-01-v1.typ",
+      "mold_path": "molds/incident-training/G4-REG-CAP-01-v1.typ",
+      "filename": "v1.pdf",
+      "file_path": "corpus_mirror/G4-REG-CAP-01/v1.pdf",
+      "sha256": "00b4f6a832937b07ba11c30eb6b75914e5bf7d5e6aec693072878687254a6fa1",
+      "files": [
+        {
+          "filename": "v1.pdf",
+          "file_path": "corpus_mirror/G4-REG-CAP-01/v1.pdf",
+          "format": "pdf",
+          "sha256": "00b4f6a832937b07ba11c30eb6b75914e5bf7d5e6aec693072878687254a6fa1",
+          "size_bytes": 79035,
+          "source_mold": "molds/incident-training/G4-REG-CAP-01-v1.typ"
+        }
+      ]
+    },
+    {
+      "version": "2.0",
+      "pims_version": "2.0",
+      "version_num": 2,
+      "date": "2022-09-10",
+      "source_mold": "molds/incident-training/G4-REG-CAP-01-v2.typ",
+      "mold_path": "molds/incident-training/G4-REG-CAP-01-v2.typ",
+      "filename": "v2.pdf",
+      "file_path": "corpus_mirror/G4-REG-CAP-01/v2.pdf",
+      "sha256": "b1e6d4434c49050fc2fe2e084573b3621d7093aea1fe2eea8826ac9873ba7446",
+      "files": [
+        {
+          "filename": "v2.pdf",
+          "file_path": "corpus_mirror/G4-REG-CAP-01/v2.pdf",
+          "format": "pdf",
+          "sha256": "b1e6d4434c49050fc2fe2e084573b3621d7093aea1fe2eea8826ac9873ba7446",
+          "size_bytes": 82631,
+          "source_mold": "molds/incident-training/G4-REG-CAP-01-v2.typ"
+        }
+      ]
+    },
+    {
+      "version": "3.0",
+      "pims_version": "3.0",
+      "version_num": 3,
+      "date": "2025-10-28",
+      "source_mold": "molds/incident-training/G4-REG-CAP-01-v3.typ",
+      "mold_path": "molds/incident-training/G4-REG-CAP-01-v3.typ",
+      "filename": "v3.pdf",
+      "file_path": "corpus_mirror/G4-REG-CAP-01/v3.pdf",
+      "sha256": "5eb8656f79165e8b6be98bccce51e64cae6dab1a0ffb1f23e284af75f339a4d3",
+      "files": [
+        {
+          "filename": "v3.pdf",
+          "file_path": "corpus_mirror/G4-REG-CAP-01/v3.pdf",
+          "format": "pdf",
+          "sha256": "5eb8656f79165e8b6be98bccce51e64cae6dab1a0ffb1f23e284af75f339a4d3",
+          "size_bytes": 84791,
+          "source_mold": "molds/incident-training/G4-REG-CAP-01-v3.typ"
+        }
+      ]
+    }
+  ]
+}

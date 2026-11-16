@@ -11,7 +11,8 @@
   scope-text: none,
   users-text: none,
   steps-table-data: (),
-  records-table-data: ()
+  records-table-data: (),
+  ..sink
 ) = {
   show: doc-template.with(
     title: metadata.at("title", default: "Procedimiento para Medidas Correctivas"),

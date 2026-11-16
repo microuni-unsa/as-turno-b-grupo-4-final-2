@@ -1,0 +1,30 @@
+{
+  "code": "G4-REP-AUD-01",
+  "pims_doc_id": "G4-REP-AUD-01",
+  "title": "Informe de Auditoría Interna del SGPI",
+  "latest_version": "3.0",
+  "updated_at": "2026-11-16T15:49:06.542Z",
+  "versions": [
+    {
+      "version": "3.0",
+      "pims_version": "3.0",
+      "version_num": 3,
+      "date": "2025-10-28",
+      "source_mold": "molds/audit-programme/G4-REP-AUD-01-v3.typ",
+      "mold_path": "molds/audit-programme/G4-REP-AUD-01-v3.typ",
+      "filename": "v3.pdf",
+      "file_path": "corpus_mirror/G4-REP-AUD-01/v3.pdf",
+      "sha256": "47d5b952b3d6ed614b4a4097b2952cc1b5953f1941e042673fd6f19f937bc0de",
+      "files": [
+        {
+          "filename": "v3.pdf",
+          "file_path": "corpus_mirror/G4-REP-AUD-01/v3.pdf",
+          "format": "pdf",
+          "sha256": "47d5b952b3d6ed614b4a4097b2952cc1b5953f1941e042673fd6f19f937bc0de",
+          "size_bytes": 72776,
+          "source_mold": "molds/audit-programme/G4-REP-AUD-01-v3.typ"
+        }
+      ]
+    }
+  ]
+}

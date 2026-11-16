@@ -1,0 +1,30 @@
+{
+  "code": "G4-ACT-REV-01",
+  "pims_doc_id": "G4-ACT-REV-01",
+  "title": "Acta de Revisión por la Dirección del SGPI",
+  "latest_version": "3.0",
+  "updated_at": "2026-11-16T15:49:06.543Z",
+  "versions": [
+    {
+      "version": "3.0",
+      "pims_version": "3.0",
+      "version_num": 3,
+      "date": "2025-10-28",
+      "source_mold": "molds/management-review/G4-ACT-REV-01-v3.typ",
+      "mold_path": "molds/management-review/G4-ACT-REV-01-v3.typ",
+      "filename": "v3.pdf",
+      "file_path": "corpus_mirror/G4-ACT-REV-01/v3.pdf",
+      "sha256": "038ce0d58838b7811e942341d924061919e0a7b5fb8dd409d1a759a66c76c276",
+      "files": [
+        {
+          "filename": "v3.pdf",
+          "file_path": "corpus_mirror/G4-ACT-REV-01/v3.pdf",
+          "format": "pdf",
+          "sha256": "038ce0d58838b7811e942341d924061919e0a7b5fb8dd409d1a759a66c76c276",
+          "size_bytes": 69334,
+          "source_mold": "molds/management-review/G4-ACT-REV-01-v3.typ"
+        }
+      ]
+    }
+  ]
+}

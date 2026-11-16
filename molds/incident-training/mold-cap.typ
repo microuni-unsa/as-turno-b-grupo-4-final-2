@@ -15,7 +15,8 @@
   calendar-data: (),
   responsibilities: (:),
   module-sessions: (),
-  evaluation-rules: none
+  evaluation-rules: none,
+  ..sink
 ) = {
   show: doc-template.with(
     title: metadata.at("title", default: "Plan y Módulo Formativo: Respuesta a Incidentes de Privacidad"),

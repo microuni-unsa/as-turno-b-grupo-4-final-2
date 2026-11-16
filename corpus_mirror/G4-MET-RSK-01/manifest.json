@@ -1,0 +1,30 @@
+{
+  "code": "G4-MET-RSK-01",
+  "pims_doc_id": "G4-MET-RSK-01",
+  "title": "Metodología de Evaluación y Tratamiento de Riesgos de Privacidad",
+  "latest_version": "3.0",
+  "updated_at": "2026-11-16T15:49:06.542Z",
+  "versions": [
+    {
+      "version": "3.0",
+      "pims_version": "3.0",
+      "version_num": 3,
+      "date": "2025-10-28",
+      "source_mold": "molds/incident-risks/G4-MET-RSK-01-v3.typ",
+      "mold_path": "molds/incident-risks/G4-MET-RSK-01-v3.typ",
+      "filename": "v3.pdf",
+      "file_path": "corpus_mirror/G4-MET-RSK-01/v3.pdf",
+      "sha256": "cf7ea1dd9705aab24d08c38af341bf36b13b55c5c0ca44c8e612e0bff2f32050",
+      "files": [
+        {
+          "filename": "v3.pdf",
+          "file_path": "corpus_mirror/G4-MET-RSK-01/v3.pdf",
+          "format": "pdf",
+          "sha256": "cf7ea1dd9705aab24d08c38af341bf36b13b55c5c0ca44c8e612e0bff2f32050",
+          "size_bytes": 146591,
+          "source_mold": "molds/incident-risks/G4-MET-RSK-01-v3.typ"
+        }
+      ]
+    }
+  ]
+}

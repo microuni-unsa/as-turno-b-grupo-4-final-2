@@ -1,0 +1,38 @@
+{
+  "code": "G4-PLN-RSK-01",
+  "pims_doc_id": "G4-PLN-RSK-01",
+  "title": "Plan de Tratamiento de Riesgos de Privacidad",
+  "latest_version": "3.0",
+  "updated_at": "2026-11-16T15:49:06.542Z",
+  "versions": [
+    {
+      "version": "3.0",
+      "pims_version": "3.0",
+      "version_num": 3,
+      "date": "2025-10-28",
+      "source_mold": "molds/incident-risks/G4-PLN-RSK-01-v3.typ",
+      "mold_path": "molds/incident-risks/G4-PLN-RSK-01-v3.typ",
+      "filename": "v3.pdf",
+      "file_path": "corpus_mirror/G4-PLN-RSK-01/v3.pdf",
+      "sha256": "651357ba772c002b7c357e70816aab5ef29a1ccf2af671674ec4a6bd50cc844f",
+      "files": [
+        {
+          "filename": "v3.pdf",
+          "file_path": "corpus_mirror/G4-PLN-RSK-01/v3.pdf",
+          "format": "pdf",
+          "sha256": "651357ba772c002b7c357e70816aab5ef29a1ccf2af671674ec4a6bd50cc844f",
+          "size_bytes": 90620,
+          "source_mold": "molds/incident-risks/G4-PLN-RSK-01-v3.typ"
+        },
+        {
+          "filename": "v3.xlsx",
+          "file_path": "corpus_mirror/G4-PLN-RSK-01/v3.xlsx",
+          "format": "xlsx",
+          "sha256": "5b408aa8f7276d827a1090e25137f6afdccdd4a9faeb54ca162ca6151323f899",
+          "size_bytes": 9968,
+          "source_mold": "molds/incident-risks/generate-treatment.ts"
+        }
+      ]
+    }
+  ]
+}

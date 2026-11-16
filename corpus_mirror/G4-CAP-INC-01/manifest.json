@@ -1,0 +1,72 @@
+{
+  "code": "G4-CAP-INC-01",
+  "pims_doc_id": "G4-CAP-INC-01",
+  "title": "Plan y Módulo Formativo: Respuesta a Incidentes de Privacidad",
+  "latest_version": "3.0",
+  "updated_at": "2026-11-16T15:49:06.543Z",
+  "versions": [
+    {
+      "version": "1.0",
+      "pims_version": "1.0",
+      "version_num": 1,
+      "date": "2019-04-15",
+      "source_mold": "molds/incident-training/G4-CAP-INC-01-v1.typ",
+      "mold_path": "molds/incident-training/G4-CAP-INC-01-v1.typ",
+      "filename": "v1.pdf",
+      "file_path": "corpus_mirror/G4-CAP-INC-01/v1.pdf",
+      "sha256": "f8c8dc8740df7599b551cd89b9289b8a522d9d21cee5183f5e1012e61b4f7ff8",
+      "files": [
+        {
+          "filename": "v1.pdf",
+          "file_path": "corpus_mirror/G4-CAP-INC-01/v1.pdf",
+          "format": "pdf",
+          "sha256": "f8c8dc8740df7599b551cd89b9289b8a522d9d21cee5183f5e1012e61b4f7ff8",
+          "size_bytes": 124939,
+          "source_mold": "molds/incident-training/G4-CAP-INC-01-v1.typ"
+        }
+      ]
+    },
+    {
+      "version": "2.0",
+      "pims_version": "2.0",
+      "version_num": 2,
+      "date": "2022-09-10",
+      "source_mold": "molds/incident-training/G4-CAP-INC-01-v2.typ",
+      "mold_path": "molds/incident-training/G4-CAP-INC-01-v2.typ",
+      "filename": "v2.pdf",
+      "file_path": "corpus_mirror/G4-CAP-INC-01/v2.pdf",
+      "sha256": "17679d1b1699576eb0322b1b0c9d874236e93ac9381d07168c85d76e22e63b87",
+      "files": [
+        {
+          "filename": "v2.pdf",
+          "file_path": "corpus_mirror/G4-CAP-INC-01/v2.pdf",
+          "format": "pdf",
+          "sha256": "17679d1b1699576eb0322b1b0c9d874236e93ac9381d07168c85d76e22e63b87",
+          "size_bytes": 128877,
+          "source_mold": "molds/incident-training/G4-CAP-INC-01-v2.typ"
+        }
+      ]
+    },
+    {
+      "version": "3.0",
+      "pims_version": "3.0",
+      "version_num": 3,
+      "date": "2025-10-28",
+      "source_mold": "molds/incident-training/G4-CAP-INC-01-v3.typ",
+      "mold_path": "molds/incident-training/G4-CAP-INC-01-v3.typ",
+      "filename": "v3.pdf",
+      "file_path": "corpus_mirror/G4-CAP-INC-01/v3.pdf",
+      "sha256": "1a2ee4faa9939b6a1b922f9357e0f8e19097029d19f521374313fdf366083a3f",
+      "files": [
+        {
+          "filename": "v3.pdf",
+          "file_path": "corpus_mirror/G4-CAP-INC-01/v3.pdf",
+          "format": "pdf",
+          "sha256": "1a2ee4faa9939b6a1b922f9357e0f8e19097029d19f521374313fdf366083a3f",
+          "size_bytes": 131464,
+          "source_mold": "molds/incident-training/G4-CAP-INC-01-v3.typ"
+        }
+      ]
+    }
+  ]
+}

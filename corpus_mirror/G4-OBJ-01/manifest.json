@@ -1,0 +1,30 @@
+{
+  "code": "G4-OBJ-01",
+  "pims_doc_id": "G4-OBJ-01",
+  "title": "Tabla de Objetivos de Privacidad de la Información (SGPI)",
+  "latest_version": "3.0",
+  "updated_at": "2026-11-16T15:49:06.543Z",
+  "versions": [
+    {
+      "version": "3.0",
+      "pims_version": "3.0",
+      "version_num": 3,
+      "date": "2025-10-28",
+      "source_mold": "molds/objectives/G4-OBJ-01-v3.typ",
+      "mold_path": "molds/objectives/G4-OBJ-01-v3.typ",
+      "filename": "v3.pdf",
+      "file_path": "corpus_mirror/G4-OBJ-01/v3.pdf",
+      "sha256": "9583fef0f65ec96269c2acdae5a8547cff0bdbeb19548258c95164d11a5b54b4",
+      "files": [
+        {
+          "filename": "v3.pdf",
+          "file_path": "corpus_mirror/G4-OBJ-01/v3.pdf",
+          "format": "pdf",
+          "sha256": "9583fef0f65ec96269c2acdae5a8547cff0bdbeb19548258c95164d11a5b54b4",
+          "size_bytes": 78425,
+          "source_mold": "molds/objectives/G4-OBJ-01-v3.typ"
+        }
+      ]
+    }
+  ]
+}

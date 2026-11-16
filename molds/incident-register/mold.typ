@@ -118,7 +118,7 @@
           [
             #text(weight: "bold", size: 9pt, fill: rgb("#0a2540"))[Archivo Electrónico Oficial de Registro Forense y Regulatorio:]\
             #v(2pt)
-            #text(family: "Liberation Mono", size: 8.5pt, weight: "bold", fill: rgb("#0284c7"))[G4-REG-INC-01-registros.xlsx]\
+            #text(font: "Liberation Mono", size: 8.5pt, weight: "bold", fill: rgb("#0284c7"))[G4-REG-INC-01-registros.xlsx]\
             #v(2pt)
             #text(size: 7.5pt, fill: luma(80))[
               Generado y sincronizado por el generador institucional scriptado (`generate.ts`)\

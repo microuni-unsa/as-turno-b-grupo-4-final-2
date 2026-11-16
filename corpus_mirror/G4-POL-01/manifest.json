@@ -1,0 +1,30 @@
+{
+  "code": "G4-POL-01",
+  "pims_doc_id": "G4-POL-01",
+  "title": "SISTEMA DE GESTIÓN DE PRIVACIDAD DE LA INFORMACIÓN (SGPI - ISO/IEC 27701:2025)",
+  "latest_version": "3.0",
+  "updated_at": "2026-11-16T15:49:06.543Z",
+  "versions": [
+    {
+      "version": "3.0",
+      "pims_version": "3.0",
+      "version_num": 3,
+      "date": "2025-10-28",
+      "source_mold": "molds/policy/G4-POL-01-v3.typ",
+      "mold_path": "molds/policy/G4-POL-01-v3.typ",
+      "filename": "v3.pdf",
+      "file_path": "corpus_mirror/G4-POL-01/v3.pdf",
+      "sha256": "9b61f61503feff3b5f605f0596aaa1066d825edf57ab42fc9a0a43ddea0bfda4",
+      "files": [
+        {
+          "filename": "v3.pdf",
+          "file_path": "corpus_mirror/G4-POL-01/v3.pdf",
+          "format": "pdf",
+          "sha256": "9b61f61503feff3b5f605f0596aaa1066d825edf57ab42fc9a0a43ddea0bfda4",
+          "size_bytes": 40600,
+          "source_mold": "molds/policy/G4-POL-01-v3.typ"
+        }
+      ]
+    }
+  ]
+}

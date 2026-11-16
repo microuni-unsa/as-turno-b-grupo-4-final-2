@@ -1,0 +1,30 @@
+{
+  "code": "G4-PRC-DOC-01",
+  "pims_doc_id": "G4-PRC-DOC-01",
+  "title": "Procedimiento para Control de Documentos y Registros",
+  "latest_version": "3.0",
+  "updated_at": "2026-11-16T15:49:06.542Z",
+  "versions": [
+    {
+      "version": "3.0",
+      "pims_version": "3.0",
+      "version_num": 3,
+      "date": "2025-10-28",
+      "source_mold": "molds/document-control/G4-PRC-DOC-01-v3.typ",
+      "mold_path": "molds/document-control/G4-PRC-DOC-01-v3.typ",
+      "filename": "v3.pdf",
+      "file_path": "corpus_mirror/G4-PRC-DOC-01/v3.pdf",
+      "sha256": "6cc594ffa1d536f545bef115a2ea46da5d620f88b8154add66d9986c9cd0aab5",
+      "files": [
+        {
+          "filename": "v3.pdf",
+          "file_path": "corpus_mirror/G4-PRC-DOC-01/v3.pdf",
+          "format": "pdf",
+          "sha256": "6cc594ffa1d536f545bef115a2ea46da5d620f88b8154add66d9986c9cd0aab5",
+          "size_bytes": 138430,
+          "source_mold": "molds/document-control/G4-PRC-DOC-01-v3.typ"
+        }
+      ]
+    }
+  ]
+}
