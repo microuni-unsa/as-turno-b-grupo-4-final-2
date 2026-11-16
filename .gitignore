@@ -14,7 +14,7 @@ dist/
 *.xlsx
 *.svg
 *.png
-
+!molds/common/logo-unsa.png
 # Corpus mirror: ignore all cached downloaded files except manifests and READMEs
 corpus_mirror/**
 !corpus_mirror/
@@ -46,3 +46,4 @@ Thumbs.db
 *.swp
 *.swo
 *~
+.direnv
