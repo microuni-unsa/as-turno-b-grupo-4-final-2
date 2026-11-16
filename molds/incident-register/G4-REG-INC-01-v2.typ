@@ -1,11 +1,23 @@
-#import "template.typ": doc-template, status-tag, rag-tag, callout
+#import "mold.typ": mold
 
-#show: doc-template.with(
-  title: "Registro Oficial de Incidentes de Privacidad (SGPI)",
+#let data = (
   code: "G4-REG-INC-01",
   version: "2.0",
   date: "2022-09-10",
+  title: "Registro Oficial de Incidentes de Privacidad (SGPI)",
   confidentiality: "CONFIDENCIAL - USO INTERNO UNSA",
+  era: "v2",
+  era-name: "Periodos 2019 – 2022 (Virtualización Post-Pandemia)",
+  organization-name: "la Universidad Nacional de San Agustín de Arequipa (UNSA)",
+  scope-summary: "los procesos virtuales de Admisión vía admision.unsa.edu.pe y soporte de Planillas con teletrabajo y VPN",
+  owner-role: "Oficial de Seguridad de la Información (OSI / DPO)",
+  validity: "2023-09-10",
+  references: (
+    "ISO/IEC 27701:2025 — Cláusulas 8.1, 7.5.1, Controles A.3.11, A.3.12 y Guía B.3.12",
+    "Ley N° 29733 — Ley de Protección de Datos Personales del Perú y su Reglamento",
+    "G4-PRC-INC-01 — Procedimiento Institucional de Respuesta a Incidentes de Privacidad",
+    "G4-REG-CAPA-01 — Registro de No Conformidades y Acciones Correctivas",
+  ),
   author: (
     name: "Ing. Carlos M. Benítez",
     role: "Oficial de Seguridad de la Información (OSI / DPO)",
@@ -34,68 +46,60 @@
       author: "Ing. Carlos M. Benítez",
       summary: "Actualización mayor post-pandemia: Incorporación de campos para incidentes en plataformas web (admision.unsa.edu.pe), accesos lógicos y teletrabajo de personal."
     ),
+  ),
+  summary-metrics: (
+    total: "4",
+    contained-rate: "100%",
+    notified-principals: "1",
+    notified-regulator: "1",
+    no-risk-residual: "2",
+  ),
+  incident-rows: (
+    (
+      id: "G4-INC-2019-001",
+      detection: "2019-05-14 08:30",
+      severity: "MEDIO",
+      category: "Confidencialidad / Papel impreso",
+      affected: "18 postulantes ordinarios",
+      containment: "Destrucción certificada en microcorte de listado físico.",
+      notification-status: "EVALUADO_NO_REQUIERE",
+      notification-detail: "(Sin fuga ni afectación externa)."
+    ),
+    (
+      id: "G4-INC-2019-002",
+      detection: "2019-09-22 14:15",
+      severity: "ALTO",
+      category: "Confidencialidad / Correo masivo",
+      affected: "42 docentes Facultad de Sociales",
+      containment: "Recall en Exchange y confirmación escrita de borrado.",
+      notification-status: "NOTIFICADO_TITULARES",
+      notification-detail: "(Comunicación individual preventiva)."
+    ),
+    (
+      id: "G4-INC-2022-001",
+      detection: "2022-03-18 11:00",
+      severity: "CRÍTICO",
+      category: "Acceso no autorizado / IDOR Web",
+      affected: "1,240 postulantes inscritos online",
+      containment: "Hotfix en backend en 45 min; rotación masiva de tokens JWT y bloqueo IP en WAF.",
+      notification-status: "NOTIFICADO_AUTORIDAD_ANPDP",
+      notification-detail: "(Reporte formal motivado ante la ANPD y aviso preventivo)."
+    ),
+    (
+      id: "G4-INC-2022-002",
+      detection: "2022-07-05 16:40",
+      severity: "BAJO",
+      category: "Disponibilidad / Fallo backup BD",
+      affected: "0 titulares (Sin impacto directo)",
+      containment: "Ejecución manual de réplica; verificación de hash SHA-256.",
+      notification-status: "EVALUADO_NO_REQUIERE",
+      notification-detail: "(Evento operacional interno sin afectación a PII)."
+    ),
+  ),
+  capa-links: (
+    (code: "G4-CAPA-2022-01", desc: "Auditoría de seguridad y análisis SAST en API backend del portal web de admisión."),
+    (code: "G4-CAPA-2022-02", desc: "Monitoreo automatizado con agente Zabbix de réplicas y almacenamiento NAS en DUTIC."),
   )
 )
 
-= Propósito y Criterio Operacional
-Este registro contiene la trazabilidad integral de los eventos e incidentes de seguridad que involucran datos personales (PII) bajo la norma ISO/IEC 27701:2025 Cláusulas 8.1 y 7.5.1, integrando los vectores derivados de la virtualización de procesos institucionales.
-
-#callout(title: "CRITERIO DE NOTIFICACIÓN ORGANIZACIONAL (GUÍA B.3.12)", color: rgb("#0284c7"))[
-  La notificación a la autoridad regulatoria nacional (ANPDP) o a los titulares se realiza exclusivamente cuando la evaluación de impacto y riesgo residual determina afectación efectiva a los derechos de los titulares. No se adopta la regla de 72 horas del RGPD por constituir únicamente información documental de referencia (Anexo D).
-]
-
-= Estructura de Campos y Registro Forense
-El registro incorpora métricas de contención en capa lógica, revocación de sesiones, rotación de credenciales y notificación según severidad.
-
-= Libro Histórico de Incidentes (Periodos 2019 – 2022)
-
-#table(
-  columns: (45pt, 65pt, 50pt, 75pt, 95pt, 1fr),
-  fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
-  stroke: 0.5pt + luma(190),
-  align: (center, center, center, left, left, left),
-  table.header([*ID*], [*Detección*], [*Severidad*], [*Categoría*], [*Titulares Afectados*], [*Contención y Notificación*]),
-  
-  [G4-INC-2019-001],
-  [2019-05-14\ 08:30],
-  rag-tag("MEDIO"),
-  [Confidencialidad / Papel impreso],
-  [18 postulantes ordinarios],
-  [
-    *Contención:* Destrucción certificada de listado.\
-    *Notificación:* #status-tag("EVALUADO_NO_REQUIERE") (Sin fuga externa).
-  ],
-
-  [G4-INC-2019-002],
-  [2019-09-22\ 14:15],
-  rag-tag("ALTO"),
-  [Confidencialidad / Correo masivo],
-  [42 docentes Facultad de Sociales],
-  [
-    *Contención:* Recall en Exchange y borrado confirmado.\
-    *Notificación:* #status-tag("NOTIFICADO_TITULARES") (Comunicación individual).
-  ],
-
-  [G4-INC-2022-001],
-  [2022-03-18\ 11:00],
-  rag-tag("CRÍTICO"),
-  [Acceso no autorizado / IDOR Web],
-  [1,240 postulantes inscritos online],
-  [
-    *Contención:* Parche hotfix en backend en 45 min; rotación de tokens JWT y bloqueo de IP anómalas.\
-    *Notificación:* #status-tag("NOTIFICADO_AUTORIDAD_ANPDP") (Reporte oficial a ANPDP y aviso preventivo).
-  ],
-
-  [G4-INC-2022-002],
-  [2022-07-05\ 16:40],
-  rag-tag("BAJO"),
-  [Disponibilidad / Fallo backup BD],
-  [0 (Sin impacto directo)],
-  [
-    *Contención:* Ejecución manual de réplica; verificación de hash SHA-256.\
-    *Notificación:* #status-tag("EVALUADO_NO_REQUIERE") (Incidente operacional interno).
-  ]
-)
-
-= Acciones de Mejora Derivadas
-Los incidentes del periodo 2022 originaron las acciones correctivas `G4-CAPA-2022-01` (auditoría de seguridad en API web de admisión) y `G4-CAPA-2022-02` (monitoreo automatizado de réplicas en DUTIC).
+#mold(data)

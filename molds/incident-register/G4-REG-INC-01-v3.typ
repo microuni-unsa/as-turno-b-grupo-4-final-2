@@ -1,11 +1,24 @@
-#import "template.typ": doc-template, status-tag, rag-tag, callout
+#import "mold.typ": mold
 
-#show: doc-template.with(
-  title: "Registro Oficial de Incidentes de Privacidad (SGPI)",
+#let data = (
   code: "G4-REG-INC-01",
   version: "3.0",
   date: "2025-10-28",
+  title: "Registro Oficial de Incidentes de Privacidad (SGPI)",
   confidentiality: "CONFIDENCIAL - USO INTERNO UNSA",
+  era: "v3",
+  era-name: "Periodos 2019 – 2025 (Recertificación Multisede ISO/IEC 27701:2025)",
+  organization-name: "la Universidad Nacional de San Agustín de Arequipa (UNSA)",
+  scope-summary: "los procesos de Admisión y Planillas descentralizadas en los Campus Centrales de Arequipa, Filial Camaná (RR 0142-2025) y Filial El Pedregal - Majes (RR 0143-2025)",
+  owner-role: "Oficial de Seguridad de la Información (OSI / DPO)",
+  validity: "2026-10-28",
+  references: (
+    "ISO/IEC 27701:2025 — Cláusulas 8.1, 7.5.1, Controles A.3.11, A.3.12 y Guía B.3.12",
+    "Ley N° 29733 — Ley de Protección de Datos Personales del Perú y su Reglamento",
+    "Ley N° 30220 — Ley Universitaria del Perú",
+    "G4-PRC-INC-01 — Procedimiento Institucional de Respuesta a Incidentes de Privacidad",
+    "G4-REG-CAPA-01 — Registro de No Conformidades y Acciones Correctivas",
+  ),
   author: (
     name: "Ing. Carlos M. Benítez",
     role: "Oficial de Seguridad de la Información (OSI / DPO)",
@@ -40,95 +53,90 @@
       author: "Ing. Carlos M. Benítez",
       summary: "Recertificación bajo ISO/IEC 27701:2025 (segunda edición): Integración de incidentes en Filial Camaná y Filial El Pedregal (Majes), vectores de terminales remotos y enlaces VPN."
     ),
+  ),
+  summary-metrics: (
+    total: "7",
+    contained-rate: "100%",
+    notified-principals: "2",
+    notified-regulator: "1",
+    no-risk-residual: "4",
+  ),
+  incident-rows: (
+    (
+      id: "G4-INC-2019-001",
+      detection: "2019-05-14 08:30",
+      severity: "MEDIO",
+      category: "Confidencialidad / Papel impreso",
+      affected: "18 postulantes ordinarios",
+      containment: "Destrucción certificada en microcorte de listado físico.",
+      notification-status: "EVALUADO_NO_REQUIERE",
+      notification-detail: "(Sin fuga externa)."
+    ),
+    (
+      id: "G4-INC-2019-002",
+      detection: "2019-09-22 14:15",
+      severity: "ALTO",
+      category: "Confidencialidad / Correo masivo",
+      affected: "42 docentes Facultad de Sociales",
+      containment: "Recall en Exchange y borrado confirmado por destinatarios.",
+      notification-status: "NOTIFICADO_TITULARES",
+      notification-detail: "(Comunicación individual preventiva)."
+    ),
+    (
+      id: "G4-INC-2022-001",
+      detection: "2022-03-18 11:00",
+      severity: "CRÍTICO",
+      category: "Acceso no autorizado / IDOR Web",
+      affected: "1,240 postulantes inscritos online",
+      containment: "Hotfix en backend; rotación JWT masiva y bloqueo de IP.",
+      notification-status: "NOTIFICADO_AUTORIDAD_ANPDP",
+      notification-detail: "(Reporte formal a ANPD y aviso preventivo)."
+    ),
+    (
+      id: "G4-INC-2022-002",
+      detection: "2022-07-05 16:40",
+      severity: "BAJO",
+      category: "Disponibilidad / Fallo backup BD",
+      affected: "0 (Sin impacto directo)",
+      containment: "Ejecución manual de réplica; hash SHA-256 verificado.",
+      notification-status: "EVALUADO_NO_REQUIERE",
+      notification-detail: "(Evento operacional interno)."
+    ),
+    (
+      id: "G4-INC-2025-001",
+      detection: "2025-04-12 09:20",
+      severity: "ALTO",
+      category: "Confidencialidad / Sustracción laptop",
+      affected: "115 postulantes Filial Camaná",
+      containment: "Bloqueo y borrado remoto vía MDM Intune; disco cifrado BitLocker XTS-AES 256 verificado por TPM.",
+      notification-status: "EVALUADO_NO_REQUIERE",
+      notification-detail: "(Cifrado impidió exfiltración de PII; sin riesgo residual para los titulares)."
+    ),
+    (
+      id: "G4-INC-2025-002",
+      detection: "2025-08-20 15:10",
+      severity: "MEDIO",
+      category: "Integridad / Error sincronización",
+      affected: "48 trabajadores Filial El Pedregal",
+      containment: "Pausa preventiva de dispersión bancaria; conciliación telemática contra padrón Sisgedo.",
+      notification-status: "NOTIFICADO_TITULARES",
+      notification-detail: "(Aviso transparente y rectificación sin perjuicio patrimonial)."
+    ),
+    (
+      id: "G4-INC-2025-003",
+      detection: "2025-11-03 10:05",
+      severity: "BAJO",
+      category: "Confidencialidad / Intento Phishing",
+      affected: "0 (Ataque frustrado)",
+      containment: "Bloqueo perimetral de dominios maliciosos en firewall y concientización a operadores.",
+      notification-status: "EVALUADO_NO_REQUIERE",
+      notification-detail: "(Intento bloqueado por defensas perimetrales)."
+    ),
+  ),
+  capa-links: (
+    (code: "G4-CAPA-2025-01", desc: "Auditoría de cumplimiento de enrolamiento MDM y cifrado BitLocker en todas las filiales."),
+    (code: "G4-CAPA-2025-02", desc: "Implementación de validación de doble firma digital en lotes de dispersión bancaria."),
   )
 )
 
-= Propósito y Criterio Operacional
-Este documento consolida el registro de incidentes de privacidad de la información bajo la norma ISO/IEC 27701:2025 Cláusulas 8.1 y 7.5.1 y Guía B.3.12, cubriendo tanto los campus centrales de Arequipa como las filiales descentralizadas de Camaná y El Pedregal (Majes).
-
-#callout(title: "CRITERIO DE NOTIFICACIÓN DE BRECHAS (GUÍA B.3.12)", color: rgb("#0284c7"))[
-  Conforme a la Cláusula 8.1 y las directrices de la Guía B.3.12, la UNSA evalúa cada brecha de seguridad considerando la probabilidad de daño a los titulares y la efectividad del cifrado de datos (A.3.26). La notificación ante la autoridad administrativa y los titulares se ejecuta con base en este análisis objetivo de riesgo institucional, sin sujeción al plazo externo de 72 horas del RGPD europeo.
-]
-
-= Registro Consolidado Multisede (Periodos 2019 – 2025)
-
-#table(
-  columns: (45pt, 65pt, 50pt, 75pt, 95pt, 1fr),
-  fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
-  stroke: 0.5pt + luma(190),
-  align: (center, center, center, left, left, left),
-  table.header([*ID*], [*Detección*], [*Severidad*], [*Categoría*], [*Titulares Afectados*], [*Contención y Notificación*]),
-  
-  [G4-INC-2019-001],
-  [2019-05-14\ 08:30],
-  rag-tag("MEDIO"),
-  [Confidencialidad / Papel impreso],
-  [18 postulantes ordinarios],
-  [
-    *Contención:* Destrucción física certificada.\
-    *Notificación:* #status-tag("EVALUADO_NO_REQUIERE").
-  ],
-
-  [G4-INC-2019-002],
-  [2019-09-22\ 14:15],
-  rag-tag("ALTO"),
-  [Confidencialidad / Correo masivo],
-  [42 docentes Facultad de Sociales],
-  [
-    *Contención:* Recall en Exchange y borrado confirmado.\
-    *Notificación:* #status-tag("NOTIFICADO_TITULARES").
-  ],
-
-  [G4-INC-2022-001],
-  [2022-03-18\ 11:00],
-  rag-tag("CRÍTICO"),
-  [Acceso no autorizado / IDOR Web],
-  [1,240 postulantes inscritos online],
-  [
-    *Contención:* Parche hotfix en backend; rotación JWT.\
-    *Notificación:* #status-tag("NOTIFICADO_AUTORIDAD_ANPDP").
-  ],
-
-  [G4-INC-2022-002],
-  [2022-07-05\ 16:40],
-  rag-tag("BAJO"),
-  [Disponibilidad / Fallo backup BD],
-  [0 (Sin impacto directo)],
-  [
-    *Contención:* Ejecución manual de réplica; SHA-256 verificado.\
-    *Notificación:* #status-tag("EVALUADO_NO_REQUIERE").
-  ],
-
-  [G4-INC-2025-001],
-  [2025-04-12\ 09:20],
-  rag-tag("ALTO"),
-  [Confidencialidad / Robo de laptop],
-  [115 postulantes Filial Camaná],
-  [
-    *Contención:* Bloqueo y borrado remoto MDM; disco cifrado BitLocker XTS-AES 256 verificado.\
-    *Notificación:* #status-tag("EVALUADO_NO_REQUIERE") (Cifrado impidió exfiltración de PII).
-  ],
-
-  [G4-INC-2025-002],
-  [2025-08-20\ 15:10],
-  rag-tag("MEDIO"),
-  [Integridad / Error sincronización],
-  [48 trabajadores Filial El Pedregal],
-  [
-    *Contención:* Pausa preventiva de pagos bancarios; reconciliación contra padrón Sisgedo.\
-    *Notificación:* #status-tag("NOTIFICADO_TITULARES") (Aviso transparente a trabajadores).
-  ],
-
-  [G4-INC-2025-003],
-  [2025-11-03\ 10:05],
-  rag-tag("BAJO"),
-  [Confidencialidad / Intento Phishing],
-  [0 (Ataque frustrado)],
-  [
-    *Contención:* Bloqueo perimetral de dominios y concientización a operadores.\
-    *Notificación:* #status-tag("EVALUADO_NO_REQUIERE").
-  ]
-)
-
-= Resumen de Desempeño Operacional y Cadena CAPA
-Todos los incidentes del periodo 2025 han sido contenidos satisfactoriamente y cuentan con su respectivo expediente de causa raíz y acción correctiva registrado en `G4-REG-CAPA-01`.
+#mold(data)

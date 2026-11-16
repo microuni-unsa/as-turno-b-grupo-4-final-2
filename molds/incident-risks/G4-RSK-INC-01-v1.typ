@@ -1,11 +1,24 @@
-#import "template.typ": doc-template, status-tag, rag-tag, callout
+#import "mold.typ": mold
 
-#show: doc-template.with(
-  title: "Matriz y Plan de Tratamiento de Riesgos de Incidentes",
+#let data = (
   code: "G4-RSK-INC-01",
   version: "1.0",
   date: "2019-04-15",
+  title: "Matriz y Reporte de Evaluación de Riesgos de Incidentes de Privacidad",
   confidentiality: "CONFIDENCIAL - USO INTERNO UNSA",
+  period-name: "Periodo 2019 (Certificación Inicial SGPI)",
+  scope-units: "Sedes Centrales Arequipa (Áreas de Ingenierías, Biomédicas y Sociales). Procesos presenciales de Admisión Ordinaria y Planilla de Remuneraciones.",
+  time-eval: "el periodo del 01 de marzo al 05 de abril de 2019",
+  time-treat: "el periodo del 06 al 14 de abril de 2019",
+  participants: "el Ing. Carlos M. Benítez (OSI / DPO), la Mg. Lucía Valdivia Paredes (Directora DUTIC) y los directores de Admisión y Personal",
+  validity: "2020-04-15",
+  references: (
+    "ISO/IEC 27701:2025 — Cláusulas 6.1.2, 6.1.3, 8.2 y 8.3",
+    "ISO/IEC 27001:2022 / ISO/IEC 27002:2022 — Gestión de riesgos y controles de seguridad",
+    "Ley N° 29733 — Ley de Protección de Datos Personales del Perú y su Reglamento",
+    "G4-MET-RSK-01 — Metodología de Evaluación y Tratamiento de Riesgos de Privacidad",
+    "G4-SOA-01 — Declaración de Aplicabilidad del SGPI",
+  ),
   author: (
     name: "Ing. Carlos M. Benítez",
     role: "Oficial de Seguridad de la Información (OSI / DPO)",
@@ -28,92 +41,74 @@
       author: "Ing. Carlos M. Benítez",
       summary: "Evaluación inicial de riesgos de privacidad para la certificación ISO/IEC 27701:2019. Escenarios de incidentes en sedes centrales Arequipa (Admisión y Planillas presenciales)."
     ),
+  ),
+  eval-rows: (
+    (
+      id: "R-01",
+      asset: "Padrones físicos de postulantes",
+      asset-owner: "Dir. de Admisión",
+      threat: "Extravío o sustracción de padrones con fotos y huellas",
+      vuln: "Custodia precaria y descarte sin triturar",
+      risk-owner: "Dr. Walter Delgado",
+      cons: 2, prob: 1, risk: 3,
+      existing-controls: "Custodia en archivador con llave y revisión manual en puerta"
+    ),
+    (
+      id: "R-02",
+      asset: "Servidor Exchange (Nóminas)",
+      asset-owner: "Subdir. de Personal",
+      threat: "Divulgación indebida de boletas de pago por error de envío masivo",
+      vuln: "Ausencia de reglas DLP y boletas sin contraseña",
+      risk-owner: "Lic. Martha Elena Córdova",
+      cons: 2, prob: 1, risk: 3,
+      existing-controls: "Envío manual por lotes y confirmación visual de destinatario"
+    ),
+    (
+      id: "R-03",
+      asset: "Data Center DUTIC (Ingenierías)",
+      asset-owner: "Directora DUTIC",
+      threat: "Ingreso no autorizado físico y alteración de servidores de BD",
+      vuln: "Cerradura tradicional sin registro biométrico",
+      risk-owner: "Mg. Lucía Valdivia",
+      cons: 2, prob: 1, risk: 3,
+      existing-controls: "Cuaderno físico de visitas y control por vigilante de turno"
+    ),
+  ),
+  treat-rows: (
+    (
+      id: "R-01",
+      scenario: "Sustracción o fuga de padrones físicos de admisión",
+      risk-owner: "Dr. Walter Delgado",
+      before-c: 2, before-p: 1, before-r: 3,
+      option: "Opción 1: Controles",
+      controls: "A.3.11, A.3.12 (Procedimiento respuesta) y A.3.19 (Mesa limpia y 8 trituradoras P-4 de microcorte)",
+      after-c: 1, after-p: 0, after-r: 1,
+      rag: "VERDE",
+      status: "IMPLEMENTADO"
+    ),
+    (
+      id: "R-02",
+      scenario: "Divulgación masiva de boletas salariales por correo",
+      risk-owner: "Lic. Martha Elena Córdova",
+      before-c: 2, before-p: 1, before-r: 3,
+      option: "Opción 1: Controles",
+      controls: "A.3.7 (Transferencia segura), A.3.26 (Cifrado PDF individual con DNI) y módulo DLP Exchange",
+      after-c: 1, after-p: 0, after-r: 1,
+      rag: "VERDE",
+      status: "IMPLEMENTADO"
+    ),
+    (
+      id: "R-03",
+      scenario: "Acceso físico no autorizado a servidores de BD",
+      risk-owner: "Mg. Lucía Valdivia",
+      before-c: 2, before-p: 1, before-r: 3,
+      option: "Opción 1: Controles",
+      controls: "A.3.4, A.3.9 (Cerradura biométrica con log de auditoría) y videovigilancia CCTV 24/7",
+      after-c: 1, after-p: 0, after-r: 1,
+      rag: "VERDE",
+      status: "IMPLEMENTADO"
+    ),
   )
 )
 
-= Metodología de Evaluación de Riesgos de Privacidad (Cláusula 6.1.2)
-La gestión de riesgos del SGPI UNSA sigue un enfoque de doble impacto conforme a la Cláusula 6.1.2.c.1 de la norma ISO/IEC 27701:2025, evaluando tanto el impacto operacional y legal sobre la Universidad como las posibles consecuencias adversas sobre los derechos y libertades de los titulares de datos personales (PII principals).
-
-== Criterios de Calificación
-- *Probabilidad (P)*: Escala de 1 (Muy Rara) a 5 (Frecuente / Inminente).
-- *Impacto Organizacional (IO)*: Escala de 1 (Insignificante) a 5 (Catastrófico institucional).
-- *Impacto en Titulares de PII (IT)*: Escala de 1 (Leve incomodidad) a 5 (Daño patrimonial grave o discriminación).
-- *Nivel de Riesgo Inherente*: $R = P times max("IO", "IT")$.
-  - *Rojo (15 a 25)*: Riesgo Crítico / Inaceptable (requiere mitigación inmediata obligatoria).
-  - *Ámbar (8 a 14)*: Riesgo Medio (requiere plan de tratamiento formal a corto plazo).
-  - *Verde (1 a 7)*: Riesgo Bajo / Aceptable (sujeto a monitoreo periódico).
-
-= Matriz de Evaluación de Riesgos de Incidentes (Periodo 2019)
-
-#table(
-  columns: (45pt, 1fr, 75pt, 30pt, 30pt, 45pt, 50pt),
-  fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
-  stroke: 0.5pt + luma(190),
-  align: (center, left, left, center, center, center, center),
-  table.header([*ID*], [*Escenario de Riesgo de Incidente*], [*Activo / Proceso*], [*P*], [*IT*], [*R. Inh.*], [*Nivel*]),
-  
-  [R-01],
-  [Extravío o sustracción de padrones impresos de admisión con DNI, fotos y huellas de postulantes.],
-  [Padrones físicos\ (Admisión)],
-  [3], [5], [15],
-  rag-tag("ROJO"),
-
-  [R-02],
-  [Divulgación indebida de información salarial de personal docente por error de correo electrónico masivo.],
-  [Servidor Exchange\ (Planillas)],
-  [4], [4], [16],
-  rag-tag("ROJO"),
-
-  [R-03],
-  [Ingreso no autorizado al centro de cómputo institucional y alteración de servidores de base de datos.],
-  [Data Center DUTIC\ (Ingenierías)],
-  [2], [4], [8],
-  rag-tag("AMARILLO")
-)
-
-= Plan de Tratamiento de Riesgos de Incidentes (Cláusula 6.1.3f)
-Conforme a la Cláusula 6.1.3.f, se formula el siguiente plan detallado para mitigar los riesgos identificados:
-
-#table(
-  columns: (40pt, 1fr, 80pt, 85pt, 55pt, 45pt, 45pt),
-  fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
-  stroke: 0.5pt + luma(190),
-  align: (center, left, left, left, center, center, center),
-  table.header([*Ref.*], [*Controles Aplicables (Anexo A)*], [*Dueño del Riesgo*], [*Recursos Requeridos*], [*Plazo*], [*R. Res.*], [*Estado*]),
-  
-  [R-01],
-  [
-    *A.3.11/A.3.12:* Procedimiento de respuesta.\
-    *A.3.19:* Política de mesa limpia y trituradoras de microcorte en puertas de admisión.
-  ],
-  [Dr. Walter Delgado\ (Dir. Admisión)],
-  [Compra de 8 trituradoras de alta seguridad P-4 y capacitación.],
-  [2019-06-30],
-  [4],
-  rag-tag("VERDE"),
-
-  [R-02],
-  [
-    *A.3.7:* Reglas de transferencia segura.\
-    *A.3.26:* Cifrado de archivos PDF de boletas y módulo DLP en servidor Exchange.
-  ],
-  [Lic. Martha Córdova\ (Subdir. Personal)],
-  [Licenciamiento módulo DLP de correo y script de cifrado automático.],
-  [2019-07-31],
-  [4],
-  rag-tag("VERDE"),
-
-  [R-03],
-  [
-    *A.3.4:* Control de roles físicos.\
-    *A.3.9:* Cerradura biométrica y bitácora física foliada de visitas al Data Center.
-  ],
-  [Mg. Lucía Valdivia\ (Directora DUTIC)],
-  [Instalación de lector biométrico autónomo y cámara de videovigilancia.],
-  [2019-05-31],
-  [3],
-  rag-tag("VERDE")
-)
-
-= Formalización de Aceptación del Riesgo Residual (Cláusula 6.1.3g)
-Los Dueños de Riesgo institucionales y el Comité SGPI formalizan la aceptación de los niveles de riesgo residual alcanzados (todos clasificados en zona Verde: puntajes 3 a 4), declarándolos tolerables y conformes con el apetito de riesgo institucional.
+#mold(data)

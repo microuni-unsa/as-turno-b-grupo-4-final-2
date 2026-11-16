@@ -1,11 +1,23 @@
-#import "template.typ": doc-template, status-tag, rag-tag, callout
+#import "mold.typ": mold
 
-#show: doc-template.with(
-  title: "Matriz y Plan de Tratamiento de Riesgos de Incidentes",
+#let data = (
   code: "G4-RSK-INC-01",
   version: "2.0",
   date: "2022-09-10",
+  title: "Matriz y Reporte de Evaluación de Riesgos de Incidentes de Privacidad",
   confidentiality: "CONFIDENCIAL - USO INTERNO UNSA",
+  period-name: "Periodo 2022 (Virtualización Post-Pandemia)",
+  scope-units: "Sedes Centrales Arequipa. Admisión 100% digital vía admision.unsa.edu.pe y teletrabajo con VPN para Planillas.",
+  time-eval: "el periodo del 01 de agosto al 25 de agosto de 2022",
+  time-treat: "el periodo del 26 de agosto al 05 de septiembre de 2022",
+  participants: "el Ing. Carlos M. Benítez (OSI / DPO), la Mg. Lucía Valdivia Paredes (Directora DUTIC) y coordinadores técnicos",
+  validity: "2023-09-10",
+  references: (
+    "ISO/IEC 27701:2025 — Cláusulas 6.1.2, 6.1.3, 8.2 y 8.3",
+    "Ley N° 29733 — Ley de Protección de Datos Personales del Perú y su Reglamento",
+    "G4-MET-RSK-01 — Metodología de Evaluación y Tratamiento de Riesgos de Privacidad",
+    "G4-SOA-01 — Declaración de Aplicabilidad del SGPI",
+  ),
   author: (
     name: "Ing. Carlos M. Benítez",
     role: "Oficial de Seguridad de la Información (OSI / DPO)",
@@ -34,82 +46,104 @@
       author: "Ing. Carlos M. Benítez",
       summary: "Actualización post-pandemia: Incorporación de riesgos cibernéticos en portal web de admisiones, teletrabajo con VPN y copias de seguridad remotas."
     ),
+  ),
+  eval-rows: (
+    (
+      id: "R-01",
+      asset: "Padrones físicos de admisión",
+      asset-owner: "Dir. de Admisión",
+      threat: "Sustracción o extravío de listados residuales",
+      vuln: "Descarte sin triturar",
+      risk-owner: "Dr. Walter Delgado",
+      cons: 2, prob: 0, risk: 2,
+      existing-controls: "Trituradoras P-4 y custodia bajo llave"
+    ),
+    (
+      id: "R-02",
+      asset: "Boletas electrónicas (Nóminas)",
+      asset-owner: "Subdir. de Personal",
+      threat: "Divulgación indebida por correo electrónico",
+      vuln: "Fallo en reglas de envío",
+      risk-owner: "Lic. Martha Elena Córdova",
+      cons: 2, prob: 0, risk: 2,
+      existing-controls: "Cifrado automático de PDF con DNI y DLP"
+    ),
+    (
+      id: "R-03",
+      asset: "Data Center DUTIC",
+      asset-owner: "Directora DUTIC",
+      threat: "Acceso no autorizado a servidores",
+      vuln: "Fallo de biometría",
+      risk-owner: "Mg. Lucía Valdivia",
+      cons: 2, prob: 0, risk: 2,
+      existing-controls: "Cerradura biométrica y videovigilancia CCTV"
+    ),
+    (
+      id: "R-04",
+      asset: "Portal Web Admisión (`admision.unsa`)",
+      asset-owner: "Directora DUTIC",
+      threat: "Falla IDOR en API exponiendo expedientes digitales",
+      vuln: "Validación insuficiente en endpoint REST",
+      risk-owner: "Mg. Lucía Valdivia",
+      cons: 2, prob: 2, risk: 4,
+      existing-controls: "Validación de sesión básica por cookie"
+    ),
+    (
+      id: "R-05",
+      asset: "Túnel VPN SSL (Planillas / Remoto)",
+      asset-owner: "Subdir. de Personal",
+      threat: "Suplantación de identidad por phishing de credenciales",
+      vuln: "Autenticación de un solo factor (usuario y clave)",
+      risk-owner: "Lic. Martha Elena Córdova",
+      cons: 2, prob: 1, risk: 3,
+      existing-controls: "Contraseña compleja cambiada cada 90 días"
+    ),
+    (
+      id: "R-06",
+      asset: "Base de Datos PostgreSQL (DUTIC)",
+      asset-owner: "Admin. BD DUTIC",
+      threat: "Corrupción o pérdida por fallo en scripts de backup",
+      vuln: "Sin verificación automática de hash SHA-256",
+      risk-owner: "Ing. Marco Pinto",
+      cons: 2, prob: 1, risk: 3,
+      existing-controls: "Copia nocturna cron en disco local del servidor"
+    ),
+  ),
+  treat-rows: (
+    (
+      id: "R-04",
+      scenario: "Explotación de fallas IDOR en API backend de admisión",
+      risk-owner: "Mg. Lucía Valdivia",
+      before-c: 2, before-p: 2, before-r: 4,
+      option: "Opción 1: Controles",
+      controls: "A.3.27, A.3.28 (Análisis SAST SonarQube en CI/CD) y A.3.23 (Tokens JWT efímeros firmados con RSA-4096)",
+      after-c: 1, after-p: 0, after-r: 1,
+      rag: "VERDE",
+      status: "IMPLEMENTADO"
+    ),
+    (
+      id: "R-05",
+      scenario: "Phishing de credenciales VPN en teletrabajo de planillas",
+      risk-owner: "Lic. Martha Elena Córdova",
+      before-c: 2, before-p: 1, before-r: 3,
+      option: "Opción 1: Controles",
+      controls: "A.3.23 (MFA/TOTP obligatorio en cliente VPN) y A.3.17 (Taller de concientización en Aula Virtual)",
+      after-c: 1, after-p: 0, after-r: 1,
+      rag: "VERDE",
+      status: "IMPLEMENTADO"
+    ),
+    (
+      id: "R-06",
+      scenario: "Fallo o alteración de copias de respaldo de base de datos",
+      risk-owner: "Ing. Marco Pinto",
+      before-c: 2, before-p: 1, before-r: 3,
+      option: "Opción 1: Controles",
+      controls: "A.3.24 (Backups automáticos con verificación hash SHA-256 en NAS independiente) y A.3.25 (Agente Zabbix)",
+      after-c: 1, after-p: 0, after-r: 1,
+      rag: "VERDE",
+      status: "IMPLEMENTADO"
+    ),
   )
 )
 
-= Metodología de Evaluación y Criterios Actualizados
-Se mantiene el criterio de estimación dual conforme a la Cláusula 6.1.2.c de la norma ISO/IEC 27701:2025, integrando los vectores derivados de la virtualización de servicios y acceso remoto por teletrabajo.
-
-= Matriz de Evaluación de Riesgos de Incidentes Digitales (Periodo 2022)
-
-#table(
-  columns: (45pt, 1fr, 75pt, 30pt, 30pt, 45pt, 50pt),
-  fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
-  stroke: 0.5pt + luma(190),
-  align: (center, left, left, center, center, center, center),
-  table.header([*ID*], [*Escenario de Riesgo de Incidente*], [*Activo / Proceso*], [*P*], [*IT*], [*R. Inh.*], [*Nivel*]),
-  
-  [R-04],
-  [Explotación de fallas IDOR en API backend de admisión exponiendo documentos digitalizados.],
-  [Portal Web Admisión\ (`admision.unsa`)],
-  [4], [5], [20],
-  rag-tag("ROJO"),
-
-  [R-05],
-  [Suplantación de identidad de personal de planillas en teletrabajo mediante phishing de credenciales VPN.],
-  [Túnel VPN SSL\ (Planillas / Remoto)],
-  [3], [5], [15],
-  rag-tag("ROJO"),
-
-  [R-06],
-  [Corrupción o indisponibilidad de la base de datos salarial por fallo en scripts de respaldo nocturno.],
-  [Base de Datos\ (PostgreSQL DUTIC)],
-  [3], [4], [12],
-  rag-tag("AMARILLO")
-)
-
-= Plan de Tratamiento de Riesgos Cibernéticos (Cláusula 6.1.3f)
-
-#table(
-  columns: (40pt, 1fr, 80pt, 85pt, 55pt, 45pt, 45pt),
-  fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
-  stroke: 0.5pt + luma(190),
-  align: (center, left, left, left, center, center, center),
-  table.header([*Ref.*], [*Controles Aplicables (Anexo A)*], [*Dueño del Riesgo*], [*Recursos Requeridos*], [*Plazo*], [*R. Res.*], [*Estado*]),
-  
-  [R-04],
-  [
-    *A.3.27/A.3.28:* Ciclo de desarrollo seguro y análisis SAST en CI/CD.\
-    *A.3.23:* Tokens JWT efímeros firmados con RSA-4096.
-  ],
-  [Mg. Lucía Valdivia\ (Directora DUTIC)],
-  [Herramienta de análisis estático SonarQube y capacitación en OWASP Top 10.],
-  [2022-04-30],
-  [4],
-  rag-tag("VERDE"),
-
-  [R-05],
-  [
-    *A.3.23:* Autenticación multifactor (MFA) obligatoria en cliente VPN.\
-    *A.3.17:* Capacitación en phishing para teletrabajo.
-  ],
-  [Lic. Martha Córdova\ (Subdir. Personal)],
-  [Despliegue de TOTP institucional y taller en Aula Virtual UNSA.],
-  [2022-05-31],
-  [4],
-  rag-tag("VERDE"),
-
-  [R-06],
-  [
-    *A.3.24:* Copias de seguridad automáticas con hash SHA-256 verificado.\
-    *A.3.25:* Monitoreo automatizado con agente Zabbix.
-  ],
-  [Ing. Marco Pinto\ (Admin. BD DUTIC)],
-  [Almacenamiento secundario NAS en clúster independiente y script de prueba.],
-  [2022-06-30],
-  [3],
-  rag-tag("VERDE")
-)
-
-= Declaración de Aceptación de Riesgos Residuales (Cláusula 6.1.3g)
-El Comité de Gobierno Digital y Privacidad ratifica la eficacia de las medidas aplicadas, aprobando formalmente los niveles de riesgo residual alcanzados.
+#mold(data)

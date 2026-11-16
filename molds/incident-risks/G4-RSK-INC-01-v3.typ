@@ -1,11 +1,25 @@
-#import "template.typ": doc-template, status-tag, rag-tag, callout
+#import "mold.typ": mold
 
-#show: doc-template.with(
-  title: "Matriz y Plan de Tratamiento de Riesgos de Incidentes",
+#let data = (
   code: "G4-RSK-INC-01",
   version: "3.0",
   date: "2025-10-28",
+  title: "Matriz y Reporte de Evaluación de Riesgos de Incidentes de Privacidad",
   confidentiality: "CONFIDENCIAL - USO INTERNO UNSA",
+  period-name: "Periodo 2025 (Recertificación Multisede ISO/IEC 27701:2025)",
+  scope-units: "Sedes Centrales Arequipa más Filial Camaná (RR 0142-2025) y Filial El Pedregal - Majes (RR 0143-2025). Procesos de Admisión y Planillas descentralizadas.",
+  time-eval: "el periodo del 01 de septiembre al 10 de octubre de 2025",
+  time-treat: "el periodo del 11 al 24 de octubre de 2025",
+  participants: "el Ing. Carlos M. Benítez (OSI / DPO), la Mg. Lucía Valdivia Paredes (Directora DUTIC) y los coordinadores de Filial Camaná y Majes",
+  validity: "2026-10-28",
+  references: (
+    "ISO/IEC 27701:2025 — Cláusulas 6.1.2, 6.1.3, 8.2 y 8.3",
+    "ISO/IEC 27001:2022 / ISO/IEC 27002:2022 — Controles de seguridad y privacidad",
+    "Ley N° 29733 — Ley de Protección de Datos Personales del Perú y su Reglamento",
+    "G4-MET-RSK-01 — Metodología de Evaluación y Tratamiento de Riesgos de Privacidad",
+    "G4-PLN-RSK-01 — Plan de Tratamiento de Riesgos de Privacidad",
+    "G4-SOA-01 — Declaración de Aplicabilidad del SGPI",
+  ),
   author: (
     name: "Ing. Carlos M. Benítez",
     role: "Oficial de Seguridad de la Información (OSI / DPO)",
@@ -40,82 +54,134 @@
       author: "Ing. Carlos M. Benítez",
       summary: "Recertificación bajo ISO/IEC 27701:2025 (segunda edición, standalone PIMS): Matriz multisede integrando Filial Camaná y Filial El Pedregal (Majes), riesgos en terminales móviles (MDM) y spear-phishing bancario."
     ),
+  ),
+  eval-rows: (
+    (
+      id: "R-01",
+      asset: "Padrones físicos de admisión",
+      asset-owner: "Dir. de Admisión",
+      threat: "Sustracción o extravío de listados residuales",
+      vuln: "Descarte sin triturar",
+      risk-owner: "Dr. Walter Delgado",
+      cons: 2, prob: 0, risk: 2,
+      existing-controls: "Trituradoras P-4 y custodia bajo llave"
+    ),
+    (
+      id: "R-02",
+      asset: "Boletas electrónicas (Nóminas)",
+      asset-owner: "Subdir. de Personal",
+      threat: "Divulgación indebida por correo",
+      vuln: "Fallo en reglas de envío",
+      risk-owner: "Lic. Martha Elena Córdova",
+      cons: 2, prob: 0, risk: 2,
+      existing-controls: "Cifrado automático de PDF con DNI y DLP"
+    ),
+    (
+      id: "R-03",
+      asset: "Data Center DUTIC",
+      asset-owner: "Directora DUTIC",
+      threat: "Acceso físico no autorizado a servidores",
+      vuln: "Fallo de biometría",
+      risk-owner: "Mg. Lucía Valdivia",
+      cons: 2, prob: 0, risk: 2,
+      existing-controls: "Cerradura biométrica y videovigilancia CCTV"
+    ),
+    (
+      id: "R-04",
+      asset: "Portal Web Admisión (`admision.unsa`)",
+      asset-owner: "Directora DUTIC",
+      threat: "Explotación de fallas IDOR en API",
+      vuln: "Validación insuficiente de sesión",
+      risk-owner: "Mg. Lucía Valdivia",
+      cons: 2, prob: 0, risk: 2,
+      existing-controls: "Análisis SonarQube en CI/CD y tokens JWT RSA-4096"
+    ),
+    (
+      id: "R-05",
+      asset: "Túnel VPN SSL (Planillas / Remoto)",
+      asset-owner: "Subdir. de Personal",
+      threat: "Phishing de credenciales VPN",
+      vuln: "Cuentas sin MFA",
+      risk-owner: "Lic. Martha Elena Córdova",
+      cons: 2, prob: 0, risk: 2,
+      existing-controls: "MFA/TOTP institucional obligatorio"
+    ),
+    (
+      id: "R-06",
+      asset: "Base de Datos PostgreSQL (DUTIC)",
+      asset-owner: "Admin. BD DUTIC",
+      threat: "Corrupción de respaldos nocturnos",
+      vuln: "Falta de prueba de restauración",
+      risk-owner: "Ing. Marco Pinto",
+      cons: 2, prob: 0, risk: 2,
+      existing-controls: "Backups con verificación hash SHA-256 en NAS"
+    ),
+    (
+      id: "R-07",
+      asset: "Laptops móviles (Filial Camaná)",
+      asset-owner: "Coord. Filial Camaná",
+      threat: "Sustracción física de laptop con padrones biométricos",
+      vuln: "Disco local sin cifrado de hardware en tránsito",
+      risk-owner: "Dr. Marcos Cárdenas",
+      cons: 2, prob: 1, risk: 3,
+      existing-controls: "Contraseña de BIOS y candado Kensington básico"
+    ),
+    (
+      id: "R-08",
+      asset: "Túnel VPN IPSec (Filial El Pedregal)",
+      asset-owner: "Subdir. de Personal",
+      threat: "Colisión o alteración de cuentas bancarias en sincronización",
+      vuln: "Falta de validación de doble firma digital antes del abono",
+      risk-owner: "Lic. Martha Elena Córdova",
+      cons: 2, prob: 1, risk: 3,
+      existing-controls: "Túnel IPSec estándar con autenticación pre-shared key"
+    ),
+    (
+      id: "R-09",
+      asset: "Bandejas de correo (Filiales y Central)",
+      asset-owner: "Directora DUTIC",
+      threat: "Spear-phishing bancario a operadores de planillas",
+      vuln: "Filtrado permisivo en registros DNS del dominio",
+      risk-owner: "Ing. Carlos M. Benítez",
+      cons: 2, prob: 2, risk: 4,
+      existing-controls: "Filtro antispam estándar sin política DMARC reject"
+    ),
+  ),
+  treat-rows: (
+    (
+      id: "R-07",
+      scenario: "Robo de laptop con padrones biométricos en Filial Camaná",
+      risk-owner: "Dr. Marcos Cárdenas",
+      before-c: 2, before-p: 1, before-r: 3,
+      option: "Opción 1: Controles",
+      controls: "A.3.22 (Seguridad de terminales), A.3.26 (BitLocker XTS-AES 256 forzoso con TPM 2.0) y enrolamiento en MDM Microsoft Intune con borrado remoto",
+      after-c: 1, after-p: 0, after-r: 1,
+      rag: "VERDE",
+      status: "IMPLEMENTADO"
+    ),
+    (
+      id: "R-08",
+      scenario: "Alteración de cuentas de abono en Filial El Pedregal",
+      risk-owner: "Lic. Martha Elena Córdova",
+      before-c: 2, before-p: 1, before-r: 3,
+      option: "Opción 1: Controles",
+      controls: "A.3.7, A.3.14 (Transferencia y registros) y A.3.23 (Validación de doble firma digital tokenizada reconciliada con Sisgedo)",
+      after-c: 1, after-p: 0, after-r: 1,
+      rag: "VERDE",
+      status: "IMPLEMENTADO"
+    ),
+    (
+      id: "R-09",
+      scenario: "Spear-phishing suplantando bancos a personal de planillas",
+      risk-owner: "Ing. Carlos M. Benítez",
+      before-c: 2, before-p: 2, before-r: 4,
+      option: "Opción 1: Controles",
+      controls: "A.3.17 (Taller en Academia UNSA) y A.3.28 (Políticas estrictas DMARC reject, DKIM y SPF institucional)",
+      after-c: 1, after-p: 0, after-r: 1,
+      rag: "VERDE",
+      status: "IMPLEMENTADO"
+    ),
   )
 )
 
-= Metodología de Evaluación Multisede (Cláusula 6.1.2)
-Bajo la norma independiente ISO/IEC 27701:2025 Cláusula 6.1.2, la apreciación de riesgos analiza las amenazas concurrentes sobre las sedes de Arequipa y las filiales regionales descentralizadas, ponderando la probabilidad de ocurrencia y la gravedad de las consecuencias sobre los titulares de datos personales (postulantes y personal universitario).
-
-= Matriz de Evaluación de Riesgos de Incidentes Multisede (Periodo 2025)
-
-#table(
-  columns: (45pt, 1fr, 80pt, 30pt, 30pt, 45pt, 50pt),
-  fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
-  stroke: 0.5pt + luma(190),
-  align: (center, left, left, center, center, center, center),
-  table.header([*ID*], [*Escenario de Riesgo de Incidente*], [*Activo / Sede*], [*P*], [*IT*], [*R. Inh.*], [*Nivel*]),
-  
-  [R-07],
-  [Sustracción física de laptop de registro biométrico con datos de postulantes durante admisiones.],
-  [Laptops móviles\ (Filial Camaná)],
-  [3], [5], [15],
-  rag-tag("ROJO"),
-
-  [R-08],
-  [Colisión o alteración de cuentas bancarias en la sincronización de nómina regional con la sede central.],
-  [Túnel VPN IPSec\ (Filial El Pedregal)],
-  [3], [4], [12],
-  rag-tag("AMARILLO"),
-
-  [R-09],
-  [Ataque de spear-phishing suplantando entidades bancarias dirigido a operadores de planillas en filiales.],
-  [Bandejas de correo\ (Filiales y Central)],
-  [4], [4], [16],
-  rag-tag("ROJO")
-)
-
-= Plan de Tratamiento de Riesgos Multisede (Cláusula 6.1.3f)
-
-#table(
-  columns: (40pt, 1fr, 80pt, 85pt, 55pt, 45pt, 45pt),
-  fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
-  stroke: 0.5pt + luma(190),
-  align: (center, left, left, left, center, center, center),
-  table.header([*Ref.*], [*Controles Aplicables (Anexo A)*], [*Dueño del Riesgo*], [*Recursos Requeridos*], [*Plazo*], [*R. Res.*], [*Estado*]),
-  
-  [R-07],
-  [
-    *A.3.22:* Seguridad de dispositivos de usuario.\
-    *A.3.26:* Cifrado BitLocker XTS-AES 256 forzoso por TPM 2.0 y enrolamiento en MDM Microsoft Intune con borrado remoto.
-  ],
-  [Dr. Marcos Cárdenas\ (Coord. Camaná)],
-  [Licencias MDM institucionales y perfiles de directiva de grupo (GPO).],
-  [2025-05-30],
-  [3],
-  rag-tag("VERDE"),
-
-  [R-08],
-  [
-    *A.3.7/A.3.14:* Transferencia de información y protección de registros.\
-    *A.3.23:* Validación de doble firma digital de lote bancario reconciliado con Sisgedo antes del abono.
-  ],
-  [Lic. Martha Córdova\ (Subdir. Personal)],
-  [Certificados digitales tokenizados para coordinadores de sede y módulo de firma.],
-  [2025-06-30],
-  [4],
-  rag-tag("VERDE"),
-
-  [R-09],
-  [
-    *A.3.17:* Educación y concienciación en privacidad.\
-    *A.3.28:* Filtrado de correo entrante con políticas DMARC reject, DKIM y SPF estricto en DUTIC.
-  ],
-  [Ing. Carlos M. Benítez\ (OSI / DPO)],
-  [Plataforma de simulación de ciberataques y taller obligatorio en la Academia UNSA.],
-  [2025-07-31],
-  [4],
-  rag-tag("VERDE")
-)
-
-= Aprobación Formal de los Dueños de Riesgo (Cláusula 6.1.3g)
-En sesión extraordinaria del Comité de Gobierno Digital y Privacidad del 28 de octubre de 2025, los dueños de riesgo de los procesos de Admisión y Planillas aprobaron unánimemente el Plan de Tratamiento y formalizaron la aceptación de los niveles de riesgo residual, certificando su alineamiento pleno con la norma ISO/IEC 27701:2025.
+#mold(data)
