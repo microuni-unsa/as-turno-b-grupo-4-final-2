@@ -88,7 +88,7 @@
     (
       id: "R-04",
       asset: "Portal Web Admisión (admision.unsa.edu.pe)",
-      asset_owner: "Directora DUTIC (Mg. Lucía Valdivia Paredes)",
+      asset-owner: "Directora DUTIC (Mg. Lucía Valdivia Paredes)",
       threat: "Explotación de fallas de autorización IDOR en API de expedientes",
       vuln: "Validación insuficiente de sesión y endpoints sin control de roles",
       risk-owner: "Mg. Lucía Valdivia (Directora DUTIC)",
@@ -98,7 +98,7 @@
     (
       id: "R-05",
       asset: "Túnel VPN SSL (Planillas / Teletrabajo)",
-      asset_owner: "Subdirectora de Personal (Lic. Martha Elena Córdova)",
+      asset-owner: "Subdirectora de Personal (Lic. Martha Elena Córdova)",
       threat: "Compromiso de credenciales VPN de operadores de nómina por phishing",
       vuln: "Cuentas de acceso remoto sin autenticación multifactor (MFA)",
       risk-owner: "Lic. Martha Elena Córdova (Subdir. Personal)",
@@ -108,7 +108,7 @@
     (
       id: "R-06",
       asset: "Base de Datos PostgreSQL (DUTIC)",
-      asset_owner: "Administrador de BD DUTIC (Ing. Marco Pinto)",
+      asset-owner: "Administrador de BD DUTIC (Ing. Marco Pinto)",
       threat: "Fallo o corrupción de respaldos nocturnos durante replicación",
       vuln: "Omisión de pruebas periódicas de restauración completa (DRP)",
       risk-owner: "Ing. Marco Pinto (Admin. BD DUTIC)",

@@ -6,7 +6,7 @@
 
 #import "../common/template.typ": doc-template, status-tag, rag-tag, callout, reference-docs, signature-block
 
-#let mold(data) = {
+#let mold(data, body: none) = {
   let doc-title = data.at("title", default: "Registro Oficial de Incidentes de Privacidad (SGPI)")
   let doc-code = data.at("code", default: "G4-REG-INC-01")
   let doc-ver = data.at("version", default: "1.0")
@@ -121,21 +121,66 @@
 
     = Resumen Ejecutivo del Libro de Registro (#era-name)
     #v(0.2cm)
+
+    #let tag-badge(st) = {
+      let bg = rgb("#e2e8f0")
+      let fg = rgb("#334155")
+      if st.contains("NO_REQUIERE") or st == "VIGENTE" or st == "CERRADA" or st == "IMPLEMENTADO" or st == "BAJO" or st == "APROBADO" {
+        bg = rgb("#dcfce7")
+        fg = rgb("#166534")
+      } else if st.contains("AUTORIDAD") or st.contains("ANPDP") or st == "OBSOLETO" or st == "ABIERTA" or st == "ALTO" or st == "CRITICO" {
+        bg = rgb("#fee2e2")
+        fg = rgb("#991b1b")
+      } else {
+        bg = rgb("#fef3c7")
+        fg = rgb("#92400e")
+      }
+      box(fill: bg, radius: 2.5pt, inset: (x: 3pt, y: 1.5pt))[
+        #text(fill: fg, weight: "bold", size: 5.5pt)[#st]
+      ]
+    }
+
+    #let sev-badge(level) = {
+      let bg = rgb("#e2e8f0")
+      let fg = rgb("#334155")
+      let label = level
+      if level == "RED" or level == "ROJO" or level == "CRÍTICO" or level == "ALTA" or level == "ALTO" {
+        bg = rgb("#fee2e2")
+        fg = rgb("#991b1b")
+        label = if level == "ALTA" or level == "ALTO" { "ALTA" } else { "ROJO" }
+      } else if level == "AMBER" or level == "AMARILLO" or level == "MEDIO" or level == "MEDIA" {
+        bg = rgb("#fef3c7")
+        fg = rgb("#92400e")
+        label = if level == "MEDIA" or level == "MEDIO" { "MEDIA" } else { "ÁMBAR" }
+      } else if level == "GREEN" or level == "VERDE" or level == "BAJO" or level == "BAJA" {
+        bg = rgb("#dcfce7")
+        fg = rgb("#166534")
+        label = if level == "BAJA" or level == "BAJO" { "BAJA" } else { "VERDE" }
+      }
+      box(fill: bg, radius: 2.5pt, inset: (x: 3pt, y: 1.5pt))[
+        #text(fill: fg, weight: "bold", size: 6pt)[#label]
+      ]
+    }
+
     #table(
-      columns: (68pt, 68pt, 55pt, 85pt, 85pt, 1fr),
+      columns: (52pt, 48pt, 36pt, 68pt, 68pt, 1fr),
       fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
       stroke: 0.5pt + luma(190),
+      inset: (x: 2.5pt, y: 2.5pt),
       align: (center, center, center, left, left, left),
       table.header([*ID Incidente*], [*Detección*], [*Severidad*], [*Categoría*], [*Titulares Concernidos*], [*Contención y Notificación*]),
       ..incident-rows.map(row => (
-        text(size: 7.5pt, weight: "bold")[#row.id],
-        text(size: 7pt)[#row.detection],
-        rag-tag(row.severity),
-        text(size: 7pt)[#row.category],
-        text(size: 7pt)[#row.affected],
+        text(size: 7pt, weight: "bold")[#row.id],
+        text(size: 6.5pt)[#row.detection],
+        sev-badge(row.severity),
+        text(size: 6.5pt)[#row.category],
+        text(size: 6.5pt)[#row.affected],
         [
-          #text(size: 7pt)[*Contención:* #row.containment]\
-          #text(size: 7pt)[*Notificación:* #status-tag(row.notification-status) #row.notification-detail]
+          #text(size: 6.5pt)[*Contención:* #row.containment]\
+          #text(size: 6.5pt)[*Notificación:* ]#tag-badge(row.notification-status)
+          #if row.notification-detail != "" [\
+            #text(size: 6pt, fill: luma(60))[#row.notification-detail]
+          ]
         ]
       )).flatten()
     )
@@ -150,7 +195,7 @@
     - *Expedientes de Acciones Correctivas vinculados:*
       #if capa-links.len() > 0 [
         #for clink in capa-links [
-          - `#clink.code`: #clink.desc (registrado formalmente en `G4-REG-CAPA-01` bajo la Cláusula 10.2).
+          - *#clink.code*: #clink.desc (registrado formalmente en `G4-REG-CAPA-01` bajo la Cláusula 10.2).
         ]
       ] else [
         - No se registraron incidentes mayores que requirieran apertura de acciones correctivas en este periodo.
@@ -183,9 +228,10 @@
 
     = Gestión de registros guardados en base a este documento
     #table(
-      columns: (120pt, 100pt, 90pt, 1fr, 60pt),
+      columns: (95pt, 75pt, 75pt, 1fr, 50pt),
       fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
       stroke: 0.5pt + luma(190),
+      inset: (x: 2.5pt, y: 2.5pt),
       align: (left, left, left, left, center),
       table.header(
         [*Nombre del registro*],

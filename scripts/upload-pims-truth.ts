@@ -295,6 +295,8 @@ function printDryRunSummary(plan: PlannedPostAction[], manifests: Map<string, Co
   console.log("================================================================================\n");
 
   let totalFiles = 0;
+  let totalPdfFiles = 0;
+  let totalXlsxFiles = 0;
   let totalBytes = 0;
 
   let currentDoc = "";
@@ -323,6 +325,7 @@ function printDryRunSummary(plan: PlannedPostAction[], manifests: Map<string, Co
     if (action.attachedFile) {
       const f = action.attachedFile;
       totalFiles++;
+      totalPdfFiles++;
       totalBytes += f.sizeBytes;
       console.log(`     Archivo Adjunto Primario (PDF):`);
       console.log(`       - Archivo: ${f.filename} (${(f.sizeBytes / 1024).toFixed(1)} KB)`);
@@ -333,6 +336,7 @@ function printDryRunSummary(plan: PlannedPostAction[], manifests: Map<string, Co
     if (action.companionFiles && action.companionFiles.length > 0) {
       for (const c of action.companionFiles) {
         totalFiles++;
+        totalXlsxFiles++;
         totalBytes += c.sizeBytes;
         console.log(`     Archivo Complementario Normativo (XLSX):`);
         console.log(`       - Archivo: ${c.filename} (${(c.sizeBytes / 1024).toFixed(1)} KB)`);
@@ -349,7 +353,7 @@ function printDryRunSummary(plan: PlannedPostAction[], manifests: Map<string, Co
   console.log("================================================================================");
   console.log(`  Total documentos institucionales G4:  ${manifests.size}`);
   console.log(`  Total acciones POST planificadas:     ${plan.length}`);
-  console.log(`  Total archivos físicos involucrados:  ${totalFiles} (${totalFiles - 7} PDFs + 7 XLSX)`);
+  console.log(`  Total archivos físicos involucrados:  ${totalFiles} (${totalPdfFiles} PDFs + ${totalXlsxFiles} XLSX)`);
   console.log(`  Volumen total de transferencia:       ${(totalBytes / 1024).toFixed(1)} KB (${(totalBytes / (1024 * 1024)).toFixed(2)} MB)`);
   console.log("================================================================================");
   console.log("\n[upload-pims-truth] NOTAS DE CICLO DE VIDA Y ESTADOS EN PIMS:");

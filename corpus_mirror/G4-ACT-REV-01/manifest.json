@@ -3,26 +3,68 @@
   "pims_doc_id": "G4-ACT-REV-01",
   "title": "Acta de Revisión por la Dirección del SGPI",
   "latest_version": "3.0",
-  "updated_at": "2026-11-16T15:49:06.543Z",
+  "updated_at": "2026-11-16T18:05:30.898Z",
   "versions": [
+    {
+      "version": "1.0",
+      "pims_version": "1.0",
+      "version_num": 1,
+      "date": "2019-04-15",
+      "source_mold": "corpus_g4_src/management-review/G4-ACT-REV-01-v1.typ",
+      "mold_path": "corpus_g4_src/management-review/G4-ACT-REV-01-v1.typ",
+      "filename": "v1.pdf",
+      "file_path": "corpus_mirror/G4-ACT-REV-01/v1.pdf",
+      "sha256": "0bd9bce40fbb6f6ffaba6b2e97614c671a22eb32bc8f21ef1daad1bbc1e008be",
+      "files": [
+        {
+          "filename": "v1.pdf",
+          "file_path": "corpus_mirror/G4-ACT-REV-01/v1.pdf",
+          "format": "pdf",
+          "sha256": "0bd9bce40fbb6f6ffaba6b2e97614c671a22eb32bc8f21ef1daad1bbc1e008be",
+          "size_bytes": 90560,
+          "source_mold": "corpus_g4_src/management-review/G4-ACT-REV-01-v1.typ"
+        }
+      ]
+    },
+    {
+      "version": "2.0",
+      "pims_version": "2.0",
+      "version_num": 2,
+      "date": "2022-09-10",
+      "source_mold": "corpus_g4_src/management-review/G4-ACT-REV-01-v2.typ",
+      "mold_path": "corpus_g4_src/management-review/G4-ACT-REV-01-v2.typ",
+      "filename": "v2.pdf",
+      "file_path": "corpus_mirror/G4-ACT-REV-01/v2.pdf",
+      "sha256": "af147a0f0052c3874556a1e47d8d50d4393662d631a6d1be352e90f9bc1a6f36",
+      "files": [
+        {
+          "filename": "v2.pdf",
+          "file_path": "corpus_mirror/G4-ACT-REV-01/v2.pdf",
+          "format": "pdf",
+          "sha256": "af147a0f0052c3874556a1e47d8d50d4393662d631a6d1be352e90f9bc1a6f36",
+          "size_bytes": 95436,
+          "source_mold": "corpus_g4_src/management-review/G4-ACT-REV-01-v2.typ"
+        }
+      ]
+    },
     {
       "version": "3.0",
       "pims_version": "3.0",
       "version_num": 3,
       "date": "2025-10-28",
-      "source_mold": "molds/management-review/G4-ACT-REV-01-v3.typ",
-      "mold_path": "molds/management-review/G4-ACT-REV-01-v3.typ",
+      "source_mold": "corpus_g4_src/management-review/G4-ACT-REV-01-v3.typ",
+      "mold_path": "corpus_g4_src/management-review/G4-ACT-REV-01-v3.typ",
       "filename": "v3.pdf",
       "file_path": "corpus_mirror/G4-ACT-REV-01/v3.pdf",
-      "sha256": "038ce0d58838b7811e942341d924061919e0a7b5fb8dd409d1a759a66c76c276",
+      "sha256": "eda817e294ab4f3adaa5e6f3fc4a4793bedf0733f39f7adb1ce08caf07e95fd7",
       "files": [
         {
           "filename": "v3.pdf",
           "file_path": "corpus_mirror/G4-ACT-REV-01/v3.pdf",
           "format": "pdf",
-          "sha256": "038ce0d58838b7811e942341d924061919e0a7b5fb8dd409d1a759a66c76c276",
-          "size_bytes": 69334,
-          "source_mold": "molds/management-review/G4-ACT-REV-01-v3.typ"
+          "sha256": "eda817e294ab4f3adaa5e6f3fc4a4793bedf0733f39f7adb1ce08caf07e95fd7",
+          "size_bytes": 97351,
+          "source_mold": "corpus_g4_src/management-review/G4-ACT-REV-01-v3.typ"
         }
       ]
     }

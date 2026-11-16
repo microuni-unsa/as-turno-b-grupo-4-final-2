@@ -1,28 +1,70 @@
 {
   "code": "G4-MET-RSK-01",
   "pims_doc_id": "G4-MET-RSK-01",
-  "title": "Metodología de Evaluación y Tratamiento de Riesgos de Privacidad",
+  "title": "Metodología de evaluación y tratamiento de riesgos",
   "latest_version": "3.0",
-  "updated_at": "2026-11-16T15:49:06.542Z",
+  "updated_at": "2026-11-16T18:05:30.898Z",
   "versions": [
+    {
+      "version": "1.0",
+      "pims_version": "1.0",
+      "version_num": 1,
+      "date": "2019-04-15",
+      "source_mold": "corpus_g4_src/incident-risks/G4-MET-RSK-01-v1.typ",
+      "mold_path": "corpus_g4_src/incident-risks/G4-MET-RSK-01-v1.typ",
+      "filename": "v1.pdf",
+      "file_path": "corpus_mirror/G4-MET-RSK-01/v1.pdf",
+      "sha256": "91a2f14438a27a8169d81e1c39785b2ec14b54f6d573b4834e6f44438a3e6fa0",
+      "files": [
+        {
+          "filename": "v1.pdf",
+          "file_path": "corpus_mirror/G4-MET-RSK-01/v1.pdf",
+          "format": "pdf",
+          "sha256": "91a2f14438a27a8169d81e1c39785b2ec14b54f6d573b4834e6f44438a3e6fa0",
+          "size_bytes": 119553,
+          "source_mold": "corpus_g4_src/incident-risks/G4-MET-RSK-01-v1.typ"
+        }
+      ]
+    },
+    {
+      "version": "2.0",
+      "pims_version": "2.0",
+      "version_num": 2,
+      "date": "2022-09-10",
+      "source_mold": "corpus_g4_src/incident-risks/G4-MET-RSK-01-v2.typ",
+      "mold_path": "corpus_g4_src/incident-risks/G4-MET-RSK-01-v2.typ",
+      "filename": "v2.pdf",
+      "file_path": "corpus_mirror/G4-MET-RSK-01/v2.pdf",
+      "sha256": "a2ba853866a343e4087598cb45461263a88e46ee304181d751fbc0118bc9a289",
+      "files": [
+        {
+          "filename": "v2.pdf",
+          "file_path": "corpus_mirror/G4-MET-RSK-01/v2.pdf",
+          "format": "pdf",
+          "sha256": "a2ba853866a343e4087598cb45461263a88e46ee304181d751fbc0118bc9a289",
+          "size_bytes": 123159,
+          "source_mold": "corpus_g4_src/incident-risks/G4-MET-RSK-01-v2.typ"
+        }
+      ]
+    },
     {
       "version": "3.0",
       "pims_version": "3.0",
       "version_num": 3,
       "date": "2025-10-28",
-      "source_mold": "molds/incident-risks/G4-MET-RSK-01-v3.typ",
-      "mold_path": "molds/incident-risks/G4-MET-RSK-01-v3.typ",
+      "source_mold": "corpus_g4_src/incident-risks/G4-MET-RSK-01-v3.typ",
+      "mold_path": "corpus_g4_src/incident-risks/G4-MET-RSK-01-v3.typ",
       "filename": "v3.pdf",
       "file_path": "corpus_mirror/G4-MET-RSK-01/v3.pdf",
-      "sha256": "cf7ea1dd9705aab24d08c38af341bf36b13b55c5c0ca44c8e612e0bff2f32050",
+      "sha256": "ecbe01e9ffc33bad73955364258fc544efa0fcdf76646c7cd3a06e802b9306c5",
       "files": [
         {
           "filename": "v3.pdf",
           "file_path": "corpus_mirror/G4-MET-RSK-01/v3.pdf",
           "format": "pdf",
-          "sha256": "cf7ea1dd9705aab24d08c38af341bf36b13b55c5c0ca44c8e612e0bff2f32050",
-          "size_bytes": 146591,
-          "source_mold": "molds/incident-risks/G4-MET-RSK-01-v3.typ"
+          "sha256": "ecbe01e9ffc33bad73955364258fc544efa0fcdf76646c7cd3a06e802b9306c5",
+          "size_bytes": 124214,
+          "source_mold": "corpus_g4_src/incident-risks/G4-MET-RSK-01-v3.typ"
         }
       ]
     }

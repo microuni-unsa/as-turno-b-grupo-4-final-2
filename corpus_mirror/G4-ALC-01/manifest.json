@@ -3,26 +3,26 @@
   "pims_doc_id": "G4-ALC-01",
   "title": "Determinación del Alcance del SGPI",
   "latest_version": "3.0",
-  "updated_at": "2026-11-16T15:49:06.543Z",
+  "updated_at": "2026-11-16T18:05:30.898Z",
   "versions": [
     {
       "version": "1.0",
       "pims_version": "1.0",
       "version_num": 1,
       "date": "2019-04-15",
-      "source_mold": "molds/scope/G4-ALC-01-v1.typ",
-      "mold_path": "molds/scope/G4-ALC-01-v1.typ",
+      "source_mold": "corpus_g4_src/scope/G4-ALC-01-v1.typ",
+      "mold_path": "corpus_g4_src/scope/G4-ALC-01-v1.typ",
       "filename": "v1.pdf",
       "file_path": "corpus_mirror/G4-ALC-01/v1.pdf",
-      "sha256": "14ad2f788b51526ad1bed763d31bef71948cb4bb484f7fdd874235aa5555de13",
+      "sha256": "2683e821c45f27354650445abb2bc4ab41f3fc7f3849c5dbc35f6e55a4aa2392",
       "files": [
         {
           "filename": "v1.pdf",
           "file_path": "corpus_mirror/G4-ALC-01/v1.pdf",
           "format": "pdf",
-          "sha256": "14ad2f788b51526ad1bed763d31bef71948cb4bb484f7fdd874235aa5555de13",
-          "size_bytes": 72327,
-          "source_mold": "molds/scope/G4-ALC-01-v1.typ"
+          "sha256": "2683e821c45f27354650445abb2bc4ab41f3fc7f3849c5dbc35f6e55a4aa2392",
+          "size_bytes": 96220,
+          "source_mold": "corpus_g4_src/scope/G4-ALC-01-v1.typ"
         }
       ]
     },
@@ -31,19 +31,19 @@
       "pims_version": "2.0",
       "version_num": 2,
       "date": "2022-09-10",
-      "source_mold": "molds/scope/G4-ALC-01-v2.typ",
-      "mold_path": "molds/scope/G4-ALC-01-v2.typ",
+      "source_mold": "corpus_g4_src/scope/G4-ALC-01-v2.typ",
+      "mold_path": "corpus_g4_src/scope/G4-ALC-01-v2.typ",
       "filename": "v2.pdf",
       "file_path": "corpus_mirror/G4-ALC-01/v2.pdf",
-      "sha256": "2232506f198f4b9faa08b4b58acad2757b4366229f538d31c333b4f305e092d2",
+      "sha256": "5a21e66df1648660be190fc1548e811f4de0ef4782d59a22126bc6b4cd769537",
       "files": [
         {
           "filename": "v2.pdf",
           "file_path": "corpus_mirror/G4-ALC-01/v2.pdf",
           "format": "pdf",
-          "sha256": "2232506f198f4b9faa08b4b58acad2757b4366229f538d31c333b4f305e092d2",
-          "size_bytes": 78867,
-          "source_mold": "molds/scope/G4-ALC-01-v2.typ"
+          "sha256": "5a21e66df1648660be190fc1548e811f4de0ef4782d59a22126bc6b4cd769537",
+          "size_bytes": 104491,
+          "source_mold": "corpus_g4_src/scope/G4-ALC-01-v2.typ"
         }
       ]
     },
@@ -52,19 +52,19 @@
       "pims_version": "3.0",
       "version_num": 3,
       "date": "2025-10-28",
-      "source_mold": "molds/scope/G4-ALC-01-v3.typ",
-      "mold_path": "molds/scope/G4-ALC-01-v3.typ",
+      "source_mold": "corpus_g4_src/scope/G4-ALC-01-v3.typ",
+      "mold_path": "corpus_g4_src/scope/G4-ALC-01-v3.typ",
       "filename": "v3.pdf",
       "file_path": "corpus_mirror/G4-ALC-01/v3.pdf",
-      "sha256": "5c7d7aef60ec072fcb4754e70c12ec8ff885022d0dd7d1db96978efdf8d2e8ed",
+      "sha256": "e7c4c87020721c128fe33d00bdd9d217afa171377f09f5caab52affc666a7577",
       "files": [
         {
           "filename": "v3.pdf",
           "file_path": "corpus_mirror/G4-ALC-01/v3.pdf",
           "format": "pdf",
-          "sha256": "5c7d7aef60ec072fcb4754e70c12ec8ff885022d0dd7d1db96978efdf8d2e8ed",
-          "size_bytes": 79350,
-          "source_mold": "molds/scope/G4-ALC-01-v3.typ"
+          "sha256": "e7c4c87020721c128fe33d00bdd9d217afa171377f09f5caab52affc666a7577",
+          "size_bytes": 108234,
+          "source_mold": "corpus_g4_src/scope/G4-ALC-01-v3.typ"
         }
       ]
     }

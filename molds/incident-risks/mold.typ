@@ -192,9 +192,10 @@
       = Gestión de registros guardados en base a este documento
       #v(0.2cm)
       #table(
-        columns: (115pt, 80pt, 85pt, 1fr, 55pt),
+        columns: (95pt, 75pt, 75pt, 1fr, 50pt),
         fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
         stroke: 0.5pt + luma(190),
+        inset: (x: 2.5pt, y: 2.5pt),
         align: (left, left, left, left, center),
         table.header([*Nombre del registro*], [*Ubicación de archivo*], [*Persona responsable del archivo*], [*Controles para la protección del registro*], [*Tiempo de retención*]),
         ..records-data.map(r => (
@@ -352,33 +353,34 @@
 
       #v(0.2cm)
       #table(
-        columns: (22pt, 80pt, 65pt, 85pt, 80pt, 60pt, 22pt, 22pt, 22pt, 1fr),
+        columns: (14pt, 58pt, 46pt, 56pt, 56pt, 46pt, 13pt, 13pt, 13pt, 1fr),
         fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
         stroke: 0.5pt + luma(190),
+        inset: (x: 2pt, y: 2.5pt),
         align: (center, left, left, left, left, left, center, center, center, left),
         table.header(
-          [*No*],
-          [*Nombre del activo*],
-          [*Propietario del activo*],
-          [*Amenaza*],
-          [*Vulnerabilidad*],
-          [*Propietario del riesgo*],
-          [*C*],
-          [*P*],
-          [*R*],
-          [*Controles existentes*]
+          text(size: 6pt, weight: "bold")[*No*],
+          text(size: 6pt, weight: "bold")[*Nombre del activo*],
+          text(size: 6pt, weight: "bold")[*Propietario activo*],
+          text(size: 6pt, weight: "bold")[*Amenaza*],
+          text(size: 6pt, weight: "bold")[*Vulnerabilidad*],
+          text(size: 6pt, weight: "bold")[*Propietario riesgo*],
+          text(size: 6pt, weight: "bold")[*C*],
+          text(size: 6pt, weight: "bold")[*P*],
+          text(size: 6pt, weight: "bold")[*R*],
+          text(size: 6pt, weight: "bold")[*Controles existentes*]
         ),
         ..eval-rows.map(r => (
-          text(size: 7.5pt, weight: "bold")[#r.id],
-          text(size: 7pt)[#r.asset],
-          text(size: 7pt)[#r.asset-owner],
-          text(size: 7pt)[#r.threat],
-          text(size: 7pt)[#r.vuln],
-          text(size: 7pt)[#r.risk-owner],
-          text(size: 7.5pt)[#r.cons],
-          text(size: 7.5pt)[#r.prob],
-          text(size: 7.5pt, weight: "bold", fill: if r.risk >= 3 { rgb("#991b1b") } else { rgb("#166534") })[#r.risk],
-          text(size: 7pt)[#r.existing-controls]
+          text(size: 6pt, weight: "bold")[#r.id],
+          text(size: 5.5pt)[#r.asset],
+          text(size: 5.5pt)[#r.asset-owner],
+          text(size: 5.5pt)[#r.threat],
+          text(size: 5.5pt)[#r.vuln],
+          text(size: 5.5pt)[#r.risk-owner],
+          text(size: 6pt)[#r.cons],
+          text(size: 6pt)[#r.prob],
+          text(size: 6pt, weight: "bold", fill: if r.risk >= 3 { rgb("#991b1b") } else { rgb("#166534") })[#r.risk],
+          text(size: 5.5pt)[#r.existing-controls]
         )).flatten()
       )
 
@@ -393,43 +395,44 @@
 
       #v(0.2cm)
       #table(
-        columns: (22pt, 48pt, 45pt, 50pt, 50pt, 45pt, 16pt, 16pt, 18pt, 45pt, 1fr, 16pt, 16pt, 18pt),
+        columns: (14pt, 38pt, 32pt, 38pt, 38pt, 32pt, 11pt, 11pt, 12pt, 36pt, 1fr, 11pt, 11pt, 12pt),
         fill: (x, y) => if y == 0 or y == 1 { rgb("#f1f5f9") } else { none },
         stroke: 0.5pt + luma(190),
+        inset: (x: 1.5pt, y: 2pt),
         align: (center, left, left, left, left, left, center, center, center, left, left, center, center, center),
-        table.cell(colspan: 6, align: center)[*Activos / amenazas / vulnerabilidades*],
-        table.cell(colspan: 3, align: center)[*Valores antes del tratamiento*],
-        table.cell(colspan: 2, align: center)[*Tratamiento del riesgo*],
-        table.cell(colspan: 3, align: center)[*Valores después del tratamiento*],
-        [*Cantidad*],
-        [*Nombre del activo*],
-        [*Propietario del activo*],
-        [*Amenaza*],
-        [*Vulnerabilidad*],
-        [*Propietario del riesgo*],
-        [*C*],
-        [*P*],
-        [*R*],
-        [*Elección de opciones*],
-        [*Medios de implementación*],
-        [*C*],
-        [*P*],
-        [*R*],
+        table.cell(colspan: 6, align: center)[#text(size: 5.5pt, weight: "bold")[*Activos / Amenazas / Vulnerabilidades*]],
+        table.cell(colspan: 3, align: center)[#text(size: 5.5pt, weight: "bold")[*Pre-Trat.*]],
+        table.cell(colspan: 2, align: center)[#text(size: 5.5pt, weight: "bold")[*Tratamiento del riesgo*]],
+        table.cell(colspan: 3, align: center)[#text(size: 5.5pt, weight: "bold")[*Post-Trat.*]],
+        text(size: 5pt, weight: "bold")[*N°*],
+        text(size: 5pt, weight: "bold")[*Activo*],
+        text(size: 5pt, weight: "bold")[*Prop. Act.*],
+        text(size: 5pt, weight: "bold")[*Amenaza*],
+        text(size: 5pt, weight: "bold")[*Vulnerab.*],
+        text(size: 5pt, weight: "bold")[*Prop. Rgo.*],
+        text(size: 5pt, weight: "bold")[*C*],
+        text(size: 5pt, weight: "bold")[*P*],
+        text(size: 5pt, weight: "bold")[*R*],
+        text(size: 5pt, weight: "bold")[*Opción*],
+        text(size: 5pt, weight: "bold")[*Medios de implementación (Controles)*],
+        text(size: 5pt, weight: "bold")[*C*],
+        text(size: 5pt, weight: "bold")[*P*],
+        text(size: 5pt, weight: "bold")[*R*],
         ..treat-rows.map(r => (
-          text(size: 7pt, weight: "bold")[#r.id],
-          text(size: 6.5pt)[#r.at("asset", default: r.at("scenario", default: ""))],
-          text(size: 6.5pt)[#r.at("asset-owner", default: r.at("risk-owner", default: ""))],
-          text(size: 6.5pt)[#r.at("threat", default: "Amenaza identificada")],
-          text(size: 6.5pt)[#r.at("vuln", default: "Vulnerabilidad detectada")],
-          text(size: 6.5pt)[#r.risk-owner],
-          text(size: 7pt)[#r.before-c],
-          text(size: 7pt)[#r.before-p],
-          text(size: 7pt, weight: "bold", fill: rgb("#991b1b"))[#r.before-r],
-          text(size: 6.5pt)[#r.option],
-          text(size: 6.5pt)[#r.controls],
-          text(size: 7pt)[#r.after-c],
-          text(size: 7pt)[#r.after-p],
-          text(size: 7pt, weight: "bold", fill: rgb("#166534"))[#r.after-r]
+          text(size: 5.5pt, weight: "bold")[#r.id],
+          text(size: 5pt)[#r.at("asset", default: r.at("scenario", default: ""))],
+          text(size: 5pt)[#r.at("asset-owner", default: r.at("risk-owner", default: ""))],
+          text(size: 5pt)[#r.at("threat", default: "Amenaza identificada")],
+          text(size: 5pt)[#r.at("vuln", default: "Vulnerabilidad detectada")],
+          text(size: 5pt)[#r.risk-owner],
+          text(size: 5.5pt)[#r.before-c],
+          text(size: 5.5pt)[#r.before-p],
+          text(size: 5.5pt, weight: "bold", fill: rgb("#991b1b"))[#r.before-r],
+          text(size: 5pt)[#r.option],
+          text(size: 5pt)[#r.controls],
+          text(size: 5.5pt)[#r.after-c],
+          text(size: 5.5pt)[#r.after-p],
+          text(size: 5.5pt, weight: "bold", fill: rgb("#166534"))[#r.after-r]
         )).flatten()
       )
     ]
@@ -482,29 +485,48 @@
       = Plan de tratamiento del riesgo
       #intro-text
 
+      #let status-badge(status) = {
+        let bg = rgb("#e2e8f0")
+        let fg = rgb("#334155")
+        if status == "VIGENTE" or status == "CERRADA" or status == "IMPLEMENTADO" or status == "BAJO" or status == "APROBADO" {
+          bg = rgb("#dcfce7")
+          fg = rgb("#166534")
+        } else if status == "OBSOLETO" or status == "ABIERTA" or status == "ALTO" or status == "CRITICO" or status == "RECHAZADO" {
+          bg = rgb("#fee2e2")
+          fg = rgb("#991b1b")
+        } else {
+          bg = rgb("#fef3c7")
+          fg = rgb("#92400e")
+        }
+        box(fill: bg, radius: 2.5pt, inset: (x: 2.5pt, y: 1.5pt))[
+          #text(fill: fg, weight: "bold", size: 5.5pt)[#status]
+        ]
+      }
+
       #v(0.3cm)
       #table(
-        columns: (115pt, 80pt, 75pt, 65pt, 85pt, 80pt, 50pt),
+        columns: (95pt, 65pt, 55pt, 50pt, 65pt, 65pt, 45pt),
         fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
         stroke: 0.5pt + luma(190),
+        inset: (x: 2pt, y: 2.5pt),
         align: (left, left, left, center, left, left, center),
         table.header(
           [*Descripción de actividades*],
-          [*Recursos generales y financieros necesarios*],
+          [*Recursos necesarios*],
           [*Persona responsable*],
-          [*Plazos de inicio y finalización*],
-          [*Programas de capacitación y concienciación*],
-          [*Método para evaluación de resultados*],
+          [*Plazos (inicio/fin)*],
+          [*Capacitación y concienciación*],
+          [*Método de evaluación*],
           [*Estado*]
         ),
         ..activities.map(act => (
-          text(size: 7.5pt)[#act.desc],
-          text(size: 7pt)[#act.resources],
-          text(size: 7pt)[#act.responsible],
-          text(size: 7pt)[#act.schedule],
-          text(size: 7pt)[#act.training],
-          text(size: 7pt)[#act.eval-method],
-          status-tag(act.status)
+          text(size: 6.5pt)[#act.desc],
+          text(size: 6pt)[#act.resources],
+          text(size: 6pt)[#act.responsible],
+          text(size: 6pt)[#act.schedule],
+          text(size: 6pt)[#act.training],
+          text(size: 6pt)[#act.eval-method],
+          status-badge(act.status)
         )).flatten()
       )
 

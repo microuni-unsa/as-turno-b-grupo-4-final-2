@@ -94,7 +94,7 @@
 
     = Datos Generales de la Auditoría
     #let gen = data.at("general_data", default: (:))
-    #if "audit_code" in gen [ - *Código de Auditoría:* `#gen.audit_code` \ ]
+    #if "audit_code" in gen [ - *Código de Auditoría:* #gen.audit_code \ ]
     #if "normative_ref" in gen [ - *Norma de Referencia:* #gen.normative_ref \ ]
     #if "execution_dates" in gen [ - *Fechas de Ejecución:* #gen.execution_dates \ ]
     #if "audit_team" in gen [ - *Equipo Auditor:* #gen.audit_team \ ]

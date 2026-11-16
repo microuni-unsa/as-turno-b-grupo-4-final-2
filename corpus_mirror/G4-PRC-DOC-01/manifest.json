@@ -1,28 +1,70 @@
 {
   "code": "G4-PRC-DOC-01",
   "pims_doc_id": "G4-PRC-DOC-01",
-  "title": "Procedimiento para Control de Documentos y Registros",
+  "title": "Procedimiento para control de documentos y registros",
   "latest_version": "3.0",
-  "updated_at": "2026-11-16T15:49:06.542Z",
+  "updated_at": "2026-11-16T18:05:30.898Z",
   "versions": [
+    {
+      "version": "1.0",
+      "pims_version": "1.0",
+      "version_num": 1,
+      "date": "2019-04-15",
+      "source_mold": "corpus_g4_src/document-control/G4-PRC-DOC-01-v1.typ",
+      "mold_path": "corpus_g4_src/document-control/G4-PRC-DOC-01-v1.typ",
+      "filename": "v1.pdf",
+      "file_path": "corpus_mirror/G4-PRC-DOC-01/v1.pdf",
+      "sha256": "358a44d5dce059c463363207c5e2a362cf25fd9b4b4b2cf54d9b062e3f4065a9",
+      "files": [
+        {
+          "filename": "v1.pdf",
+          "file_path": "corpus_mirror/G4-PRC-DOC-01/v1.pdf",
+          "format": "pdf",
+          "sha256": "358a44d5dce059c463363207c5e2a362cf25fd9b4b4b2cf54d9b062e3f4065a9",
+          "size_bytes": 120973,
+          "source_mold": "corpus_g4_src/document-control/G4-PRC-DOC-01-v1.typ"
+        }
+      ]
+    },
+    {
+      "version": "2.0",
+      "pims_version": "2.0",
+      "version_num": 2,
+      "date": "2022-09-10",
+      "source_mold": "corpus_g4_src/document-control/G4-PRC-DOC-01-v2.typ",
+      "mold_path": "corpus_g4_src/document-control/G4-PRC-DOC-01-v2.typ",
+      "filename": "v2.pdf",
+      "file_path": "corpus_mirror/G4-PRC-DOC-01/v2.pdf",
+      "sha256": "c7d75d89b152ad7becc36b453c5355b2108f7d99469f4cdb68c8ff5241606ebd",
+      "files": [
+        {
+          "filename": "v2.pdf",
+          "file_path": "corpus_mirror/G4-PRC-DOC-01/v2.pdf",
+          "format": "pdf",
+          "sha256": "c7d75d89b152ad7becc36b453c5355b2108f7d99469f4cdb68c8ff5241606ebd",
+          "size_bytes": 122082,
+          "source_mold": "corpus_g4_src/document-control/G4-PRC-DOC-01-v2.typ"
+        }
+      ]
+    },
     {
       "version": "3.0",
       "pims_version": "3.0",
       "version_num": 3,
       "date": "2025-10-28",
-      "source_mold": "molds/document-control/G4-PRC-DOC-01-v3.typ",
-      "mold_path": "molds/document-control/G4-PRC-DOC-01-v3.typ",
+      "source_mold": "corpus_g4_src/document-control/G4-PRC-DOC-01-v3.typ",
+      "mold_path": "corpus_g4_src/document-control/G4-PRC-DOC-01-v3.typ",
       "filename": "v3.pdf",
       "file_path": "corpus_mirror/G4-PRC-DOC-01/v3.pdf",
-      "sha256": "6cc594ffa1d536f545bef115a2ea46da5d620f88b8154add66d9986c9cd0aab5",
+      "sha256": "fe442c50ddf5aea88a5b82c529ea2d68eacdf5c5b8c947329816e58c41298d81",
       "files": [
         {
           "filename": "v3.pdf",
           "file_path": "corpus_mirror/G4-PRC-DOC-01/v3.pdf",
           "format": "pdf",
-          "sha256": "6cc594ffa1d536f545bef115a2ea46da5d620f88b8154add66d9986c9cd0aab5",
-          "size_bytes": 138430,
-          "source_mold": "molds/document-control/G4-PRC-DOC-01-v3.typ"
+          "sha256": "fe442c50ddf5aea88a5b82c529ea2d68eacdf5c5b8c947329816e58c41298d81",
+          "size_bytes": 124088,
+          "source_mold": "corpus_g4_src/document-control/G4-PRC-DOC-01-v3.typ"
         }
       ]
     }

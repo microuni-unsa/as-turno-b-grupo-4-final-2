@@ -1,28 +1,70 @@
 {
   "code": "G4-PRC-CAPA-01",
   "pims_doc_id": "G4-PRC-CAPA-01",
-  "title": "Procedimiento de No Conformidades y Acciones Correctivas",
+  "title": "Procedimiento para medidas correctivas",
   "latest_version": "3.0",
-  "updated_at": "2026-11-16T15:49:06.543Z",
+  "updated_at": "2026-11-16T18:05:30.898Z",
   "versions": [
+    {
+      "version": "1.0",
+      "pims_version": "1.0",
+      "version_num": 1,
+      "date": "2019-04-15",
+      "source_mold": "corpus_g4_src/nc-corrective-actions/G4-PRC-CAPA-01-v1.typ",
+      "mold_path": "corpus_g4_src/nc-corrective-actions/G4-PRC-CAPA-01-v1.typ",
+      "filename": "v1.pdf",
+      "file_path": "corpus_mirror/G4-PRC-CAPA-01/v1.pdf",
+      "sha256": "fb89920d955cf84035a1830273fedef099465790ff6e802a1bd79c866ec12943",
+      "files": [
+        {
+          "filename": "v1.pdf",
+          "file_path": "corpus_mirror/G4-PRC-CAPA-01/v1.pdf",
+          "format": "pdf",
+          "sha256": "fb89920d955cf84035a1830273fedef099465790ff6e802a1bd79c866ec12943",
+          "size_bytes": 87700,
+          "source_mold": "corpus_g4_src/nc-corrective-actions/G4-PRC-CAPA-01-v1.typ"
+        }
+      ]
+    },
+    {
+      "version": "2.0",
+      "pims_version": "2.0",
+      "version_num": 2,
+      "date": "2022-09-10",
+      "source_mold": "corpus_g4_src/nc-corrective-actions/G4-PRC-CAPA-01-v2.typ",
+      "mold_path": "corpus_g4_src/nc-corrective-actions/G4-PRC-CAPA-01-v2.typ",
+      "filename": "v2.pdf",
+      "file_path": "corpus_mirror/G4-PRC-CAPA-01/v2.pdf",
+      "sha256": "c28aa20a773c7db9b52b934fa4ae6b7996366da80147d374e1c9bbee91b5b67f",
+      "files": [
+        {
+          "filename": "v2.pdf",
+          "file_path": "corpus_mirror/G4-PRC-CAPA-01/v2.pdf",
+          "format": "pdf",
+          "sha256": "c28aa20a773c7db9b52b934fa4ae6b7996366da80147d374e1c9bbee91b5b67f",
+          "size_bytes": 89192,
+          "source_mold": "corpus_g4_src/nc-corrective-actions/G4-PRC-CAPA-01-v2.typ"
+        }
+      ]
+    },
     {
       "version": "3.0",
       "pims_version": "3.0",
       "version_num": 3,
       "date": "2025-10-28",
-      "source_mold": "molds/nc-corrective-actions/G4-PRC-CAPA-01-v3.typ",
-      "mold_path": "molds/nc-corrective-actions/G4-PRC-CAPA-01-v3.typ",
+      "source_mold": "corpus_g4_src/nc-corrective-actions/G4-PRC-CAPA-01-v3.typ",
+      "mold_path": "corpus_g4_src/nc-corrective-actions/G4-PRC-CAPA-01-v3.typ",
       "filename": "v3.pdf",
       "file_path": "corpus_mirror/G4-PRC-CAPA-01/v3.pdf",
-      "sha256": "3ee1a0e57fb283c2a2d15d825daec144dbd6c8253db71166bc0ccc0d07549f0f",
+      "sha256": "749bb85babae2d7c2ddcbab787ad13919a3755a6bbd38831e79ff94d81b432a9",
       "files": [
         {
           "filename": "v3.pdf",
           "file_path": "corpus_mirror/G4-PRC-CAPA-01/v3.pdf",
           "format": "pdf",
-          "sha256": "3ee1a0e57fb283c2a2d15d825daec144dbd6c8253db71166bc0ccc0d07549f0f",
-          "size_bytes": 109179,
-          "source_mold": "molds/nc-corrective-actions/G4-PRC-CAPA-01-v3.typ"
+          "sha256": "749bb85babae2d7c2ddcbab787ad13919a3755a6bbd38831e79ff94d81b432a9",
+          "size_bytes": 90715,
+          "source_mold": "corpus_g4_src/nc-corrective-actions/G4-PRC-CAPA-01-v3.typ"
         }
       ]
     }

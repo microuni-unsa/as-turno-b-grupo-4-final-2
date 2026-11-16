@@ -480,7 +480,7 @@ export function generateIncidentXlsx(outputPath?: string, targetVersion?: "v1" |
 
   const sheets: SheetDef[] = [
     {
-      name: "Registro Consolidado B.3.12",
+      name: targetVersion === "v1" ? "Registro Incidentes B.3.12 (2019)" : "Registro Consolidado B.3.12",
       rows: [
         B312_COLUMN_HEADERS,
         ...recordsToInclude.map(incidentToRow)
@@ -492,22 +492,28 @@ export function generateIncidentXlsx(outputPath?: string, targetVersion?: "v1" |
         B312_COLUMN_HEADERS,
         ...v1Records.map(incidentToRow)
       ]
-    },
-    {
+    }
+  ];
+
+  if (targetVersion === "v2" || targetVersion === "v3" || targetVersion === "all" || !targetVersion) {
+    sheets.push({
       name: "Era v2 (2022)",
       rows: [
         B312_COLUMN_HEADERS,
         ...v2Records.map(incidentToRow)
       ]
-    },
-    {
+    });
+  }
+
+  if (targetVersion === "v3" || targetVersion === "all" || !targetVersion) {
+    sheets.push({
       name: "Era v3 (2025)",
       rows: [
         B312_COLUMN_HEADERS,
         ...v3Records.map(incidentToRow)
       ]
-    }
-  ];
+    });
+  }
 
   const zipBuffer = buildWorkbookBuffer(sheets);
   const targetDir = path.dirname(targetPath);

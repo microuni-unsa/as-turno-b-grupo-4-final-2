@@ -462,9 +462,15 @@ export function generateTreatmentXlsx(outputPath?: string, targetVersion?: "v1" 
     rowsToInclude = SYNTHETIC_TREATMENT_ROWS;
   }
 
+  const periodText = targetVersion === "v1"
+    ? "Implementado desde el 2019-04-15 hasta el 2020-04-15"
+    : targetVersion === "v2"
+    ? "Implementado desde el 2022-09-10 hasta el 2023-09-10"
+    : "Implementado desde el 2025-10-28 hasta el 2026-10-28";
+
   // Exact headers matching Apéndice 2 Cuadro tratamiento riesgos
   const mainSheetRows: (string | number | null)[][] = [
-    ["Cuadro de tratamiento de riesgos", null, "Implementado desde el 2025-10-28 hasta el 2026-10-28", null, null, null, null, null, null, null, null, null, null, null],
+    ["Cuadro de tratamiento de riesgos", null, periodText, null, null, null, null, null, null, null, null, null, null, null],
     [null, null, null, null, null, null, null, null, null, null, null, null, null, null],
     [
       "Activos / amenazas / vulnerabilidades", null, null, null, null, null,

@@ -1,28 +1,86 @@
 {
   "code": "G4-PLN-RSK-01",
   "pims_doc_id": "G4-PLN-RSK-01",
-  "title": "Plan de Tratamiento de Riesgos de Privacidad",
+  "title": "Plan de tratamiento del riesgo",
   "latest_version": "3.0",
-  "updated_at": "2026-11-16T15:49:06.542Z",
+  "updated_at": "2026-11-16T18:05:30.898Z",
   "versions": [
+    {
+      "version": "1.0",
+      "pims_version": "1.0",
+      "version_num": 1,
+      "date": "2019-04-15",
+      "source_mold": "corpus_g4_src/incident-risks/G4-PLN-RSK-01-v1.typ",
+      "mold_path": "corpus_g4_src/incident-risks/G4-PLN-RSK-01-v1.typ",
+      "filename": "v1.pdf",
+      "file_path": "corpus_mirror/G4-PLN-RSK-01/v1.pdf",
+      "sha256": "bc75ab8280773e9bdfdcef1fc2928df856771a3dfa05e60616a158d796d548b3",
+      "files": [
+        {
+          "filename": "v1.pdf",
+          "file_path": "corpus_mirror/G4-PLN-RSK-01/v1.pdf",
+          "format": "pdf",
+          "sha256": "bc75ab8280773e9bdfdcef1fc2928df856771a3dfa05e60616a158d796d548b3",
+          "size_bytes": 56829,
+          "source_mold": "corpus_g4_src/incident-risks/G4-PLN-RSK-01-v1.typ"
+        },
+        {
+          "filename": "v1.xlsx",
+          "file_path": "corpus_mirror/G4-PLN-RSK-01/v1.xlsx",
+          "format": "xlsx",
+          "sha256": "c2c5a66d62ca7d9d1587ba6b4baa3c6cbad9082b1c77353eef8ac1ff63056d9e",
+          "size_bytes": 8563,
+          "source_mold": "molds/incident-risks/generate-treatment.ts"
+        }
+      ]
+    },
+    {
+      "version": "2.0",
+      "pims_version": "2.0",
+      "version_num": 2,
+      "date": "2022-09-10",
+      "source_mold": "corpus_g4_src/incident-risks/G4-PLN-RSK-01-v2.typ",
+      "mold_path": "corpus_g4_src/incident-risks/G4-PLN-RSK-01-v2.typ",
+      "filename": "v2.pdf",
+      "file_path": "corpus_mirror/G4-PLN-RSK-01/v2.pdf",
+      "sha256": "cee05cc96c788502eeb77ab52d67db2fa2436cdea48836dfdcb28eb0418c7c15",
+      "files": [
+        {
+          "filename": "v2.pdf",
+          "file_path": "corpus_mirror/G4-PLN-RSK-01/v2.pdf",
+          "format": "pdf",
+          "sha256": "cee05cc96c788502eeb77ab52d67db2fa2436cdea48836dfdcb28eb0418c7c15",
+          "size_bytes": 65146,
+          "source_mold": "corpus_g4_src/incident-risks/G4-PLN-RSK-01-v2.typ"
+        },
+        {
+          "filename": "v2.xlsx",
+          "file_path": "corpus_mirror/G4-PLN-RSK-01/v2.xlsx",
+          "format": "xlsx",
+          "sha256": "beec68629e9deacbfeaffdc40e05eef75264020b8b115b893eb97aab36d5b0c6",
+          "size_bytes": 9254,
+          "source_mold": "molds/incident-risks/generate-treatment.ts"
+        }
+      ]
+    },
     {
       "version": "3.0",
       "pims_version": "3.0",
       "version_num": 3,
       "date": "2025-10-28",
-      "source_mold": "molds/incident-risks/G4-PLN-RSK-01-v3.typ",
-      "mold_path": "molds/incident-risks/G4-PLN-RSK-01-v3.typ",
+      "source_mold": "corpus_g4_src/incident-risks/G4-PLN-RSK-01-v3.typ",
+      "mold_path": "corpus_g4_src/incident-risks/G4-PLN-RSK-01-v3.typ",
       "filename": "v3.pdf",
       "file_path": "corpus_mirror/G4-PLN-RSK-01/v3.pdf",
-      "sha256": "651357ba772c002b7c357e70816aab5ef29a1ccf2af671674ec4a6bd50cc844f",
+      "sha256": "15523a1e55851093989cbc9af268782a8e7fe2d99caa3ac62d811f6f30db60ee",
       "files": [
         {
           "filename": "v3.pdf",
           "file_path": "corpus_mirror/G4-PLN-RSK-01/v3.pdf",
           "format": "pdf",
-          "sha256": "651357ba772c002b7c357e70816aab5ef29a1ccf2af671674ec4a6bd50cc844f",
-          "size_bytes": 90620,
-          "source_mold": "molds/incident-risks/G4-PLN-RSK-01-v3.typ"
+          "sha256": "15523a1e55851093989cbc9af268782a8e7fe2d99caa3ac62d811f6f30db60ee",
+          "size_bytes": 74666,
+          "source_mold": "corpus_g4_src/incident-risks/G4-PLN-RSK-01-v3.typ"
         },
         {
           "filename": "v3.xlsx",

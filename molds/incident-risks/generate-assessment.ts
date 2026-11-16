@@ -473,9 +473,15 @@ export function generateAssessmentXlsx(outputPath?: string, targetVersion?: "v1"
     rowsToInclude = SYNTHETIC_EVAL_ROWS;
   }
 
+  const periodText = targetVersion === "v1"
+    ? "Implementado desde el 2019-04-15 hasta el 2020-04-15"
+    : targetVersion === "v2"
+    ? "Implementado desde el 2022-09-10 hasta el 2023-09-10"
+    : "Implementado desde el 2025-10-28 hasta el 2026-10-28";
+
   // Exact headers matching Apéndice 1 Cuadro de evaluación de riesgos
   const mainSheetRows: (string | number | null)[][] = [
-    ["Cuadro de evaluación de riesgos", null, "Implementado desde el 2025-10-28 hasta el 2026-10-28", null, null, null, null, null, null, null],
+    ["Cuadro de evaluación de riesgos", null, periodText, null, null, null, null, null, null, null],
     [null, null, null, null, null, null, null, null, null, null],
     [
       "No",

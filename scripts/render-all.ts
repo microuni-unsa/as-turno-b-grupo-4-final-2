@@ -315,26 +315,34 @@ async function main(): Promise<void> {
     }
   }
 
-  // 2c. Generador de Tratamiento de Riesgos Apéndice 2 (G4-PLN-RSK-01: v3)
+  // 2c. Generador de Tratamiento de Riesgos Apéndice 2 (G4-PLN-RSK-01: v1, v2, v3)
   const plnCode = "G4-PLN-RSK-01";
   const plnDocDir = path.join(CORPUS_DIR, plnCode);
-  const plnXlsxFilename = `v3.xlsx`;
-  const plnXlsxPath = path.join(plnDocDir, plnXlsxFilename);
-  generateTreatmentXlsx(plnXlsxPath, "v3");
-  const { sha256: plnSha, size: plnSize } = calculateFileSha256(plnXlsxPath);
-  xlsxSuccessCount++;
+  const plnVersions: Array<{ verNum: number; verScope: "v1" | "v2" | "v3" }> = [
+    { verNum: 1, verScope: "v1" },
+    { verNum: 2, verScope: "v2" },
+    { verNum: 3, verScope: "v3" }
+  ];
 
-  const plnDocEntry = docsMap.get(plnCode);
-  if (plnDocEntry && plnDocEntry.versions.has(3)) {
-    const v = plnDocEntry.versions.get(3)!;
-    v.files.push({
-      filename: plnXlsxFilename,
-      file_path: path.relative(REPO_ROOT, plnXlsxPath),
-      format: "xlsx",
-      sha256: plnSha,
-      size_bytes: plnSize,
-      source_mold: "molds/incident-risks/generate-treatment.ts"
-    });
+  for (const { verNum, verScope } of plnVersions) {
+    const xlsxFilename = `v${verNum}.xlsx`;
+    const xlsxPath = path.join(plnDocDir, xlsxFilename);
+    generateTreatmentXlsx(xlsxPath, verScope);
+    const { sha256, size } = calculateFileSha256(xlsxPath);
+    xlsxSuccessCount++;
+
+    const docEntry = docsMap.get(plnCode);
+    if (docEntry && docEntry.versions.has(verNum)) {
+      const v = docEntry.versions.get(verNum)!;
+      v.files.push({
+        filename: xlsxFilename,
+        file_path: path.relative(REPO_ROOT, xlsxPath),
+        format: "xlsx",
+        sha256,
+        size_bytes: size,
+        source_mold: "molds/incident-risks/generate-treatment.ts"
+      });
+    }
   }
 
   // 3. Generación y escritura de manifest.json por documento

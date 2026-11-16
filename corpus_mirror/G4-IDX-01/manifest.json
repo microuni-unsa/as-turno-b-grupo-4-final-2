@@ -3,26 +3,68 @@
   "pims_doc_id": "G4-IDX-01",
   "title": "Mapa e Índice Maestro de Documentos (Auditor's Map)",
   "latest_version": "3.0",
-  "updated_at": "2026-11-16T15:49:06.542Z",
+  "updated_at": "2026-11-16T18:05:30.898Z",
   "versions": [
+    {
+      "version": "1.0",
+      "pims_version": "1.0",
+      "version_num": 1,
+      "date": "2019-04-15",
+      "source_mold": "corpus_g4_src/document-index/G4-IDX-01-v1.typ",
+      "mold_path": "corpus_g4_src/document-index/G4-IDX-01-v1.typ",
+      "filename": "v1.pdf",
+      "file_path": "corpus_mirror/G4-IDX-01/v1.pdf",
+      "sha256": "ba8410ffc46773cadb06edbd84baed8e7a12c3e253ba36bfab68820a3512105a",
+      "files": [
+        {
+          "filename": "v1.pdf",
+          "file_path": "corpus_mirror/G4-IDX-01/v1.pdf",
+          "format": "pdf",
+          "sha256": "ba8410ffc46773cadb06edbd84baed8e7a12c3e253ba36bfab68820a3512105a",
+          "size_bytes": 111362,
+          "source_mold": "corpus_g4_src/document-index/G4-IDX-01-v1.typ"
+        }
+      ]
+    },
+    {
+      "version": "2.0",
+      "pims_version": "2.0",
+      "version_num": 2,
+      "date": "2022-09-10",
+      "source_mold": "corpus_g4_src/document-index/G4-IDX-01-v2.typ",
+      "mold_path": "corpus_g4_src/document-index/G4-IDX-01-v2.typ",
+      "filename": "v2.pdf",
+      "file_path": "corpus_mirror/G4-IDX-01/v2.pdf",
+      "sha256": "312bc148ffd595fa516cba9488606203f4a698d250e6c1eaec1ee368b230527f",
+      "files": [
+        {
+          "filename": "v2.pdf",
+          "file_path": "corpus_mirror/G4-IDX-01/v2.pdf",
+          "format": "pdf",
+          "sha256": "312bc148ffd595fa516cba9488606203f4a698d250e6c1eaec1ee368b230527f",
+          "size_bytes": 119340,
+          "source_mold": "corpus_g4_src/document-index/G4-IDX-01-v2.typ"
+        }
+      ]
+    },
     {
       "version": "3.0",
       "pims_version": "3.0",
       "version_num": 3,
       "date": "2025-10-28",
-      "source_mold": "molds/document-index/G4-IDX-01-v3.typ",
-      "mold_path": "molds/document-index/G4-IDX-01-v3.typ",
+      "source_mold": "corpus_g4_src/document-index/G4-IDX-01-v3.typ",
+      "mold_path": "corpus_g4_src/document-index/G4-IDX-01-v3.typ",
       "filename": "v3.pdf",
       "file_path": "corpus_mirror/G4-IDX-01/v3.pdf",
-      "sha256": "c2584598da0211409e8a8a2181b91ccfbaebd6e037459a3434d79ea752486edd",
+      "sha256": "469c473b611af5730205d09c5f06af47e5e879b9aa6cbe6e0ad67ce733569adf",
       "files": [
         {
           "filename": "v3.pdf",
           "file_path": "corpus_mirror/G4-IDX-01/v3.pdf",
           "format": "pdf",
-          "sha256": "c2584598da0211409e8a8a2181b91ccfbaebd6e037459a3434d79ea752486edd",
-          "size_bytes": 94652,
-          "source_mold": "molds/document-index/G4-IDX-01-v3.typ"
+          "sha256": "469c473b611af5730205d09c5f06af47e5e879b9aa6cbe6e0ad67ce733569adf",
+          "size_bytes": 122874,
+          "source_mold": "corpus_g4_src/document-index/G4-IDX-01-v3.typ"
         }
       ]
     }

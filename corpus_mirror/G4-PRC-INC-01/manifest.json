@@ -3,26 +3,26 @@
   "pims_doc_id": "G4-PRC-INC-01",
   "title": "Procedimiento de Respuesta a Incidentes de Privacidad",
   "latest_version": "3.0",
-  "updated_at": "2026-11-16T15:49:06.542Z",
+  "updated_at": "2026-11-16T18:05:30.898Z",
   "versions": [
     {
       "version": "1.0",
       "pims_version": "1.0",
       "version_num": 1,
       "date": "2019-04-15",
-      "source_mold": "molds/incident-response-procedure/G4-PRC-INC-01-v1.typ",
-      "mold_path": "molds/incident-response-procedure/G4-PRC-INC-01-v1.typ",
+      "source_mold": "corpus_g4_src/incident-response-procedure/G4-PRC-INC-01-v1.typ",
+      "mold_path": "corpus_g4_src/incident-response-procedure/G4-PRC-INC-01-v1.typ",
       "filename": "v1.pdf",
       "file_path": "corpus_mirror/G4-PRC-INC-01/v1.pdf",
-      "sha256": "e335c3a744ec3cc3d9cae635f5d8218d95f096eb5685e77d922652cd235793ef",
+      "sha256": "29053477e0aba2695cd79099ae15ea1c1ea085772dc28a64ab4dfdb099cb94c3",
       "files": [
         {
           "filename": "v1.pdf",
           "file_path": "corpus_mirror/G4-PRC-INC-01/v1.pdf",
           "format": "pdf",
-          "sha256": "e335c3a744ec3cc3d9cae635f5d8218d95f096eb5685e77d922652cd235793ef",
-          "size_bytes": 113937,
-          "source_mold": "molds/incident-response-procedure/G4-PRC-INC-01-v1.typ"
+          "sha256": "29053477e0aba2695cd79099ae15ea1c1ea085772dc28a64ab4dfdb099cb94c3",
+          "size_bytes": 119585,
+          "source_mold": "corpus_g4_src/incident-response-procedure/G4-PRC-INC-01-v1.typ"
         }
       ]
     },
@@ -31,19 +31,19 @@
       "pims_version": "2.0",
       "version_num": 2,
       "date": "2022-09-10",
-      "source_mold": "molds/incident-response-procedure/G4-PRC-INC-01-v2.typ",
-      "mold_path": "molds/incident-response-procedure/G4-PRC-INC-01-v2.typ",
+      "source_mold": "corpus_g4_src/incident-response-procedure/G4-PRC-INC-01-v2.typ",
+      "mold_path": "corpus_g4_src/incident-response-procedure/G4-PRC-INC-01-v2.typ",
       "filename": "v2.pdf",
       "file_path": "corpus_mirror/G4-PRC-INC-01/v2.pdf",
-      "sha256": "9cf986e288b707184faf6396c0d42d983401c5afa77b8bcf90e49d64c02a4640",
+      "sha256": "9e603135d96992146949014195a4beaafcf0a4f924942568d05e1dc94fd1b7b4",
       "files": [
         {
           "filename": "v2.pdf",
           "file_path": "corpus_mirror/G4-PRC-INC-01/v2.pdf",
           "format": "pdf",
-          "sha256": "9cf986e288b707184faf6396c0d42d983401c5afa77b8bcf90e49d64c02a4640",
-          "size_bytes": 115012,
-          "source_mold": "molds/incident-response-procedure/G4-PRC-INC-01-v2.typ"
+          "sha256": "9e603135d96992146949014195a4beaafcf0a4f924942568d05e1dc94fd1b7b4",
+          "size_bytes": 120789,
+          "source_mold": "corpus_g4_src/incident-response-procedure/G4-PRC-INC-01-v2.typ"
         }
       ]
     },
@@ -52,19 +52,19 @@
       "pims_version": "3.0",
       "version_num": 3,
       "date": "2025-10-28",
-      "source_mold": "molds/incident-response-procedure/G4-PRC-INC-01-v3.typ",
-      "mold_path": "molds/incident-response-procedure/G4-PRC-INC-01-v3.typ",
+      "source_mold": "corpus_g4_src/incident-response-procedure/G4-PRC-INC-01-v3.typ",
+      "mold_path": "corpus_g4_src/incident-response-procedure/G4-PRC-INC-01-v3.typ",
       "filename": "v3.pdf",
       "file_path": "corpus_mirror/G4-PRC-INC-01/v3.pdf",
-      "sha256": "09749b0305ca5a5417bed57584d8cb3dbffc244bc4344363349dce4d398ebe9f",
+      "sha256": "ed2b2c0fe75a8af91270ec20586f628e3fa647b08c9ae77f6432bfb7da580276",
       "files": [
         {
           "filename": "v3.pdf",
           "file_path": "corpus_mirror/G4-PRC-INC-01/v3.pdf",
           "format": "pdf",
-          "sha256": "09749b0305ca5a5417bed57584d8cb3dbffc244bc4344363349dce4d398ebe9f",
-          "size_bytes": 120453,
-          "source_mold": "molds/incident-response-procedure/G4-PRC-INC-01-v3.typ"
+          "sha256": "ed2b2c0fe75a8af91270ec20586f628e3fa647b08c9ae77f6432bfb7da580276",
+          "size_bytes": 126019,
+          "source_mold": "corpus_g4_src/incident-response-procedure/G4-PRC-INC-01-v3.typ"
         }
       ]
     }

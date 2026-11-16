@@ -1,28 +1,28 @@
 {
   "code": "G4-REG-CAPA-01",
   "pims_doc_id": "G4-REG-CAPA-01",
-  "title": "Registro de No Conformidades y Acciones Correctivas (CAPA)",
+  "title": "Apéndice: Formulario para medidas correctivas",
   "latest_version": "3.0",
-  "updated_at": "2026-11-16T15:49:06.543Z",
+  "updated_at": "2026-11-16T18:05:30.898Z",
   "versions": [
     {
       "version": "1.0",
       "pims_version": "1.0",
       "version_num": 1,
       "date": "2019-04-15",
-      "source_mold": "molds/nc-corrective-actions/G4-REG-CAPA-01-v1.typ",
-      "mold_path": "molds/nc-corrective-actions/G4-REG-CAPA-01-v1.typ",
+      "source_mold": "corpus_g4_src/nc-corrective-actions/G4-REG-CAPA-01-v1.typ",
+      "mold_path": "corpus_g4_src/nc-corrective-actions/G4-REG-CAPA-01-v1.typ",
       "filename": "v1.pdf",
       "file_path": "corpus_mirror/G4-REG-CAPA-01/v1.pdf",
-      "sha256": "87d1816ca6fccadaa7bb914113c0a41bac683368ef7ffaf7d526f2922e69f7f9",
+      "sha256": "8de69420d2f3b907cb0d0c9679b23f321ab6a693474664b7efba1022981d33f7",
       "files": [
         {
           "filename": "v1.pdf",
           "file_path": "corpus_mirror/G4-REG-CAPA-01/v1.pdf",
           "format": "pdf",
-          "sha256": "87d1816ca6fccadaa7bb914113c0a41bac683368ef7ffaf7d526f2922e69f7f9",
-          "size_bytes": 123745,
-          "source_mold": "molds/nc-corrective-actions/G4-REG-CAPA-01-v1.typ"
+          "sha256": "8de69420d2f3b907cb0d0c9679b23f321ab6a693474664b7efba1022981d33f7",
+          "size_bytes": 75026,
+          "source_mold": "corpus_g4_src/nc-corrective-actions/G4-REG-CAPA-01-v1.typ"
         }
       ]
     },
@@ -31,19 +31,19 @@
       "pims_version": "2.0",
       "version_num": 2,
       "date": "2022-09-10",
-      "source_mold": "molds/nc-corrective-actions/G4-REG-CAPA-01-v2.typ",
-      "mold_path": "molds/nc-corrective-actions/G4-REG-CAPA-01-v2.typ",
+      "source_mold": "corpus_g4_src/nc-corrective-actions/G4-REG-CAPA-01-v2.typ",
+      "mold_path": "corpus_g4_src/nc-corrective-actions/G4-REG-CAPA-01-v2.typ",
       "filename": "v2.pdf",
       "file_path": "corpus_mirror/G4-REG-CAPA-01/v2.pdf",
-      "sha256": "f66729d97374b3c6530b65171a5985170f87343cccf6be71405a87643bdc075a",
+      "sha256": "17085d86fd7b524538cb6b7ca2f3b3ecff294b4f8f599360107ea7c3a32f2427",
       "files": [
         {
           "filename": "v2.pdf",
           "file_path": "corpus_mirror/G4-REG-CAPA-01/v2.pdf",
           "format": "pdf",
-          "sha256": "f66729d97374b3c6530b65171a5985170f87343cccf6be71405a87643bdc075a",
-          "size_bytes": 130249,
-          "source_mold": "molds/nc-corrective-actions/G4-REG-CAPA-01-v2.typ"
+          "sha256": "17085d86fd7b524538cb6b7ca2f3b3ecff294b4f8f599360107ea7c3a32f2427",
+          "size_bytes": 78770,
+          "source_mold": "corpus_g4_src/nc-corrective-actions/G4-REG-CAPA-01-v2.typ"
         }
       ]
     },
@@ -52,19 +52,19 @@
       "pims_version": "3.0",
       "version_num": 3,
       "date": "2025-10-28",
-      "source_mold": "molds/nc-corrective-actions/G4-REG-CAPA-01-v3.typ",
-      "mold_path": "molds/nc-corrective-actions/G4-REG-CAPA-01-v3.typ",
+      "source_mold": "corpus_g4_src/nc-corrective-actions/G4-REG-CAPA-01-v3.typ",
+      "mold_path": "corpus_g4_src/nc-corrective-actions/G4-REG-CAPA-01-v3.typ",
       "filename": "v3.pdf",
       "file_path": "corpus_mirror/G4-REG-CAPA-01/v3.pdf",
-      "sha256": "83fca00b1c88153114c44a89b59b27a2e38a003d2cad31a17d4d8ce6a9c616fb",
+      "sha256": "8f0e2e92bebe0be20c626a67153ad1ef06b872e700e683f46bb59f8f92e3c6bd",
       "files": [
         {
           "filename": "v3.pdf",
           "file_path": "corpus_mirror/G4-REG-CAPA-01/v3.pdf",
           "format": "pdf",
-          "sha256": "83fca00b1c88153114c44a89b59b27a2e38a003d2cad31a17d4d8ce6a9c616fb",
-          "size_bytes": 152782,
-          "source_mold": "molds/nc-corrective-actions/G4-REG-CAPA-01-v3.typ"
+          "sha256": "8f0e2e92bebe0be20c626a67153ad1ef06b872e700e683f46bb59f8f92e3c6bd",
+          "size_bytes": 91601,
+          "source_mold": "corpus_g4_src/nc-corrective-actions/G4-REG-CAPA-01-v3.typ"
         }
       ]
     }
