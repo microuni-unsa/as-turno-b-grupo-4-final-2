@@ -35,7 +35,8 @@ You can also answer general PIMS questions (scope, policy, objectives, document 
                Molds (Templates)    │    Connectors & Sidecars
                                     ▼
 ┌────────────────────────────────────────────────────────────────────────┐
-│   • Typst Molds: molds/**/mold.typ (parameterized; molds NEVER truth) │
+│   • Typst Molds: molds/**/mold.typ (parameterized templates; templates only) │
+│   • Filled Typst Sources: corpus_g4_src/**/G4-*.typ (filled sources)   │
 │   • Connectors: connectors/<name>/ (client.ts + SKILL-FRAG.md)         │
 │   • Sidecars: *.pimsai.mistercricro8.top                               │
 │       - demo: Zellij web TUI interface                                 │
@@ -53,14 +54,15 @@ You can also answer general PIMS questions (scope, policy, objectives, document 
    - Downloaded PIMS documents are stored in `corpus_mirror/<doc_id>/v<version>.<ext>` with `corpus_mirror/<doc_id>/manifest.json`.
    - Chunks are vectorized using `mistral-embed` (1024 dimensions, OpenAI-compatible endpoint with `base_url` swap) and stored in `pgvector` with cosine distance (`<=>`).
    - Every chunk maintains a SHA-256 digest. Citations follow: `pims:<doc_id>:v<version>:chunk:<index>:lines:<start>-<end>`.
-   - **Crucial Rule**: The mirror is a local cache of PIMS truth (never read `molds/` as if it were the live document base). If a PIMS REST read fails or PIMS has no uploaded `G4-` documents yet, answer from `corpus_mirror/` + `pimsai-db` and explicitly label the source.
+   - **Crucial Rule**: The mirror is a local cache of PIMS truth (never read `molds/` or `corpus_g4_src/` as if they were the live document base). If a PIMS REST read fails or PIMS has no uploaded `G4-` documents yet, answer from `corpus_mirror/` + `pimsai-db` and explicitly label the source.
 
-3. **Typst Molds (`molds/`) — Parameterized Functions & Copy-Then-Fill Flow**:
-   - Local `.typ` templates are **stateless, parameterized functions** (`mold.typ`) used to render PDF/XLSX artifacts (molds are NEVER the definitive audit truth). Each mold is a pure function that defines procedural prose and layout with zero hardcoded instance data, accepting instance parameters strictly via `#let` data dictionaries.
+3. **Typst Molds (`molds/`) & Filled Typst Sources (`corpus_g4_src/`) — Parameterized Functions & Copy-Then-Fill Flow**:
+   - Local `.typ` templates in `molds/` are **stateless, parameterized functions** (`mold.typ`) used to render PDF/XLSX artifacts (molds are NEVER the definitive audit truth; `molds/` holds ONLY data-free parameterized templates). Each mold is a pure function that defines procedural prose and layout with zero hardcoded instance data, accepting instance parameters strictly via `#let` data dictionaries.
+   - All filled Typst sources (version callers with UNSA instance data) reside in `corpus_g4_src/<category>/G4-XXX-v<n>.typ`.
    - **Mandatory Copy-Then-Fill Discipline (Never Mutate Molds In Place for Instance Data)**:
      - For any instance work (creating new documents, updating versions, or cascading institutional facts):
-       1. Locate `mold.typ` and the latest version caller in `molds/<category>/`.
-       2. Copy `mold.typ` and the latest version caller to an isolated staging directory (e.g. `/tmp/pims-staging/<code>-v<n>/`).
+       1. Locate `mold.typ` in `molds/<category>/` and the latest version caller in `corpus_g4_src/<category>/`.
+       2. Copy `mold.typ` from `molds/<category>/` and the latest version caller from `corpus_g4_src/<category>/` to an isolated staging directory (e.g. `/tmp/pims-staging/<code>-v<n>/`).
        3. Write a NEW thin version caller (`G4-XXX-v<n>.typ`, ~30 lines) in staging passing an updated data dictionary (or extend the data dictionary) to the parameterized mold function (`#import "mold.typ": mold`).
        4. Render the compiled artifact (PDF via `typst compile` or XLSX via Bun script) directly from staging.
        5. Store the output in `corpus_mirror/<doc_id>/v<n>.<ext>` and re-index into `pimsai-db` (`chunks` + `pims_registry`).
@@ -130,10 +132,10 @@ You can also answer general PIMS questions (scope, policy, objectives, document 
     - **Static Files / Exports / Reports**: Use `POST http://pimsai-files-sidecar:3000/api/publish` to share any generated HTML, PDF, XLSX, Markdown, or file with the user at `https://files.pimsai.mistercricro8.top:444/p/<slug>` (append `?download=1` for attachment download).
     - **Live Sibling Containers (`docker-proxy:2375`)**: For interactive apps, dashboards, or webhook receivers, spawn a container on network `internal-proxy` with Traefik labels (`traefik.enable=true`, `traefik.docker.network=internal-proxy`, `traefik.http.routers.pimsai-<slug>.rule=Host(\`<slug>.pimsai.mistercricro8.top\`)`, `traefik.http.routers.pimsai-<slug>.entrypoints=https`, `traefik.http.routers.pimsai-<slug>.tls=true`, `traefik.http.routers.pimsai-<slug>.tls.certresolver=cloudflare`, `traefik.http.services.pimsai-<slug>.loadbalancer.server.port=<port>`). Never use reserved slugs (`demo`, `files`, `secrets`). Do **not** bind-mount `/app/...` directly with `-v` (the host path differs from `/app`); use `docker create` + `docker cp` + `docker start` (or `-v pimsai_uploads_data:/data:ro`). Always present the public URL with `:444`: `https://<slug>.pimsai.mistercricro8.top:444`.
 
-11. **Parameterized Molds & Copy-Then-Fill Discipline**:
-    - Molds in `molds/` are pure parameterized functions (`mold.typ`) decoupled from version callers (`G4-XXX-v<n>.typ`).
+11. **Parameterized Molds, Filled Sources & Copy-Then-Fill Discipline**:
+    - Molds in `molds/` are pure parameterized functions (`mold.typ`) decoupled from version callers (`G4-XXX-v<n>.typ`) residing in `corpus_g4_src/`.
     - The agent MUST NOT mutate `molds/` in place for instance data.
-    - All document creation, revision, and cascading MUST route through staging copy (`/tmp/pims-staging/<code>-v<n>/`), writing a NEW version caller with an updated data dictionary, rendering from staging, uploading to PIMS, and re-ingesting into `corpus_mirror/` and `pimsai-db`.
+    - All document creation, revision, and cascading MUST route through staging copy (`/tmp/pims-staging/<code>-v<n>/`), pulling `mold.typ` from `molds/<category>/` and the latest version caller from `corpus_g4_src/<category>/`, writing a NEW version caller with an updated data dictionary, rendering from staging, uploading to PIMS, and re-ingesting into `corpus_mirror/` and `pimsai-db`.
     - Mold prose edits are strictly restricted to structural template updates with explicit user approval and mold contract version bumps. Never hand-edit compiled PDFs.
 
 ---

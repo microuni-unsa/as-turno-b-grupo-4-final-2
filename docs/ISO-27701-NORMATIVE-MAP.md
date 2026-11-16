@@ -5,7 +5,7 @@
 > **Estándar de Referencia**: ISO/IEC 27701:2025 (*Information security, cybersecurity and privacy protection — Privacy information management systems — Requirements and guidance*, Segunda edición, 2025-10, 72 páginas).  
 > **Archivo Fuente Oficial**: `docs/ISO 27701-2025_ocr.pdf`.  
 > **Rol Institucional Determinado**: Responsable del Tratamiento de Datos Personales (*PII Controller*, Cl. 4.1).  
-> **Propósito**: Proveer a los desarrolladores de moldes Typst (`molds/`), redactores técnicos y auditores del SGPI de la UNSA la base normativa exhaustiva, validada y con citas textuales página a página del estándar independiente ISO/IEC 27701:2025.
+> **Propósito**: Proveer a los desarrolladores de moldes Typst (`molds/`, `corpus_g4_src/`), redactores técnicos y auditores del SGPI de la UNSA la base normativa exhaustiva, validada y con citas textuales página a página del estándar independiente ISO/IEC 27701:2025.
 
 ---
 

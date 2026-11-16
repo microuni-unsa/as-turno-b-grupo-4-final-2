@@ -22,9 +22,9 @@ Se activa ante instrucciones del usuario para modificar, actualizar o crear una 
    - Descargar la versión vigente actual desde PIMS:
      `pims_adapter.documents.download(doc_id="<pims_doc_id>", target_path="corpus_mirror/<doc_id>/v_current.pdf")`
    - Leer la versión vigente real desde `corpus_mirror/<doc_id>/manifest.json` (para evitar regresiones de versión en singletons).
-   - Localizar en `molds/<category>/`:
+   - Localizar componentes:
      - El molde Typst parametrizado: `molds/<category>/mold.typ` (función pura `mold` que contiene la prosa y diseño con cero datos de instancia hardcodeados).
-     - El último invocador de versión: `molds/<category>/<doc_code>-v<prev>.typ` (archivo delgado con diccionario de datos).
+     - El último invocador de versión: `corpus_g4_src/<category>/<doc_code>-v<prev>.typ` (archivo delgado con diccionario de datos).
      - La ficha RAFA de ingeniería de prompts: `molds/<category>/RAFA.md`.
    - *Axioma de Fuente de Verdad*: Los moldes locales son plantillas de generación; el registro oficial siempre reside en PIMS.
 
@@ -36,8 +36,8 @@ Se activa ante instrucciones del usuario para modificar, actualizar o crear una 
 
 4. **Copia a Staging Aislado (Aislamiento Total de `molds/`)**:
    - Crear el directorio de trabajo temporal para la nueva versión: `/tmp/pims-staging/<doc_code>-v<new_version>/`.
-   - Copiar `mold.typ` y el último invocador de versión hacia el directorio de staging:
-     `cp molds/<category>/mold.typ molds/<category>/<doc_code>-v<prev>.typ /tmp/pims-staging/<doc_code>-v<new_version>/`
+   - Copiar `mold.typ` desde `molds/` y el último invocador de versión desde `corpus_g4_src/` hacia el directorio de staging:
+     `cp molds/<category>/mold.typ corpus_g4_src/<category>/<doc_code>-v<prev>.typ /tmp/pims-staging/<doc_code>-v<new_version>/`
    - **Regla de Prohibición Estricta**: Queda terminantemente prohibido mutar `molds/` en su lugar (in-place) para datos de instancia. NUNCA editar `mold.typ` en su lugar para datos de instancia.
 
 5. **Redacción del Nuevo Invocador con Diccionario de Datos (Copy-Then-Fill)**:

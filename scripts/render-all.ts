@@ -169,7 +169,7 @@ async function main(): Promise<void> {
     fs.mkdirSync(CORPUS_DIR, { recursive: true });
   }
 
-  const callerFiles = findVersionCallers(path.join(REPO_ROOT, "molds"));
+  const callerFiles = findVersionCallers(path.join(REPO_ROOT, "corpus_g4_src"));
   console.log(`[render-all] Invocadores de versión detectados: ${callerFiles.length}`);
 
   let pdfSuccessCount = 0;

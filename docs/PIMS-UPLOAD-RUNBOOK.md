@@ -4,7 +4,7 @@
 > **Entorno Oficial**: `https://unsa.27k.pe`  
 > **Esquema de Inquilino (Tenant)**: `unsa`  
 > **Aislamiento Multi-inquilino**: Prefijo obligatorio `G4-` (prohibición terminante de mutar o consultar registros de otros grupos).  
-> **Axioma de Verdad**: Los archivos locales `.typ`, `.ts` y `corpus_mirror/` son moldes y artefactos temporales; el registro vinculante de auditoría de certificación reside exclusivamente en GESTITEL PIMS.
+> **Axioma de Verdad**: Los archivos locales `.typ` (`molds/`, `corpus_g4_src/`), `.ts` y `corpus_mirror/` son moldes y artefactos temporales; el registro vinculante de auditoría de certificación reside exclusivamente en GESTITEL PIMS.
 
 ---
 
@@ -112,8 +112,8 @@ En estricto cumplimiento de la Cláusula 7.5.3 de ISO/IEC 27701:2025 y la Guía 
 ### 3.2. Procedimiento ante Erratas o Desviaciones Técnicas
 - **Regla Fundamental**: Toda errata material (tipográfica, formal o de contenido) detectada con posterioridad a la carga en vivo se subsana mediante la emisión de una **nueva versión menor** (ej. `v3.1`).
 - **Flujo de Corrección**:
-  1. Corregir el molde Typst local.
-  2. Incrementar la versión semántica en el invocador (ej. `3.1`).
+  1. Corregir el molde Typst local en `molds/` (si es estructural) o el invocador de versión en `corpus_g4_src/` (si es de datos de instancia).
+  2. Incrementar la versión semántica en el invocador en `corpus_g4_src/` (ej. `3.1`).
   3. Recompilar con `bun scripts/render-all.ts`.
   4. Cargar la nueva versión vía `POST /api/documents/{id}/versions/` especificando en `change_summary`:
      ```

@@ -40,7 +40,7 @@ Todo documento generado a partir de estos moldes DEBE cumplir estrictamente con 
     [firma]
     ```
 14. **Cero marcadores de posición sin resolver**: Prohibición terminante de marcadores o corchetes pendientes (`completar`, `TODO`, `insertar fecha`, `[cargo]`, `[nombre]`). Toda variable debe estar completamente poblada con datos institucionales sintéticos y coherentes de la UNSA.
-15. **Regla de invocadores de versión desacoplados (`version-caller rule`)**: Desacoplamiento arquitectónico absoluto entre la prosa del procedimiento y los datos de instancia de cada versión: cada carpeta contiene un único `mold.typ` parametrizado y llamadas delgadas `G4-XXX-v1.typ`, `G4-XXX-v2.typ`, `G4-XXX-v3.typ` de aproximadamente 30 líneas.
+15. **Regla de invocadores de versión desacoplados (`version-caller rule`)**: Desacoplamiento arquitectónico absoluto entre la prosa del procedimiento y los datos de instancia de cada versión: `molds/` contiene ÚNICAMENTE plantillas parametrizadas (`mold*.typ`), mientras que cada invocador de versión con datos de instancia de la UNSA (`G4-XXX-v1.typ`, `G4-XXX-v2.typ`, `G4-XXX-v3.typ`, ~30 líneas) reside en `corpus_g4_src/<carpeta>/` e importa el molde vía `#import "../../molds/<carpeta>/mold*.typ"`.
 
 ---
 
@@ -48,11 +48,14 @@ Todo documento generado a partir de estos moldes DEBE cumplir estrictamente con 
 
 Todo desarrollador y trabajador de moldes (downstream mold worker) debe acatar las siguientes especificaciones técnicas y arquitectónicas:
 
-### 2.1. Arquitectura de Carpeta Documental (`mold.typ` + Invocadores Delgados)
-- Cada carpeta documental contiene obligatoriamente:
-  - `mold.typ`: **UN SOLO** archivo y función Typst parametrizada que contiene **TODA la prosa, redacción técnica, tablas y diagramas**, con **CERO datos de instancia UNSA hardcodeados**. Recibe los datos mediante parámetros y diccionarios `#let`.
-  - Invocadores de versión (`G4-XXX-v1.typ`, `G4-XXX-v2.typ`, `G4-XXX-v3.typ`): archivos ultraligeros de aproximadamente 30 líneas. Su única función es importar el molde (`#import "mold.typ": mold`), definir el diccionario de datos institucional correspondiente a esa versión (`v1.0`, `v2.0` o `v3.0`), pasar los datos y ejecutar el show-rule.
+### 2.1. Arquitectura Desacoplada (`molds/` Plantillas vs `corpus_g4_src/` Invocadores)
+- **`molds/<carpeta>/` (Plantillas Parametrizadas — Molds Only)**:
+  - Contiene obligatoriamente `mold.typ` (o `mold-*.typ`): **UN SOLO** archivo y función Typst parametrizada que contiene **TODA la prosa, redacción técnica, tablas y diagramas**, con **CERO datos de instancia UNSA hardcodeados**. Recibe los datos mediante parámetros y diccionarios `#let`.
   - `RAFA.md`: Registro de ingeniería de prompts de la carpeta.
+  - Scripts generadores (ej. `generate*.ts` en `incident-register/` e `incident-risks/`).
+  - **`molds/` mantiene ÚNICAMENTE plantillas parametrizadas sin datos de instancia**.
+- **`corpus_g4_src/<carpeta>/` (Fuentes Rellenadas / Invocadores de Versión)**:
+  - Invocadores de versión (`G4-XXX-v1.typ`, `G4-XXX-v2.typ`, `G4-XXX-v3.typ`): archivos ultraligeros de aproximadamente 30 líneas. Su única función es importar el molde relativo (`#import "../../molds/<carpeta>/mold.typ": mold`), definir el diccionario de datos institucional correspondiente a esa versión (`v1.0`, `v2.0` o `v3.0`), pasar los datos y ejecutar el show-rule.
 
 ### 2.2. Importación Centralizada y Prohibición de Duplicados
 - **Ruta de Importación Única**: Todos los moldes e invocadores deben importar el template centralizado mediante ruta relativa:
@@ -128,7 +131,10 @@ Los auditores de certificación de Fase 1 interrogan el sistema de gestión sigu
 
 ---
 
-## 6. Mapa de Directorios de Moldes
+## 6. Mapa de Directorios (Distribución Arquitectónica)
+
+### 6.1. `molds/` — Plantillas Parametrizadas (Templates Only)
+`molds/` alberga exclusivamente plantillas parametrizadas sin datos institucionales hardcodeados, fichas RAFA y scripts generadores:
 
 ```
 molds/
@@ -136,17 +142,37 @@ molds/
 ├── common/
 │   └── template.typ                   # Motor y diseño institucional UNSA en Typst 0.15 (15 elementos)
 ├── university-facts -> ../university-facts # Enlace simbólico a la base de hechos institucionales
-├── scope/                             # Cl. 4.3/4.4 Alcance (Admisión + Planilla) v1/v2/v3
-├── policy/                            # Cl. 5.2 Política de Privacidad (1-pager)
-├── incident-risks/                    # Cl. 6.1.2/6.1.3 Riesgos de Incidentes y Tratamiento v1/v2/v3
-├── soa/                               # Cl. 6.1.3e Declaración de Aplicabilidad (SoA) v1/v2/v3
-├── objectives/                        # Cl. 6.2 Objetivos de Privacidad y Métricas
-├── document-control/                  # Cl. 7.5 Control de Información Documentada
-├── incident-training/                 # Cl. 7.2/7.3/A.3.17 Capacitación y Evaluación v1/v2/v3
-├── incident-response-procedure/       # Cl. 8.1/A.3.11/A.3.12 Procedimiento de Incidentes v1/v2/v3
-├── incident-register/                 # Cl. 8.1/B.3.12 Registro y generador XLSX Bun (generate.ts)
-├── audit-programme/                   # Cl. 9.2 Programa e Informe de Auditoría Interna
-├── management-review/                 # Cl. 9.3 Acta de Revisión por la Dirección
-├── nc-corrective-actions/             # Cl. 10.2 Cadena Hallazgo->NC->Acción Correctiva v1/v2/v3
-└── document-index/                    # Auditor's Map (Índice Maestro de Auditoría Fase 1)
+├── scope/                             # mold.typ, RAFA.md
+├── policy/                            # mold.typ, RAFA.md
+├── incident-risks/                    # mold.typ, RAFA.md, generate-assessment.ts, generate-treatment.ts
+├── soa/                               # mold.typ, RAFA.md
+├── objectives/                        # mold.typ, RAFA.md
+├── document-control/                  # mold.typ, RAFA.md
+├── incident-training/                 # mold-cap.typ, mold-reg-cap.typ, RAFA.md
+├── incident-response-procedure/       # mold.typ, RAFA.md
+├── incident-register/                 # mold.typ, RAFA.md, generate.ts
+├── audit-programme/                   # mold-prg.typ, mold-rep.typ, RAFA.md
+├── management-review/                 # mold.typ, RAFA.md
+├── nc-corrective-actions/             # mold-prc-capa.typ, mold-reg-capa.typ, RAFA.md
+└── document-index/                    # mold.typ, RAFA.md
+```
+
+### 6.2. `corpus_g4_src/` — Fuentes Rellenadas (Filled Typst Sources)
+`corpus_g4_src/` contiene los 54 invocadores de versión delgados que portan los datos institucionales concretos de la UNSA (v1.0, v2.0, v3.0) e importan sus moldes correspondientes desde `../../molds/<carpeta>/`:
+
+```
+corpus_g4_src/
+├── scope/                             # G4-ALC-01-v1.typ, v2.typ, v3.typ
+├── policy/                            # G4-POL-01-v1.typ, v2.typ, v3.typ
+├── incident-risks/                    # G4-RSK-INC-01-v1..v3, G4-MET-RSK-01-v1..v3, G4-PLN-RSK-01-v1..v3
+├── soa/                               # G4-SOA-01-v1.typ, v2.typ, v3.typ
+├── objectives/                        # G4-OBJ-01-v1.typ, v2.typ, v3.typ
+├── document-control/                  # G4-PRC-DOC-01-v1.typ, v2.typ, v3.typ
+├── incident-training/                 # G4-CAP-INC-01-v1..v3, G4-REG-CAP-01-v1..v3
+├── incident-response-procedure/       # G4-PRC-INC-01-v1.typ, v2.typ, v3.typ
+├── incident-register/                 # G4-REG-INC-01-v1.typ, v2.typ, v3.typ
+├── audit-programme/                   # G4-PRG-AUD-01-v1..v3, G4-REP-AUD-01-v1..v3
+├── management-review/                 # G4-ACT-REV-01-v1.typ, v2.typ, v3.typ
+├── nc-corrective-actions/             # G4-PRC-CAPA-01-v1..v3, G4-REG-CAPA-01-v1..v3
+└── document-index/                    # G4-IDX-01-v1.typ, v2.typ, v3.typ
 ```

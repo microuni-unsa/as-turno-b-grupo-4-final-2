@@ -32,7 +32,7 @@ Se activa ante cambios normativos, institucionales, organizacionales o de infrae
 3. **Escaneo de Impacto Transversal**:
    - Ejecutar un análisis de tres vías:
      a) Búsqueda en registro PIMS: `pims_registry.search(keywords=["filial", "pedregal", "sedes"])`.
-     b) Búsqueda de literales y parámetros en invocadores de versión y moldes locales: `grep -rn -i "sede central\|filiales" molds/`.
+     b) Búsqueda de literales y parámetros en invocadores de versión y moldes locales: `grep -rn -i "sede central\|filiales" corpus_g4_src/ molds/`.
      c) Búsqueda semántica en réplica vectorial: `rag_mirror.query("filiales sedes descentralizadas alcance geográfico")`.
    - Identificar candidatos a modificación y documentos no afectados.
 
@@ -44,9 +44,9 @@ Se activa ante cambios normativos, institucionales, organizacionales o de infrae
 
 5. **Ejecución de Versionado por Documento (Flujo Copy-Then-Fill)**:
    - Tras recibir la aprobación explícita del usuario, ejecutar el protocolo copy-then-fill de `directed-version` para cada documento del lote aprobado:
-     a) **Localizar molde e invocador**: Ubicar el archivo de molde parametrizado `molds/<category>/mold.typ`, el último invocador de versión `molds/<category>/<doc_code>-v<prev>.typ` y la ficha RAFA (`molds/<category>/RAFA.md`). Leer la versión vigente real desde `corpus_mirror/<doc_id>/manifest.json` (para evitar regresiones de versión en singletons).
-     b) **Copia a Staging**: Copiar `mold.typ` y el invocador vigente a un directorio de trabajo aislado: `/tmp/pims-staging/<doc_code>-v<new_version>/`.
-        - **Prohibición Estricta**: Queda terminantemente prohibido mutar `molds/` en su lugar (in-place) para datos de instancia. NUNCA editar la prosa de `mold.typ` para hechos de instancia.
+     a) **Localizar molde e invocador**: Ubicar el archivo de molde parametrizado `molds/<category>/mold.typ`, el último invocador de versión `corpus_g4_src/<category>/<doc_code>-v<prev>.typ` y la ficha RAFA (`molds/<category>/RAFA.md`). Leer la versión vigente real desde `corpus_mirror/<doc_id>/manifest.json` (para evitar regresiones de versión en singletons).
+     b) **Copia a Staging**: Copiar `mold.typ` desde `molds/` y el invocador vigente desde `corpus_g4_src/` a un directorio de trabajo aislado: `cp molds/<category>/mold.typ corpus_g4_src/<category>/<doc_code>-v<prev>.typ /tmp/pims-staging/<doc_code>-v<new_version>/`.
+        - **Prohibición Estricta**: Queda terminantemente prohibido mutar `molds/` en su lugar (in-place) para datos de instancia (`molds/` contiene solo plantillas; los invocadores residen en `corpus_g4_src/`). NUNCA editar la prosa de `mold.typ` para hechos de instancia.
      c) **Redacción del nuevo invocador con Diccionario de Datos**: Escribir un NUEVO invocador delgado `G4-XXX-v<new_version>.typ` (~30 líneas) en staging que importe `mold.typ` (`#import "mold.typ": mold`) y defina el diccionario de datos institucional `#let data = (...)`, incorporando el impacto del hecho universitario (sedes, filiales, autoridades, alcance o procesos) y agregando la nueva fila obligatoria en el historial de revisiones con su `change_summary` estructurado.
      d) **Compilación y Renderizado Determinista**: Compilar reproduciblemente desde staging:
         - Para Typst: `typst compile --root . /tmp/pims-staging/<doc_code>-v<new_version>/<doc_code>-v<new_version>.typ /tmp/pims-staging/<doc_code>-v<new_version>/<doc_code>_v<new_version>.pdf`.

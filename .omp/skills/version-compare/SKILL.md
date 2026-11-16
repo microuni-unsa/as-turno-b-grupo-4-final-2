@@ -37,7 +37,7 @@ Se activa ante solicitudes que demanden contrastar versiones de documentos, iden
 
 5. **Extracción y Narración de Racionales (Historial + RAFA)**:
    - Extraer el campo `change_summary` y la tabla de control de cambios del documento en PIMS (`approved_by`, `approved_at`, `why`).
-   - Consultar el registro de prompts RAFA (Rol, Alcance, Formato, Ámbito) en `molds/<category>/RAFA.md` y contrastar los diccionarios de datos de los invocadores de versión (`G4-XXX-v<v_A>.typ` vs `G4-XXX-v<v_B>.typ`) que alimentan el molde parametrizado `mold.typ`.
+   - Consultar el registro de prompts RAFA (Rol, Alcance, Formato, Ámbito) en `molds/<category>/RAFA.md` y contrastar los diccionarios de datos de los invocadores de versión (`corpus_g4_src/<category>/G4-XXX-v<v_A>.typ` vs `G4-XXX-v<v_B>.typ`) que alimentan el molde parametrizado `mold.typ` de `molds/<category>/`.
    - Sintetizar la narrativa contextual:
      - v1 (2019): Certificación inicial.
      - v2 (2022): Reducción de alcance post-pandemia.

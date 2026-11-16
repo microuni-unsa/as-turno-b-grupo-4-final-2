@@ -14,21 +14,21 @@ interface SeedDoc {
 }
 
 const BASELINE_DOCS: readonly SeedDoc[] = [
-  { code: "G4-ALC-01", version: "3.0", moldPath: "molds/scope/G4-ALC-01-v3.typ" },
-  { code: "G4-POL-01", version: "3.0", moldPath: "molds/policy/G4-POL-01.typ" },
-  { code: "G4-RSK-INC-01", version: "3.0", moldPath: "molds/incident-risks/G4-RSK-INC-01-v3.typ" },
-  { code: "G4-SOA-01", version: "3.0", moldPath: "molds/soa/G4-SOA-01-v3.typ" },
-  { code: "G4-OBJ-01", version: "3.0", moldPath: "molds/objectives/G4-OBJ-01.typ" },
-  { code: "G4-PRC-DOC-01", version: "3.0", moldPath: "molds/document-control/G4-PRC-DOC-01.typ" },
-  { code: "G4-CAP-INC-01", version: "3.0", moldPath: "molds/incident-training/G4-CAP-INC-01-v3.typ" },
-  { code: "G4-REG-CAP-01", version: "3.0", moldPath: "molds/incident-training/G4-REG-CAP-01-v3.typ" },
-  { code: "G4-PRC-INC-01", version: "3.0", moldPath: "molds/incident-response-procedure/G4-PRC-INC-01-v3.typ" },
-  { code: "G4-REG-INC-01", version: "3.0", moldPath: "molds/incident-register/G4-REG-INC-01-v3.typ" },
-  { code: "G4-PRG-AUD-01", version: "3.0", moldPath: "molds/audit-programme/G4-PRG-AUD-01.typ" },
-  { code: "G4-REP-AUD-01", version: "3.0", moldPath: "molds/audit-programme/G4-REP-AUD-01.typ" },
-  { code: "G4-ACT-REV-01", version: "3.0", moldPath: "molds/management-review/G4-ACT-REV-01.typ" },
-  { code: "G4-REG-CAPA-01", version: "3.0", moldPath: "molds/nc-corrective-actions/G4-REG-CAPA-01-v3.typ" },
-  { code: "G4-IDX-01", version: "3.0", moldPath: "molds/document-index/G4-IDX-01.typ" },
+  { code: "G4-ALC-01", version: "3.0", moldPath: "corpus_g4_src/scope/G4-ALC-01-v3.typ" },
+  { code: "G4-POL-01", version: "3.0", moldPath: "corpus_g4_src/policy/G4-POL-01-v3.typ" },
+  { code: "G4-RSK-INC-01", version: "3.0", moldPath: "corpus_g4_src/incident-risks/G4-RSK-INC-01-v3.typ" },
+  { code: "G4-SOA-01", version: "3.0", moldPath: "corpus_g4_src/soa/G4-SOA-01-v3.typ" },
+  { code: "G4-OBJ-01", version: "3.0", moldPath: "corpus_g4_src/objectives/G4-OBJ-01-v3.typ" },
+  { code: "G4-PRC-DOC-01", version: "3.0", moldPath: "corpus_g4_src/document-control/G4-PRC-DOC-01-v3.typ" },
+  { code: "G4-CAP-INC-01", version: "3.0", moldPath: "corpus_g4_src/incident-training/G4-CAP-INC-01-v3.typ" },
+  { code: "G4-REG-CAP-01", version: "3.0", moldPath: "corpus_g4_src/incident-training/G4-REG-CAP-01-v3.typ" },
+  { code: "G4-PRC-INC-01", version: "3.0", moldPath: "corpus_g4_src/incident-response-procedure/G4-PRC-INC-01-v3.typ" },
+  { code: "G4-REG-INC-01", version: "3.0", moldPath: "corpus_g4_src/incident-register/G4-REG-INC-01-v3.typ" },
+  { code: "G4-PRG-AUD-01", version: "3.0", moldPath: "corpus_g4_src/audit-programme/G4-PRG-AUD-01-v3.typ" },
+  { code: "G4-REP-AUD-01", version: "3.0", moldPath: "corpus_g4_src/audit-programme/G4-REP-AUD-01-v3.typ" },
+  { code: "G4-ACT-REV-01", version: "3.0", moldPath: "corpus_g4_src/management-review/G4-ACT-REV-01-v3.typ" },
+  { code: "G4-REG-CAPA-01", version: "3.0", moldPath: "corpus_g4_src/nc-corrective-actions/G4-REG-CAPA-01-v3.typ" },
+  { code: "G4-IDX-01", version: "3.0", moldPath: "corpus_g4_src/document-index/G4-IDX-01-v3.typ" },
 ];
 
 /**
