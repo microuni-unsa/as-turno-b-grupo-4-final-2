@@ -1,6 +1,6 @@
-#import "template.typ": doc-template, status-tag, rag-tag, callout
+#import "mold.typ": mold
 
-#show: doc-template.with(
+#let data = (
   title: "Determinación del Alcance del SGPI",
   code: "G4-ALC-01",
   version: "2.0",
@@ -34,31 +34,36 @@
       author: "Ing. Carlos M. Benítez",
       summary: "Actualización post-pandemia: Reducción del perímetro físico activo, migración digital a portal web (admision.unsa.edu.pe), teletrabajo y exclusión de archivos físicos históricos."
     ),
+  ),
+  purpose: [Conforme a las Cláusulas 4.3 y 4.4 de la norma ISO/IEC 27701:2025, el presente documento actualiza los límites operativos del SGPI de la UNSA tras la aceleración digital post-pandemia, concentrando los esfuerzos de control en los flujos telemáticos y reduciendo la exposición de activos físicos.],
+  role_determination: [La UNSA ratifica su función como *Responsable del Tratamiento de Datos Personales (PII Controller)*, determinando la finalidad y condiciones del tratamiento en sus canales digitales.],
+  admission_process: (
+    title: "Admisión Virtual de Pregrado",
+    description: [Comprende la inscripción en línea mediante la plataforma institucional `admision.unsa.edu.pe`, la recepción de documentos académicos digitalizados en formato PDF, la autenticación remota del postulante y la publicación digital de cuadros de méritos.],
+    responsible: "Dirección General de Admisión.",
+    data_treated: "Datos personales, DNI escaneado, certificados digitalizados, fotografías digitales y credenciales de acceso.",
+    key_assets: "Servidores web en clúster virtualizado DUTIC, base de datos PostgreSQL institucional y pasarela de pago digital con el Banco de la Nación."
+  ),
+  payroll_process: (
+    title: "Planilla de Remuneraciones en Teletrabajo",
+    description: [Comprende el procesamiento de haberes, cálculo previsional y emisión de boletas de pago electrónicas firmadas digitalmente mediante trámites en Sisgedo, ejecutado por analistas bajo modalidad mixta y teletrabajo.],
+    responsible: "Subdirección de Personal y Remuneraciones.",
+    data_treated: "Datos remunerativos, bancarios, aportes previsionales y registros de teletrabajo.",
+    key_assets: "Túneles VPN SSL institucionales con MFA y servidor de archivos con cifrado en reposo."
+  ),
+  main_campuses: (
+    (name: "Campus Área de Ingenierías", description: "Infraestructura tecnológica central DUTIC y servidores virtualizados."),
+    (name: "Campus Área de Biomédicas", description: "Oficinas administrativas adaptadas con estaciones seguras."),
+    (name: "Campus Área de Sociales", description: "Pabellones académicos con conectividad lógica restringida.")
+  ),
+  filiales: (),
+  tech_infrastructure: (
+    "Redes lógicas corporativas, clúster virtualizado DUTIC, túneles VPN SSL con MFA y estaciones móviles autorizadas.",
+  ),
+  exclusions: (
+    "Archivos Físicos Históricos: Se formaliza la exclusión de los legajos de papel pasivos anteriores al año 2020 resguardados en el Archivo Central.",
+    "Procesos de Admisión Extraordinaria Presencial Excepcional fuera de la plataforma web."
   )
 )
 
-= Propósito y Justificación de la Evolución de Alcance
-Conforme a las Cláusulas 4.3 y 4.4 de la norma ISO/IEC 27701:2025, el presente documento actualiza los límites operativos del SGPI de la UNSA tras la aceleración digital post-pandemia, concentrando los esfuerzos de control en los flujos telemáticos y reduciendo la exposición de activos físicos.
-
-= Determinación del Rol Institucional (Cláusula 4.1)
-La UNSA ratifica su función como *Responsable del Tratamiento de Datos Personales (PII Controller)*, determinando la finalidad y condiciones del tratamiento en sus canales digitales.
-
-= Procesos en Alcance (Adaptación Post-Pandemia)
-
-== Proceso Misional: Admisión Virtual de Pregrado
-Comprende la inscripción en línea mediante la plataforma institucional `admision.unsa.edu.pe`, la recepción de documentos académicos digitalizados en formato PDF, la autenticación remota del postulante y la publicación digital de cuadros de méritos.
-- *Responsable:* Dirección General de Admisión.
-- *Activos Clave:* Servidores web en clúster virtualizado DUTIC, base de datos PostgreSQL institucional y pasarela de pago digital con el Banco de la Nación.
-
-== Proceso de Soporte: Planilla de Remuneraciones en Teletrabajo
-Comprende el procesamiento de haberes, cálculo previsional y emisión de boletas de pago electrónicas firmado digitalmente mediante trámites en Sisgedo, ejecutado por analistas bajo modalidad mixta y teletrabajo.
-- *Responsable:* Subdirección de Personal y Remuneraciones.
-- *Activos Clave:* Túneles VPN SSL institucionales con MFA y servidor de archivos con cifrado en reposo.
-
-= Delimitación Territorial y Tecnológica
-- *Sedes Físicas:* Campus Ingenierías (infraestructura tecnológica central DUTIC), Campus Biomédicas y Sociales en Arequipa.
-- *Entorno Lógico:* Redes lógicas corporativas, servicios de nube privada híbrida y estaciones portátiles institucionales autorizadas.
-
-= Exclusiones Justificadas
-1. *Archivos Físicos Históricos:* Se formaliza la *exclusión de los legajos de papel pasivos* anteriores al año 2020 resguardados en el Archivo Central, por encontrarse en custodia estática sin tratamiento activo y con acceso restringido bajo inventario notarial.
-2. *Procesos de Admisión Extraordinaria Presencial Excepcional:* Procesos no sistematizados fuera de la plataforma web.
+#mold(data: data)
