@@ -1,65 +1,116 @@
-#import "template.typ": doc-template, status-tag, rag-tag, callout
+// Invocador de versión v1.0 para G4-CAP-INC-01 (Plan y Módulo Formativo de Incidentes)
+// SGPI UNSA — Certificación inicial ISO/IEC 27701:2019 (15 de abril de 2019)
 
-#show: doc-template.with(
-  title: "Módulo Formativo: Respuesta a Incidentes de Privacidad",
-  code: "G4-CAP-INC-01",
-  version: "1.0",
-  date: "2019-04-15",
-  confidentiality: "CONFIDENCIAL - USO INTERNO UNSA",
-  author: (
-    name: "Ing. Carlos M. Benítez",
-    role: "Oficial de Seguridad de la Información (OSI / DPO)",
-    date: "2019-04-10"
-  ),
-  reviewer: (
-    name: "Mg. Lucía Valdivia Paredes",
-    role: "Directora Universitaria de TIC (DUTIC)",
-    date: "2019-04-12"
-  ),
-  approver: (
-    name: "Dr. Rohel Sánchez Sánchez",
-    role: "Rector - Presidente del Comité SGPI",
-    date: "2019-04-15"
-  ),
-  history: (
-    (
-      version: "1.0",
-      date: "2019-04-15",
-      author: "Ing. Carlos M. Benítez",
-      summary: "Emisión inicial del módulo formativo para el personal de Admisión y Planillas en sedes centrales Arequipa (certificación ISO/IEC 27701:2019)."
+#import "mold-cap.typ": mold-cap
+
+#show: mold-cap.with(
+  metadata: (
+    title: "Plan y Módulo Formativo: Respuesta a Incidentes de Privacidad",
+    code: "G4-CAP-INC-01",
+    version: "1.0",
+    date: "2019-04-15",
+    confidentiality: "CONFIDENCIAL - USO INTERNO UNSA",
+    author: (
+      name: "Ing. Carlos M. Benítez",
+      role: "Oficial de Seguridad de la Información (OSI / DPO)",
+      date: "2019-04-10"
     ),
+    reviewer: (
+      name: "Mg. Lucía Valdivia Paredes",
+      role: "Directora Universitaria de TIC (DUTIC)",
+      date: "2019-04-12"
+    ),
+    approver: (
+      name: "Dr. Rohel Sánchez Sánchez",
+      role: "Rector - Presidente del Comité SGPI",
+      date: "2019-04-15"
+    ),
+    history: (
+      (
+        version: "1.0",
+        date: "2019-04-15",
+        author: "Ing. Carlos M. Benítez",
+        summary: "Emisión inicial del módulo formativo para el personal de Admisión y Planillas en sedes centrales Arequipa (certificación ISO/IEC 27701:2019)."
+      ),
+    ),
+    validity: "2020-04-15",
+    owner-role: "Oficial de Seguridad de la Información (OSI / DPO)"
+  ),
+  references: (
+    "Norma Internacional ISO/IEC 27701:2025, Cláusula 7.2 (Competencia) y 7.3 (Toma de conciencia).",
+    "Norma Internacional ISO/IEC 27701:2025, Control A.3.17 y Guía B.3.17 (Capacitación y toma de conciencia en privacidad).",
+    "Ley N° 29733 de Protección de Datos Personales del Perú.",
+    "Política de Privacidad de la Información (G4-POL-01).",
+    "Procedimiento de Respuesta a Incidentes de Privacidad (G4-PRC-INC-01)."
+  ),
+  intro-text: [
+    Este plan se aplica al personal operativo de los procesos presenciales de Admisión Ordinaria y Planilla de Remuneraciones en las Sedes Centrales de la UNSA en Arequipa (Campus Ingenierías, Biomédicas y Sociales).
+  ],
+  competence-rows: (
+    (
+      role: "Vocal de Pabellón de Admisión",
+      required-knowledge: "Identificación de PII física en padrones de examen y custodia de listas impresas.",
+      training-needed: "Módulo Presencial de Incidentes G4-CAP-INC-01 (8h).",
+      evidence-record: "G4-REG-CAP-01-v1",
+      achieved: "APROBADO",
+      skills-gained: "Contención inmediata y entrega de material sobrante a trituración."
+    ),
+    (
+      role: "Operador de Planillas de Personal",
+      required-knowledge: "Manejo seguro de archivos de haberes y prevención de envíos erróneos de correo.",
+      training-needed: "Módulo Presencial de Incidentes G4-CAP-INC-01 (8h).",
+      evidence-record: "G4-REG-CAP-01-v1",
+      achieved: "APROBADO",
+      skills-gained: "Uso de tokens seguros y verificación de destinatarios DLP."
+    ),
+    (
+      role: "Administrador de BD DUTIC",
+      required-knowledge: "Detección de anomalías en tablas de PII y reporte forense bajo Guía B.3.12.",
+      training-needed: "Taller Técnico Especializado CSIRT (8h).",
+      evidence-record: "G4-REG-CAP-01-v1",
+      achieved: "APROBADO",
+      skills-gained: "Aislamiento de bases de datos y preservación de bitácoras."
+    )
+  ),
+  calendar-data: (
+    (method: "Día informativo de privacidad", m1: "", m2: "", m3: "", m4: "X", m5: "", m6: "", m7: "", m8: "", m9: "", m10: "", m11: "", m12: ""),
+    (method: "Capacitación inicial obligatoria", m1: "", m2: "", m3: "", m4: "X", m5: "", m6: "", m7: "", m8: "", m9: "", m10: "", m11: "", m12: ""),
+    (method: "Artículos en boletín institucional", m1: "", m2: "", m3: "X", m4: "", m5: "", m6: "X", m7: "", m8: "", m9: "X", m10: "", m11: "", m12: "X"),
+    (method: "Reuniones de coordinación de área", m1: "", m2: "X", m3: "", m4: "", m5: "X", m6: "", m7: "", m8: "X", m9: "", m10: "", m11: "X", m12: ""),
+    (method: "Talleres prácticos de simulación", m1: "", m2: "", m3: "", m4: "X", m5: "", m6: "", m7: "", m8: "", m9: "", m10: "X", m11: "", m12: "")
+  ),
+  responsibilities: (
+    coordinator: "Oficial de Seguridad de la Información (Ing. Carlos M. Benítez)",
+    registrar: "Subdirectora de Personal / Recursos Humanos (Lic. Martha Elena Córdova)",
+    evaluator: "Oficial de Seguridad de la Información (Ing. Carlos M. Benítez)",
+    custodian: "Oficial de Seguridad de la Información (Ing. Carlos M. Benítez)",
+    archive-location: "repositorio institucional del SGPI y bóveda DUTIC",
+    retention: "3 años"
+  ),
+  module-sessions: (
+    (
+      session-num: "Sesión 1",
+      topic: "Identificación de Eventos y Brechas PII",
+      content: "Diferenciación entre evento operativo e incidente con compromiso de datos personales según Guía B.3.12. Reconocimiento de PII en padrones impresos de admisión.",
+      hours: "2 horas"
+    ),
+    (
+      session-num: "Sesión 2",
+      topic: "Protocolos de Contención Inmediata",
+      content: "Medidas de aislamiento físico, trituración inmediata de borradores y revocación de accesos en red local. Reporte de los primeros 60 minutos al DPO.",
+      hours: "2 horas"
+    ),
+    (
+      session-num: "Sesión 3",
+      topic: "Diligenciamiento de Registros Oficiales",
+      content: "Llenado práctico de la bitácora de incidentes G4-REG-INC-01 y formulación de causa raíz para acciones correctivas G4-REG-CAPA-01.",
+      hours: "2 horas"
+    ),
+    (
+      session-num: "Sesión 4",
+      topic: "Simulacro y Evaluación de Competencias",
+      content: "Ejercicio práctico presencial de extravío simulado de listado de postulantes y aplicación de la evaluación escrita individual post-test.",
+      hours: "2 horas"
+    )
   )
 )
-
-= Justificación y Marco Normativo
-El desarrollo de competencias en privacidad constituye un pilar indispensable para la eficacia del Sistema de Gestión de Privacidad de la Información (SGPI) de la UNSA. Conforme a las Cláusulas 7.2 (Competencia), 7.3 (Toma de conciencia) y el Control A.3.17 de la norma ISO/IEC 27701:2025, la organización debe asegurar que el personal que opera con datos personales reciba capacitación específica orientada a prevenir y responder ante incidentes de privacidad.
-
-= Arquitectura Curricular de la Academia de Privacidad UNSA
-El plan institucional de capacitación se articula en cuatro pistas formativas complementarias:
-1. *Pista 1: Sensibilización General en Privacidad (8 horas)*: Dirigida a toda la comunidad universitaria sobre derechos ARCO, confidencialidad y principios rectores de la Ley 29733.
-2. *Pista 2: Interpretación de la Norma ISO/IEC 27701 (8 horas)*: Análisis de las cláusulas de alto nivel, política, contexto y responsabilidades del Responsable del Tratamiento (PII Controller).
-3. *Pista 3: Implementadores y Gestión Operativa de Formatos (16 horas)*: Capacitación técnica enfocada en el diligenciamiento riguroso de registros diarios, donde se inserta de forma prioritaria el presente *Módulo Profundo de Respuesta a Incidentes de Privacidad (8 horas)*.
-4. *Pista 4: Auditores Internos de Privacidad (16 horas)*: Técnicas de auditoría interna basadas en las directrices de la norma ISO 19011:2026.
-
-= Estructura Curricular del Módulo de Incidentes (Versión 1.0)
-- *Duración total*: 8 horas pedagógicas teórico-prácticas.
-- *Modalidad*: Presencial en el Auditorio del Área de Ingenierías (Campus Central Arequipa).
-- *Público objetivo*: Vocales de pabellón de admisión, analistas de planillas y operadores de mesas de partes.
-
-#table(
-  columns: (50pt, 120pt, 1fr, 60pt),
-  fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
-  stroke: 0.5pt + luma(190),
-  align: (center, left, left, center),
-  table.header([*Sesión*], [*Tema Principal*], [*Contenido Detallado y Práctico*], [*Horas*]),
-  [Sesión 1], [Identificación de Eventos y Brechas PII], [Diferenciación entre evento operativo e incidente con compromiso de datos conforme a Guía B.3.12. Reconocimiento de PII en padrones de admisión.], [2 horas],
-  [Sesión 2], [Protocolos de Contención Inmediata], [Medidas de aislamiento físico, trituración de impresiones erróneas y revocación de accesos en red local. Reporte de los primeros 60 minutos.], [2 horas],
-  [Sesión 3], [Diligenciamiento de Registros], [Llenado práctico del Libro de Incidentes `G4-REG-INC-01` y análisis de causa raíz para acciones correctivas `G4-REG-CAPA-01`.], [2 horas],
-  [Sesión 4], [Simulacro y Evaluación de Competencias], [Ejercicio práctico de simulación de extravío de listado de postulantes y aplicación de evaluación escrita individual post-test.], [2 horas]
-)
-
-= Mecanismo de Evaluación y Medición de Eficacia (Cláusula 7.2)
-Para constatar objetivamente la adquisición de competencias exigida por los auditores del SGPI, se aplica un esquema doble:
-1. *Evaluación Diagnóstica Inicial (Pre-test)*: Cuestionario de entrada de 10 preguntas para medir el nivel de partida.
-2. *Evaluación de Competencia Final (Post-test)*: Cuestionario de salida de 20 preguntas (escala vigesimal 0 a 20).
-- *Criterio de Aprobación*: Nota mínima de 14.0/20 y asistencia al 100% de las sesiones. Los resultados individuales se asientan formalmente en el registro `G4-REG-CAP-01`.

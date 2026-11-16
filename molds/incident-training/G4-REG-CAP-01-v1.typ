@@ -1,65 +1,69 @@
-#import "template.typ": doc-template, status-tag, rag-tag, callout
+// Invocador de versión v1.0 para G4-REG-CAP-01 (Registro de Asistencia y Evaluación)
+// SGPI UNSA — Certificación inicial ISO/IEC 27701:2019 (15 de abril de 2019)
 
-#show: doc-template.with(
-  title: "Registro de Asistencia y Evaluación: Módulo de Incidentes",
-  code: "G4-REG-CAP-01",
-  version: "1.0",
-  date: "2019-04-15",
-  confidentiality: "CONFIDENCIAL - USO INTERNO UNSA",
-  author: (
-    name: "Ing. Carlos M. Benítez",
-    role: "Oficial de Seguridad de la Información (OSI / DPO)",
-    date: "2019-04-10"
-  ),
-  reviewer: (
-    name: "Mg. Lucía Valdivia Paredes",
-    role: "Directora Universitaria de TIC (DUTIC)",
-    date: "2019-04-12"
-  ),
-  approver: (
-    name: "Dr. Rohel Sánchez Sánchez",
-    role: "Rector - Presidente del Comité SGPI",
-    date: "2019-04-15"
-  ),
-  history: (
-    (
-      version: "1.0",
-      date: "2019-04-15",
-      author: "Ing. Carlos M. Benítez",
-      summary: "Emisión inicial de registros de asistencia y evaluación para personal de Admisión y Planillas en sedes centrales Arequipa."
+#import "mold-reg-cap.typ": mold-reg-cap
+
+#show: mold-reg-cap.with(
+  metadata: (
+    title: "Registro de Asistencia y Evaluación: Módulo de Incidentes",
+    code: "G4-REG-CAP-01",
+    version: "1.0",
+    date: "2019-04-15",
+    confidentiality: "CONFIDENCIAL - USO INTERNO UNSA",
+    author: (
+      name: "Ing. Carlos M. Benítez",
+      role: "Oficial de Seguridad de la Información (OSI / DPO)",
+      date: "2019-04-10"
     ),
+    reviewer: (
+      name: "Mg. Lucía Valdivia Paredes",
+      role: "Directora Universitaria de TIC (DUTIC)",
+      date: "2019-04-12"
+    ),
+    approver: (
+      name: "Dr. Rohel Sánchez Sánchez",
+      role: "Rector - Presidente del Comité SGPI",
+      date: "2019-04-15"
+    ),
+    history: (
+      (
+        version: "1.0",
+        date: "2019-04-15",
+        author: "Ing. Carlos M. Benítez",
+        summary: "Emisión inicial de registros de asistencia y evaluación para personal de Admisión y Planillas en sedes centrales Arequipa."
+      ),
+    ),
+    validity: "2020-04-15",
+    owner-role: "Oficial de Seguridad de la Información (OSI / DPO)"
+  ),
+  references: (
+    "Norma Internacional ISO/IEC 27701:2025, Cláusula 7.2 (Competencia).",
+    "Norma Internacional ISO/IEC 27701:2025, Control A.3.17 y Guía B.3.17.",
+    "Plan y Módulo Formativo de Incidentes (G4-CAP-INC-01-v1).",
+    "Procedimiento de Respuesta a Incidentes de Privacidad (G4-PRC-INC-01)."
+  ),
+  course-info: (
+    module-ref: "G4-CAP-INC-01-v1 (Respuesta a Incidentes de Privacidad — Pista 3 Implementadores)",
+    instructor: "Ing. Carlos M. Benítez (Oficial de Seguridad de la Información / DPO)",
+    dates: "22 al 25 de abril de 2019",
+    location: "Presencial — Auditorio de la DUTIC (Campus Ingenierías, Arequipa)",
+    hours: "8 horas pedagógicas teórico-prácticas presenciales"
+  ),
+  table-columns: (50pt, 120pt, 90pt, 50pt, 45pt, 45pt, 55pt),
+  table-headers: ([*DNI*], [*Apellidos y Nombres*], [*Dependencia / Cargo*], [*Asistencia*], [*Pre-Test*], [*Post-Test*], [*Condición*]),
+  attendees: (
+    (dni: "29481920", name: "Cornejo Zegarra, Manuel", role-unit: "Admisión - Vocal Pabellón", attendance: "100% (4/4)", pre-test: "07 / 20", post-test: "17 / 20", status: "APROBADO"),
+    (dni: "41209384", name: "Huamán Quispe, Rosa", role-unit: "Planillas - Asistente", attendance: "100% (4/4)", pre-test: "06 / 20", post-test: "18 / 20", status: "APROBADO"),
+    (dni: "29740112", name: "Pinto Medina, Marco", role-unit: "DUTIC - Administrador BD", attendance: "100% (4/4)", pre-test: "09 / 20", post-test: "19 / 20", status: "APROBADO"),
+    (dni: "40819273", name: "Vilca Carpio, Jorge", role-unit: "Admisión - Operador Registro", attendance: "100% (4/4)", pre-test: "08 / 20", post-test: "16 / 20", status: "APROBADO"),
+    (dni: "29601928", name: "Gutiérrez Ramos, Elena", role-unit: "Planillas - Analista Nómina", attendance: "100% (4/4)", pre-test: "05 / 20", post-test: "17 / 20", status: "APROBADO")
+  ),
+  statistics: (
+    total-evaluated: "5 participantes",
+    pre-average: "07.0 / 20 (Nivel inicial deficiente, acreditando necesidad de formación)",
+    post-average: "17.4 / 20 (Nivel satisfactorio)",
+    delta: "+10.4 puntos de incremento formativo",
+    pass-rate: "100% (todos superaron la nota mínima aprobatoria de 14.0/20)",
+    conclusion: "Se valida formalmente la eficacia del módulo para la prevención de incidentes operacionales y cumplimiento de la Cláusula 7.2."
   )
 )
-
-= Ficha General de la Acción Formativa
-- *Módulo Vinculado*: `G4-CAP-INC-01` (Respuesta a Incidentes de Privacidad — Pista 3 Implementadores).
-- *Instructor*: Ing. Carlos M. Benítez (Oficial de Seguridad de la Información / DPO).
-- *Fechas de Ejecución*: 22 al 25 de abril de 2019 (8 horas presenciales).
-- *Lugar*: Auditorio de la Dirección Universitaria de TIC (Campus Ingenierías, Arequipa).
-
-#callout(title: "EVIDENCIA DE ADQUISICIÓN DE COMPETENCIA (CLÁUSULA 7.2)", color: rgb("#0284c7"))[
-  Conforme a la norma ISO/IEC 27701:2025 Cláusula 7.2, la eficacia de la capacitación se demuestra mediante la comparación cuantitativa entre la evaluación diagnóstica de entrada (Pre-test) y la evaluación final de suficiencia (Post-test), verificando la adquisición efectiva de habilidades prácticas en respuesta a incidentes.
-]
-
-= Registro Individualizado de Asistencia y Calificaciones (Edición 2019 — Sede Central)
-
-#table(
-  columns: (50pt, 120pt, 90pt, 50pt, 45pt, 45pt, 55pt),
-  fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
-  stroke: 0.5pt + luma(190),
-  align: (center, left, left, center, center, center, center),
-  table.header([*DNI*], [*Apellidos y Nombres*], [*Dependencia / Cargo*], [*Asistencia*], [*Pre-Test*], [*Post-Test*], [*Condición*]),
-  
-  [29481920], [Cornejo Zegarra, Manuel], [Admisión - Vocal Pabellón], [100% (4/4)], [07 / 20], [17 / 20], status-tag("APROBADO"),
-  [41209384], [Huamán Quispe, Rosa], [Planillas - Asistente], [100% (4/4)], [06 / 20], [18 / 20], status-tag("APROBADO"),
-  [29740112], [Pinto Medina, Marco], [DUTIC - Administrador BD], [100% (4/4)], [09 / 20], [19 / 20], status-tag("APROBADO"),
-  [40819273], [Vilca Carpio, Jorge], [Admisión - Operador Registro], [100% (4/4)], [08 / 20], [16 / 20], status-tag("APROBADO"),
-  [29601928], [Gutiérrez Ramos, Elena], [Planillas - Analista Nómina], [100% (4/4)], [05 / 20], [17 / 20], status-tag("APROBADO")
-)
-
-= Resumen Estadístico de Eficacia Formativa
-- *Participantes inscritos y evaluados:* 5
-- *Promedio Diagnóstico Inicial (Pre-test):* 07.0 / 20 (Nivel inicial deficiente, acreditando la necesidad formativa).
-- *Promedio de Suficiencia Final (Post-test):* 17.4 / 20 (Incremento de +10.4 puntos).
-- *Tasa de Aprobación Institucional:* 100% (todos los participantes superaron el estándar mínimo de 14.0/20).
-- *Conclusión del Oficial de Seguridad:* Se valida formalmente la eficacia del curso para la prevención de incidentes operacionales.
