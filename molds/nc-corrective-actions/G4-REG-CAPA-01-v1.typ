@@ -5,7 +5,7 @@
 
 #show: mold-reg-capa.with(
   metadata: (
-    title: "Registro de No Conformidades y Acciones Correctivas (CAPA)",
+    title: "Apéndice: Formulario para medidas correctivas",
     code: "G4-REG-CAPA-01",
     version: "1.0",
     date: "2019-04-15",

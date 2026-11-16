@@ -5,7 +5,7 @@
 
 #show: mold-cap.with(
   metadata: (
-    title: "Plan y Módulo Formativo: Respuesta a Incidentes de Privacidad",
+    title: "Plan de capacitación y concienciación",
     code: "G4-CAP-INC-01",
     version: "1.0",
     date: "2019-04-15",
