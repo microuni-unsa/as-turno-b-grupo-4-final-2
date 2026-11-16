@@ -22,8 +22,9 @@ Bienvenido al entorno de operación agéntica del Sistema de Gestión de Informa
    - Vectorización semántica (1024 dimensiones, endpoint compatible con OpenAI configurado mediante `EMBEDDINGS_BASE_URL` y `EMBEDDING_MODEL`) almacenada en PostgreSQL con índice coseno (`<=>`).
    - Citas verbatim con formato: `pims:<doc_id>:v<version>:chunk:<index>:lines:<inicio>-<fin>` y hash SHA-256 por fragmento.
    - **Regla de Cache**: El espejo es estrictamente una cache. Si la API de PIMS no responde, el operador responde desde el espejo etiquetando: `[FUENTE: Cache local pgvector mirror (PIMS no disponible)]`.
-3. **Moldes Typst (`molds/*.typ`)**:
-   - Plantillas declarativas para compilar PDF y XLSX. Los archivos `.typ` locales son moldes, nunca el registro oficial.
+3. **Moldes Parametrizados Typst (`molds/`)**:
+   - Funciones puras y desacopladas (`mold.typ`) para renderizar artefactos PDF y XLSX mediante invocadores delgados de versión (`G4-XXX-v<n>.typ`) con diccionarios de datos. Los archivos locales son moldes, nunca el registro oficial de auditoría.
+   - **Flujo Copy-Then-Fill (Prohibición de Edición en su Lugar)**: Toda creación de documentos o nuevas versiones opera mediante copia a staging (`/tmp/pims-staging/<code>-v<n>/`), redacción de un nuevo invocador pasando el diccionario de datos actualizado, compilación desde staging, almacenamiento en `corpus_mirror/` + `pimsai-db` y carga a PIMS con `change_summary`. NUNCA se edita `mold.typ` en su lugar (in-place) para datos de instancia; las modificaciones de prosa del molde están reservadas exclusivamente a cambios estructurales de la plantilla con aprobación explícita del usuario y versionado del contrato del molde. Queda terminantemente prohibido editar a mano los PDFs renderizados.
 4. **Sidecars de Soporte (`*.pimsai.mistercricro8.top`)**:
    - `demo`: Interfaz web de terminal Zellij.
    - `files`: Servicio de carga temporal de archivos con URL de 1 solo uso (expira en 5 min).
@@ -40,6 +41,8 @@ Bienvenido al entorno de operación agéntica del Sistema de Gestión de Informa
    - Nunca escriba contraseñas o tokens en el chat. Utilice el flujo de sidecar (`secrets.request` / `secrets.poll`) para obtener identificadores opacos (`secret:<nombre>@<v>`).
 4. **Aprobación para Escrituras en Producción**:
    - Mutaciones fuera de documentos, incidentes, auditorías o riesgos requieren confirmación explícita del operador humano.
+5. **Disciplina Copy-Then-Fill en Moldes**:
+   - Toda actualización o nueva versión documental debe realizarse mediante el flujo copy-then-fill en staging. Queda prohibido mutar `molds/` en su lugar (in-place) para datos de instancia o editar a mano PDFs renderizados.
 
 ---
 
@@ -60,5 +63,5 @@ No es necesario invocar comandos especiales para usar las capacidades del operad
 - **Consulta y comparación documental**: Buscar políticas, procedimientos, SoA o actas, y comparar diferencias e historial entre versiones.
 - **Gestión de incidentes y riesgos**: Consultar el registro de incidentes, evaluar severidad/contención y revisar escenarios y planes de tratamiento de riesgos.
 - **Trazabilidad de auditorías**: Seguir la cadena completa desde un hallazgo de auditoría hacia su No Conformidad (NC), acción correctiva, responsables y evidencia documental.
-- **Actualización y generación de documentos**: Solicitar nuevas versiones por cambios de alcance o hechos institucionales, o subir archivos mediante enlaces temporales seguros para su indexación.
+- **Actualización y generación de documentos**: Solicitar nuevas versiones por cambios de alcance o hechos institucionales mediante el flujo desacoplado copy-then-fill (molde parametrizado + invocador con diccionario de datos), o subir archivos mediante enlaces temporales seguros para su indexación.
 - **Notificaciones e integraciones**: Redactar requerimientos de seguimiento (con envío únicamente tras aprobación explícita) y habilitar conectores externos según necesidad.

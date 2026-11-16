@@ -40,7 +40,18 @@ This file contains sticky, non-negotiable operational restrictions and positive 
   2. Route data retrieval to the pgvector mirror cache of last-known PIMS content.
   3. Clearly label the returned information: `[FUENTE: Cache local pgvector mirror (PIMS no disponible)]`.
 
-### 2.4 Document Mutation Routing
-- Modifications to documents must route through a **staging copy** of the Typst mold (`molds/*.typ` → copy to `/tmp/pims-staging/`, edit staging, render PDF/XLSX) and **never** mutate `molds/` in place.
-- Store rendered artifacts and updated metadata in `corpus_mirror/` + `pimsai-db` (`chunks` and `pims_registry`), and submit to PIMS via `POST /api/documents/{id}/versions/` with a concise `change_summary` (or `POST /api/documents/` with `category` ≤ 50 chars for new documents) when authorized.
-- Overwriting existing records is strictly prohibited; all changes must register as a new sequential version.
+### 2.4 Document Mutation Routing (Parameterized Copy-Then-Fill)
+- **Mandatory Copy-Then-Fill Protocol**: All document modifications and version increments MUST route through the copy-then-fill workflow:
+  1. Locate `mold.typ` (the parameterized pure function) and the latest version caller in `molds/<category>/`.
+  2. Copy `mold.typ` and the caller to an isolated staging directory (e.g. `/tmp/pims-staging/<code>-v<n>/`).
+  3. Write a NEW thin version caller (`G4-XXX-v<n>.typ`) in staging that imports `mold.typ` and passes the updated instance data dictionary (or extends existing data parameters).
+  4. Render the compiled artifact (PDF via `typst compile` or XLSX via `bun run generate.ts`) strictly from staging.
+  5. Store the rendered artifact in `corpus_mirror/<doc_id>/v<n>.<ext>` and re-index into `pimsai-db` (`chunks` + `pims_registry`).
+  6. Submit to PIMS via `POST /api/documents/{id}/versions/` with a structured `change_summary` (or `POST /api/documents/` with `category` ≤ 50 chars for initial creation) when authorized.
+  7. Re-ingest into `pgvector` with SHA-256 chunk hashing and generate diff/cascade reports.
+- **Hard Restrictions on Mold Mutation**:
+  - The operator **MUST copy-then-fill** for all document updates and new versions.
+  - The operator **MUST NOT mutate `molds/` in place for instance data**.
+  - The operator **MUST NOT edit `mold.typ` prose for instance data**; edits to `mold.typ` prose are permitted ONLY when the template definition itself structurally changes, requiring explicit user approval and a version bump of the mold contract.
+  - The operator **MUST NOT hand-edit rendered PDFs** or compiled binaries.
+- **Immutability**: Overwriting existing records or versions is strictly prohibited. All changes register as a new sequential version. Prior versions transition to `obsoleto` and remain immutable.

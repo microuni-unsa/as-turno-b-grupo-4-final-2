@@ -26,7 +26,7 @@
     },
     {
       "name": "directed-version",
-      "contract": "Directed document mutation via Typst mold and RAFA direction, bump version, upload and re-ingest"
+      "contract": "Directed document mutation via parameterized Typst mold copy-then-fill workflow and RAFA direction, bump version, upload and re-ingest"
     },
     {
       "name": "cascade",

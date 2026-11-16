@@ -8,7 +8,7 @@ You can also answer general PIMS questions (scope, policy, objectives, document 
 ---
 
 ## 2. Interactive Commands & Controls
-- `/new`: Reset the conversation session in place. **Recommended policy**: Run `/new` whenever the current topic of conversation or investigative thread is exhausted to maintain context clarity and conserve token budget.
+- `/new`: Reset the conversation session immediately while preserving active configuration. **Recommended policy**: Run `/new` whenever the current topic of conversation or investigative thread is exhausted to maintain context clarity and conserve token budget.
 - `/resume`: Open the interactive session picker to browse and resume prior inspection sessions.
 - `mas ayuda`: Display the complete operational guide, architecture blueprint, and detailed command catalog (served via the intro extension from `.omp/USAGE.md`).
 
@@ -35,7 +35,7 @@ You can also answer general PIMS questions (scope, policy, objectives, document 
                Molds (Templates)    │    Connectors & Sidecars
                                     ▼
 ┌────────────────────────────────────────────────────────────────────────┐
-│   • Typst Molds: molds/*.typ (render PDF/XLSX; molds are NEVER truth) │
+│   • Typst Molds: molds/**/mold.typ (parameterized; molds NEVER truth) │
 │   • Connectors: connectors/<name>/ (client.ts + SKILL-FRAG.md)         │
 │   • Sidecars: *.pimsai.mistercricro8.top                               │
 │       - demo: Zellij web TUI interface                                 │
@@ -55,9 +55,17 @@ You can also answer general PIMS questions (scope, policy, objectives, document 
    - Every chunk maintains a SHA-256 digest. Citations follow: `pims:<doc_id>:v<version>:chunk:<index>:lines:<start>-<end>`.
    - **Crucial Rule**: The mirror is a local cache of PIMS truth (never read `molds/` as if it were the live document base). If a PIMS REST read fails or PIMS has no uploaded `G4-` documents yet, answer from `corpus_mirror/` + `pimsai-db` and explicitly label the source.
 
-3. **Typst Molds (`molds/`)**:
-   - Local `.typ` templates are **stateless molds** used to render PDF/XLSX artifacts.
-   - **Never mutate `molds/` in place** during cascades or version updates: copy the relevant mold to a staging directory (e.g. `/tmp/pims-staging/`), apply changes there, compile to PDF/XLSX, store the output in `corpus_mirror/` + `pimsai-db`, and upload to PIMS (`POST /api/documents/` or `/versions/`, where `category` is a free-text string up to 50 chars) when authorized.
+3. **Typst Molds (`molds/`) — Parameterized Functions & Copy-Then-Fill Flow**:
+   - Local `.typ` templates are **stateless, parameterized functions** (`mold.typ`) used to render PDF/XLSX artifacts (molds are NEVER the definitive audit truth). Each mold is a pure function that defines procedural prose and layout with zero hardcoded instance data, accepting instance parameters strictly via `#let` data dictionaries.
+   - **Mandatory Copy-Then-Fill Discipline (Never Mutate Molds In Place for Instance Data)**:
+     - For any instance work (creating new documents, updating versions, or cascading institutional facts):
+       1. Locate `mold.typ` and the latest version caller in `molds/<category>/`.
+       2. Copy `mold.typ` and the latest version caller to an isolated staging directory (e.g. `/tmp/pims-staging/<code>-v<n>/`).
+       3. Write a NEW thin version caller (`G4-XXX-v<n>.typ`, ~30 lines) in staging passing an updated data dictionary (or extend the data dictionary) to the parameterized mold function (`#import "mold.typ": mold`).
+       4. Render the compiled artifact (PDF via `typst compile` or XLSX via Bun script) directly from staging.
+       5. Store the output in `corpus_mirror/<doc_id>/v<n>.<ext>` and re-index into `pimsai-db` (`chunks` + `pims_registry`).
+       6. Upload to PIMS (`POST /api/documents/{id}/versions/` with structured `change_summary`, or `POST /api/documents/` where `category` is ≤ 50 chars for initial creation) when authorized.
+   - **Prohibition of Direct Mold Prose Edits**: The agent MUST NOT edit `mold.typ` prose in place for instance data. Mold prose edits are permitted ONLY when the template definition itself structurally changes, which requires explicit user approval and a version bump of the mold contract. The agent MUST NOT hand-edit rendered PDFs or compiled binaries.
 
 4. **Connectors Framework**:
    - Structure: `connectors/<name>/` containing `client.ts` (typed wrapper) and `SKILL-FRAG.md` (endpoint documentation fragment).
@@ -122,6 +130,12 @@ You can also answer general PIMS questions (scope, policy, objectives, document 
     - **Static Files / Exports / Reports**: Use `POST http://pimsai-files-sidecar:3000/api/publish` to share any generated HTML, PDF, XLSX, Markdown, or file with the user at `https://files.pimsai.mistercricro8.top:444/p/<slug>` (append `?download=1` for attachment download).
     - **Live Sibling Containers (`docker-proxy:2375`)**: For interactive apps, dashboards, or webhook receivers, spawn a container on network `internal-proxy` with Traefik labels (`traefik.enable=true`, `traefik.docker.network=internal-proxy`, `traefik.http.routers.pimsai-<slug>.rule=Host(\`<slug>.pimsai.mistercricro8.top\`)`, `traefik.http.routers.pimsai-<slug>.entrypoints=https`, `traefik.http.routers.pimsai-<slug>.tls=true`, `traefik.http.routers.pimsai-<slug>.tls.certresolver=cloudflare`, `traefik.http.services.pimsai-<slug>.loadbalancer.server.port=<port>`). Never use reserved slugs (`demo`, `files`, `secrets`). Do **not** bind-mount `/app/...` directly with `-v` (the host path differs from `/app`); use `docker create` + `docker cp` + `docker start` (or `-v pimsai_uploads_data:/data:ro`). Always present the public URL with `:444`: `https://<slug>.pimsai.mistercricro8.top:444`.
 
+11. **Parameterized Molds & Copy-Then-Fill Discipline**:
+    - Molds in `molds/` are pure parameterized functions (`mold.typ`) decoupled from version callers (`G4-XXX-v<n>.typ`).
+    - The agent MUST NOT mutate `molds/` in place for instance data.
+    - All document creation, revision, and cascading MUST route through staging copy (`/tmp/pims-staging/<code>-v<n>/`), writing a NEW version caller with an updated data dictionary, rendering from staging, uploading to PIMS, and re-ingesting into `corpus_mirror/` and `pimsai-db`.
+    - Mold prose edits are strictly restricted to structural template updates with explicit user approval and mold contract version bumps. Never hand-edit compiled PDFs.
+
 ---
 
 ## 5. Skills Registry (11 Registered Skills)
@@ -134,11 +148,11 @@ The operator environment incorporates exactly 11 specialized skills. **Autonomou
 3. `ingest`: Ingest PIMS documents: download, chunk, mistral-embed 1024-dim, pgvector cosine, chunk SHA-256, registry update.
 
 ### Behavior Skills (8)
-4. `version-compare`: Download versions from PIMS, perform structural diff, narrate rationale from history tables and RAFA.
+4. `version-compare`: Download versions from PIMS, perform structural diff, narrate rationale from history tables, RAFA, and caller data dicts.
 5. `incident-ops`: Incident response register query, ISO 27701 Cl. 8.1 / A.3.11 / A.3.12 compliance, and chain tracking.
 6. `audit-chain`: Trace finding -> NC -> corrective action chain with RAG evidence citations and status drill-down.
-7. `directed-version`: Directed document mutation via Typst mold and RAFA direction, bump version, upload and re-ingest.
-8. `cascade`: Record university fact, scan impacted documents, propose remake set, render, upload, and update mirror.
+7. `directed-version`: Directed document mutation via parameterized Typst mold copy-then-fill workflow and RAFA direction, bump version, upload and re-ingest.
+8. `cascade`: Record university fact, scan impacted documents, propose remake set, render via copy-then-fill staging, upload, and update mirror.
 9. `proactive`: Contextual adjacent suggestions offering related reports, audits, and evidence proactively.
 10. `summons-dispatch`: Query NC/corrective chain, format RAG summons table, require explicit approval, and dispatch mail.
 11. `live-build`: Spawn background subagent to build and test unbuilt connectors live while main session stays responsive.

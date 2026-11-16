@@ -1,6 +1,6 @@
 # Skill: directed-version (SPEC 9.7)
 
-Ejecución de directivas de modificación y generación de nuevas versiones controladas de documentos del PIMS, aplicando la regla estricta de versionado (1.x / 2.x), renderizado reproducible mediante Typst, registro en PIMS, re-indexación vectorial e informe de diff.
+Ejecución de directivas de modificación y generación de nuevas versiones controladas de documentos del PIMS mediante el flujo desacoplado copy-then-fill de moldes parametrizados, aplicando la regla estricta de versionado (1.x / 2.x / 3.x), renderizado reproducible mediante Typst/XLSX, registro en PIMS, re-indexación vectorial e informe de diff.
 
 ## 1. Trigger Patterns
 
@@ -18,48 +18,69 @@ Se activa ante instrucciones del usuario para modificar, actualizar o crear una 
      `pims_adapter.documents.get(code="G4-...")`
    - Queda prohibida la modificación de documentos que no pertenezcan al espacio del Grupo 4 en el esquema compartido `unsa`.
 
-2. **Descarga de Estado Actual y Recuperación de Moldes**:
+2. **Descarga de Estado Actual y Localización de Molde e Invocador**:
    - Descargar la versión vigente actual desde PIMS:
      `pims_adapter.documents.download(doc_id="<pims_doc_id>", target_path="corpus_mirror/<doc_id>/v_current.pdf")`
-   - Recuperar el molde Typst fuente correspondiente en `molds/<category>/<doc_code>.typ` y su ficha RAFA asociada (`molds/<category>/<doc_code>.rafa.json`).
-   - *Nota arquitectónica*: Los moldes `.typ` locales son plantillas de generación; el registro oficial siempre reside en PIMS.
+   - Leer la versión vigente real desde `corpus_mirror/<doc_id>/manifest.json` (para evitar regresiones de versión en singletons).
+   - Localizar en `molds/<category>/`:
+     - El molde Typst parametrizado: `molds/<category>/mold.typ` (función pura `mold` que contiene la prosa y diseño con cero datos de instancia hardcodeados).
+     - El último invocador de versión: `molds/<category>/<doc_code>-v<prev>.typ` (archivo delgado con diccionario de datos).
+     - La ficha RAFA de ingeniería de prompts: `molds/<category>/RAFA.md`.
+   - *Axioma de Fuente de Verdad*: Los moldes locales son plantillas de generación; el registro oficial siempre reside en PIMS.
 
-3. **Aplicación de la Regla de Versionado (1.x vs 2.x)**:
+3. **Aplicación de la Regla de Versionado (1.x vs 2.x/3.x)**:
    - Evaluar taxativamente la naturaleza del cambio:
-     - **Incremento Menor (`1.x`)**: Aplica a ajustes de redacción, corrección de erratas, actualización de contactos, aclaraciones de alcance o ajustes menores que no alteran la arquitectura de procesos (ej. pasar de v1.0 a v1.1, o de v2.1 a v2.2).
-     - **Incremento Mayor (`2.x`)**: Aplica a cambios estructurales mayores: incorporación o eliminación de procesos completos, reestructuración organizativa integral o apertura de nuevas filiales/sedes con obligaciones operativas nuevas (ej. pasar de v1.x a v2.0).
+     - **Incremento Menor (`1.x`, `2.x`)**: Aplica a correcciones tipográficas, precisiones de redacción, actualización de nombres de cargos sin cambio funcional, aclaraciones de alcance o ajustes menores que no alteran los límites de los procesos (ej. pasar de v1.0 a v1.1, o de v2.0 a v2.1).
+     - **Incremento Mayor (`2.0`, `3.0`)**: Aplica obligatoriamente a cambios estructurales mayores en el sistema de gestión: v1.0 (certificación inicial 2019), v2.0 (virtualización y post-pandemia 2022), v3.0 (recertificación ISO/IEC 27701:2025 y expansión a filiales Camaná y El Pedregal).
    - Registrar la justificación del tipo de incremento en el resumen de cambios.
 
-4. **Modificación en Staging (Nunca Mutar `molds/` In-Place)**:
-   - Leer la versión vigente real desde `corpus_mirror/<doc_id>/manifest.json` (para evitar regresiones de versión en singletons).
-   - Copiar el molde `.typ` desde `molds/<category>/` hacia `/tmp/pims-staging/` (**prohibido editar `molds/` directamente**).
-   - Aplicar la directiva en la copia de staging y agregar la nueva fila obligatoria en la tabla de historial de versiones:
-     `[Versión, Fecha (ISO 8601), Autor/Rol (G4), Resumen del Cambio (change_summary), Estado (Borrador/Vigente)]`.
-   - Resolver todos los corchetes o marcadores de posición pendientes.
+4. **Copia a Staging Aislado (Aislamiento Total de `molds/`)**:
+   - Crear el directorio de trabajo temporal para la nueva versión: `/tmp/pims-staging/<doc_code>-v<new_version>/`.
+   - Copiar `mold.typ` y el último invocador de versión hacia el directorio de staging:
+     `cp molds/<category>/mold.typ molds/<category>/<doc_code>-v<prev>.typ /tmp/pims-staging/<doc_code>-v<new_version>/`
+   - **Regla de Prohibición Estricta**: Queda terminantemente prohibido mutar `molds/` en su lugar (in-place) para datos de instancia. NUNCA editar `mold.typ` en su lugar para datos de instancia.
 
-5. **Compilación y Renderizado Determinista (Typst)**:
-   - Compilar el documento reproduciblemente desde staging utilizando Typst CLI:
-     `typst compile --root /app /tmp/pims-staging/<doc_code>.typ /tmp/pims-staging/<doc_code>_v<new_version>.pdf`
-   - Validar que el archivo PDF generado cumpla con los estándares visuales (membrete UNSA, numeración "Página X de Y", clasificación de confidencialidad).
+5. **Redacción del Nuevo Invocador con Diccionario de Datos (Copy-Then-Fill)**:
+   - Redactar un NUEVO invocador delgado en staging: `/tmp/pims-staging/<doc_code>-v<new_version>/<doc_code>-v<new_version>.typ` (~30 líneas).
+   - El nuevo invocador importa la función pura del molde (`#import "mold.typ": mold`) y define el diccionario de datos `#let data = (...)` pasando:
+     - Metadatos de cabecera: código institucional (`G4-...`), nueva versión (`v<new_version>`), fecha de vigencia (`YYYY-MM-DD`), clasificación (`CONFIDENCIAL - USO INTERNO UNSA`).
+     - Cuadro de control y firmas institucionales (Elaborado: Carlos M. Benítez / Revisado: Lucía Valdivia / Aprobado: Rector).
+     - Nueva fila obligatoria en el historial de revisiones:
+       `[Versión, Fecha (ISO 8601), Autor/Rol (G4), Resumen del Cambio (change_summary), Estado (Vigente)]`.
+     - Parámetros sustantivos de la directiva (alcance territorial, procesos, cláusulas ISO/IEC 27701:2025).
+     - Ejecución de regla de renderizado: `#show: mold.with(..data)`.
+   - **Prohibición de Edición de Prosa**: La prosa de `mold.typ` NO se edita para datos de instancia; toda adaptación se canaliza exclusivamente mediante los parámetros del diccionario de datos. Ediciones a la prosa de `mold.typ` proceden ÚNICAMENTE ante cambios estructurales de la plantilla (requiriendo aprobación explícita del usuario y versionado del contrato del molde). Cero corchetes o marcadores pendientes (`TODO`, etc.).
 
-6. **Registro Local (`corpus_mirror/`) y Carga en PIMS**:
-   - Guardar el artefacto compilado en `corpus_mirror/<doc_id>/v<new_version>.pdf` y re-indexar en `pimsai-db` (`chunks` + `pims_registry`).
-   - Cuando las clases documentales estén habilitadas en PIMS, subir el PDF compilado mediante:
-     `pims_adapter.documents.create_version(doc_id="<pims_doc_id>", file="/tmp/pims-staging/<doc_code>_v<new_version>.pdf", change_summary="<resumen_cambio>")`
-   - **Regla de integridad**: Las versiones anteriores NUNCA se sobreescriben ni eliminan; pasan a estado `obsoleto` y permanecen descargables.
+6. **Compilación y Renderizado Determinista (Typst / XLSX)**:
+   - Compilar el documento reproduciblemente desde el directorio de staging:
+     - Documentos Typst: `typst compile --root . /tmp/pims-staging/<doc_code>-v<new_version>/<doc_code>-v<new_version>.typ /tmp/pims-staging/<doc_code>-v<new_version>/<doc_code>_v<new_version>.pdf`
+     - Artefactos tabulares XLSX (ej. `incident-register`): compilar ejecutando el generador scriptado desde staging (`bun run generate.ts`).
+   - Validar que el archivo generado cumpla estrictamente con los 15 elementos normativos de anatomía obligatoria (SPEC 6.1 Ampliado).
+   - **Prohibición**: Queda terminantemente prohibido editar manualmente los archivos PDF o binarios renderizados.
 
-7. **Re-Indexación en Conocimiento RAG (Mirror)**:
+7. **Registro Local en Espejo (`corpus_mirror/`)**:
+   - Guardar el artefacto compilado en `corpus_mirror/<doc_id>/v<new_version>.<ext>`.
+   - Actualizar `corpus_mirror/manifest.json` registrando `pims_doc_id`, `code`, `version`, `sha256`, `downloaded_at`, y `chunk_count`.
+
+8. **Carga en PIMS como Nueva Versión (`change_summary`)**:
+   - Subir el PDF compilado a la API de GESTITEL mediante:
+     `pims_adapter.documents.create_version(doc_id="<pims_doc_id>", file="/tmp/pims-staging/<doc_code>-v<new_version>/<doc_code>_v<new_version>.pdf", change_summary="<resumen_cambio>")`
+   - El campo `change_summary` DEBE cumplir con la convención de 3 partes de SPEC 6.1:
+     `TIPO_CAMBIO :: Razón normativa/organizacional :: Modificaciones específicas realizadas :: Impacto en controles SoA o procesos`
+   - **Regla de integridad e inmutabilidad**: Las versiones anteriores NUNCA se sobreescriben ni eliminan; pasan automáticamente a estado `obsoleto` (`O`) y se preservan descargables en PIMS y el espejo.
+
+9. **Re-Indexación Inmediata en Conocimiento RAG (Mirror)**:
    - Ejecutar la ingesta inmediata:
-     `rag_mirror.ingest(pims_doc_id="<pims_doc_id>", version="<new_version>", file_path="output/<doc_code>_v<new_version>.pdf")`
-   - Fragmentar en chunks semánticos, computar embeddings (1024 dimensiones, compatible con mistral-embed), registrar en `pgvector` con hash SHA-256 por chunk y actualizar el manifiesto de `corpus_mirror`.
+     `rag_mirror.ingest(pims_doc_id="<pims_doc_id>", version="<new_version>", file_path="corpus_mirror/<doc_id>/v<new_version>.pdf")`
+   - Fragmentar en chunks semánticos (250–500 tokens con 50 tokens de solape), computar embeddings mistral-embed (1024 dimensiones), registrar en `pgvector` con hash SHA-256 por fragmento y actualizar `pims_registry`.
 
-8. **Generación de Resumen de Diff y Publicación**:
-   - Comparar estructuralmente la versión previa con la nueva:
-     `rag_mirror.diff(file_a="corpus_mirror/<doc_id>/v_current.pdf", file_b="output/<doc_code>_v<new_version>.pdf")`
-   - Desplegar el visor del documento y su comparativa en un contenedor Traefik bajo un slug fresco:
-     `files_sidecar.publish(content=rendered_artifact, slug="doc-<doc_code>-v<new_version>-<timestamp>")`
-   - Servir en `https://doc-<doc_code>-v<new_version>-<timestamp>.pimsai.mistercricro8.top:444`.
-   - Concluir obligatoriamente la respuesta con: `"resultado aquí: link"`.
+10. **Generación de Resumen de Diff y Publicación**:
+    - Comparar estructuralmente la versión previa con la nueva:
+      `rag_mirror.diff(file_a="corpus_mirror/<doc_id>/v_current.pdf", file_b="corpus_mirror/<doc_id>/v<new_version>.pdf")`
+    - Publicar el reporte comparativo y artefacto mediante `files-sidecar`:
+      `files_sidecar.publish(content=rendered_artifact, slug="doc-<doc_code>-v<new_version>-<timestamp>")`
+    - Servir en `https://files.pimsai.mistercricro8.top:444/p/doc-<doc_code>-v<new_version>-<timestamp>`.
+    - Concluir obligatoriamente la respuesta con: `"resultado aquí: link"`.
 
 ## 3. Failure Branches
 
@@ -74,7 +95,7 @@ Se activa ante instrucciones del usuario para modificar, actualizar o crear una 
 - **Límite de Presupuesto Alcanzado (Loan Profile Degraded-at-Cap)**:
   - Si se alcanza el límite de `task.softRequestBudget` o la cuota en perfil loan:
     - La recuperación de datos permanece activa: lectura de versiones existentes, descarga de documentos y consultas de texto continúan funcionando.
-    - La generación de nuevas versiones, modificación de moldes y renderizado Typst se pausan de inmediato.
+    - La generación de nuevas versiones mediante copy-then-fill, modificación de invocadores y renderizado Typst se pausan de inmediato.
     - Mensaje de contacto obligatorio:
       `"Límite de presupuesto de tokens alcanzado en perfil loan. La recuperación continúa activa, pero la generación de versiones está pausada. Contacte al equipo Turno B Grupo 4 para ampliación de cuota."`
 
@@ -100,5 +121,5 @@ Se activa ante instrucciones del usuario para modificar, actualizar o crear una 
 - `+ Cláusula 4.3`: Flujo de reporte para Filial Camaná y Filial Pedregal.
 - `~ Cláusula 7.1`: Tabla de responsables actualizada con coordinadores zonales.
 
-resultado aquí: https://doc-g4-prc-inc-001-v2-0-8d14.pimsai.mistercricro8.top:444
+resultado aquí: https://files.pimsai.mistercricro8.top:444/p/doc-g4-prc-inc-001-v2-0-8d14
 ```

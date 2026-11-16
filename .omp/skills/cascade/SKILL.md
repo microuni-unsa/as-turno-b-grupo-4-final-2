@@ -1,6 +1,6 @@
 # Skill: cascade (SPEC 9.8)
 
-Gestión del impacto institucional en cascada derivado de hechos universitarios (university facts): registro fechado y con fuente, escaneo de impacto sobre el corpus documental, propuesta de lote de modificación, compuerta de aprobación, ejecución de re-versionado y reporte de documentos modificados y no afectados.
+Gestión del impacto institucional en cascada derivado de hechos universitarios (university facts) mediante el flujo desacoplado copy-then-fill de moldes parametrizados: registro fechado y con fuente, escaneo de impacto sobre el corpus documental, propuesta de lote de modificación, compuerta de aprobación, ejecución de re-versionado y reporte de documentos modificados y no afectados.
 
 ## 1. Trigger Patterns
 
@@ -32,22 +32,30 @@ Se activa ante cambios normativos, institucionales, organizacionales o de infrae
 3. **Escaneo de Impacto Transversal**:
    - Ejecutar un análisis de tres vías:
      a) Búsqueda en registro PIMS: `pims_registry.search(keywords=["filial", "pedregal", "sedes"])`.
-     b) Búsqueda de literales y referencias en moldes locales: `grep -rn -i "sede central\|filiales" molds/`.
+     b) Búsqueda de literales y parámetros en invocadores de versión y moldes locales: `grep -rn -i "sede central\|filiales" molds/`.
      c) Búsqueda semántica en réplica vectorial: `rag_mirror.query("filiales sedes descentralizadas alcance geográfico")`.
    - Identificar candidatos a modificación y documentos no afectados.
 
 4. **Propuesta del Lote de Remake (Compuerta de Aprobación Humana)**:
    - Presentar al usuario una matriz estructurada con:
-     - Documentos propuestos para re-versionado con su justificación técnica individual y tipo de versión (1.x menor / 2.x mayor).
+     - Documentos propuestos para re-versionado con su justificación técnica individual y tipo de versión (1.x menor / 2.x o 3.x mayor).
      - Lista explícita de documentos escaneados que **NO** requieren cambios y el porqué.
    - **Regla obligatoria**: Detener la ejecución hasta que el usuario apruebe explícitamente el lote propuesto (ej. "procede", "aprobado", o ajustes al conjunto).
 
-5. **Ejecución de Versionado por Documento (`directed-version`)**:
-   - Tras recibir la aprobación del usuario, ejecutar el protocolo del skill `directed-version` para cada documento del lote aprobado:
-     - Leer la versión vigente real desde `corpus_mirror/<doc_id>/manifest.json` (nunca asumir `1.0` en singletons).
-     - Copiar el molde `.typ` a `/tmp/pims-staging/` (**NUNCA** editar `molds/` in-place), aplicar el hecho en la copia de staging y compilar con Typst CLI.
-     - Guardar el PDF resultante en `corpus_mirror/`, re-indexar en `pimsai-db` (`chunks` + `pims_registry`) y subir a PIMS si las clases documentales están habilitadas.
-   - **Regla del ciclo de vida**: Las versiones anteriores quedan en estado `obsoleto` en `corpus_mirror/` y PIMS y permanecen descargables (preservación histórica / "time-machine"). Las eliminaciones definitivas (*true deletes*) solo se admiten en casos excepcionales de contaminación de datos o erratas críticas y deben quedar auditadas en bitácora.
+5. **Ejecución de Versionado por Documento (Flujo Copy-Then-Fill)**:
+   - Tras recibir la aprobación explícita del usuario, ejecutar el protocolo copy-then-fill de `directed-version` para cada documento del lote aprobado:
+     a) **Localizar molde e invocador**: Ubicar el archivo de molde parametrizado `molds/<category>/mold.typ`, el último invocador de versión `molds/<category>/<doc_code>-v<prev>.typ` y la ficha RAFA (`molds/<category>/RAFA.md`). Leer la versión vigente real desde `corpus_mirror/<doc_id>/manifest.json` (para evitar regresiones de versión en singletons).
+     b) **Copia a Staging**: Copiar `mold.typ` y el invocador vigente a un directorio de trabajo aislado: `/tmp/pims-staging/<doc_code>-v<new_version>/`.
+        - **Prohibición Estricta**: Queda terminantemente prohibido mutar `molds/` en su lugar (in-place) para datos de instancia. NUNCA editar la prosa de `mold.typ` para hechos de instancia.
+     c) **Redacción del nuevo invocador con Diccionario de Datos**: Escribir un NUEVO invocador delgado `G4-XXX-v<new_version>.typ` (~30 líneas) en staging que importe `mold.typ` (`#import "mold.typ": mold`) y defina el diccionario de datos institucional `#let data = (...)`, incorporando el impacto del hecho universitario (sedes, filiales, autoridades, alcance o procesos) y agregando la nueva fila obligatoria en el historial de revisiones con su `change_summary` estructurado.
+     d) **Compilación y Renderizado Determinista**: Compilar reproduciblemente desde staging:
+        - Para Typst: `typst compile --root . /tmp/pims-staging/<doc_code>-v<new_version>/<doc_code>-v<new_version>.typ /tmp/pims-staging/<doc_code>-v<new_version>/<doc_code>_v<new_version>.pdf`.
+        - Para artefactos tabulares XLSX (ej. `incident-register`): ejecutar `bun run generate.ts` desde staging.
+        - **Prohibición**: Queda terminantemente prohibido editar a mano los archivos PDF o binarios renderizados.
+     e) **Registro en Espejo Local (`corpus_mirror/`)**: Guardar el PDF/XLSX compilado en `corpus_mirror/<doc_id>/v<new_version>.<ext>` y actualizar `manifest.json` con el nuevo hash criptográfico SHA-256 y metadatos de chunking.
+     f) **Carga en PIMS como Nueva Versión**: Subir a PIMS vía `POST /api/documents/{id}/versions/` enviando el PDF generado y el `change_summary` estructurado de 3 partes (`TIPO_CAMBIO :: Razón :: Modificaciones :: Impacto`).
+     g) **Re-Ingesta Vectorial RAG**: Ejecutar la ingesta inmediata en `pimsai-db` (`chunks` + `pims_registry` con SHA-256 por chunk y mistral-embed 1024-dim).
+   - **Regla del ciclo de vida e inmutabilidad**: Las versiones anteriores quedan en estado `obsoleto` (`O`) en PIMS y se conservan descargables en `corpus_mirror/` (preservación histórica / "time-machine"). Las eliminaciones definitivas (*true deletes*) solo se admiten en casos excepcionales de contaminación de datos o erratas críticas debidamente registradas en bitácora.
 
 6. **Generación del Reporte de Cascada y Publicación**:
    - Consolidar el informe final discriminando documentos actualizados (con enlaces y hashes) frente a documentos que permanecieron intactos.
@@ -68,7 +76,7 @@ Se activa ante cambios normativos, institucionales, organizacionales o de infrae
 - **Límite de Presupuesto Alcanzado (Loan Profile Degraded-at-Cap)**:
   - Si se alcanza el límite de `task.softRequestBudget` o la cuota en perfil loan:
     - La recuperación de datos permanece activa: el escaneo de impacto, lectura de hechos y listados de documentos continúan funcionando.
-    - La regeneración masiva de documentos y las escrituras en PIMS se pausan de inmediato.
+    - La regeneración masiva de documentos mediante copy-then-fill y las escrituras en PIMS se pausan de inmediato.
     - Mensaje de contacto obligatorio:
       `"Límite de presupuesto de tokens alcanzado en perfil loan. La recuperación continúa activa, pero la re-ejecución en cascada está pausada. Contacte al equipo Turno B Grupo 4 para ampliación de cuota."`
 
@@ -77,7 +85,7 @@ Se activa ante cambios normativos, institucionales, organizacionales o de infrae
 ### Fase A: Propuesta de Impacto (Esperando Aprobación)
 ```markdown
 ### Propuesta de Impacto en Cascada: [ID Hecho Institucional]
-**Hecho Registrado**: `molds/university-facts/fact-2026-004.json`  
+**Hecho Registrado**: `university-facts/fact-2026-004.json`  
 **Fuente**: Resolución de Consejo Universitario N° 1042-2026-CU-UNSA  
 **Tenant**: GESTITEL `unsa` (Filtrado estricto Grupo 4)
 
@@ -98,10 +106,10 @@ Se activa ante cambios normativos, institucionales, organizacionales o de infrae
 ### Fase B: Reporte Post-Ejecución
 ```markdown
 ### Reporte de Cascada Completado
-Se ejecutó el re-versionado en PIMS y la re-indexación RAG:
+Se ejecutó el re-versionado en PIMS y la re-indexación RAG mediante flujo copy-then-fill:
 - ✅ `G4-PRC-INC-001`: v1.2 → **v2.0** (Registrado en PIMS, 18 chunks ingestados).
 - ✅ `G4-MAN-ALC-001`: v1.0 → **v1.1** (Registrado en PIMS, 12 chunks ingestados).
 - ℹ️ Versiones anteriores preservadas en PIMS como *obsoletas* (descargables).
 
-resultado aquí: https://cascade-fact-2026-004-9a4f.pimsai.mistercricro8.top:444
+resultado aquí: https://files.pimsai.mistercricro8.top:444/p/cascade-fact-2026-004-9a4f
 ```
