@@ -21,6 +21,14 @@
     role: "Rector - Presidente del Comité SGPI",
     date: "2019-04-15"
   ),
+  validity: "2020-04-15",
+  owner-role: "Oficial de Seguridad de la Información (OSI / DPO)",
+  references: (
+    "Norma ISO/IEC 27701:2019 / ISO/IEC 27001:2013, Cláusula 4.3 (Determinación del alcance del SGPI).",
+    "Ley N° 29733, Ley de Protección de Datos Personales del Perú y su Reglamento (D.S. 003-2013-JUS).",
+    "Ley Universitaria N° 30220.",
+    "Política de Privacidad de la Información de la UNSA (G4-POL-01).",
+  ),
   history: (
     (
       version: "1.0",
@@ -29,7 +37,9 @@
       summary: "Emisión inicial de la definición de alcance para la certificación ISO/IEC 27701:2019. Límites físicos: Sedes centrales Arequipa. Procesos: Admisión y Planillas."
     ),
   ),
-  purpose: [El presente documento formaliza los límites organizacionales, geográficos y tecnológicos del Sistema de Gestión de Privacidad de la Información (SGPI) de la Universidad Nacional de San Agustín de Arequipa (UNSA), en cumplimiento de las Cláusulas 4.3 y 4.4 de la norma ISO/IEC 27701:2025.],
+  objective_text: [El presente documento formaliza los límites organizacionales, geográficos y tecnológicos del Sistema de Gestión de Privacidad de la Información (SGPI) de la Universidad Nacional de San Agustín de Arequipa (UNSA), en cumplimiento de las Cláusulas 4.3 y 4.4 de la norma ISO/IEC 27701:2025 y la Ley N° 29733.],
+  scope_summary_text: [El alcance comprende los procesos de Admisión Ordinaria presencial y Planilla de Remuneraciones en las tres áreas centrales de Arequipa (Ingenierías, Biomédicas y Sociales), abarcando servidores locales on-premise en el centro de datos de DUTIC.],
+  users_text: [Destinado a autoridades universitarias, Dirección General de Admisión, Subdirección de Personal, DUTIC y personal administrativo y docente involucrado en el SGPI.],
   role_determination: [En aplicación de la Cláusula 4.1, la UNSA determina su función exclusiva como *Responsable del Tratamiento de Datos Personales (PII Controller)* para la totalidad de las actividades comprendidas en este alcance.],
   admission_process: (
     title: "Admisión de Pregrado",

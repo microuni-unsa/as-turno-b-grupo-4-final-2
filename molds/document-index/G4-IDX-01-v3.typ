@@ -21,6 +21,16 @@
     role: "Rector - Presidente del Comité SGPI",
     date: "2025-10-28"
   ),
+  validity: "2026-10-28",
+  owner-role: "Secretaría Técnica del SGPI / DPO",
+  references: (
+    "Norma ISO/IEC 27701:2025, Cláusula 7.5 (Información documentada: 7.5.1, 7.5.2 y 7.5.3, segunda edición).",
+    "Ley N° 29733, Ley de Protección de Datos Personales del Perú y su Reglamento (D.S. 003-2013-JUS).",
+    "Resoluciones Rectorales N° 0142-2025 y N° 0143-2025-UNSA (Filiales Camaná y Majes).",
+    "Procedimiento para Control de Documentos y Registros (G4-PRC-DOC-01).",
+    "Política de Privacidad de la Información de la UNSA (G4-POL-01).",
+    "Determinación del Alcance del SGPI (G4-ALC-01).",
+  ),
   history: (
     (
       version: "1.0",
@@ -41,9 +51,12 @@
       summary: "Recertificación bajo ISO/IEC 27701:2025: Reestructuración por orden de cláusulas 4 a 10 e incorporación de filiales descentralizadas y nuevos códigos de riesgo y mejora."
     ),
   ),
-  purpose: [El presente documento constituye la guía maestra de navegación para auditores de certificación (Fase 1 y Fase 2) e inspectores internos. Establece el mapeo riguroso y exhaustivo entre los requisitos de la norma internacional *ISO/IEC 27701:2025 (Segunda edición, octubre 2025)* y los 18 artefactos documentales vigentes del SGPI de la Universidad Nacional de San Agustín de Arequipa (UNSA).],
+  objective_text: [El presente documento constituye la guía maestra de navegación para auditores de certificación (Fase 1 y Fase 2) e inspectores internos. Establece el mapeo riguroso y exhaustivo entre los requisitos de la norma internacional *ISO/IEC 27701:2025 (Segunda edición, octubre 2025)* y los 18 artefactos documentales vigentes del SGPI de la Universidad Nacional de San Agustín de Arequipa (UNSA).],
+  scope_text: [Abarca el conjunto de información documentada del SGPI para los procesos de Admisión de Pregrado Integral y Planilla de Remuneraciones Multisede en las Sedes Centrales de Arequipa y Filiales de Camaná y El Pedregal (Majes).],
+  users_text: [Dirigido al equipo de auditores externos, auditores internos bajo ISO 19011:2026, Rectorado, Comité SGPI, Directora de DUTIC y Oficial de Seguridad / DPO.],
+  purpose: [La documentación del SGPI ha sido diseñada, codificada y estructurada siguiendo la secuencia estándar de cláusulas normativas de alto nivel de ISO (4 Contexto, 5 Liderazgo, 6 Planificación, 7 Apoyo, 8 Operación, 9 Evaluación del Desempeño y 10 Mejora), facilitando la revisión sistemática por parte del equipo auditor.],
   callout_title: "ORDEN DE AUDITORÍA DE FASE 1 (CLÁUSULAS 4 A 10)",
-  callout_body: [La documentación del SGPI ha sido diseñada, codificada y estructurada siguiendo la secuencia estándar de cláusulas normativas de alto nivel de ISO (4 Contexto, 5 Liderazgo, 6 Planificación, 7 Apoyo, 8 Operación, 9 Evaluación del Desempeño y 10 Mejora), facilitando la revisión sistemática por parte del equipo auditor.],
+  callout_body: [Los 18 documentos del SGPI se estructuran en estricto orden de cláusulas 4 a 10, garantizando cobertura completa de requisitos normativos, evidencia de operación y control de registros.],
   documents: (
     (
       clause: "Cl. 4.1 / 4.3 / 4.4",

@@ -1,31 +1,42 @@
 # Evidencia RAFA: Procedimiento de Respuesta a Incidentes de Privacidad (G4-PRC-INC-01)
 
 ## 1. R — Rol
-- **Agente / Autor**: Coordinador General de Respuesta a Incidentes (CSIRT-UNSA) y Oficial de Seguridad de la Información / DPO (`Ing. Carlos M. Benítez`).
-- **Revisores y Aprobadores**: Dirección Universitaria de TIC (`DUTIC - Mg. Lucía Valdivia`) y Alta Dirección Universitaria (`Dr. Rohel Sánchez` en 2019 / `Dr. Hugo José Sánchez` en 2022 y 2025).
+- **Agente / Autor**: Oficial de Seguridad de la Información / DPO y Líder del CSIRT-UNSA (`Ing. Carlos M. Benítez`).
+- **Revisores y Aprobadores**: Directora Universitaria de TIC (`DUTIC - Mg. Lucía Valdivia`) y Rector / Comité de Gobierno Digital y Privacidad (`Dr. Rohel Sánchez` en 2019 / `Dr. Hugo José Sánchez` en 2022 y 2025).
 
 ## 2. A — Alcance
-- **Procesos en Alcance**:
-  - Proceso Misional de Admisión (Pregrado Ordinario, CEPRUNSA, modalidades descentralizadas).
-  - Proceso de Soporte de Planillas (Remuneraciones, aportes de ley, beneficios y cuentas bancarias del personal docente y no docente).
-- **Alcance Geográfico y Tecnológico**:
-  - `v1.0 (2019-04-15)`: Sedes centrales Arequipa (Ingenierías, Biomédicas, Sociales); servidores on-premise y procesos presenciales con padrones en papel.
-  - `v2.0 (2022-09-10)`: Sedes centrales Arequipa con digitalización integral de admisiones (`admision.unsa.edu.pe`), teletrabajo administrativo vía VPN SSL con MFA y exclusión de archivos físicos históricos pasivos.
-  - `v3.0 (2025-10-28)`: Sedes centrales Arequipa + Filial Camaná (Av. Costanera s/n, RR 0142-2025) + Filial El Pedregal - Majes (Calle 4 s/n, RR 0143-2025); nube privada híbrida, túneles VPN IPSec cifrados y terminales móviles con MDM Intune y BitLocker XTS-AES 256.
+- **Par Mandatorio de Procesos (SPEC 6.3)**:
+  - *Proceso Misional*: Admisión de Pregrado.
+  - *Proceso de Soporte*: Planilla de Remuneraciones.
+- **Variantes de Evolución Temporal (3 Callers: v1, v2, v3)**:
+  - `v1.0 (2019-04-15)`: Respuesta ante incidentes físicos (padrones impresos, ventanillas, robo de expedientes) en sedes centrales Arequipa.
+  - `v2.0 (2022-09-10)`: Respuesta ante incidentes digitales en plataforma web (`admision.unsa.edu.pe`), tokens JWT, accesos remotos y teletrabajo.
+  - `v3.0 (2025-10-28)`: Protocolos de respuesta multisede con terminales portátiles de enrolamiento (Camaná y Majes), enlaces VPN IPSec, MDM Intune con BitLocker XTS-AES 256 y SIEM corporativo.
 
-## 3. F — Formato
+## 3. F — Formato y Gramática del Instructor
+- **Gramática de Documento Aplicada**:
+  - `1. Objetivo, alcance y usuarios` (Subsecciones 1.1 Objetivo, 1.2 Alcance, 1.3 Usuarios).
+  - `2. Documentos de referencia` (Normas ISO 27701 Cl. 8.1, Controles A.3.11/A.3.12, Guías B.3.11/B.3.12, Ley 29733, G4-POL-01, G4-ALC-01, G4-PRC-CAPA-01).
+  - `3. Base Normativa y Criterio Institucional de Notificación` (Delimitación rigurosa de criterios de notificación basados en riesgo para los titulares, sin aplicación automática del reloj de 72 horas del RGPD europeo).
+  - `4. Estructura Organizativa y Responsabilidades ante Incidentes` (Tabla de roles institucionales).
+  - `5. Ciclo de Vida y Fases Operativas de Respuesta a Incidentes` (Fase 1: Detección, Fase 2: Triage y Escala de Severidad con SLAs, Fase 3: Contención Forense, Fase 4: Evaluación y Notificación B.3.12, Fase 5: Erradicación, Fase 6: Cierre y CAPA Cl. 10.2).
+  - `6. Gestión de registros guardados en base a este documento` (Tabla formal de 5 columnas: Nombre, Ubicación, Responsable, Controles, Tiempo de retención).
+  - `7. Validez y gestión de documentos` (Vigencia, propietario del documento y 3 criterios de efectividad).
+  - `8. Bloque de firma institucional al cierre` (Cargo, Nombre, raya y [firma]).
 - **Arquitectura Desacoplada (Contrato SPEC 2.1)**:
-  - Molde parametrizado puro y profundo: `mold.typ` con importación centralizada desde `../common/template.typ` (cero datos de instancia hardcodeados).
-  - Invocadores de versión delgados: `G4-PRC-INC-01-v1.typ`, `G4-PRC-INC-01-v2.typ`, `G4-PRC-INC-01-v3.typ` (~130-150 líneas cada uno).
-- **Estructura Documental (Estilo Instructor / SPEC 6.1)**:
-  - Objetivo, alcance institucional y usuarios destinatarios.
-  - Documentos de referencia normativos e institucionales.
-  - Base normativa, rol PII Controller (Cl. 4.1) y callout de autonomía de criterio en notificación.
-  - Estructura organizativa y cuadro de responsabilidades ante incidentes.
-  - Fases operativas completas: Detección (`awareness_at`), Clasificación y Escala de Severidad (Crítico, Alto, Medio, Bajo con SLAs), Contención y Preservación Forense, Criterios de Evaluación y Notificación según Guía B.3.12 (`notification_state`), Erradicación y Recuperación, y Cierre con Cadena CAPA (Cl. 10.2).
-  - Gestión de registros guardados en base a este documento (G4-REG-INC-01 con 9 campos obligatorios de B.3.12 y G4-REG-CAPA-01).
+  - Molde parametrizado puro: `mold.typ` con importación centralizada desde `../common/template.typ` (cero datos de instancia hardcodeados).
+  - Invocadores de versión delgados: `G4-PRC-INC-01-v1.typ`, `G4-PRC-INC-01-v2.typ`, `G4-PRC-INC-01-v3.typ` (~100 líneas cada uno).
+- **Lista de Verificación de Gramática**:
+  - [x] Objetivo, alcance y usuarios presente y estructurado.
+  - [x] Documentos de referencia presente con normativa actualizada.
+  - [x] Gestión de registros con tabla de 5 columnas presente.
+  - [x] Validez y gestión de documentos presente con criterios de efectividad.
+  - [x] Bloque de firmas institucional al cierre presente.
+  - [x] Cero marcadores o corchetes pendientes en los 3 callers.
 
 ## 4. A — Ámbito y Criterio Normativo
-- **Marco Normativo Primario**: ISO/IEC 27701:2025, Cláusula 8.1 (Control operacional), Cláusula 7.5 (Información documentada), Control A.3.11 (Planificación y preparación), Control A.3.12 (Respuesta a incidentes de seguridad), Guía B.3.11 y Guía B.3.12 (Breach records and notification).
-- **Criterio de Notificación Organizacional**: Evaluación autónoma de riesgo para los derechos y libertades de los titulares de datos según la Cláusula 8.1 y la Ley N° 29733 de Protección de Datos Personales del Perú.
-- **Principio Rector**: Ausencia absoluta de dependencia de los 72 horas del RGPD (Anexo D del estándar constituye mero mapeo documental, no exigencia operativa aplicable a la UNSA).
+- **Cláusulas ISO/IEC 27701:2025**:
+  - Cláusula 8.1: Planificación y control operacional.
+  - Controles A.3.11 (Gestión de eventos de seguridad de la información) y A.3.12 (Respuesta a incidentes de seguridad relacionados con PII).
+  - Guías B.3.11 y B.3.12: Directrices forenses, notificación institucional fundamentada y delimitación frente al RGPD europeo (desmitificación del reloj de 72 horas).
+  - Cláusula 10.2: No conformidad y acción correctiva (trazabilidad con G4-REG-CAPA-01).

@@ -21,6 +21,16 @@
     role: "Rector - Presidente del Comité SGPI",
     date: "2025-10-28"
   ),
+  validity: "2026-10-28",
+  owner-role: "Oficial de Seguridad de la Información (OSI / DPO)",
+  references: (
+    "Norma ISO/IEC 27701:2025, Cláusula 9.3 (Revisión por la dirección: 9.3.1, 9.3.2 y 9.3.3, segunda edición).",
+    "Ley N° 29733, Ley de Protección de Datos Personales del Perú y su Reglamento (D.S. 003-2013-JUS).",
+    "Resoluciones Rectorales N° 0142-2025 y N° 0143-2025-UNSA (Filiales Camaná y Majes).",
+    "Política de Privacidad de la Información de la UNSA (G4-POL-01).",
+    "Informe de Auditoría Interna del SGPI (G4-REP-AUD-01).",
+    "Registro de Acciones Correctivas del SGPI (G4-REG-CAPA-01).",
+  ),
   history: (
     (
       version: "1.0",
@@ -41,12 +51,16 @@
       summary: "Recertificación bajo ISO/IEC 27701:2025 (segunda edición): Sesión extraordinaria aprobando la incorporación de Filiales Camaná y Majes."
     ),
   ),
+  objective_text: [El objetivo de este documento es formalizar y registrar la revisión periódica del Sistema de Gestión de Privacidad de la Información (SGPI) por parte de la Alta Dirección de la Universidad Nacional de San Agustín de Arequipa (UNSA), asegurando su conveniencia, adecuación y eficacia continuas de conformidad con la Cláusula 9.3 de la norma ISO/IEC 27701:2025.],
+  scope_text: [Abarca el análisis integral de todas las entradas normativas y la determinación de decisiones estratégicas para los procesos de Admisión de Pregrado Integral y Planilla de Remuneraciones Multisede en las Sedes Centrales de Arequipa y Filiales de Camaná y El Pedregal (Majes).],
+  users_text: [Dirigido al Rector de la UNSA, vicerrectores, Directora de DUTIC, directores de admisión y personal, coordinadores de filial y miembros del Comité de Gobierno Digital y Privacidad.],
   session_data: (
     date_time: "28 de octubre de 2025, 10:00 a 13:00 horas.",
     place: "Sala del Consejo Universitario (Rectorado) y conexión telemática segura.",
     presides: "Dr. Hugo José Sánchez (Rector de la UNSA).",
     attendees: (
-      "Dr. Luis Cuadros Paz (Vicerrector Académico).",
+      "Dr. Hugo José Sánchez (Rector de la UNSA).",
+      "Dr. Luis Enrique Cuadros Paz (Vicerrector Académico).",
       "Mg. Lucía Valdivia Paredes (Directora Universitaria de TIC - DUTIC).",
       "Dr. Walter Delgado Manrique (Director General de Admisión).",
       "Lic. Martha Elena Córdova (Subdirectora de Personal y Remuneraciones).",

@@ -21,6 +21,15 @@
     role: "Rector - Presidente del Comité SGPI",
     date: "2025-10-28"
   ),
+  validity: "2026-10-28",
+  owner-role: "Auditor Líder del SGPI / OSI",
+  references: (
+    "Norma ISO/IEC 27701:2025, Cláusula 9.2 (Auditoría interna, segunda edición).",
+    "Norma ISO 19011:2026 (Directrices para la auditoría de los sistemas de gestión).",
+    "Programa Anual de Auditorías Internas del SGPI (G4-PRG-AUD-01).",
+    "Procedimiento de No Conformidades y Acciones Correctivas (G4-PRC-CAPA-01).",
+    "Resoluciones Rectorales N° 0142-2025 y N° 0143-2025-UNSA (Filiales Camaná y Majes).",
+  ),
   history: (
     (
       version: "1.0",
@@ -41,6 +50,9 @@
       summary: "Recertificación bajo ISO/IEC 27701:2025: Informe consolidado multisede abarcando Filial Camaná y Filial El Pedregal (Majes)."
     ),
   ),
+  objective_text: [El objetivo de este informe es documentar fehacientemente los resultados, hallazgos, evidencias objetivas y conclusiones derivados de la ejecución de la auditoría interna del SGPI en la Universidad Nacional de San Agustín de Arequipa (UNSA), de conformidad con la Cláusula 9.2.2 de ISO/IEC 27701:2025 y las directrices de ISO 19011:2026.],
+  scope_text: [La auditoría evaluó los procesos de Admisión de Pregrado Integral y Planilla de Remuneraciones Multisede en las Sedes Centrales de Arequipa y en las Filiales Descentralizadas de Camaná y El Pedregal (Majes), así como la infraestructura de DUTIC y las estaciones portátiles de enrolamiento.],
+  users_text: [Dirigido al Rectorado, Comité SGPI, Directora de DUTIC, Directores de Admisión y Personal, Coordinadores de Filiales y auditores externos de certificación.],
   general_data: (
     audit_code: "AUD-2025-CICLO2",
     normative_ref: "ISO/IEC 27701:2025 (Segunda edición) e ISO 19011:2026.",
@@ -53,21 +65,21 @@
     (
       id: "H-2025-01",
       tag: "VERDE",
-      description: "Conformidad destacada: Implementación rigurosa de BitLocker y MDM en terminales de Camaná.",
+      description: "Conformidad destacada: Implementación rigurosa de BitLocker XTS-AES 256 y enrolamiento MDM Intune en terminales móviles de Filial Camaná.",
       process_site: "Admisión (Filial Camaná)",
       capa_status: "Conforme"
     ),
     (
       id: "H-2025-02",
       tag: "VERDE",
-      description: "Conformidad destacada: Cifrado en reposo y tránsito en lotes de dispersión bancaria.",
+      description: "Conformidad destacada: Cifrado en reposo y tránsito en lotes de dispersión bancaria y conciliación contra Sisgedo.",
       process_site: "Planillas (Sede Central)",
       capa_status: "Conforme"
     ),
     (
       id: "H-2025-03",
       tag: "AMARILLO",
-      description: "Observación: Necesidad de reforzar simulaciones prácticas de phishing ante ataques sofisticados en operadores de filiales.",
+      description: "Observación: Necesidad de reforzar simulaciones prácticas de phishing ante vectores de ingeniería social dirigidos a operadores de filiales.",
       process_site: "Planillas / Filiales (Camaná / Majes)",
       capa_status: "En curso (NC-2025-03)"
     )

@@ -21,6 +21,16 @@
     role: "Rector - Presidente del Comité SGPI",
     date: "2025-10-28"
   ),
+  validity: "2026-10-28",
+  owner-role: "Oficial de Seguridad de la Información (OSI / DPO)",
+  references: (
+    "Norma ISO/IEC 27701:2025, Cláusula 6.2 (Objetivos de privacidad y planificación, segunda edición).",
+    "Ley N° 29733, Ley de Protección de Datos Personales del Perú y su Reglamento (D.S. 003-2013-JUS).",
+    "Resoluciones Rectorales N° 0142-2025 y N° 0143-2025-UNSA (Filiales Camaná y Majes).",
+    "Política de Privacidad de la Información de la UNSA (G4-POL-01).",
+    "Determinación del Alcance del SGPI (G4-ALC-01).",
+    "Procedimiento de Control de Información Documentada (G4-PRC-DOC-01).",
+  ),
   history: (
     (
       version: "1.0",
@@ -41,7 +51,9 @@
       summary: "Recertificación ISO/IEC 27701:2025: Actualización de metas cuantitativas e integración de indicadores multisede (Camaná y Majes)."
     ),
   ),
-  purpose: [El presente documento establece los objetivos de privacidad de la información y la planificación para alcanzarlos en la Universidad Nacional de San Agustín de Arequipa (UNSA), de conformidad con la Cláusula 6.2 de la norma internacional ISO/IEC 27701:2025.],
+  objective_text: [El presente documento establece los objetivos de privacidad de la información y la planificación para alcanzarlos en la Universidad Nacional de San Agustín de Arequipa (UNSA), de conformidad con la Cláusula 6.2 de la norma internacional ISO/IEC 27701:2025 y la Ley N° 29733.],
+  scope_text: [Aplica a todos los tratamientos de datos personales en los procesos de Admisión de Pregrado Integral y Planilla de Remuneraciones Multisede en las Sedes Centrales de Arequipa y Filiales Descentralizadas de Camaná y El Pedregal (Majes).],
+  users_text: [Destinado a autoridades universitarias, Directores de Admisión y Personal, Coordinadores de Filial, Directora de DUTIC, Oficial de Seguridad / DPO y auditores del SGPI.],
   alignment: [Los objetivos han sido formulados para operacionalizar los compromisos de la Política de Privacidad (`G4-POL-01`), garantizando la protección efectiva de los datos personales tratados en los procesos de Admisión y Planillas en todas las sedes institucionales.],
   objectives: (
     (

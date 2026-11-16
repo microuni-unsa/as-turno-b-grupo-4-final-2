@@ -7,22 +7,37 @@
 
 ## 2. A — Alcance (Scope)
 - **Perímetro Operacional**: Proceso Misional de Admisión (Ordinaria, Virtual y Filiales Regionales) y Proceso de Apoyo de Planillas de Remuneraciones (personal docente y administrativo).
-- **Variantes de Evolución Temporal**:
+- **Variantes de Evolución Temporal (3 Callers: v1, v2, v3)**:
   - `v1.0 (2019-04-15)`: Sedes Centrales Arequipa (Áreas de Ingenierías, Biomédicas y Sociales). Incidentes en soportes de papel físico (padrones de examen) y desbordes en servidores de correo Exchange.
   - `v2.0 (2022-09-10)`: Sedes Centrales Arequipa en contexto post-pandemia. Incidentes web en plataforma `admision.unsa.edu.pe` (vulnerabilidad IDOR mitigada en 45 min) y contingencias de respaldo en bases de datos.
   - `v3.0 (2025-10-28)`: Expansión multisede a Filial Camaná (RR 0142-2025) y Filial El Pedregal - Majes (RR 0143-2025). Sustracción de laptops con cifrado BitLocker/TPM 2.0 y borrado remoto MDM (Intune), sincronización de haberes en túneles VPN y frustración de spear-phishing bancario.
 
-## 3. F — Formato (Format)
+## 3. F — Formato y Gramática del Instructor (Format)
+- **Gramática de Documento Aplicada**:
+  - `1. Objetivo, alcance y usuarios` (Subsecciones 1.1 Objetivo, 1.2 Alcance, 1.3 Usuarios).
+  - `2. Documentos de referencia` (Normas ISO 27701 Cl. 8.1, Controles A.3.11/A.3.12, Guía B.3.12, Ley 29733, G4-PRC-INC-01, G4-PRC-CAPA-01).
+  - `3. Estructura y Campos Obligatorios del Registro Forense (Guía B.3.12)` (9 campos taxativos normativos + delimitación sin reloj de 72h).
+  - `4. Resumen Ejecutivo del Libro de Registro` (Tabla con ID, Detección, Severidad, Categoría, Titulares, Contención y Notificación + Indicadores de Desempeño y Cadena CAPA Cl. 10.2).
+  - `5. Referencia al Artefacto Operativo Definitivo (Libro XLSX)` (Puntero formal a `G4-REG-INC-01-registros.xlsx`).
+  - `6. Gestión de registros guardados en base a este documento` (Tabla formal de 5 columnas: Nombre, Ubicación, Responsable, Controles, Tiempo de retención).
+  - `7. Validez y gestión de documentos` (Vigencia, propietario del documento y 3 criterios de efectividad).
+  - `8. Bloque de firma institucional al cierre` (Cargo, Nombre, raya y [firma]).
 - **Arquitectura de Carpeta Desacoplada**:
   - `mold.typ`: Molde parametrizado que define la carátula formal, metodología, resumen de desempeño operacional y puntero al registro técnico. Cero datos hardcodeados de instancia institucional. Importa `"../common/template.typ"` y exporta la función principal `mold(data)`.
-  - Invocadores de Versión Delgados (~30 líneas cada uno):
+  - Invocadores de Versión Delgados (~50-80 líneas cada uno):
     - `G4-REG-INC-01-v1.typ`: Registro institucional para periodo 2019 (v1.0).
     - `G4-REG-INC-01-v2.typ`: Registro institucional para periodo 2022 (v2.0).
     - `G4-REG-INC-01-v3.typ`: Registro institucional para periodo 2025 (v3.0).
-  - Eliminación absoluta de la copia/symlink local `template.typ` per contrato de autoría.
   - **Generador Scriptado y Hoja de Cálculo OpenXML**:
     - `generate.ts`: Generador TypeScript para Bun (de propiedad exclusiva del pipeline) que compila y emite la hoja técnica `G4-REG-INC-01-registros.xlsx`.
     - Separación estricta: los archivos `.typ` actúan como Typst shells institucionales con puntero al archivo electrónico `.xlsx`.
+- **Lista de Verificación de Gramática**:
+  - [x] Objetivo, alcance y usuarios presente y estructurado.
+  - [x] Documentos de referencia presente con normativa actualizada.
+  - [x] Gestión de registros con tabla de 5 columnas presente.
+  - [x] Validez y gestión de documentos presente con criterios de efectividad.
+  - [x] Bloque de firmas institucional al cierre presente.
+  - [x] Cero marcadores o corchetes pendientes en los 3 callers.
 
 ## 4. A — Ámbito y Criterio Normativo (Normative Context)
 - **Norma Base**: ISO/IEC 27701:2025 (Segunda edición, octubre 2025), Cláusula 8.1 (Planificación y control operacional), Cláusula 7.5.1 (Información documentada), Control A.3.11, Control A.3.12 y Guía de implementación B.3.12 (Breach records and reporting).

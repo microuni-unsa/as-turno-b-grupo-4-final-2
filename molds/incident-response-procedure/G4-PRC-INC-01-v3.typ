@@ -21,6 +21,8 @@
     role: "Rector - Presidente del Comité SGPI",
     date: "2025-10-28"
   ),
+  validity: "2026-10-28",
+  owner-role: "Oficial de Seguridad de la Información (OSI / DPO)",
   history: (
     (
       version: "1.0",

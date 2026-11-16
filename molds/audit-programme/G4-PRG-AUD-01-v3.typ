@@ -21,6 +21,16 @@
     role: "Rector - Presidente del Comité SGPI",
     date: "2025-10-28"
   ),
+  validity: "2026-10-28",
+  owner-role: "Auditor Líder del SGPI / OSI",
+  references: (
+    "Norma ISO/IEC 27701:2025, Cláusula 9.2 (Auditoría interna, segunda edición).",
+    "Norma ISO 19011:2026 (Directrices para la auditoría de los sistemas de gestión).",
+    "Ley N° 29733, Ley de Protección de Datos Personales del Perú y su Reglamento (D.S. 003-2013-JUS).",
+    "Resoluciones Rectorales N° 0142-2025 y N° 0143-2025-UNSA (Filiales Camaná y Majes).",
+    "Política de Privacidad de la Información de la UNSA (G4-POL-01).",
+    "Determinación del Alcance del SGPI (G4-ALC-01).",
+  ),
   history: (
     (
       version: "1.0",
@@ -41,7 +51,9 @@
       summary: "Recertificación bajo ISO/IEC 27701:2025: Extensión del programa a Filial Camaná y Filial El Pedregal (Majes) bajo ISO 19011:2026."
     ),
   ),
-  purpose: [Establecer y planificar el Programa Anual de Auditorías Internas para evaluar la conformidad, eficacia y madurez del SGPI de la UNSA, de conformidad con la Cláusula 9.2 de la norma ISO/IEC 27701:2025 y las directrices metodológicas de la norma ISO 19011:2026.],
+  objective_text: [Establecer y planificar el Programa Anual de Auditorías Internas para evaluar la conformidad, eficacia y madurez del SGPI de la UNSA, de conformidad con la Cláusula 9.2 de la norma ISO/IEC 27701:2025 y las directrices metodológicas de la norma ISO 19011:2026.],
+  scope_text: [Abarca los procesos de Admisión de Pregrado Integral y Planilla de Remuneraciones Multisede en las Sedes Centrales de Arequipa y en las Filiales Descentralizadas de Camaná y El Pedregal (Majes).],
+  users_text: [Destinado al Comité SGPI, Auditor Líder, equipo auditor de sistemas, coordinadores de filial y auditores externos de certificación.],
   objectives: (
     [Verificar si el SGPI es conforme con los requisitos propios de la UNSA y los requisitos normativos de ISO/IEC 27701:2025 (Cláusulas 4 a 10 y Anexo A).],
     [Evaluar la eficacia operacional en los procesos misionales de Admisión y de soporte de Planillas en campus centrales y filiales descentralizadas.],
