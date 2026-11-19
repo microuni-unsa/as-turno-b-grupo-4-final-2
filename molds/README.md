@@ -6,15 +6,15 @@ Este directorio contiene los moldes de generación (`.typ`, Typst 0.15) y genera
 
 ---
 
-## 1. Contrato de Anatomía Documental de 15 Elementos (SPEC 6.1 Ampliado — Actualizado Phase P1)
+## 1. Contrato de Anatomía Documental de 15 Elementos (SPEC 6.1 Ampliado — Actualizado Phase P2)
 
 Todo documento generado a partir de estos moldes DEBE cumplir estrictamente con los 15 elementos normativos de anatomía obligatoria:
 
 1. **Código institucional unívoco**: Prefijo obligatorio `G4-` seguido del tipo documental de tres letras y correlativo numérico (ej. `G4-PRC-DOC-01`, `G4-SOA-01`, `G4-ALC-01`).
 2. **Número de versión visible**: Formato semántico `X.Y` (ej. `v1.0`, `v2.0`, `v3.0`).
 3. **Fecha de vigencia / aprobación**: Formato ISO `YYYY-MM-DD` indicando la fecha de emisión formal.
-4. **Paginación dinámica y Pie de página institucional (Páginas 2+)**: Suprimido en página 1 (carátula). A partir de la página 2, pie de página estructurado en 3 celdas: nombre del documento a la izquierda, `ver. <version> del <date>` al centro, y `Página X de Y` a la derecha mediante `#context counter(page).display("1 de 1", both: true)`. Se elimina el antiguo tagline inferior.
-5. **Nivel de clasificación de seguridad**: Rotulado explícito en encabezado superior derecho a partir de página 2 (`Confidencial` por defecto para todo el SGPI). Suprimido en página 1.
+4. **Paginación dinámica y Pie de página institucional (Páginas 2+)**: Suprimido en página 1 (carátula). A partir de la página 2, pie de página estructurado en 3 celdas con anchos fijos `columns: (1fr, 150pt, 100pt)` a 11pt: nombre del documento a la izquierda en `#box(width: 100%, clip: true)[#doc-display-name]` (evita colapso horizontal mediante `short-title`), `ver. <version> del <date>` al centro (150pt), y `Página X de Y` a la derecha (100pt) mediante `#context counter(page).display("1 de 1", both: true)`. Se elimina el antiguo tagline inferior.
+5. **Nivel de clasificación de seguridad**: Rotulado explícito en encabezado superior derecho a partir de página 2 (`Confidencial` por defecto para todo el SGPI). Suprimido en página 1. Encabezado a 11pt simétrico con el pie.
 6. **Tabla de control documental en carátula (`document-control table`)**: Tabla estructurada de exactamente 6 filas ubicada en la página 1 (carátula exclusiva bajo logo UNSA centrado de ~3.5cm, nombre de la entidad y título del documento):
    - *Código:* Código unívoco del documento (`G4-XXX-NN`).
    - *Versión:* Versión semántica (`X.Y`).
@@ -22,24 +22,56 @@ Todo documento generado a partir de estos moldes DEBE cumplir estrictamente con 
    - *Creado por:* Nombre y cargo del autor técnico (DPO / OSI).
    - *Aprobado por:* Nombre y cargo de la máxima autoridad de aprobación (Rector UNSA).
    - *Nivel de confidencialidad:* Clasificación (`Confidencial`).
+   Todos los textos y celdas heredan Carlito 11pt.
 7. **Simplificación de carátula institucional**: Se eliminó el antiguo "Cuadro de Aprobación Institucional" de 3 columnas y el subtítulo redundante de emisión en el título. La página 1 contiene exclusivamente logo, nombre de la entidad, título y tabla de control.
-8. **Tabla de historial de revisiones**: Desplazada a la página 2. Columnas renombradas exactamente a: `Fecha | Versión | Creado por | Descripción de los cambios`.
+8. **Tabla de historial de revisiones**: Desplazada a la página 2. Columnas renombradas exactamente a: `Fecha | Versión | Creado por | Descripción de los cambios`. Tipografía Carlito 11pt estricta en cabecera y celdas.
 9. **Índice analítico de contenidos**: Ubicado en página 2 tras el historial, generado automáticamente vía `outline(title: "Índice de Contenidos", indent: 1.2em)`.
 10. **Regla de carátula, historial e índice (`Cover & ToC rule`)**: La carátula ocupa exclusivamente la página 1 seguida de `pagebreak()`. El historial de revisiones y el índice analítico ocupan la página 2, seguidos inmediatamente de un salto forzoso (`pagebreak()`) antes de iniciar el cuerpo procedimental.
 11. **Sección de documentos de referencia (`reference-docs section`)**: Sección obligatoria (`= Documentos de referencia`) con el listado exhaustivo de normas internacionales, leyes nacionales y políticas institucionales aplicables. Puede pasarse mediante el parámetro `references` al template o declararse en la estructura del molde.
 12. **Sección de validez y gestión de documentos (`validity/owner section`)**: Sección penúltima obligatoria (`= Validez y gestión de documentos`) que especifica la fecha límite o condición de vigencia del documento (`validity`), el cargo propietario responsable de su revisión anual (`owner-role`, DPO o DUTIC), y los criterios para evaluar su efectividad y adecuación.
-13. **Bloque de firma institucional al cierre (`signature block`)**: Bloque formal de cierre al final del documento con espacio libre de firma incrementado a 1.2–1.5cm (~1.4cm) sobre la línea y remoción total del texto inferior "Firma":
+13. **Bloque de firma institucional al cierre (`signature block`)**: Bloque formal de cierre al final del documento con espacio libre de firma incrementado a 1.2–1.5cm (~1.4cm) sobre la línea, tipografía Carlito 11pt para cargo y nombre, y remoción total del texto inferior "Firma":
     ```
-    [cargo]
-    [nombre]
+    [cargo] (11pt negrita)
+    [nombre] (11pt regular)
     (espacio en blanco ~1.4cm)
     _____________________________
     ```
 14. **Cero marcadores de posición sin resolver**: Prohibición terminante de marcadores o corchetes pendientes (`completar`, `TODO`, `insertar fecha`, `[cargo]`, `[nombre]`). Toda variable debe estar completamente poblada con datos institucionales sintéticos y coherentes de la UNSA.
-15. **Regla de invocadores de versión desacoplados (`version-caller rule`)**: Desacoplamiento arquitectónico absoluto entre la prosa del procedimiento y los datos de instancia de cada versión: `molds/` contiene ÚNICAMENTE plantillas parametrizadas (`mold*.typ`), mientras que cada invocador de versión con datos de instancia de la UNSA (`G4-XXX-v1.typ`, `G4-XXX-v2.typ`, `G4-XXX-v3.typ`, ~30 líneas) reside en `corpus_g4_src/<carpeta>/` e importa el molde vía `#import "../../molds/<carpeta>/mold*.typ"`.
+15. **Regla de invocadores de versión desacoplados (`version-caller rule`)**: Desacoplamiento arquitectónico absoluto entre la prosa del procedimiento y los datos de instancia de cada versión: `molds/` contiene ÚNICAMENTE plantillas parametrizadas (`mold*.typ`), mientras que cada invocador de versión con datos de instancia de la UNSA (`G4-XXX-v1.typ`, `G4-XXX-v2.typ`, `G4-XXX-v3.typ`, ~30 líneas) reside en `corpus_g4_src/<carpeta>/` e importa el molde vía `#import "../../molds/<carpeta>/mold*.typ"`. Cada invocador define obligatoriamente `short-title: "..."` (≤ 45 caracteres).
 
 ---
-*Tipografía y Formato Transversal*: Todo documento utiliza tipografía corporativa `Carlito` 11pt (`set text(font: "Carlito", size: 11pt, lang: "es")`) con interlineado Word 1.15 exacto (`set par(leading: 0.5084em)`, que produce una distancia de 12.65pt entre líneas basales), aplicado de manera homogénea en párrafos, listas (`set list(spacing: 0.65em)`), enumeraciones (`set enum(spacing: 0.65em)`), tablas y cajas normativas.
+
+### Tipografía y Formato Transversal (Phase P2 Estándar)
+
+1. **Regla de 11pt Universal (Carlito 11pt)**:
+   - Carlito 11pt es el **ÚNICO** tamaño de cuerpo (`set text(font: "Carlito", size: 11pt, lang: "es")`).
+   - Se prohíbe terminantemente cualquier tamaño $N < 11\text{pt}$ (`size: Npt` o `text(size: Npt)` con $N < 11$).
+   - Tablas (cabeceras Y celdas de datos, sin excepción), encabezados de página, pies de página, bloques de firma, tabla de historial y tabla de carátula heredan 11pt.
+   - Solo los tamaños $\ge 11\text{pt}$ (título de portada 16pt, nombre de entidad 13pt, encabezados de sección) se conservan.
+
+2. **Espaciado Vertical Escalado 1.5×**:
+   - `set par(leading: 0.7626em)`: Produce un salto basal (line pitch) de $\approx 19.4\text{pt}$ a 11pt ($1.5 \times$ interlineado base).
+   - `set par(spacing: 1.8em)`: Espaciado entre párrafos ($1.5 \times$ valor por defecto de 1.2em en Typst).
+   - `set list(spacing: 0.975em)` y `set enum(spacing: 0.975em)`: Espaciado vertical entre ítems de listas ($1.5 \times 0.65\text{em}$).
+   - `show heading: set block(above: 1.8em, below: 1.05em)`: Separación armónica de títulos ($1.5 \times 1.2\text{em} / 0.7\text{em}$).
+   - Márgenes de página simétricos y compactos: `margin: (top: 2.2cm, bottom: 2.2cm, left: 2.5cm, right: 2.5cm)`. Reducción de margen superior de 3cm a 2.2cm y de inferior de 2.5cm a 2.2cm para eliminar espacios muertos entre reglas de encabezado/pie y cuerpo.
+
+3. **Regla de Tablas en Paisaje (Landscape Table Rule)**:
+   - Tras el barrido de 11pt, cualquier tabla cuyo contenido supere el ancho imprimible en orientación vertical DEBE colocarse en página(s) horizontal(es) mediante `#page(flipped: true)[ #table(...) ]`.
+   - Cero columnas eliminadas, cero datos omitidos, ninguna celda por debajo de 11pt, orden y nombres de columnas originales preservados.
+   - Tablas estrechas permanecen en orientación vertical.
+
+4. **Prohibición de Cajas de Llamado (Callouts Ban)**:
+   - Se prohíben las cajas decorativas `#callout(title: ..., ...)[body]`.
+   - Cada llamada se convierte en un párrafo formal de cuerpo: `*ENCABEZADO:* texto del cuerpo` (mismas palabras, encabezado en negrita con capitalización normal, sin bordes, sin fondos, sin cajas).
+
+5. **Prohibición de Pastillas y Badges (Pills Ban)**:
+   - Se prohíbe el uso de pastillas redondeadas `box(radius: ...)`: `status-tag(...)`, `rag-tag(...)` y variantes locales (`status-badge`, `tag-badge`, `sev-badge`).
+   - Se reemplazan por texto plano en **NEGRITA 11pt** con la misma etiqueta (ej. `*VIGENTE*`, `*IMPLEMENTADO*`, `*ROJO*`).
+   - Fondos de celda completa (`fill:`) se reservan exclusivamente para matrices donde el código cromático RAG sea normativamente indispensable.
+
+6. **Regla de Título Corto en Invocadores (Short-Title Rule)**:
+   - Para evitar desbordamientos y colapsos en el pie de página de 3 columnas fijas `(1fr, 150pt, 100pt)`, cada invocador en `corpus_g4_src/` debe declarar `short-title: "..."` con una abreviación significativa de $\le 45$ caracteres.
 
 ---
 
@@ -59,7 +91,7 @@ Todo desarrollador y trabajador de moldes (downstream mold worker) debe acatar l
 ### 2.2. Importación Centralizada y Prohibición de Duplicados
 - **Ruta de Importación Única**: Todos los moldes e invocadores deben importar el template centralizado mediante ruta relativa:
   ```typst
-  #import "../common/template.typ": doc-template, status-tag, rag-tag, callout, reference-docs, signature-block
+  #import "../common/template.typ": doc-template, reference-docs, signature-block
   ```
 - **Prohibición de Copias Locales**: Queda terminantemente prohibido crear, mantener o copiar archivos `template.typ` dentro de las carpetas individuales (`molds/<carpeta>/template.typ`). Los mold workers que detecten copias locales deben eliminarlas y reconfigurar la importación hacia `"../common/template.typ"`.
 

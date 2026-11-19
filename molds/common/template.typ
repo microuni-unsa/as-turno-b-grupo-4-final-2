@@ -16,7 +16,7 @@
     fg = rgb("#92400e")
   }
   box(fill: bg, radius: 3pt, inset: (x: 5pt, y: 2.5pt))[
-    #text(fill: fg, weight: "bold", size: 7.5pt)[#status]
+    #text(fill: fg, weight: "bold")[#status]
   ]
 }
 
@@ -38,7 +38,7 @@
     label = "VERDE"
   }
   box(fill: bg, radius: 3pt, inset: (x: 6pt, y: 2.5pt))[
-    #text(fill: fg, weight: "bold", size: 7.5pt)[#label]
+    #text(fill: fg, weight: "bold")[#label]
   ]
 }
 
@@ -50,9 +50,9 @@
     inset: (left: 10pt, y: 7pt, right: 8pt),
     radius: (right: 3pt),
     [
-      #text(weight: "bold", size: 8.5pt, fill: color)[#title]\
+      #text(weight: "bold", fill: color)[#title]\
       #v(2pt)
-      #text(size: 8.5pt, fill: luma(60))[#body]
+      #text(fill: luma(60))[#body]
     ]
   )
 }
@@ -82,9 +82,9 @@
   let display-role = if role != none { role } else { "Rector - Presidente del Comité SGPI" }
   let display-name = if name != none { name } else { "Dr. Hugo José Sánchez" }
   block(width: 220pt, breakable: false)[
-    #text(size: 8.5pt, weight: "bold")[#display-role]\
+    #text(weight: "bold")[#display-role]\
     #v(2pt)
-    #text(size: 8.5pt)[#display-name]\
+    #text()[#display-name]\
     #v(1.4cm)
     #line(length: 100%, stroke: 0.5pt + luma(120))
   ]
@@ -112,14 +112,14 @@
 
   set page(
     paper: "a4",
-    margin: (top: 3cm, bottom: 2.5cm, left: 2.5cm, right: 2.5cm),
+    margin: (top: 2.2cm, bottom: 2.2cm, left: 2.5cm, right: 2.5cm),
     header: context {
       if counter(page).get().first() > 1 {
         grid(
           columns: (1fr, auto),
           align: (left + bottom, right + bottom),
-          text(weight: "bold", size: 8pt, fill: rgb("#0a2540"))[UNIVERSIDAD NACIONAL DE SAN AGUSTÍN DE AREQUIPA],
-          text(fill: rgb("#b30000"), size: 7.5pt, weight: "bold")[#confidentiality]
+          text(weight: "bold", fill: rgb("#0a2540"))[UNIVERSIDAD NACIONAL DE SAN AGUSTÍN DE AREQUIPA],
+          text(fill: rgb("#b30000"), weight: "bold")[#confidentiality]
         )
         v(1pt)
         line(length: 100%, stroke: 0.5pt + luma(180))
@@ -130,23 +130,23 @@
         line(length: 100%, stroke: 0.5pt + luma(180))
         v(2pt)
         grid(
-          columns: (1fr, auto, 1fr),
+          columns: (1fr, 150pt, 100pt),
           align: (left + bottom, center + bottom, right + bottom),
-          text(size: 7.5pt, fill: luma(100))[#doc-display-name],
-          text(size: 7.5pt, fill: luma(100))[ver. #version del #date],
-          text(size: 7.5pt, fill: luma(100))[Página #counter(page).display("1 de 1", both: true)]
+          box(width: 100%, clip: true)[#text(fill: luma(100))[#doc-display-name]],
+          text(fill: luma(100))[ver. #version del #date],
+          text(fill: luma(100))[Página #counter(page).display("1 de 1", both: true)]
         )
       }
     }
   )
 
   set text(font: "Carlito", size: 11pt, lang: "es")
-  // 1.15 interlineado con fuente Carlito: 0.5084em leading produce exactamente 12.65pt baseline skip (1.15 * 11pt)
-  set par(justify: true, leading: 0.5084em)
+  // 1.5x espaciado vertical: 0.7626em leading (≈19.4pt pitch at 11pt), 1.8em par spacing
+  set par(justify: true, leading: 0.7626em, spacing: 1.8em)
   set heading(numbering: "1.1.")
-  show heading: set block(above: 1.2em, below: 0.7em)
-  set list(spacing: 0.65em)
-  set enum(spacing: 0.65em)
+  show heading: set block(above: 1.8em, below: 1.05em)
+  set list(spacing: 0.975em)
+  set enum(spacing: 0.975em)
 
   // ==========================================
   // PÁGINA 1: PORTADA / CARÁTULA INSTITUCIONAL
@@ -180,7 +180,7 @@
   // ==========================================
   // PÁGINA 2: HISTORIAL Y TABLA DE CONTENIDOS
   // ==========================================
-  text(weight: "bold", size: 9pt, fill: rgb("#0a2540"))[Historial de Revisiones del Documento:]
+  text(weight: "bold", fill: rgb("#0a2540"))[Historial de Revisiones del Documento:]
   v(3pt)
   table(
     columns: (65pt, 45pt, 115pt, 1fr),
@@ -189,10 +189,10 @@
     align: (center, center, left, left),
     table.header([*Fecha*], [*Versión*], [*Creado por*], [*Descripción de los cambios*]),
     ..history.map(row => (
-      text(size: 8pt)[#row.at("date", default: "")],
-      text(size: 8pt, weight: "bold")[#row.at("version", default: "")],
-      text(size: 8pt)[#row.at("author", default: "")],
-      text(size: 8pt)[#row.at("summary", default: "")]
+      [#row.at("date", default: "")],
+      text(weight: "bold")[#row.at("version", default: "")],
+      [#row.at("author", default: "")],
+      [#row.at("summary", default: "")]
     )).flatten()
   )
 
@@ -208,7 +208,6 @@
     for ref-item in references [
       - #ref-item
     ]
-    v(0.3cm)
   }
 
   // ==========================================
@@ -220,7 +219,6 @@
   // SECCIÓN OPCIONAL: VALIDEZ Y GESTIÓN
   // ==========================================
   if validity != none or owner-role != none {
-    v(0.4cm)
     heading(level: 1)[Validez y gestión de documentos]
     let val-date = if validity != none and validity != "" { validity } else { date }
     let val-owner = if owner-role != none and owner-role != "" {
@@ -267,9 +265,9 @@
 
     align(left)[
       #block(width: 220pt, breakable: false)[
-        #text(size: 8.5pt, weight: "bold")[#sig-role]\
+        #text(weight: "bold")[#sig-role]\
         #v(2pt)
-        #text(size: 8.5pt)[#sig-name]\
+        #text()[#sig-name]\
         #v(1.4cm)
         #line(length: 100%, stroke: 0.5pt + luma(120))
       ]
