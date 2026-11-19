@@ -3,7 +3,7 @@
 // formato oficial del instructor "Apéndice Formulario para medidas correctivas".
 // CERO datos de instancia institucional en este archivo.
 
-#import "../common/template.typ": doc-template, status-tag, rag-tag
+#import "../common/template.typ": doc-template
 
 #let render-capa-12row-form(item) = {
   let is-yes = item.at("need-action", default: "SÍ") == "SÍ" or item.at("need-action", default: "SÍ") == "SI"
@@ -14,130 +14,130 @@
   ]
 
   let rag = item.at("rag-status", default: none)
-  let status-badge = if rag != none { h(8pt) + status-tag(rag) } else { [] }
+  let status-badge = if rag != none { h(8pt) + [*#rag*] } else { [] }
 
   table(
     columns: (1.2fr, 1.2fr, 0.8fr),
     stroke: 0.5pt + luma(170),
     fill: (col, row) => if row == 0 { rgb("#f1f5f9") } else { none },
-    inset: (x: 8pt, y: 6pt),
+    inset: (x: 8pt, y: 5pt),
     align: (left, left, left),
 
     // Fila 1: Medida correctiva nro.____
     table.cell(colspan: 3)[
-      #text(weight: "bold", size: 10pt)[Medida correctiva nro. #item.at("capa-id", default: "_____")] #status-badge
+      *Medida correctiva nro. #item.at("capa-id", default: "_____")* #status-badge
     ],
 
     // Fila 2: Descripción de la no-conformidad:
     table.cell(colspan: 3)[
-      #text(weight: "bold", size: 8.5pt)[Descripción de la no-conformidad:]\
+      *Descripción de la no-conformidad:*\
       #v(2pt)
-      #text(size: 8.5pt)[#item.at("description", default: "")]
+      #item.at("description", default: "")
     ],
 
     // Fila 3: 3 columnas (No-conformidad identificada en | Nombre de la persona | Firma)
     [
-      #text(weight: "bold", size: 8.5pt)[No-conformidad identificada en:]\
+      *No-conformidad identificada en:*\
       #v(2pt)
-      #text(size: 8.5pt)[#item.at("source", default: "")]
+      #item.at("source", default: "")
     ],
     [
-      #text(weight: "bold", size: 8.5pt)[Nombre de la persona que identificó la no-conformidad:]\
+      *Nombre de la persona que identificó la no-conformidad:*\
       #v(2pt)
-      #text(size: 8.5pt)[#item.at("identified-by", default: "")]
+      #item.at("identified-by", default: "")
     ],
     [
-      #text(weight: "bold", size: 8.5pt)[Firma:]\
+      *Firma:*\
       #v(2pt)
-      #text(size: 7.5pt, fill: luma(90))[#item.at("identifier-signature", default: "Firma registrada en PIMS")]
+      #text(fill: luma(90))[#item.at("identifier-signature", default: "Firma registrada en PIMS")]
     ],
 
     // Fila 4: Causa de la no-conformidad:
     table.cell(colspan: 3)[
-      #text(weight: "bold", size: 8.5pt)[Causa de la no-conformidad:]\
+      *Causa de la no-conformidad:*\
       #v(2pt)
-      #text(size: 8.5pt)[#item.at("root-cause", default: item.at("cause", default: ""))]
+      #item.at("root-cause", default: item.at("cause", default: ""))
     ],
 
     // Fila 5: Si ya existe una no conformidad similar, indique aquí su Medida correctiva Nro.:
     table.cell(colspan: 3)[
-      #text(weight: "bold", size: 8.5pt)[Si ya existe una no conformidad similar, indique aquí su Medida correctiva Nro.:]\
+      *Si ya existe una no conformidad similar, indique aquí su Medida correctiva Nro.:*\
       #v(2pt)
-      #text(size: 8.5pt)[#item.at("similar-nc", default: "No registra")]
+      #item.at("similar-nc", default: "No registra")
     ],
 
     // Fila 6: ¿Es necesario tomar medidas correctivas? SÍ - NO (marcar con un círculo)
     table.cell(colspan: 3)[
-      #text(weight: "bold", size: 8.5pt)[¿Es necesario tomar medidas correctivas? SÍ - NO (marcar con un círculo)]\
+      *¿Es necesario tomar medidas correctivas? SÍ - NO (marcar con un círculo)*\
       #v(3pt)
       #need-circle
     ],
 
     // Fila 7: Medida correctiva a implementar:
     table.cell(colspan: 3)[
-      #text(weight: "bold", size: 8.5pt)[Medida correctiva a implementar:]\
+      *Medida correctiva a implementar:*\
       #v(2pt)
-      #text(size: 8.5pt)[#item.at("action-plan", default: item.at("action", default: ""))]
+      #item.at("action-plan", default: item.at("action", default: ""))
     ],
 
     // Fila 8: ¿Quién debe estar informado sobre la medida implementada?:
     table.cell(colspan: 3)[
-      #text(weight: "bold", size: 8.5pt)[¿Quién debe estar informado sobre la medida implementada?:]\
+      *¿Quién debe estar informado sobre la medida implementada?:*\
       #v(2pt)
-      #text(size: 8.5pt)[#item.at("informed-parties", default: "")]
+      #item.at("informed-parties", default: "")
     ],
 
     // Fila 9: 3 columnas (Aprobado por | Fecha límite para la implementación | Persona responsable)
     [
-      #text(weight: "bold", size: 8.5pt)[Aprobado por:]\
+      *Aprobado por:*\
       #v(2pt)
-      #text(size: 8.5pt)[#item.at("approved-by", default: "")]
+      #item.at("approved-by", default: "")
     ],
     [
-      #text(weight: "bold", size: 8.5pt)[Fecha límite para la implementación:]\
+      *Fecha límite para la implementación:*\
       #v(2pt)
-      #text(size: 8.5pt)[#item.at("deadline", default: "")]
+      #item.at("deadline", default: "")
     ],
     [
-      #text(weight: "bold", size: 8.5pt)[Persona responsable de la implementación:]\
+      *Persona responsable de la implementación:*\
       #v(2pt)
-      #text(size: 8.5pt)[#item.at("responsible", default: item.at("owner", default: ""))]
+      #item.at("responsible", default: item.at("owner", default: ""))
     ],
 
     // Fila 10: 2 columnas (Medida correctiva implementada el | Firma)
     table.cell(colspan: 2)[
-      #text(weight: "bold", size: 8.5pt)[Medida correctiva implementada el:] #item.at("implemented-date", default: "")
+      *Medida correctiva implementada el:* #item.at("implemented-date", default: "")
     ],
     [
-      #text(weight: "bold", size: 8.5pt)[Firma:]\
+      *Firma:*\
       #v(2pt)
-      #text(size: 7.5pt, fill: luma(90))[#item.at("implementer-signature", default: "Firma registrada en PIMS")]
+      #text(fill: luma(90))[#item.at("implementer-signature", default: "Firma registrada en PIMS")]
     ],
 
     // Fila 11: 2 columnas (Efectividad de la medida implementada revisada el | Firma)
     table.cell(colspan: 2)[
-      #text(weight: "bold", size: 8.5pt)[Efectividad de la medida implementada revisada el:] #item.at("effectiveness-date", default: "")
+      *Efectividad de la medida implementada revisada el:* #item.at("effectiveness-date", default: "")
       #(if item.at("effectiveness-notes", default: "") != "" [\
         #v(2pt)
-        #text(size: 8pt, style: "italic")[#item.at("effectiveness-notes")]
+        #text(style: "italic")[#item.at("effectiveness-notes")]
       ])
     ],
     [
-      #text(weight: "bold", size: 8.5pt)[Firma:]\
+      *Firma:*\
       #v(2pt)
-      #text(size: 7.5pt, fill: luma(90))[#item.at("reviewer-signature", default: "Firma registrada en PIMS")]
+      #text(fill: luma(90))[#item.at("reviewer-signature", default: "Firma registrada en PIMS")]
     ],
 
     // Fila 12: 2 columnas (Si es necesario realizar cambios al documento... | Firma)
     table.cell(colspan: 2)[
-      #text(weight: "bold", size: 8.5pt)[Si es necesario realizar cambios al documento, especifíquelos aquí:]\
+      *Si es necesario realizar cambios al documento, especifíquelos aquí:*\
       #v(2pt)
-      #text(size: 8.5pt)[#item.at("system-changes", default: "No requiere cambios.")]
+      #item.at("system-changes", default: "No requiere cambios.")
     ],
     [
-      #text(weight: "bold", size: 8.5pt)[Firma:]\
+      *Firma:*\
       #v(2pt)
-      #text(size: 7.5pt, fill: luma(90))[#item.at("custodian-signature", default: "Firma registrada en PIMS")]
+      #text(fill: luma(90))[#item.at("custodian-signature", default: "Firma registrada en PIMS")]
     ]
   )
 }
@@ -153,6 +153,7 @@
 
   show: doc-template.with(
     title: metadata.at("title", default: "Apéndice: Formulario para medidas correctivas"),
+    short-title: metadata.at("short-title", default: none),
     code: metadata.at("code", default: "G4-REG-CAPA-01"),
     version: metadata.at("version", default: "3.0"),
     date: metadata.at("date", default: "2025-10-28"),

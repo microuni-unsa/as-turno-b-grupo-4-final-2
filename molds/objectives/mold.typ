@@ -4,7 +4,7 @@
 // Gramática del instructor: Objetivo/alcance/usuarios -> Documentos de referencia -> Secciones sustantivas -> Gestión de registros -> Validez y gestión -> Bloque de firma
 // ZERO datos de instancia en este archivo.
 
-#import "../common/template.typ": doc-template, status-tag, rag-tag, callout, reference-docs, signature-block
+#import "../common/template.typ": doc-template
 
 #let mold(data: (:), body: none) = {
   let title = data.at("title", default: "Tabla de Objetivos de Privacidad de la Información")
@@ -24,6 +24,7 @@
   ))
   let validity = data.at("validity", default: "2026-10-28")
   let owner-role = data.at("owner-role", default: "Oficial de Seguridad de la Información (OSI / DPO)")
+  let short-title = data.at("short-title", default: none)
 
   let objective-text = data.at("objective_text", default: [
     El objetivo de este documento es establecer y formalizar los objetivos medibles de privacidad de la información y los planes de acción para alcanzarlos en la Universidad Nacional de San Agustín de Arequipa (UNSA), en concordancia con la Cláusula 6.2 de la norma internacional ISO/IEC 27701:2025.
@@ -63,6 +64,7 @@
 
   doc-template(
     title: title,
+    short-title: short-title,
     code: code,
     version: version,
     date: date,
@@ -97,24 +99,25 @@
       Los objetivos de privacidad han sido formulados en estricta coherencia con la Política de Privacidad (`G4-POL-01`), operacionalizando los compromisos de legalidad, minimización, seguridad multisede, atención de derechos ARCO y resiliencia ante incidentes en metas cuantitativas y verificables.
     ])
 
-    = Matriz de Objetivos de Privacidad y Plan de Acción (Cláusula 6.2)
-    #v(3pt)
-    #table(
-      columns: (35pt, 110pt, 85pt, 70pt, 80pt, 50pt, 45pt),
-      fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
-      stroke: 0.5pt + luma(190),
-      align: (center, left, left, left, left, center, center),
-      table.header([*N°*], [*Objetivo de Privacidad*], [*Indicador / Meta (KPI)*], [*Qué se Hará / Recursos*], [*Responsable*], [*Plazo*], [*Estado*]),
-      ..data.at("objectives", default: ()).map(obj => (
-        text(size: 8pt)[#obj.at("id")],
-        text(size: 8pt)[#obj.at("objective")],
-        text(size: 7.5pt)[#obj.at("kpi")],
-        text(size: 7.5pt)[#obj.at("action")],
-        text(size: 7.5pt)[#obj.at("responsible")],
-        text(size: 7.5pt)[#obj.at("term")],
-        status-tag(obj.at("status", default: "VIGENTE"))
-      )).flatten()
-    )
+    #page(flipped: true)[
+      = Matriz de Objetivos de Privacidad y Plan de Acción (Cláusula 6.2)
+      #table(
+        columns: (35pt, 1.3fr, 1.2fr, 1.1fr, 1fr, 65pt, 65pt),
+        fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
+        stroke: 0.5pt + luma(190),
+        align: (center, left, left, left, left, center, center),
+        table.header([*N°*], [*Objetivo de Privacidad*], [*Indicador / Meta (KPI)*], [*Qué se Hará / Recursos*], [*Responsable*], [*Plazo*], [*Estado*]),
+        ..data.at("objectives", default: ()).map(obj => (
+          [#obj.at("id")],
+          [#obj.at("objective")],
+          [#obj.at("kpi")],
+          [#obj.at("action")],
+          [#obj.at("responsible")],
+          [#obj.at("term")],
+          [*#obj.at("status", default: "VIGENTE")*]
+        )).flatten()
+      )
+    ]
 
     = Mecanismo de Seguimiento, Medición y Evaluación de Resultados (Cláusula 9.1)
     #data.at("monitoring", default: [
@@ -135,11 +138,11 @@
         [*Tiempo de retención*]
       ),
       ..records-data.map(row => (
-        text(size: 8pt, weight: "bold")[#row.at("name")],
-        text(size: 7.5pt)[#row.at("location")],
-        text(size: 7.5pt)[#row.at("responsible")],
-        text(size: 7.5pt)[#row.at("controls")],
-        text(size: 7.5pt)[#row.at("retention")]
+        [*#row.at("name")*],
+        [#row.at("location")],
+        [#row.at("responsible")],
+        [#row.at("controls")],
+        [#row.at("retention")]
       )).flatten()
     )
 

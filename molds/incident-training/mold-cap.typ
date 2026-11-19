@@ -4,7 +4,7 @@
 // (tabla de competencias de 6 columnas, calendario anual de 13 columnas, bloque de 4 responsabilidades y retención).
 // CERO datos de instancia institucional en este archivo.
 
-#import "../common/template.typ": doc-template, status-tag, rag-tag
+#import "../common/template.typ": doc-template
 
 #let mold-cap(
   metadata: (:),
@@ -16,6 +16,7 @@
 ) = {
   show: doc-template.with(
     title: metadata.at("title", default: "Plan de capacitación y concienciación"),
+    short-title: metadata.at("short-title", default: none),
     code: metadata.at("code", default: "G4-CAP-INC-01"),
     version: metadata.at("version", default: "3.0"),
     date: metadata.at("date", default: "2025-10-28"),
@@ -35,7 +36,7 @@
 
     #v(0.2cm)
     #table(
-      columns: (80pt, 95pt, 85pt, 75pt, 50pt, 1fr),
+      columns: (80pt, 1.15fr, 85pt, 65pt, 68pt, 1.1fr),
       fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
       stroke: 0.5pt + luma(190),
       align: (left, left, left, left, center, left),
@@ -48,12 +49,12 @@
         [*Conocimientos, habilidades y experiencia logrados*]
       ),
       ..competence-rows.map(row => (
-        text(size: 7.5pt, weight: "bold")[#row.at("role", default: "")],
-        text(size: 7.5pt)[#row.at("required-knowledge", default: "")],
-        text(size: 7.5pt)[#row.at("training-needed", default: "")],
-        text(size: 7.5pt)[#row.at("evidence-record", default: "")],
-        status-tag(row.at("achieved", default: "SÍ")),
-        text(size: 7.5pt)[#row.at("skills-gained", default: "")]
+        [*#row.at("role", default: "")*],
+        [#row.at("required-knowledge", default: "")],
+        [#row.at("training-needed", default: "")],
+        [#row.at("evidence-record", default: "")],
+        [*#row.at("achieved", default: "SÍ")*],
+        [#row.at("skills-gained", default: "")]
       )).flatten()
     )
 
@@ -64,7 +65,7 @@
 
     #v(0.2cm)
     #table(
-      columns: (125pt, 14pt, 14pt, 14pt, 14pt, 14pt, 14pt, 14pt, 14pt, 14pt, 14pt, 14pt, 14pt),
+      columns: (1fr, 18pt, 18pt, 18pt, 18pt, 18pt, 18pt, 18pt, 18pt, 18pt, 18pt, 18pt, 18pt),
       fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
       stroke: 0.5pt + luma(190),
       align: (left, center, center, center, center, center, center, center, center, center, center, center, center),
@@ -73,19 +74,19 @@
         [*E*], [*F*], [*M*], [*A*], [*M*], [*J*], [*J*], [*A*], [*S*], [*O*], [*N*], [*D*]
       ),
       ..calendar-data.map(item => (
-        text(size: 7.5pt)[#item.at("method", default: "")],
-        text(size: 7pt)[#item.at("m1", default: "")],
-        text(size: 7pt)[#item.at("m2", default: "")],
-        text(size: 7pt)[#item.at("m3", default: "")],
-        text(size: 7pt)[#item.at("m4", default: "")],
-        text(size: 7pt)[#item.at("m5", default: "")],
-        text(size: 7pt)[#item.at("m6", default: "")],
-        text(size: 7pt)[#item.at("m7", default: "")],
-        text(size: 7pt)[#item.at("m8", default: "")],
-        text(size: 7pt)[#item.at("m9", default: "")],
-        text(size: 7pt)[#item.at("m10", default: "")],
-        text(size: 7pt)[#item.at("m11", default: "")],
-        text(size: 7pt)[#item.at("m12", default: "")]
+        [#item.at("method", default: "")],
+        [#item.at("m1", default: "")],
+        [#item.at("m2", default: "")],
+        [#item.at("m3", default: "")],
+        [#item.at("m4", default: "")],
+        [#item.at("m5", default: "")],
+        [#item.at("m6", default: "")],
+        [#item.at("m7", default: "")],
+        [#item.at("m8", default: "")],
+        [#item.at("m9", default: "")],
+        [#item.at("m10", default: "")],
+        [#item.at("m11", default: "")],
+        [#item.at("m12", default: "")]
       )).flatten()
     )
 

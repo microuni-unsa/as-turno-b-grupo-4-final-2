@@ -2,6 +2,7 @@
 
 #let data = (
   title: "Tabla de Objetivos de Privacidad de la Información (SGPI)",
+  short-title: "Objetivos de Privacidad SGPI",
   code: "G4-OBJ-01",
   version: "3.0",
   date: "2025-10-28",

@@ -6,6 +6,7 @@
 #show: mold.with(
   metadata: (
     title: "Procedimiento para control de documentos y registros",
+    short-title: "Control de Documentos y Registros",
     code: "G4-PRC-DOC-01",
     version: "3.0",
     date: "2025-10-28",

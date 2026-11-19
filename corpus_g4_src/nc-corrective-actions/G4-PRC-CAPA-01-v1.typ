@@ -6,6 +6,7 @@
 #show: mold-prc-capa.with(
   metadata: (
     title: "Procedimiento para medidas correctivas",
+    short-title: "Procedimiento de Medidas Correctivas",
     code: "G4-PRC-CAPA-01",
     version: "1.0",
     date: "2019-04-15",

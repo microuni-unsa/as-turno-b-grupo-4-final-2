@@ -2,6 +2,7 @@
 
 #let data = (
   title: "Determinación del Alcance del SGPI",
+  short-title: "Alcance del SGPI",
   code: "G4-ALC-01",
   version: "3.0",
   date: "2025-10-28",

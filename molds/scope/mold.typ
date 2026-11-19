@@ -4,7 +4,7 @@
 // Gramática del instructor: Objetivo/alcance/usuarios -> Documentos de referencia -> Secciones sustantivas -> Gestión de registros -> Validez y gestión -> Bloque de firma
 // ZERO datos de instancia en este archivo.
 
-#import "../common/template.typ": doc-template, status-tag, rag-tag, callout, reference-docs, signature-block
+#import "../common/template.typ": doc-template
 
 #let mold(data: (:), body: none) = {
   let title = data.at("title", default: "Determinación del Alcance del SGPI")
@@ -24,6 +24,7 @@
   ))
   let validity = data.at("validity", default: "2026-10-28")
   let owner-role = data.at("owner-role", default: "Oficial de Seguridad de la Información (OSI / DPO)")
+  let short-title = data.at("short-title", default: none)
 
   let objective-text = data.at("objective_text", default: [
     El objetivo de este documento es definir formalmente los límites organizacionales, geográficos, operativos y tecnológicos del Sistema de Gestión de Privacidad de la Información (SGPI) de la Universidad Nacional de San Agustín de Arequipa (UNSA), de conformidad con las Cláusulas 4.3 y 4.4 de la norma internacional ISO/IEC 27701:2025 y la Ley N° 29733.
@@ -63,6 +64,7 @@
 
   doc-template(
     title: title,
+    short-title: short-title,
     code: code,
     version: version,
     date: date,
@@ -169,11 +171,11 @@
         [*Tiempo de retención*]
       ),
       ..records-data.map(row => (
-        text(size: 8pt, weight: "bold")[#row.at("name")],
-        text(size: 7.5pt)[#row.at("location")],
-        text(size: 7.5pt)[#row.at("responsible")],
-        text(size: 7.5pt)[#row.at("controls")],
-        text(size: 7.5pt)[#row.at("retention")]
+        [*#row.at("name")*],
+        [#row.at("location")],
+        [#row.at("responsible")],
+        [#row.at("controls")],
+        [#row.at("retention")]
       )).flatten()
     )
 

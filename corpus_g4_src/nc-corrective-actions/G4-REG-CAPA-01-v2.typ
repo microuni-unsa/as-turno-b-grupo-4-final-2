@@ -6,6 +6,7 @@
 #show: mold-reg-capa.with(
   metadata: (
     title: "Apéndice: Formulario para medidas correctivas",
+    short-title: "Formulario de Medidas Correctivas",
     code: "G4-REG-CAPA-01",
     version: "2.0",
     date: "2022-09-10",

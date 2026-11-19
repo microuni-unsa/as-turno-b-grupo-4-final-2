@@ -6,6 +6,7 @@
 #show: mold-cap.with(
   metadata: (
     title: "Plan de capacitación y concienciación",
+    short-title: "Plan de Capacitación y Concienciación",
     code: "G4-CAP-INC-01",
     version: "1.0",
     date: "2019-04-15",

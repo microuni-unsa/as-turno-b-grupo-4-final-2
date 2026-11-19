@@ -3,7 +3,7 @@
 // y replica la estructura exacta del formato oficial del instructor "Procedimiento para medidas correctivas".
 // CERO datos de instancia institucional en este archivo.
 
-#import "../common/template.typ": doc-template, status-tag, rag-tag, callout
+#import "../common/template.typ": doc-template
 
 #let mold-prc-capa(
   metadata: (:),
@@ -16,6 +16,7 @@
 ) = {
   show: doc-template.with(
     title: metadata.at("title", default: "Procedimiento para medidas correctivas"),
+    short-title: metadata.at("short-title", default: none),
     code: metadata.at("code", default: "G4-PRC-CAPA-01"),
     version: metadata.at("version", default: "3.0"),
     date: metadata.at("date", default: "2025-10-28"),

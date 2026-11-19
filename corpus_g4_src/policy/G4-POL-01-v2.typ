@@ -2,6 +2,7 @@
 
 #let data = (
   title: "Política de Privacidad de la Información",
+  short-title: "Política de Privacidad",
   code: "G4-POL-01",
   version: "2.0",
   date: "2022-09-10",

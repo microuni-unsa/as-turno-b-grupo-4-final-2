@@ -2,7 +2,7 @@
 // Cumple con ISO/IEC 27701:2025 Cláusula 7.2 (Competencia), Control A.3.17 y Guía B.3.17.
 // CERO datos de instancia institucional en este archivo.
 
-#import "../common/template.typ": doc-template, status-tag, rag-tag
+#import "../common/template.typ": doc-template
 
 #let mold-reg-cap(
   metadata: (:),
@@ -16,6 +16,7 @@
 ) = {
   show: doc-template.with(
     title: metadata.at("title", default: "Registro de Asistencia y Evaluación"),
+    short-title: metadata.at("short-title", default: none),
     code: metadata.at("code", default: "G4-REG-CAP-01"),
     version: metadata.at("version", default: "3.0"),
     date: metadata.at("date", default: "2025-10-28"),
@@ -55,13 +56,13 @@
       align: (center, left, left, center, center, center, center),
       table.header(..table-headers),
       ..attendees.map(a => (
-        text(size: 7.5pt)[#a.at("dni", default: "")],
-        text(size: 7.5pt, weight: "bold")[#a.at("name", default: "")],
-        text(size: 7.5pt)[#a.at("role-unit", default: "")],
-        text(size: 7.5pt)[#a.at("attendance", default: "100%")],
-        text(size: 7.5pt)[#a.at("pre-test", default: "-")],
-        text(size: 7.5pt, weight: "bold")[#a.at("post-test", default: "-")],
-        status-tag(a.at("status", default: "APROBADO"))
+        [#a.at("dni", default: "")],
+        [*#a.at("name", default: "")*],
+        [#a.at("role-unit", default: "")],
+        [#a.at("attendance", default: "100%")],
+        [#a.at("pre-test", default: "-")],
+        [*#a.at("post-test", default: "-")*],
+        [*#a.at("status", default: "APROBADO")*]
       )).flatten()
     )
 

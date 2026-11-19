@@ -6,6 +6,7 @@
 #show: mold-reg-cap.with(
   metadata: (
     title: "Registro de Asistencia y Evaluación",
+    short-title: "Registro de Asistencia y Evaluación",
     code: "G4-REG-CAP-01",
     version: "1.0",
     date: "2019-04-15",
