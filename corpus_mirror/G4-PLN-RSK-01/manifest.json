@@ -3,7 +3,7 @@
   "pims_doc_id": "G4-PLN-RSK-01",
   "title": "Plan de tratamiento del riesgo",
   "latest_version": "3.0",
-  "updated_at": "2026-11-19T16:30:15.232Z",
+  "updated_at": "2026-11-19T19:15:27.277Z",
   "versions": [
     {
       "version": "1.0",
@@ -14,22 +14,22 @@
       "mold_path": "corpus_g4_src/incident-risks/G4-PLN-RSK-01-v1.typ",
       "filename": "v1.pdf",
       "file_path": "corpus_mirror/G4-PLN-RSK-01/v1.pdf",
-      "sha256": "3b2228aba1e32b7b4361f58b26d63cb04ac50304d59b371e936d8d2d9ccb072d",
+      "sha256": "38a5a6256688ff5c4f8c019de8c2629a8f048b5303256b8441914406650fbafa",
       "files": [
         {
           "filename": "v1.pdf",
           "file_path": "corpus_mirror/G4-PLN-RSK-01/v1.pdf",
           "format": "pdf",
-          "sha256": "3b2228aba1e32b7b4361f58b26d63cb04ac50304d59b371e936d8d2d9ccb072d",
-          "size_bytes": 541266,
+          "sha256": "38a5a6256688ff5c4f8c019de8c2629a8f048b5303256b8441914406650fbafa",
+          "size_bytes": 541282,
           "source_mold": "corpus_g4_src/incident-risks/G4-PLN-RSK-01-v1.typ"
         },
         {
           "filename": "v1.xlsx",
           "file_path": "corpus_mirror/G4-PLN-RSK-01/v1.xlsx",
           "format": "xlsx",
-          "sha256": "c2c5a66d62ca7d9d1587ba6b4baa3c6cbad9082b1c77353eef8ac1ff63056d9e",
-          "size_bytes": 8563,
+          "sha256": "df0b94145d86c85b499d850a8aeb9a1375ab16294a6035e7ef0c45c2826dc30f",
+          "size_bytes": 9187,
           "source_mold": "molds/incident-risks/generate-treatment.ts"
         }
       ]
@@ -43,22 +43,22 @@
       "mold_path": "corpus_g4_src/incident-risks/G4-PLN-RSK-01-v2.typ",
       "filename": "v2.pdf",
       "file_path": "corpus_mirror/G4-PLN-RSK-01/v2.pdf",
-      "sha256": "822898e5017ddc9f6ca11fb78ec4beb5413910e09a25c8bc9f19c8e0a5067284",
+      "sha256": "fc955708e883e4aa0b1c8a9967cf54061bbbe8dd4c4fc6c73398865a980f4180",
       "files": [
         {
           "filename": "v2.pdf",
           "file_path": "corpus_mirror/G4-PLN-RSK-01/v2.pdf",
           "format": "pdf",
-          "sha256": "822898e5017ddc9f6ca11fb78ec4beb5413910e09a25c8bc9f19c8e0a5067284",
-          "size_bytes": 549984,
+          "sha256": "fc955708e883e4aa0b1c8a9967cf54061bbbe8dd4c4fc6c73398865a980f4180",
+          "size_bytes": 552117,
           "source_mold": "corpus_g4_src/incident-risks/G4-PLN-RSK-01-v2.typ"
         },
         {
           "filename": "v2.xlsx",
           "file_path": "corpus_mirror/G4-PLN-RSK-01/v2.xlsx",
           "format": "xlsx",
-          "sha256": "beec68629e9deacbfeaffdc40e05eef75264020b8b115b893eb97aab36d5b0c6",
-          "size_bytes": 9254,
+          "sha256": "a3ab3222d1861d10fe10104a41669af33d1617d554e08a89674c1207ca1ced3d",
+          "size_bytes": 9888,
           "source_mold": "molds/incident-risks/generate-treatment.ts"
         }
       ]
@@ -72,22 +72,22 @@
       "mold_path": "corpus_g4_src/incident-risks/G4-PLN-RSK-01-v3.typ",
       "filename": "v3.pdf",
       "file_path": "corpus_mirror/G4-PLN-RSK-01/v3.pdf",
-      "sha256": "7759c00052af4366e75d07e71881808ab683e34abde372292fedcc8bf09eeccf",
+      "sha256": "1288a970061ff3ca861d9572d065a8ce73388eb49f0cbc6572101a26bac52354",
       "files": [
         {
           "filename": "v3.pdf",
           "file_path": "corpus_mirror/G4-PLN-RSK-01/v3.pdf",
           "format": "pdf",
-          "sha256": "7759c00052af4366e75d07e71881808ab683e34abde372292fedcc8bf09eeccf",
-          "size_bytes": 559110,
+          "sha256": "1288a970061ff3ca861d9572d065a8ce73388eb49f0cbc6572101a26bac52354",
+          "size_bytes": 562185,
           "source_mold": "corpus_g4_src/incident-risks/G4-PLN-RSK-01-v3.typ"
         },
         {
           "filename": "v3.xlsx",
           "file_path": "corpus_mirror/G4-PLN-RSK-01/v3.xlsx",
           "format": "xlsx",
-          "sha256": "5b408aa8f7276d827a1090e25137f6afdccdd4a9faeb54ca162ca6151323f899",
-          "size_bytes": 9968,
+          "sha256": "3f11cb4069b5257a29d2d83e0006ba9e28a08399a1adcbfb1ec871b8a066f723",
+          "size_bytes": 10613,
           "source_mold": "molds/incident-risks/generate-treatment.ts"
         }
       ]

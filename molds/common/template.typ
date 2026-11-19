@@ -2,61 +2,6 @@
 // Cumple con el contrato de 15 elementos, ISO/IEC 27701:2025 y el formato del instructor
 // Actualizado con las 6 correcciones de estandarización visual y tipografía Carlito 11pt (Word 1.15)
 
-#let status-tag(status) = {
-  let bg = rgb("#e2e8f0")
-  let fg = rgb("#334155")
-  if status == "VIGENTE" or status == "CERRADA" or status == "IMPLEMENTADO" or status == "BAJO" or status == "APROBADO" {
-    bg = rgb("#dcfce7")
-    fg = rgb("#166534")
-  } else if status == "OBSOLETO" or status == "ABIERTA" or status == "ALTO" or status == "CRITICO" or status == "RECHAZADO" {
-    bg = rgb("#fee2e2")
-    fg = rgb("#991b1b")
-  } else if status == "EN_REVISION" or status == "EN_CURSO" or status == "MEDIO" or status == "BORRADOR" {
-    bg = rgb("#fef3c7")
-    fg = rgb("#92400e")
-  }
-  box(fill: bg, radius: 3pt, inset: (x: 5pt, y: 2.5pt))[
-    #text(fill: fg, weight: "bold")[#status]
-  ]
-}
-
-#let rag-tag(level) = {
-  let bg = rgb("#e2e8f0")
-  let fg = rgb("#334155")
-  let label = level
-  if level == "RED" or level == "ROJO" or level == "CRÍTICO" {
-    bg = rgb("#fee2e2")
-    fg = rgb("#991b1b")
-    label = "ROJO"
-  } else if level == "AMBER" or level == "AMARILLO" or level == "MEDIO" {
-    bg = rgb("#fef3c7")
-    fg = rgb("#92400e")
-    label = "ÁMBAR"
-  } else if level == "GREEN" or level == "VERDE" or level == "BAJO" {
-    bg = rgb("#dcfce7")
-    fg = rgb("#166534")
-    label = "VERDE"
-  }
-  box(fill: bg, radius: 3pt, inset: (x: 6pt, y: 2.5pt))[
-    #text(fill: fg, weight: "bold")[#label]
-  ]
-}
-
-#let callout(title: "NOTA NORMATIVA", color: rgb("#0284c7"), body) = {
-  block(
-    width: 100%,
-    stroke: (left: 3pt + color),
-    fill: rgb("#f8fafc"),
-    inset: (left: 10pt, y: 7pt, right: 8pt),
-    radius: (right: 3pt),
-    [
-      #text(weight: "bold", fill: color)[#title]\
-      #v(2pt)
-      #text(fill: luma(60))[#body]
-    ]
-  )
-}
-
 #let format-person(p) = {
   if type(p) == dictionary {
     let n = p.at("name", default: "")

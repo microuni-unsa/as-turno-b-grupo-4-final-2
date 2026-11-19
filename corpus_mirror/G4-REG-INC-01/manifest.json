@@ -3,7 +3,7 @@
   "pims_doc_id": "G4-REG-INC-01",
   "title": "Registro Oficial de Incidentes de Privacidad (SGPI)",
   "latest_version": "3.0",
-  "updated_at": "2026-11-19T16:30:15.232Z",
+  "updated_at": "2026-11-19T19:15:27.276Z",
   "versions": [
     {
       "version": "1.0",
@@ -14,22 +14,22 @@
       "mold_path": "corpus_g4_src/incident-register/G4-REG-INC-01-v1.typ",
       "filename": "v1.pdf",
       "file_path": "corpus_mirror/G4-REG-INC-01/v1.pdf",
-      "sha256": "2f939627e7daf663a8c81e798d3510ea42959062b54f4d2016fb3d29ddb42f8c",
+      "sha256": "a7bb2f3eb0cb6dfb9bdf4ac71b1b30c5d72c8ce6816919c4c3556ecda3a3d2fc",
       "files": [
         {
           "filename": "v1.pdf",
           "file_path": "corpus_mirror/G4-REG-INC-01/v1.pdf",
           "format": "pdf",
-          "sha256": "2f939627e7daf663a8c81e798d3510ea42959062b54f4d2016fb3d29ddb42f8c",
-          "size_bytes": 610601,
+          "sha256": "a7bb2f3eb0cb6dfb9bdf4ac71b1b30c5d72c8ce6816919c4c3556ecda3a3d2fc",
+          "size_bytes": 614464,
           "source_mold": "corpus_g4_src/incident-register/G4-REG-INC-01-v1.typ"
         },
         {
           "filename": "v1.xlsx",
           "file_path": "corpus_mirror/G4-REG-INC-01/v1.xlsx",
           "format": "xlsx",
-          "sha256": "1893b5e336372d03198619e5a39fc5591137e83ac710aaeaa7c3b143e0ec3dd1",
-          "size_bytes": 6533,
+          "sha256": "b9279b65cc56760723122262e8fb965f8f301787b6b3d362d78cea4d8a6d9312",
+          "size_bytes": 7161,
           "source_mold": "molds/incident-register/generate.ts"
         }
       ]
@@ -43,22 +43,22 @@
       "mold_path": "corpus_g4_src/incident-register/G4-REG-INC-01-v2.typ",
       "filename": "v2.pdf",
       "file_path": "corpus_mirror/G4-REG-INC-01/v2.pdf",
-      "sha256": "7c5c0c0290ca51454a244d8f0a64c9327f4041d58a92779ddc5fb9d3a214e9e2",
+      "sha256": "545aa66a0aadd7d8087ce2736bb38bfb8b051618a5ffa84b0b67825d80e044e6",
       "files": [
         {
           "filename": "v2.pdf",
           "file_path": "corpus_mirror/G4-REG-INC-01/v2.pdf",
           "format": "pdf",
-          "sha256": "7c5c0c0290ca51454a244d8f0a64c9327f4041d58a92779ddc5fb9d3a214e9e2",
-          "size_bytes": 617360,
+          "sha256": "545aa66a0aadd7d8087ce2736bb38bfb8b051618a5ffa84b0b67825d80e044e6",
+          "size_bytes": 621279,
           "source_mold": "corpus_g4_src/incident-register/G4-REG-INC-01-v2.typ"
         },
         {
           "filename": "v2.xlsx",
           "file_path": "corpus_mirror/G4-REG-INC-01/v2.xlsx",
           "format": "xlsx",
-          "sha256": "c0289b6e9cd25f87bec46d05d76c8150cb48431797981a94b7bd2f6f6808536e",
-          "size_bytes": 10284,
+          "sha256": "e2472a70c92d7357d23faf2146299cf70dcf703a1eb528bd5f5d775afebf2783",
+          "size_bytes": 11148,
           "source_mold": "molds/incident-register/generate.ts"
         }
       ]
@@ -72,22 +72,22 @@
       "mold_path": "corpus_g4_src/incident-register/G4-REG-INC-01-v3.typ",
       "filename": "v3.pdf",
       "file_path": "corpus_mirror/G4-REG-INC-01/v3.pdf",
-      "sha256": "c0f0893f31e7c00ae4ed650c7954db639afdb5cc7397f256576877940ea8647f",
+      "sha256": "055b55214b7f33a3dd230ab5ecc1474410d561eb0c2811f7909264153a1a932f",
       "files": [
         {
           "filename": "v3.pdf",
           "file_path": "corpus_mirror/G4-REG-INC-01/v3.pdf",
           "format": "pdf",
-          "sha256": "c0f0893f31e7c00ae4ed650c7954db639afdb5cc7397f256576877940ea8647f",
-          "size_bytes": 625046,
+          "sha256": "055b55214b7f33a3dd230ab5ecc1474410d561eb0c2811f7909264153a1a932f",
+          "size_bytes": 632035,
           "source_mold": "corpus_g4_src/incident-register/G4-REG-INC-01-v3.typ"
         },
         {
           "filename": "v3.xlsx",
           "file_path": "corpus_mirror/G4-REG-INC-01/v3.xlsx",
           "format": "xlsx",
-          "sha256": "383a153aecb3deaf53216aa8408c7fdfd6e645796aaa92920a74b9933e5ff3b0",
-          "size_bytes": 15096,
+          "sha256": "641d72af34d95fd4b0e1caea324542d98a3ee338b621a5a22f203a2ffdc3da41",
+          "size_bytes": 16202,
           "source_mold": "molds/incident-register/generate.ts"
         }
       ]
