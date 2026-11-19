@@ -268,6 +268,7 @@ function getColRef(colIdx: number): string {
 interface SheetDef {
   name: string;
   rows: (string | number | null)[][];
+  headerRows?: number[];
 }
 
 interface ZipEntry {
@@ -400,36 +401,73 @@ ${sheetsXml}  </sheets>
     <font><name val="Calibri"/><sz val="11"/></font>
     <font><name val="Calibri"/><sz val="11"/><b/></font>
   </fonts>
-  <fills count="2">
+  <fills count="3">
     <fill><patternFill patternType="none"/></fill>
     <fill><patternFill patternType="gray125"/></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FFE2E8F0"/><bgColor indexed="64"/></patternFill></fill>
   </fills>
-  <borders count="1">
-    <border><left/><right/><top/><bottom/></border>
+  <borders count="2">
+    <border><left/><right/><top/><bottom/><diagonal/></border>
+    <border>
+      <left style="thin"><color auto="1"/></left>
+      <right style="thin"><color auto="1"/></right>
+      <top style="thin"><color auto="1"/></top>
+      <bottom style="thin"><color auto="1"/></bottom>
+      <diagonal/>
+    </border>
   </borders>
   <cellStyleXfs count="1">
     <xf numFmtId="0" fontId="0" fillId="0" borderId="0"/>
   </cellStyleXfs>
-  <cellXfs count="2">
+  <cellXfs count="3">
     <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
-    <xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0"/>
+    <xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>
+    <xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1"/>
   </cellXfs>
+  <cellStyles count="1">
+    <cellStyle name="Normal" xfId="0" builtinId="0"/>
+  </cellStyles>
 </styleSheet>`;
   entries.push({ path: "xl/styles.xml", data: Buffer.from(stylesXml, "utf-8") });
 
   sheets.forEach((s, sIdx) => {
+    const maxCols = Math.max(0, ...s.rows.map(r => r.length));
+    let colsXml = "";
+    if (maxCols > 0) {
+      let colsContent = "";
+      for (let cIdx = 0; cIdx < maxCols; cIdx++) {
+        let maxLen = 0;
+        for (const row of s.rows) {
+          if (cIdx < row.length) {
+            const val = row[cIdx];
+            if (val !== null && val !== undefined) {
+              const len = String(val).length;
+              if (len > maxLen) maxLen = len;
+            }
+          }
+        }
+        const width = Math.min(50, Math.max(12, maxLen));
+        colsContent += `    <col min="${cIdx + 1}" max="${cIdx + 1}" width="${width}" customWidth="1"/>\n`;
+      }
+      colsXml = `  <cols>\n${colsContent}  </cols>\n`;
+    }
+
+    const headerRows = s.headerRows ?? [0];
+
     let rowsXml = "";
     s.rows.forEach((row, rIdx) => {
       const rowNum = rIdx + 1;
+      const isHeader = headerRows.includes(rIdx);
+      const styleIdx = isHeader ? 1 : 2;
       let cellsXml = "";
       row.forEach((val, cIdx) => {
         if (val === null || val === undefined) return;
         const colRef = getColRef(cIdx);
         const cellRef = `${colRef}${rowNum}`;
         if (typeof val === "number") {
-          cellsXml += `<c r="${cellRef}"><v>${val}</v></c>`;
+          cellsXml += `<c r="${cellRef}" s="${styleIdx}"><v>${val}</v></c>`;
         } else {
-          cellsXml += `<c r="${cellRef}" t="inlineStr"><is><t>${escapeXml(String(val))}</t></is></c>`;
+          cellsXml += `<c r="${cellRef}" s="${styleIdx}" t="inlineStr"><is><t>${escapeXml(String(val))}</t></is></c>`;
         }
       });
       rowsXml += `    <row r="${rowNum}">${cellsXml}</row>\n`;
@@ -438,10 +476,12 @@ ${sheetsXml}  </sheets>
     const worksheetXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
   <sheetViews>
-    <sheetView tabSelected="${sIdx === 0 ? "1" : "0"}" workbookViewId="0"/>
+    <sheetView tabSelected="${sIdx === 0 ? "1" : "0"}" workbookViewId="0">
+      <pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/>
+    </sheetView>
   </sheetViews>
   <sheetFormatPr defaultRowHeight="15"/>
-  <sheetData>
+${colsXml}  <sheetData>
 ${rowsXml}  </sheetData>
 </worksheet>`;
     entries.push({ path: `xl/worksheets/sheet${sIdx + 1}.xml`, data: Buffer.from(worksheetXml, "utf-8") });
@@ -515,15 +555,18 @@ export function generateTreatmentXlsx(outputPath?: string, targetVersion?: "v1" 
   const sheets: SheetDef[] = [
     {
       name: "Cuadro tratamiento riesgos",
-      rows: mainSheetRows
+      rows: mainSheetRows,
+      headerRows: [0, 2, 3]
     },
     {
       name: "Opciones",
-      rows: TREATMENT_OPTIONS
+      rows: TREATMENT_OPTIONS,
+      headerRows: [0]
     },
     {
       name: "Controles",
-      rows: ISO_27701_CONTROLS
+      rows: ISO_27701_CONTROLS,
+      headerRows: [0, 2]
     }
   ];
 
