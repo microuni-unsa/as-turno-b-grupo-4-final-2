@@ -3,7 +3,7 @@
   "pims_doc_id": "G4-CAP-INC-01",
   "title": "Plan de capacitación y concienciación",
   "latest_version": "3.0",
-  "updated_at": "2026-11-19T20:57:26.375Z",
+  "updated_at": "2026-11-19T21:08:15.677Z",
   "versions": [
     {
       "version": "1.0",
@@ -14,13 +14,13 @@
       "mold_path": "corpus_g4_src/incident-training/G4-CAP-INC-01-v1.typ",
       "filename": "v1.pdf",
       "file_path": "corpus_mirror/G4-CAP-INC-01/v1.pdf",
-      "sha256": "b607571689ad7a78f92c7ca62d2b4dc7709c4f6c31e79676dda3ddc51e7c7757",
+      "sha256": "302c2df32d67edf92bf962394c1b167d72c4345d827e4e18ca15bc6034c3d0ba",
       "files": [
         {
           "filename": "v1.pdf",
           "file_path": "corpus_mirror/G4-CAP-INC-01/v1.pdf",
           "format": "pdf",
-          "sha256": "b607571689ad7a78f92c7ca62d2b4dc7709c4f6c31e79676dda3ddc51e7c7757",
+          "sha256": "302c2df32d67edf92bf962394c1b167d72c4345d827e4e18ca15bc6034c3d0ba",
           "size_bytes": 562261,
           "source_mold": "corpus_g4_src/incident-training/G4-CAP-INC-01-v1.typ"
         }
@@ -35,13 +35,13 @@
       "mold_path": "corpus_g4_src/incident-training/G4-CAP-INC-01-v2.typ",
       "filename": "v2.pdf",
       "file_path": "corpus_mirror/G4-CAP-INC-01/v2.pdf",
-      "sha256": "fa36d78e733f2ed0505ac1536d92afd09f95fdac134c5dd379a7a7b5b9710125",
+      "sha256": "76275a9deb4ea1398c695be4c78dda60cc9bce59e7b97a0a7d36ef5e14f02537",
       "files": [
         {
           "filename": "v2.pdf",
           "file_path": "corpus_mirror/G4-CAP-INC-01/v2.pdf",
           "format": "pdf",
-          "sha256": "fa36d78e733f2ed0505ac1536d92afd09f95fdac134c5dd379a7a7b5b9710125",
+          "sha256": "76275a9deb4ea1398c695be4c78dda60cc9bce59e7b97a0a7d36ef5e14f02537",
           "size_bytes": 564400,
           "source_mold": "corpus_g4_src/incident-training/G4-CAP-INC-01-v2.typ"
         }
@@ -56,13 +56,13 @@
       "mold_path": "corpus_g4_src/incident-training/G4-CAP-INC-01-v3.typ",
       "filename": "v3.pdf",
       "file_path": "corpus_mirror/G4-CAP-INC-01/v3.pdf",
-      "sha256": "160f4a254315cfb37c897f674b308258776f82d5be9e94a0bdfe21c09ec9d157",
+      "sha256": "537562d35f3cb021aa52f60860c32747fbaf3640fb9724f65d1d3cdb13a9d867",
       "files": [
         {
           "filename": "v3.pdf",
           "file_path": "corpus_mirror/G4-CAP-INC-01/v3.pdf",
           "format": "pdf",
-          "sha256": "160f4a254315cfb37c897f674b308258776f82d5be9e94a0bdfe21c09ec9d157",
+          "sha256": "537562d35f3cb021aa52f60860c32747fbaf3640fb9724f65d1d3cdb13a9d867",
           "size_bytes": 568577,
           "source_mold": "corpus_g4_src/incident-training/G4-CAP-INC-01-v3.typ"
         }

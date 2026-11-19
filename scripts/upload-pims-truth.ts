@@ -53,24 +53,24 @@ const NORMATIVE_DOC_ORDER: string[] = [
 ];
 
 const CATEGORY_MAP: Record<string, string> = {
-  "G4-ALC-01": "Alcance del SGPI",
-  "G4-POL-01": "Política de Privacidad",
-  "G4-RSK-INC-01": "Gestión de Riesgos",
-  "G4-MET-RSK-01": "Metodología de Riesgos",
-  "G4-PLN-RSK-01": "Plan de Tratamiento de Riesgos",
-  "G4-SOA-01": "Declaración de Aplicabilidad",
-  "G4-OBJ-01": "Objetivos de Privacidad",
-  "G4-PRC-DOC-01": "Control de Información Documentada",
-  "G4-CAP-INC-01": "Capacitación y Concienciación",
-  "G4-REG-CAP-01": "Registro de Capacitación",
-  "G4-PRC-INC-01": "Respuesta a Incidentes",
-  "G4-REG-INC-01": "Registro de Incidentes y Brechas",
-  "G4-PRG-AUD-01": "Programa de Auditoría",
-  "G4-REP-AUD-01": "Informe de Auditoría",
-  "G4-ACT-REV-01": "Revisión por la Dirección",
-  "G4-PRC-CAPA-01": "Mejora y Acciones Correctivas",
-  "G4-REG-CAPA-01": "Registro de Acciones Correctivas",
-  "G4-IDX-01": "Índice Maestro de Auditoría"
+  "G4-ALC-01": "PO",
+  "G4-POL-01": "PO",
+  "G4-RSK-INC-01": "RE",
+  "G4-MET-RSK-01": "PR",
+  "G4-PLN-RSK-01": "PR",
+  "G4-SOA-01": "PO",
+  "G4-OBJ-01": "PO",
+  "G4-PRC-DOC-01": "PR",
+  "G4-CAP-INC-01": "PR",
+  "G4-REG-CAP-01": "RE",
+  "G4-PRC-INC-01": "PR",
+  "G4-REG-INC-01": "RE",
+  "G4-PRG-AUD-01": "PR",
+  "G4-REP-AUD-01": "RE",
+  "G4-ACT-REV-01": "RE",
+  "G4-PRC-CAPA-01": "PR",
+  "G4-REG-CAPA-01": "RE",
+  "G4-IDX-01": "IN"
 };
 
 interface PlannedPostAction {
@@ -150,7 +150,7 @@ function buildUploadPlan(manifests: Map<string, CorpusMirrorManifest>): PlannedP
     const docTitle = manifest.versions[0]?.filename
       ? (manifest as any).title ?? code
       : code;
-    const category = CATEGORY_MAP[code] ?? "Gestión de Privacidad";
+    const category = CATEGORY_MAP[code] ?? "RE";
     const responsible = "Ing. Carlos M. Benítez";
 
     const versions = [...manifest.versions].sort((a, b) => {
@@ -381,11 +381,29 @@ async function runLive(plan: PlannedPostAction[]): Promise<void> {
   console.log(`[upload-pims-truth] Autenticación exitosa en PIMS.`);
 
   const docIdCache = new Map<string, number>();
+  const docVersionsCache = new Map<number, Set<string>>();
+
+  // Cargar documentos y versiones ya existentes en PIMS para idempotencia
+  const existingDocs = await client.documents.listDocuments({ page_size: 100 });
+  for (const doc of existingDocs.results) {
+    docIdCache.set(doc.code, doc.id);
+    const existingVers = await client.documents.getDocumentVersions(doc.id);
+    const verSet = new Set<string>();
+    for (const v of existingVers) {
+      verSet.add(v.version);
+    }
+    docVersionsCache.set(doc.id, verSet);
+    console.log(`[live] Detectado documento existente: ${doc.code} (ID: ${doc.id}) con ${verSet.size} versiones.`);
+  }
 
   for (const action of plan) {
     assertG4WriteCode(action.docCode, "Live Upload");
 
     if (action.actionType === "CREATE_DOCUMENT") {
+      if (docIdCache.has(action.docCode)) {
+        console.log(`[live] Documento ${action.docCode} ya registrado (ID: ${docIdCache.get(action.docCode)}). Omitiendo creación inicial.`);
+        continue;
+      }
       if (!action.attachedFile) {
         throw new Error(`Acción CREATE_DOCUMENT para ${action.docCode} carece de archivo adjunto.`);
       }
@@ -404,12 +422,23 @@ async function runLive(plan: PlannedPostAction[]): Promise<void> {
       });
 
       docIdCache.set(action.docCode, created.id);
+      docVersionsCache.set(created.id, new Set(["1.00", "1.0", "1"]));
       console.log(`[live] Creado con ID: ${created.id}`);
     } else if (action.actionType === "ADD_VERSION") {
       const docId = docIdCache.get(action.docCode);
       if (!docId) {
         throw new Error(`ID no encontrado en caché para documento ${action.docCode}`);
       }
+
+      // Comprobar si la versión ya existe para evitar duplicación
+      const currentVers = docVersionsCache.get(docId) ?? new Set();
+      const targetVerNum = action.stepNum; // step 2 = v2, step 3 = v3
+      const targetVerStr = `${targetVerNum}.00`;
+      if (currentVers.has(targetVerStr) || currentVers.has(`${targetVerNum}.0`)) {
+        console.log(`[live] Versión v${targetVerNum} ya existe para ${action.docCode} (ID: ${docId}). Omitiendo.`);
+        continue;
+      }
+
       if (!action.attachedFile) {
         throw new Error(`Acción ADD_VERSION para ${action.docCode} carece de archivo adjunto.`);
       }
@@ -422,16 +451,11 @@ async function runLive(plan: PlannedPostAction[]): Promise<void> {
         change_summary: action.formFields.change_summary,
         fileName: action.attachedFile.filename
       });
-      console.log(`[live] Versión agregada exitosamente (v${versionResult.version_number}).`);
+      currentVers.add(targetVerStr);
+      console.log(`[live] Versión agregada exitosamente (v${versionResult.version_number ?? targetVerNum}).`);
     } else if (action.actionType === "APPROVE_DOCUMENT") {
-      const docId = docIdCache.get(action.docCode);
-      if (!docId) {
-        throw new Error(`ID no encontrado en caché para documento ${action.docCode}`);
-      }
-
-      console.log(`[live] Aprobando documento ${action.docCode} (ID: ${docId}) -> vigente...`);
-      const approved = await client.documents.approveDocument(docId);
-      console.log(`[live] Documento ${approved.code} aprobado formalmente. Estado: ${approved.status}.`);
+      // Orden del coordinador: Omitir llamadas a approve debido a 403 en grupob4
+      console.log(`[live] Omitiendo aprobación API para ${action.docCode} (requiere paso manual en UI por administrador conforme a runbook Fase 6).`);
     }
   }
 

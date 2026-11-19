@@ -34,7 +34,7 @@ His PIMS (GESTITEL at `https://unsa.27k.pe`, tenant schema `unsa`) is the primar
 ### 3.1 GESTITEL Documents API (reverse-engineered from production bundle, verified live 2026-11-13)
 
 - Auth: `POST /business/login/` `{username, password}` → `{access, refresh}` JWT. Group-4 credentials live in the secrets store (§4.3), never in chat or repo.
-- Create: `POST /api/documents/` multipart FormData — fields `code, name, category, status, responsible` + `upload_file` (the file). Status enum: `borrador/en_revision/vigente/obsoleto` (UI) → `B/R/V/O` (API).
+- Create: `POST /api/documents/` multipart FormData — fields `code, name, category, status, responsible` + `upload_file` (the file). Category takes `PO/PR/IN/FO/RE` catalog codes (`DOCUMENT_CATEGORY`). Status enum: `borrador/en_revision/vigente/obsoleto` (UI) → `B/R/V/O` (API).
 - New version: `POST /api/documents/{id}/versions/` FormData — `file` + `change_summary`.
 - Read: `GET /api/documents/`, `GET /api/documents/{id}/` (shape: `id, code, current_version, name, category, status, responsible, file, approved_at, approved_by_name, related_documents, gap_requirements`), `GET /api/documents/{id}/versions/`, `POST /api/documents/{id}/approve/`.
 - Formats: documents accept PDF (file input); incident attachments accept `png,tif,bmp,pdf,doc,docx,txt` (~10 MB cap); tabular import is `.xlsx`. Agent generates PDF (Typst) + XLSX (scripted registers).

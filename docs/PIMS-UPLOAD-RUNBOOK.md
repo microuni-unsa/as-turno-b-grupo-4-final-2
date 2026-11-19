@@ -62,7 +62,7 @@ flowchart TD
    - Salida con código `0`.
    - Cero peticiones de red emitidas hacia `https://unsa.27k.pe`.
    - Impresión completa de la secuencia de 52 acciones POST planificadas para los 18 documentos.
-   - Verificación de campos FormData: códigos con prefijo `G4-`, categorías de longitud ≤50 caracteres, responsable institucional asignado (`Ing. Carlos M. Benítez`), y resúmenes de cambio (`change_summary`) estructurados conforme al formato de tres partes de `molds/README.md`.
+   - Verificación de campos FormData: códigos con prefijo `G4-`, categorías validadas contra la taxonomía de 5 códigos del catálogo `DOCUMENT_CATEGORY` (`PO`=Política, `PR`=Procedimiento, `IN`=Instructivo, `FO`=Formato, `RE`=Registro), responsable institucional asignado (`Ing. Carlos M. Benítez`), y resúmenes de cambio (`change_summary`) estructurados conforme al formato de tres partes de `molds/README.md`.
 
 ### Fase 3: Aprobación Formal del Coordinador
 1. El despachador u operador debe remitir el resumen del dry-run al coordinador de la orden de trabajo (`term_a379b037-40b0-4222-aafd-9a0e55170bf9`).

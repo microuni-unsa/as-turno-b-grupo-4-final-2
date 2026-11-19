@@ -3,7 +3,7 @@
   "pims_doc_id": "G4-REP-AUD-01",
   "title": "Informe de Auditoría Interna del SGPI",
   "latest_version": "3.0",
-  "updated_at": "2026-11-19T20:57:26.375Z",
+  "updated_at": "2026-11-19T21:08:15.677Z",
   "versions": [
     {
       "version": "1.0",
@@ -14,13 +14,13 @@
       "mold_path": "corpus_g4_src/audit-programme/G4-REP-AUD-01-v1.typ",
       "filename": "v1.pdf",
       "file_path": "corpus_mirror/G4-REP-AUD-01/v1.pdf",
-      "sha256": "da326984464d97773fbb522cd10e37eaef82d340de94e5a07ee13f049b4ff3d7",
+      "sha256": "893aa45cdac2ce4f901d2adfd8640703e3c09ee5b0d5c5886e274263c83dfa85",
       "files": [
         {
           "filename": "v1.pdf",
           "file_path": "corpus_mirror/G4-REP-AUD-01/v1.pdf",
           "format": "pdf",
-          "sha256": "da326984464d97773fbb522cd10e37eaef82d340de94e5a07ee13f049b4ff3d7",
+          "sha256": "893aa45cdac2ce4f901d2adfd8640703e3c09ee5b0d5c5886e274263c83dfa85",
           "size_bytes": 583694,
           "source_mold": "corpus_g4_src/audit-programme/G4-REP-AUD-01-v1.typ"
         }
@@ -35,13 +35,13 @@
       "mold_path": "corpus_g4_src/audit-programme/G4-REP-AUD-01-v2.typ",
       "filename": "v2.pdf",
       "file_path": "corpus_mirror/G4-REP-AUD-01/v2.pdf",
-      "sha256": "411662c8185268a83ac6f88915d23285cb58a5e083412858d76efe8aa2cbe64b",
+      "sha256": "1237e3cec3f6215cd179056c189af1d12b101fc81f28e9f01d38c59b94e0c66c",
       "files": [
         {
           "filename": "v2.pdf",
           "file_path": "corpus_mirror/G4-REP-AUD-01/v2.pdf",
           "format": "pdf",
-          "sha256": "411662c8185268a83ac6f88915d23285cb58a5e083412858d76efe8aa2cbe64b",
+          "sha256": "1237e3cec3f6215cd179056c189af1d12b101fc81f28e9f01d38c59b94e0c66c",
           "size_bytes": 587479,
           "source_mold": "corpus_g4_src/audit-programme/G4-REP-AUD-01-v2.typ"
         }
@@ -56,13 +56,13 @@
       "mold_path": "corpus_g4_src/audit-programme/G4-REP-AUD-01-v3.typ",
       "filename": "v3.pdf",
       "file_path": "corpus_mirror/G4-REP-AUD-01/v3.pdf",
-      "sha256": "f00882167a6957b8b0c101dbb9fb06b8cab0a554e8a77da424a67b0ab981be98",
+      "sha256": "0c7a116b38aa1f52cf5cb40a3248e35e4efbdf97a8b294e0decfcd1e39f7ad35",
       "files": [
         {
           "filename": "v3.pdf",
           "file_path": "corpus_mirror/G4-REP-AUD-01/v3.pdf",
           "format": "pdf",
-          "sha256": "f00882167a6957b8b0c101dbb9fb06b8cab0a554e8a77da424a67b0ab981be98",
+          "sha256": "0c7a116b38aa1f52cf5cb40a3248e35e4efbdf97a8b294e0decfcd1e39f7ad35",
           "size_bytes": 587877,
           "source_mold": "corpus_g4_src/audit-programme/G4-REP-AUD-01-v3.typ"
         }
