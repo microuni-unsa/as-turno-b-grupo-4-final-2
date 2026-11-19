@@ -3,7 +3,7 @@
   "pims_doc_id": "G4-OBJ-01",
   "title": "Tabla de Objetivos de Privacidad de la Información",
   "latest_version": "3.0",
-  "updated_at": "2026-11-16T18:05:30.898Z",
+  "updated_at": "2026-11-19T16:30:15.232Z",
   "versions": [
     {
       "version": "1.0",
@@ -14,14 +14,14 @@
       "mold_path": "corpus_g4_src/objectives/G4-OBJ-01-v1.typ",
       "filename": "v1.pdf",
       "file_path": "corpus_mirror/G4-OBJ-01/v1.pdf",
-      "sha256": "f6df610e48b2047cdeb3044c92fff544232383d9b23a6723c1f06ce6513c15e7",
+      "sha256": "9a3f1e9545af34b4a93a5012aa9bef3e0d35ed88b596b02819234cbf7effb3ff",
       "files": [
         {
           "filename": "v1.pdf",
           "file_path": "corpus_mirror/G4-OBJ-01/v1.pdf",
           "format": "pdf",
-          "sha256": "f6df610e48b2047cdeb3044c92fff544232383d9b23a6723c1f06ce6513c15e7",
-          "size_bytes": 98078,
+          "sha256": "9a3f1e9545af34b4a93a5012aa9bef3e0d35ed88b596b02819234cbf7effb3ff",
+          "size_bytes": 583420,
           "source_mold": "corpus_g4_src/objectives/G4-OBJ-01-v1.typ"
         }
       ]
@@ -35,14 +35,14 @@
       "mold_path": "corpus_g4_src/objectives/G4-OBJ-01-v2.typ",
       "filename": "v2.pdf",
       "file_path": "corpus_mirror/G4-OBJ-01/v2.pdf",
-      "sha256": "e3172ce6318bc6196f6c1a248eaf8c337103e3d5d63463bbac60f9aa70d7ac8f",
+      "sha256": "2b12136e79dc8fce4f78f08dd220d1a94170dba711fe37b219e2fe1349ad7f4d",
       "files": [
         {
           "filename": "v2.pdf",
           "file_path": "corpus_mirror/G4-OBJ-01/v2.pdf",
           "format": "pdf",
-          "sha256": "e3172ce6318bc6196f6c1a248eaf8c337103e3d5d63463bbac60f9aa70d7ac8f",
-          "size_bytes": 100177,
+          "sha256": "2b12136e79dc8fce4f78f08dd220d1a94170dba711fe37b219e2fe1349ad7f4d",
+          "size_bytes": 585640,
           "source_mold": "corpus_g4_src/objectives/G4-OBJ-01-v2.typ"
         }
       ]
@@ -56,14 +56,14 @@
       "mold_path": "corpus_g4_src/objectives/G4-OBJ-01-v3.typ",
       "filename": "v3.pdf",
       "file_path": "corpus_mirror/G4-OBJ-01/v3.pdf",
-      "sha256": "3ca8f0d9ccce80efb6f8af682bd64e0d400534e49a3464cbf87a8dbeee2bb582",
+      "sha256": "1f91343cd1691bbc9cf63c3ef0f5580b26f6741ceb22d94a2eaffae820de8bfb",
       "files": [
         {
           "filename": "v3.pdf",
           "file_path": "corpus_mirror/G4-OBJ-01/v3.pdf",
           "format": "pdf",
-          "sha256": "3ca8f0d9ccce80efb6f8af682bd64e0d400534e49a3464cbf87a8dbeee2bb582",
-          "size_bytes": 104057,
+          "sha256": "1f91343cd1691bbc9cf63c3ef0f5580b26f6741ceb22d94a2eaffae820de8bfb",
+          "size_bytes": 589192,
           "source_mold": "corpus_g4_src/objectives/G4-OBJ-01-v3.typ"
         }
       ]

@@ -5,7 +5,7 @@
   version: "2.0",
   date: "2022-09-10",
   title: "Apéndice 3: Formulario - Informe sobre evaluación y tratamiento de riesgos",
-  confidentiality: "CONFIDENCIAL - USO INTERNO UNSA",
+  confidentiality: "Confidencial",
   organization-name: "la Universidad Nacional de San Agustín de Arequipa (UNSA)",
   period-name: "Periodo 2022 (Adaptación Post-Pandemia COVID-19)",
   scope-units: "Sedes Centrales Arequipa (Áreas de Ingenierías, Biomédicas y Sociales), abarcando la virtualización integral de Admisión vía admision.unsa.edu.pe y teletrabajo con VPN SSL en Planillas",

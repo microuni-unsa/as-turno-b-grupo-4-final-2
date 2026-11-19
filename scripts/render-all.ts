@@ -66,19 +66,36 @@ interface DocManifest {
 }
 
 function resolveTypstBinary(): { bin: string; prefixArgs: string[] } {
-  // 1. Check system typst
+  // 1. If already inside nix develop devShell, typst is available directly with Carlito in fontconfig
+  if (process.env.IN_NIX_SHELL) {
+    const sysCheck = spawnSync("typst", ["--version"], { encoding: "utf-8" });
+    if (sysCheck.status === 0) {
+      return { bin: "typst", prefixArgs: [] };
+    }
+  }
+
+  // 2. Invoke typst via nix develop --command typst (flake devShell with Carlito font)
+  const nixDevCheck = spawnSync("nix", ["develop", "--command", "typst", "--version"], {
+    cwd: REPO_ROOT,
+    encoding: "utf-8"
+  });
+  if (nixDevCheck.status === 0) {
+    return { bin: "nix", prefixArgs: ["develop", "--command", "typst"] };
+  }
+
+  // 3. Fallback: System typst (CI/prod container e.g. Docker with system Carlito fonts)
   const sysCheck = spawnSync("typst", ["--version"], { encoding: "utf-8" });
   if (sysCheck.status === 0) {
     return { bin: "typst", prefixArgs: [] };
   }
 
-  // 2. Check nix run nixpkgs#typst
+  // 4. Fallback: nix run nixpkgs#typst
   const nixCheck = spawnSync("nix", ["run", "nixpkgs#typst", "--", "--version"], { encoding: "utf-8" });
   if (nixCheck.status === 0) {
     return { bin: "nix", prefixArgs: ["run", "nixpkgs#typst", "--"] };
   }
 
-  throw new Error("FATAL: Neither system 'typst' nor 'nix run nixpkgs#typst' is available in environment.");
+  throw new Error("FATAL: Neither 'nix develop --command typst' nor system 'typst' is available in environment.");
 }
 
 function parseCallerFile(filePath: string): CallerInfo {

@@ -5,7 +5,7 @@
   version: "1.0",
   date: "2019-04-15",
   title: "Metodología de evaluación y tratamiento de riesgos",
-  confidentiality: "CONFIDENCIAL - USO INTERNO UNSA",
+  confidentiality: "Confidencial",
   organization-name: "la Universidad Nacional de San Agustín de Arequipa (UNSA)",
   scope-desc: "la totalidad de los procesos presenciales de Admisión Ordinaria y Planillas de Remuneraciones en las Sedes Centrales de Arequipa (Áreas de Ingenierías, Biomédicas y Sociales)",
   users-desc: "todos los empleados, directores de unidad, personal administrativo de admisiones y planillas, y personal de seguridad de la información",

@@ -3,7 +3,7 @@
   "pims_doc_id": "G4-REG-CAP-01",
   "title": "Registro de Asistencia y Evaluación",
   "latest_version": "3.0",
-  "updated_at": "2026-11-16T18:05:30.898Z",
+  "updated_at": "2026-11-19T16:30:15.232Z",
   "versions": [
     {
       "version": "1.0",
@@ -14,14 +14,14 @@
       "mold_path": "corpus_g4_src/incident-training/G4-REG-CAP-01-v1.typ",
       "filename": "v1.pdf",
       "file_path": "corpus_mirror/G4-REG-CAP-01/v1.pdf",
-      "sha256": "557598a7ec969fab2e805fc45428ee29db1eb4d52d8ddad1c33c7ef36a920321",
+      "sha256": "11abdccce6d771adc4712a53b0c76e7558eeb572e10dbf1f811f250e98c912e2",
       "files": [
         {
           "filename": "v1.pdf",
           "file_path": "corpus_mirror/G4-REG-CAP-01/v1.pdf",
           "format": "pdf",
-          "sha256": "557598a7ec969fab2e805fc45428ee29db1eb4d52d8ddad1c33c7ef36a920321",
-          "size_bytes": 68622,
+          "sha256": "11abdccce6d771adc4712a53b0c76e7558eeb572e10dbf1f811f250e98c912e2",
+          "size_bytes": 554269,
           "source_mold": "corpus_g4_src/incident-training/G4-REG-CAP-01-v1.typ"
         }
       ]
@@ -35,14 +35,14 @@
       "mold_path": "corpus_g4_src/incident-training/G4-REG-CAP-01-v2.typ",
       "filename": "v2.pdf",
       "file_path": "corpus_mirror/G4-REG-CAP-01/v2.pdf",
-      "sha256": "ed4ce6ffccd6e688ab7d458c89d4950e845d889f90939a3ddb22557ee4a230bd",
+      "sha256": "cf45fdfa3710a0373b8b414eceb3cf00163131214568314e51d86131caf98eb7",
       "files": [
         {
           "filename": "v2.pdf",
           "file_path": "corpus_mirror/G4-REG-CAP-01/v2.pdf",
           "format": "pdf",
-          "sha256": "ed4ce6ffccd6e688ab7d458c89d4950e845d889f90939a3ddb22557ee4a230bd",
-          "size_bytes": 72199,
+          "sha256": "cf45fdfa3710a0373b8b414eceb3cf00163131214568314e51d86131caf98eb7",
+          "size_bytes": 557457,
           "source_mold": "corpus_g4_src/incident-training/G4-REG-CAP-01-v2.typ"
         }
       ]
@@ -56,14 +56,14 @@
       "mold_path": "corpus_g4_src/incident-training/G4-REG-CAP-01-v3.typ",
       "filename": "v3.pdf",
       "file_path": "corpus_mirror/G4-REG-CAP-01/v3.pdf",
-      "sha256": "f34ed7788e083c373b5267b0aba138e825f0f74e6037c1bb114de832fcae2e86",
+      "sha256": "c9c260bcee20bdb1919d50bc605de2f83caac967561c6038494ffe3467a9c83c",
       "files": [
         {
           "filename": "v3.pdf",
           "file_path": "corpus_mirror/G4-REG-CAP-01/v3.pdf",
           "format": "pdf",
-          "sha256": "f34ed7788e083c373b5267b0aba138e825f0f74e6037c1bb114de832fcae2e86",
-          "size_bytes": 75771,
+          "sha256": "c9c260bcee20bdb1919d50bc605de2f83caac967561c6038494ffe3467a9c83c",
+          "size_bytes": 560123,
           "source_mold": "corpus_g4_src/incident-training/G4-REG-CAP-01-v3.typ"
         }
       ]

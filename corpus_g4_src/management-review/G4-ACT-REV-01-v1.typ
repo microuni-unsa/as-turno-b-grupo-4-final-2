@@ -5,7 +5,7 @@
   code: "G4-ACT-REV-01",
   version: "1.0",
   date: "2019-04-15",
-  confidentiality: "CONFIDENCIAL - USO INTERNO UNSA",
+  confidentiality: "Confidencial",
   author: (
     name: "Ing. Carlos M. Benítez",
     role: "Secretario Técnico / Oficial de Seguridad (OSI)",

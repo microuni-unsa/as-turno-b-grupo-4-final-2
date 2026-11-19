@@ -5,7 +5,7 @@
   version: "1.0",
   date: "2019-04-15",
   title: "Registro Oficial de Incidentes de Privacidad (SGPI)",
-  confidentiality: "CONFIDENCIAL - USO INTERNO UNSA",
+  confidentiality: "Confidencial",
   era: "v1",
   era-name: "Periodo 2019 (Sedes Centrales Arequipa)",
   organization-name: "la Universidad Nacional de San Agustín de Arequipa (UNSA)",

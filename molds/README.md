@@ -6,41 +6,40 @@ Este directorio contiene los moldes de generación (`.typ`, Typst 0.15) y genera
 
 ---
 
-## 1. Contrato de Anatomía Documental de 15 Elementos (SPEC 6.1 Ampliado)
+## 1. Contrato de Anatomía Documental de 15 Elementos (SPEC 6.1 Ampliado — Actualizado Phase P1)
 
 Todo documento generado a partir de estos moldes DEBE cumplir estrictamente con los 15 elementos normativos de anatomía obligatoria:
 
 1. **Código institucional unívoco**: Prefijo obligatorio `G4-` seguido del tipo documental de tres letras y correlativo numérico (ej. `G4-PRC-DOC-01`, `G4-SOA-01`, `G4-ALC-01`).
 2. **Número de versión visible**: Formato semántico `X.Y` (ej. `v1.0`, `v2.0`, `v3.0`).
 3. **Fecha de vigencia / aprobación**: Formato ISO `YYYY-MM-DD` indicando la fecha de emisión formal.
-4. **Paginación dinámica**: Formato `Página X de Y` en el pie de página institucional, renderizado automáticamente mediante `#context counter(page).display("1 de 1", both: true)`.
-5. **Nivel de clasificación de seguridad**: Rotulado explícito en encabezado superior derecho (`CONFIDENCIAL - USO INTERNO UNSA`).
-6. **Tabla de control documental en cabecera (`document-control table`)**: Tabla estructurada de 6 a 7 filas ubicada en la primera página que replica el estándar de los formatos del instructor:
+4. **Paginación dinámica y Pie de página institucional (Páginas 2+)**: Suprimido en página 1 (carátula). A partir de la página 2, pie de página estructurado en 3 celdas: nombre del documento a la izquierda, `ver. <version> del <date>` al centro, y `Página X de Y` a la derecha mediante `#context counter(page).display("1 de 1", both: true)`. Se elimina el antiguo tagline inferior.
+5. **Nivel de clasificación de seguridad**: Rotulado explícito en encabezado superior derecho a partir de página 2 (`Confidencial` por defecto para todo el SGPI). Suprimido en página 1.
+6. **Tabla de control documental en carátula (`document-control table`)**: Tabla estructurada de exactamente 6 filas ubicada en la página 1 (carátula exclusiva bajo logo UNSA centrado de ~3.5cm, nombre de la entidad y título del documento):
    - *Código:* Código unívoco del documento (`G4-XXX-NN`).
-   - *Versión:* Versión semántica (`vX.Y`).
+   - *Versión:* Versión semántica (`X.Y`).
    - *Fecha de la versión:* Fecha formal de emisión (`YYYY-MM-DD`).
-   - *Elaborado por (Creado por):* Nombre y cargo del autor técnico (DPO / OSI).
-   - *Revisado por:* Nombre y cargo del revisor (Directora DUTIC).
+   - *Creado por:* Nombre y cargo del autor técnico (DPO / OSI).
    - *Aprobado por:* Nombre y cargo de la máxima autoridad de aprobación (Rector UNSA).
-   - *Nivel de confidencialidad:* Clasificación de la información.
-7. **Cuadro de control de firmas institucional**: Cuadro de aprobación tripartito con roles, nombres y fechas:
-   - *Elaborado por*: Ing. Carlos M. Benítez (Oficial de Seguridad de la Información / DPO).
-   - *Revisado por*: Mg. Lucía Valdivia Paredes (Directora Universitaria de TIC - DUTIC).
-   - *Aprobado por*: Rector / Presidente del Comité de Gobierno Digital y Privacidad (Dr. Rohel Sánchez en 2019 / Dr. Hugo José Sánchez en 2022 y 2025).
-8. **Tabla de historial de revisiones**: Columnas `Versión`, `Fecha`, `Responsable / Rol`, `Resumen de Cambios y Justificación`.
-9. **Índice analítico de contenidos**: Generado automáticamente vía `outline(title: "Índice de Contenidos", indent: 1.2em)`.
-10. **Regla de índice y salto de página (`ToC rule`)**: El índice debe completarse antes de iniciar el cuerpo procedimental, seguido inmediatamente de un salto de página forzoso (`pagebreak()`) para separar la carátula/metadatos del contenido sustantivo.
+   - *Nivel de confidencialidad:* Clasificación (`Confidencial`).
+7. **Simplificación de carátula institucional**: Se eliminó el antiguo "Cuadro de Aprobación Institucional" de 3 columnas y el subtítulo redundante de emisión en el título. La página 1 contiene exclusivamente logo, nombre de la entidad, título y tabla de control.
+8. **Tabla de historial de revisiones**: Desplazada a la página 2. Columnas renombradas exactamente a: `Fecha | Versión | Creado por | Descripción de los cambios`.
+9. **Índice analítico de contenidos**: Ubicado en página 2 tras el historial, generado automáticamente vía `outline(title: "Índice de Contenidos", indent: 1.2em)`.
+10. **Regla de carátula, historial e índice (`Cover & ToC rule`)**: La carátula ocupa exclusivamente la página 1 seguida de `pagebreak()`. El historial de revisiones y el índice analítico ocupan la página 2, seguidos inmediatamente de un salto forzoso (`pagebreak()`) antes de iniciar el cuerpo procedimental.
 11. **Sección de documentos de referencia (`reference-docs section`)**: Sección obligatoria (`= Documentos de referencia`) con el listado exhaustivo de normas internacionales, leyes nacionales y políticas institucionales aplicables. Puede pasarse mediante el parámetro `references` al template o declararse en la estructura del molde.
 12. **Sección de validez y gestión de documentos (`validity/owner section`)**: Sección penúltima obligatoria (`= Validez y gestión de documentos`) que especifica la fecha límite o condición de vigencia del documento (`validity`), el cargo propietario responsable de su revisión anual (`owner-role`, DPO o DUTIC), y los criterios para evaluar su efectividad y adecuación.
-13. **Bloque de firma institucional al cierre (`signature block`)**: Bloque formal de cierre al final del documento siguiendo exactamente el patrón del instructor:
+13. **Bloque de firma institucional al cierre (`signature block`)**: Bloque formal de cierre al final del documento con espacio libre de firma incrementado a 1.2–1.5cm (~1.4cm) sobre la línea y remoción total del texto inferior "Firma":
     ```
     [cargo]
     [nombre]
+    (espacio en blanco ~1.4cm)
     _____________________________
-    [firma]
     ```
 14. **Cero marcadores de posición sin resolver**: Prohibición terminante de marcadores o corchetes pendientes (`completar`, `TODO`, `insertar fecha`, `[cargo]`, `[nombre]`). Toda variable debe estar completamente poblada con datos institucionales sintéticos y coherentes de la UNSA.
 15. **Regla de invocadores de versión desacoplados (`version-caller rule`)**: Desacoplamiento arquitectónico absoluto entre la prosa del procedimiento y los datos de instancia de cada versión: `molds/` contiene ÚNICAMENTE plantillas parametrizadas (`mold*.typ`), mientras que cada invocador de versión con datos de instancia de la UNSA (`G4-XXX-v1.typ`, `G4-XXX-v2.typ`, `G4-XXX-v3.typ`, ~30 líneas) reside en `corpus_g4_src/<carpeta>/` e importa el molde vía `#import "../../molds/<carpeta>/mold*.typ"`.
+
+---
+*Tipografía y Formato Transversal*: Todo documento utiliza tipografía corporativa `Carlito` 11pt (`set text(font: "Carlito", size: 11pt, lang: "es")`) con interlineado Word 1.15 exacto (`set par(leading: 0.5084em)`, que produce una distancia de 12.65pt entre líneas basales), aplicado de manera homogénea en párrafos, listas (`set list(spacing: 0.65em)`), enumeraciones (`set enum(spacing: 0.65em)`), tablas y cajas normativas.
 
 ---
 

@@ -3,7 +3,7 @@
   "pims_doc_id": "G4-PRC-INC-01",
   "title": "Procedimiento de Respuesta a Incidentes de Privacidad",
   "latest_version": "3.0",
-  "updated_at": "2026-11-16T18:05:30.898Z",
+  "updated_at": "2026-11-19T16:30:15.232Z",
   "versions": [
     {
       "version": "1.0",
@@ -14,14 +14,14 @@
       "mold_path": "corpus_g4_src/incident-response-procedure/G4-PRC-INC-01-v1.typ",
       "filename": "v1.pdf",
       "file_path": "corpus_mirror/G4-PRC-INC-01/v1.pdf",
-      "sha256": "29053477e0aba2695cd79099ae15ea1c1ea085772dc28a64ab4dfdb099cb94c3",
+      "sha256": "65103535917f50508723cf86d9e73112be260ceeaa8d7c66657d6c06942ae9e2",
       "files": [
         {
           "filename": "v1.pdf",
           "file_path": "corpus_mirror/G4-PRC-INC-01/v1.pdf",
           "format": "pdf",
-          "sha256": "29053477e0aba2695cd79099ae15ea1c1ea085772dc28a64ab4dfdb099cb94c3",
-          "size_bytes": 119585,
+          "sha256": "65103535917f50508723cf86d9e73112be260ceeaa8d7c66657d6c06942ae9e2",
+          "size_bytes": 605875,
           "source_mold": "corpus_g4_src/incident-response-procedure/G4-PRC-INC-01-v1.typ"
         }
       ]
@@ -35,14 +35,14 @@
       "mold_path": "corpus_g4_src/incident-response-procedure/G4-PRC-INC-01-v2.typ",
       "filename": "v2.pdf",
       "file_path": "corpus_mirror/G4-PRC-INC-01/v2.pdf",
-      "sha256": "9e603135d96992146949014195a4beaafcf0a4f924942568d05e1dc94fd1b7b4",
+      "sha256": "114e796fdc00383e94d7aeab5987c43dea7d0913457d280d2bd471c41e4ccab1",
       "files": [
         {
           "filename": "v2.pdf",
           "file_path": "corpus_mirror/G4-PRC-INC-01/v2.pdf",
           "format": "pdf",
-          "sha256": "9e603135d96992146949014195a4beaafcf0a4f924942568d05e1dc94fd1b7b4",
-          "size_bytes": 120789,
+          "sha256": "114e796fdc00383e94d7aeab5987c43dea7d0913457d280d2bd471c41e4ccab1",
+          "size_bytes": 607049,
           "source_mold": "corpus_g4_src/incident-response-procedure/G4-PRC-INC-01-v2.typ"
         }
       ]
@@ -56,14 +56,14 @@
       "mold_path": "corpus_g4_src/incident-response-procedure/G4-PRC-INC-01-v3.typ",
       "filename": "v3.pdf",
       "file_path": "corpus_mirror/G4-PRC-INC-01/v3.pdf",
-      "sha256": "ed2b2c0fe75a8af91270ec20586f628e3fa647b08c9ae77f6432bfb7da580276",
+      "sha256": "450a8bb2c612a5843fd5e4e379001b9b47f5baa108c1c033858ec6d7ecf2d275",
       "files": [
         {
           "filename": "v3.pdf",
           "file_path": "corpus_mirror/G4-PRC-INC-01/v3.pdf",
           "format": "pdf",
-          "sha256": "ed2b2c0fe75a8af91270ec20586f628e3fa647b08c9ae77f6432bfb7da580276",
-          "size_bytes": 126019,
+          "sha256": "450a8bb2c612a5843fd5e4e379001b9b47f5baa108c1c033858ec6d7ecf2d275",
+          "size_bytes": 611145,
           "source_mold": "corpus_g4_src/incident-response-procedure/G4-PRC-INC-01-v3.typ"
         }
       ]

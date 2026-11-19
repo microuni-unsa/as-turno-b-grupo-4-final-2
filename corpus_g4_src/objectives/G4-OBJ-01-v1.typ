@@ -5,7 +5,7 @@
   code: "G4-OBJ-01",
   version: "1.0",
   date: "2019-04-15",
-  confidentiality: "CONFIDENCIAL - USO INTERNO UNSA",
+  confidentiality: "Confidencial",
   author: (
     name: "Ing. Carlos M. Benítez",
     role: "Oficial de Seguridad de la Información (OSI / DPO)",

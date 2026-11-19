@@ -3,7 +3,7 @@
   "pims_doc_id": "G4-SOA-01",
   "title": "Declaración de Aplicabilidad del SGPI (SoA)",
   "latest_version": "3.0",
-  "updated_at": "2026-11-16T18:05:30.898Z",
+  "updated_at": "2026-11-19T16:30:15.232Z",
   "versions": [
     {
       "version": "1.0",
@@ -14,14 +14,14 @@
       "mold_path": "corpus_g4_src/soa/G4-SOA-01-v1.typ",
       "filename": "v1.pdf",
       "file_path": "corpus_mirror/G4-SOA-01/v1.pdf",
-      "sha256": "f083212707a78ba737147e14356cc36d6d0e509d7563c35b6959b6ce0d7bbd9d",
+      "sha256": "6bbce4d5fae9c424f01eb3bcf0019c7df3ccfcc717e1aebdaf404adc77d27a76",
       "files": [
         {
           "filename": "v1.pdf",
           "file_path": "corpus_mirror/G4-SOA-01/v1.pdf",
           "format": "pdf",
-          "sha256": "f083212707a78ba737147e14356cc36d6d0e509d7563c35b6959b6ce0d7bbd9d",
-          "size_bytes": 203512,
+          "sha256": "6bbce4d5fae9c424f01eb3bcf0019c7df3ccfcc717e1aebdaf404adc77d27a76",
+          "size_bytes": 692231,
           "source_mold": "corpus_g4_src/soa/G4-SOA-01-v1.typ"
         }
       ]
@@ -35,14 +35,14 @@
       "mold_path": "corpus_g4_src/soa/G4-SOA-01-v2.typ",
       "filename": "v2.pdf",
       "file_path": "corpus_mirror/G4-SOA-01/v2.pdf",
-      "sha256": "be87e3e4cf950e4b793c52aaed6fe97f1807b525f380bbd085c34ef6a0e87027",
+      "sha256": "fdb1b065719ee3da1e38fd0220e117a43bc123fe1cef957f8183f7ff32efffcf",
       "files": [
         {
           "filename": "v2.pdf",
           "file_path": "corpus_mirror/G4-SOA-01/v2.pdf",
           "format": "pdf",
-          "sha256": "be87e3e4cf950e4b793c52aaed6fe97f1807b525f380bbd085c34ef6a0e87027",
-          "size_bytes": 207706,
+          "sha256": "fdb1b065719ee3da1e38fd0220e117a43bc123fe1cef957f8183f7ff32efffcf",
+          "size_bytes": 695592,
           "source_mold": "corpus_g4_src/soa/G4-SOA-01-v2.typ"
         }
       ]
@@ -56,14 +56,14 @@
       "mold_path": "corpus_g4_src/soa/G4-SOA-01-v3.typ",
       "filename": "v3.pdf",
       "file_path": "corpus_mirror/G4-SOA-01/v3.pdf",
-      "sha256": "8fc7c91bbad1ccad725da4abc2ed642fc54a6a8ecdf179bdf0f2214f219cf6f7",
+      "sha256": "72e974aca1204a93ddcc9fdf3ba5466cf5dabed88cd86abb86511a2144b786e3",
       "files": [
         {
           "filename": "v3.pdf",
           "file_path": "corpus_mirror/G4-SOA-01/v3.pdf",
           "format": "pdf",
-          "sha256": "8fc7c91bbad1ccad725da4abc2ed642fc54a6a8ecdf179bdf0f2214f219cf6f7",
-          "size_bytes": 210686,
+          "sha256": "72e974aca1204a93ddcc9fdf3ba5466cf5dabed88cd86abb86511a2144b786e3",
+          "size_bytes": 697559,
           "source_mold": "corpus_g4_src/soa/G4-SOA-01-v3.typ"
         }
       ]

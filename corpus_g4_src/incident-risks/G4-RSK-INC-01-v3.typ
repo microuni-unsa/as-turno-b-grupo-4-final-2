@@ -5,7 +5,7 @@
   version: "3.0",
   date: "2025-10-28",
   title: "Apéndice 3: Formulario - Informe sobre evaluación y tratamiento de riesgos",
-  confidentiality: "CONFIDENCIAL - USO INTERNO UNSA",
+  confidentiality: "Confidencial",
   organization-name: "la Universidad Nacional de San Agustín de Arequipa (UNSA)",
   period-name: "Periodo 2025 (Recertificación Multisede ISO/IEC 27701:2025)",
   scope-units: "Sedes Centrales Arequipa más Filial Camaná (RR 0142-2025) y Filial El Pedregal - Majes (RR 0143-2025). Procesos de Admisión y Planillas descentralizadas.",

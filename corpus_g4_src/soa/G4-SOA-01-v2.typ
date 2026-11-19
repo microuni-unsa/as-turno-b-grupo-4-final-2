@@ -5,7 +5,7 @@
   version: "2.0",
   date: "2022-09-10",
   title: "Declaración de Aplicabilidad del SGPI (SoA)",
-  confidentiality: "CONFIDENCIAL - USO INTERNO UNSA",
+  confidentiality: "Confidencial",
   era: "v2",
   organization-name: "la Universidad Nacional de San Agustín de Arequipa (UNSA)",
   purpose-desc: "documenta formalmente los controles seleccionados para el SGPI bajo la Cláusula 6.1.3.e, adaptados a la infraestructura digital y teletrabajo post-pandemia",

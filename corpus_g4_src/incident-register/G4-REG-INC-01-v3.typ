@@ -5,7 +5,7 @@
   version: "3.0",
   date: "2025-10-28",
   title: "Registro Oficial de Incidentes de Privacidad (SGPI)",
-  confidentiality: "CONFIDENCIAL - USO INTERNO UNSA",
+  confidentiality: "Confidencial",
   era: "v3",
   era-name: "Periodos 2019 – 2025 (Recertificación Multisede ISO/IEC 27701:2025)",
   organization-name: "la Universidad Nacional de San Agustín de Arequipa (UNSA)",

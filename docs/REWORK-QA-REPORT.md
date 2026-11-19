@@ -221,4 +221,61 @@ Se ejecutó la simulación en modo seguro por defecto (`dry-run`) de la carga ha
 | Cero llamadas de red destructivas o mutaciones no autorizadas | ✅ Cumplido | Modo dry-run estricto; flag `--live` no utilizado. |
 
 ---
-*Reporte generado y certificado automáticamente en Fase R3 — SGPI Grupo 4 UNSA.*
+
+## 7. Fase P1 — Polish de Plantilla Typst y Estandarización Visual (6 Fixes + Carlito)
+
+### 7.1. Detalle y Veredicto de las 6 Correcciones de Plantilla
+
+| Fix # | Descripción | Implementación Técnica (`molds/common/template.typ`) | Veredicto Visual & Evidencia |
+| :---: | :--- | :--- | :---: |
+| **Fix 1** | **Encabezado y pie desde página 2+** | Condicional `#context` con `counter(page).get().first() > 1`. Encabezado: UNSA izq + Confidencial der. Pie: nombre documento izq, `ver. <v> del <fecha>` centro, `Página X de Y` der. Antiguo tagline y bloque de código/versión eliminados. | ✅ Verificado<br>`docs/qa-renders/G4-PRC-DOC-01/v3_p01.png` (sin header/footer)<br>`docs/qa-renders/G4-PRC-DOC-01/v3_p02.png` (con header/footer) |
+| **Fix 2** | **Carátula exclusiva en Página 1** | Logo UNSA centrado (~3.5cm), nombre institucional, título de documento y tabla de control de 6 filas (Código, Versión, Fecha de la versión, Creado por, Aprobado por, Nivel de confidencialidad). Salto forzoso `pagebreak()`. | ✅ Verificado<br>`docs/qa-renders/G4-PRC-DOC-01/v3_p01.png`<br>`docs/qa-renders/G4-ALC-01/v3_p01.png`<br>`docs/qa-renders/G4-RSK-INC-01/v3_p01.png` |
+| **Fix 3** | **Eliminación de elementos redundantes** | Eliminación integral del "Cuadro de Aprobación Institucional" de 3 columnas y del subtítulo repetitivo bajo el título (`Código: … \| Versión: … \| Fecha: …`). | ✅ Verificado<br>`docs/qa-renders/G4-PRC-DOC-01/v3_p01.png`<br>Cero cajas de 3 cols en carátula. |
+| **Fix 4** | **Reestructuración de tabla de historial** | Historial desplazado a página 2 previo al índice. Columnas renombradas exactamente a: `Fecha \| Versión \| Creado por \| Descripción de los cambios` con anchos `(65pt, 45pt, 115pt, 1fr)`. | ✅ Verificado<br>`docs/qa-renders/G4-PRC-DOC-01/v3_p02.png`<br>`docs/qa-renders/G4-ALC-01/v3_p02.png` |
+| **Fix 5** | **Tipografía Carlito 11pt + Interlineado 1.15** | `set text(font: "Carlito", size: 11pt, lang: "es")` y `set par(justify: true, leading: 0.5084em)`. Aplicación consistente a listas (`set list(spacing: 0.65em)`), enumeraciones (`set enum(spacing: 0.65em)`), encabezados (`show heading: set block(above: 1.2em, below: 0.7em)`). | ✅ Verificado & Medido<br>Salto de línea medido: **`12.6500 pt`** ($1.15 \times 11\text{ pt}$). Ratio exacto: `1.1500`. |
+| **Fix 6** | **Bloque de firma simplificado** | Eliminación del rótulo inferior "Firma". Espaciado vertical incrementado a `1.4cm` sobre la línea de rúbrica. | ✅ Verificado<br>`docs/qa-renders/G4-PRC-DOC-01/v3_p07.png`<br>`docs/qa-renders/G4-PLN-RSK-01/v3_p03.png` |
+
+---
+
+### 7.2. Medición Empírica de Paso de Línea (Line Pitch) con PyMuPDF
+Se evaluó el paso basal entre líneas consecutivas de párrafos en el motor Typst 0.15 para la fuente corporativa Carlito:
+- **Línea base natural de Carlito sin leading**: $0.6416 \times \text{size}$ ($7.0576\text{ pt}$ a $11\text{ pt}$).
+- **Leading Typst configurado**: `0.5084em` ($5.5924\text{ pt}$ a $11\text{ pt}$).
+- **Paso basal resultante (Line Pitch)**: $7.0576\text{ pt} + 5.5924\text{ pt} = \mathbf{12.6500\text{ pt}}$.
+- **Ratio empírico respecto al tamaño de fuente ($11\text{ pt}$)**: $\frac{12.6500}{11.0} = \mathbf{1.1500}$ (Interlineado Word 1.15 exacto).
+- **Escalamiento lineal verificado en otros tamaños**:
+  - A $8.5\text{ pt}$ (cajas normativas): paso basal = $9.7750\text{ pt}$ (ratio $1.1500$).
+  - A $9.5\text{ pt}$: paso basal = $10.9250\text{ pt}$ (ratio $1.1500$).
+  - A $14.0\text{ pt}$: paso basal = $16.1000\text{ pt}$ (ratio $1.1500$).
+
+---
+
+### 7.3. Homogeneización de Confidencialidad
+Se ejecutó el barrido de los 54 archivos invocadores en `corpus_g4_src/*/G4-*.typ`, reemplazando el texto largo anterior por el término unívoco institucional `Confidencial`.
+- Total archivos actualizados en `corpus_g4_src`: **`54`**
+- Valor predeterminado en `molds/common/template.typ`: `confidentiality: "Confidencial"`.
+
+---
+
+### 7.4. Verificación de Entorno Nix y Compilaciones
+- **Verificación de Herramientas Flake (`nix develop`)**:
+  - `typst --version`: `typst 0.15.1 (9dfd3a08)`
+  - `fc-list | grep -i carlito`: Carlito Regular, Bold, Italic, Bold Italic presentes en store Nix (`/nix/store/...-carlito-20130920`).
+- **Verificación Dockerfile**: Línea 42 confirmada con `fonts-crosextra-carlito`.
+- **Ejecución `render-all.ts`**:
+  - 54 PDFs Typst compilados exitosamente (código 0).
+  - 9 libros XLSX normativos generados exitosamente (código 0).
+  - 18 manifiestos `manifest.json` emitidos en `corpus_mirror/`.
+- **Escaneo de Desbordamiento de Margen ($x_1 > 540\text{ pt}$)**:
+  - 54 PDFs escaneados (263 páginas totales).
+  - Desbordamientos detectados: **`0`**.
+  - $x_1^{\max}$ global: **`538.68 pt`** (dentro del límite seguro).
+- **Ejecución Dry-Run de Carga PIMS (`upload-pims-truth.ts`)**:
+  - 18 documentos institucionales G4 procesados.
+  - 72 acciones POST planificadas (18 create + 36 add_version + 18 approve).
+  - 63 archivos físicos validados (54 PDFs + 9 XLSX).
+  - Volumen total de transferencia: **`30.62 MB`** (`31,358.8 KB`).
+  - Código de salida: **`0`** (sin errores, modo seguro activo).
+
+---
+*Reporte actualizado y certificado tras ejecución exitosa de Phase P1 — SGPI Grupo 4 UNSA.*

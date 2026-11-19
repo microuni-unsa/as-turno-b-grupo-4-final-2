@@ -5,7 +5,7 @@
   version: "3.0",
   date: "2025-10-28",
   title: "Declaración de Aplicabilidad del SGPI (SoA)",
-  confidentiality: "CONFIDENCIAL - USO INTERNO UNSA",
+  confidentiality: "Confidencial",
   era: "v3",
   organization-name: "la Universidad Nacional de San Agustín de Arequipa (UNSA)",
   purpose-desc: "constituye el documento formal exigido por la Cláusula 6.1.3.e y la Introducción del Anexo A de la norma internacional independiente ISO/IEC 27701:2025 (Segunda edición, octubre 2025), reflejando el estado de implementación multisede",

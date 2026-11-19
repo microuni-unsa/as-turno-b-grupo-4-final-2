@@ -5,7 +5,7 @@
   version: "2.0",
   date: "2022-09-10",
   title: "Registro Oficial de Incidentes de Privacidad (SGPI)",
-  confidentiality: "CONFIDENCIAL - USO INTERNO UNSA",
+  confidentiality: "Confidencial",
   era: "v2",
   era-name: "Periodos 2019 – 2022 (Virtualización Post-Pandemia)",
   organization-name: "la Universidad Nacional de San Agustín de Arequipa (UNSA)",

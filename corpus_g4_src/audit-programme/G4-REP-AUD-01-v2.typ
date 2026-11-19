@@ -5,7 +5,7 @@
   code: "G4-REP-AUD-01",
   version: "2.0",
   date: "2022-09-10",
-  confidentiality: "CONFIDENCIAL - USO INTERNO UNSA",
+  confidentiality: "Confidencial",
   author: (
     name: "Ing. Carlos M. Benítez",
     role: "Auditor Líder del SGPI",

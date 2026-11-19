@@ -5,7 +5,7 @@
   code: "G4-PRG-AUD-01",
   version: "1.0",
   date: "2019-04-15",
-  confidentiality: "CONFIDENCIAL - USO INTERNO UNSA",
+  confidentiality: "Confidencial",
   author: (
     name: "Ing. Carlos M. Benítez",
     role: "Auditor Líder / Oficial de Seguridad (OSI)",

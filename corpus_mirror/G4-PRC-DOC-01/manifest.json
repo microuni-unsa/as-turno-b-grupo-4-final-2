@@ -3,7 +3,7 @@
   "pims_doc_id": "G4-PRC-DOC-01",
   "title": "Procedimiento para control de documentos y registros",
   "latest_version": "3.0",
-  "updated_at": "2026-11-16T18:05:30.898Z",
+  "updated_at": "2026-11-19T16:30:15.232Z",
   "versions": [
     {
       "version": "1.0",
@@ -14,14 +14,14 @@
       "mold_path": "corpus_g4_src/document-control/G4-PRC-DOC-01-v1.typ",
       "filename": "v1.pdf",
       "file_path": "corpus_mirror/G4-PRC-DOC-01/v1.pdf",
-      "sha256": "358a44d5dce059c463363207c5e2a362cf25fd9b4b4b2cf54d9b062e3f4065a9",
+      "sha256": "b70bf23db6f4bacfaf8a57b0e5566dcab978ea36af028444703d6c790874474b",
       "files": [
         {
           "filename": "v1.pdf",
           "file_path": "corpus_mirror/G4-PRC-DOC-01/v1.pdf",
           "format": "pdf",
-          "sha256": "358a44d5dce059c463363207c5e2a362cf25fd9b4b4b2cf54d9b062e3f4065a9",
-          "size_bytes": 120973,
+          "sha256": "b70bf23db6f4bacfaf8a57b0e5566dcab978ea36af028444703d6c790874474b",
+          "size_bytes": 609153,
           "source_mold": "corpus_g4_src/document-control/G4-PRC-DOC-01-v1.typ"
         }
       ]
@@ -35,14 +35,14 @@
       "mold_path": "corpus_g4_src/document-control/G4-PRC-DOC-01-v2.typ",
       "filename": "v2.pdf",
       "file_path": "corpus_mirror/G4-PRC-DOC-01/v2.pdf",
-      "sha256": "c7d75d89b152ad7becc36b453c5355b2108f7d99469f4cdb68c8ff5241606ebd",
+      "sha256": "17d7ce10a734f07c571abe2d8b39457c292219b611d48c6921c2c7b27bf3bc4d",
       "files": [
         {
           "filename": "v2.pdf",
           "file_path": "corpus_mirror/G4-PRC-DOC-01/v2.pdf",
           "format": "pdf",
-          "sha256": "c7d75d89b152ad7becc36b453c5355b2108f7d99469f4cdb68c8ff5241606ebd",
-          "size_bytes": 122082,
+          "sha256": "17d7ce10a734f07c571abe2d8b39457c292219b611d48c6921c2c7b27bf3bc4d",
+          "size_bytes": 610375,
           "source_mold": "corpus_g4_src/document-control/G4-PRC-DOC-01-v2.typ"
         }
       ]
@@ -56,14 +56,14 @@
       "mold_path": "corpus_g4_src/document-control/G4-PRC-DOC-01-v3.typ",
       "filename": "v3.pdf",
       "file_path": "corpus_mirror/G4-PRC-DOC-01/v3.pdf",
-      "sha256": "fe442c50ddf5aea88a5b82c529ea2d68eacdf5c5b8c947329816e58c41298d81",
+      "sha256": "665b92176a33c9d7d97bbb656b555860a0b6e965cdc9cd3c17acaa01a0bba2a7",
       "files": [
         {
           "filename": "v3.pdf",
           "file_path": "corpus_mirror/G4-PRC-DOC-01/v3.pdf",
           "format": "pdf",
-          "sha256": "fe442c50ddf5aea88a5b82c529ea2d68eacdf5c5b8c947329816e58c41298d81",
-          "size_bytes": 124088,
+          "sha256": "665b92176a33c9d7d97bbb656b555860a0b6e965cdc9cd3c17acaa01a0bba2a7",
+          "size_bytes": 612217,
           "source_mold": "corpus_g4_src/document-control/G4-PRC-DOC-01-v3.typ"
         }
       ]

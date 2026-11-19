@@ -3,7 +3,7 @@
   "pims_doc_id": "G4-RSK-INC-01",
   "title": "Apéndice 3: Formulario - Informe sobre evaluación y tratamiento de riesgos",
   "latest_version": "3.0",
-  "updated_at": "2026-11-16T18:05:30.898Z",
+  "updated_at": "2026-11-19T16:30:15.232Z",
   "versions": [
     {
       "version": "1.0",
@@ -14,14 +14,14 @@
       "mold_path": "corpus_g4_src/incident-risks/G4-RSK-INC-01-v1.typ",
       "filename": "v1.pdf",
       "file_path": "corpus_mirror/G4-RSK-INC-01/v1.pdf",
-      "sha256": "90b7306f3a86038bec5c951cca68108d52afb631f2408d4438ed7ea4c6cd9b0f",
+      "sha256": "e2c0a82ed5fa8b7f28b8bfd15889015bc7c425d6a73ab29c1e9f912c6cfd5079",
       "files": [
         {
           "filename": "v1.pdf",
           "file_path": "corpus_mirror/G4-RSK-INC-01/v1.pdf",
           "format": "pdf",
-          "sha256": "90b7306f3a86038bec5c951cca68108d52afb631f2408d4438ed7ea4c6cd9b0f",
-          "size_bytes": 125666,
+          "sha256": "e2c0a82ed5fa8b7f28b8bfd15889015bc7c425d6a73ab29c1e9f912c6cfd5079",
+          "size_bytes": 611465,
           "source_mold": "corpus_g4_src/incident-risks/G4-RSK-INC-01-v1.typ"
         },
         {
@@ -43,14 +43,14 @@
       "mold_path": "corpus_g4_src/incident-risks/G4-RSK-INC-01-v2.typ",
       "filename": "v2.pdf",
       "file_path": "corpus_mirror/G4-RSK-INC-01/v2.pdf",
-      "sha256": "d3457ec6111a718303d63242fb81b85a319152bf8b429831ec404fa02f3e4750",
+      "sha256": "7c1434023a5aa73825ed5e2e6d383d8078f5b462495d05c307f6e25e7f0ce05a",
       "files": [
         {
           "filename": "v2.pdf",
           "file_path": "corpus_mirror/G4-RSK-INC-01/v2.pdf",
           "format": "pdf",
-          "sha256": "d3457ec6111a718303d63242fb81b85a319152bf8b429831ec404fa02f3e4750",
-          "size_bytes": 146256,
+          "sha256": "7c1434023a5aa73825ed5e2e6d383d8078f5b462495d05c307f6e25e7f0ce05a",
+          "size_bytes": 631481,
           "source_mold": "corpus_g4_src/incident-risks/G4-RSK-INC-01-v2.typ"
         },
         {
@@ -72,14 +72,14 @@
       "mold_path": "corpus_g4_src/incident-risks/G4-RSK-INC-01-v3.typ",
       "filename": "v3.pdf",
       "file_path": "corpus_mirror/G4-RSK-INC-01/v3.pdf",
-      "sha256": "e3c44e22efefc86ec22fc117503d6cff1f615726eee6c29b3d3a86fef72e78d1",
+      "sha256": "9a1425cc3a70974104d430592d65d59584d20501e7b584b498646f1e4768d2ca",
       "files": [
         {
           "filename": "v3.pdf",
           "file_path": "corpus_mirror/G4-RSK-INC-01/v3.pdf",
           "format": "pdf",
-          "sha256": "e3c44e22efefc86ec22fc117503d6cff1f615726eee6c29b3d3a86fef72e78d1",
-          "size_bytes": 168262,
+          "sha256": "9a1425cc3a70974104d430592d65d59584d20501e7b584b498646f1e4768d2ca",
+          "size_bytes": 651981,
           "source_mold": "corpus_g4_src/incident-risks/G4-RSK-INC-01-v3.typ"
         },
         {
