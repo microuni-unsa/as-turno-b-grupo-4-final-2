@@ -4,10 +4,11 @@
 // Gramática del instructor: Objetivo/alcance/usuarios -> Documentos de referencia -> Secciones sustantivas -> Gestión de registros -> Validez y gestión -> Bloque de firma
 // ZERO datos de instancia en este archivo.
 
-#import "../common/template.typ": doc-template, status-tag, rag-tag, callout, reference-docs, signature-block
+#import "../common/template.typ": doc-template
 
 #let mold(data: (:), body: none) = {
   let title = data.at("title", default: "Mapa e Índice Maestro de Documentos (Auditor's Map)")
+  let short-title = data.at("short-title", default: data.at("short_title", default: none))
   let code = data.at("code", default: "G4-IDX-01")
   let version = data.at("version", default: "1.0")
   let date = data.at("date", default: "")
@@ -64,6 +65,7 @@
 
   doc-template(
     title: title,
+    short-title: short-title,
     code: code,
     version: version,
     date: date,
@@ -97,28 +99,30 @@
     #data.at("purpose", default: "")
 
     #if "callout_title" in data and "callout_body" in data [
-      #callout(title: data.callout_title, color: rgb("#0284c7"))[
-        #data.callout_body
-      ]
+      #let lead = str(data.callout_title).trim()
+      #let lead-str = if lead.ends-with(":") { lead } else { lead + ":" }
+      *#lead-str* #data.callout_body
     ]
 
-    = Inventario Maestro de Documentos por Cláusula Normativa
-    #v(3pt)
-    #table(
-      columns: (65pt, 65pt, 1fr, 35pt, 85pt, 50pt),
-      fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
-      stroke: 0.5pt + luma(190),
-      align: (center, center, left, center, left, center),
-      table.header([*Cláusula ISO*], [*Código*], [*Título del Documento Institucional*], [*Ver.*], [*Responsable / Custodio*], [*Estado PIMS*]),
-      ..data.at("documents", default: ()).map(doc => (
-        text(size: 7.5pt)[#doc.at("clause")],
-        text(size: 8pt, weight: "bold")[#doc.at("code")],
-        text(size: 7.5pt)[#doc.at("title")],
-        text(size: 7.5pt)[#doc.at("version")],
-        text(size: 7.5pt)[#doc.at("custodian")],
-        status-tag(doc.at("status", default: "VIGENTE"))
-      )).flatten()
-    )
+    #page(flipped: true)[
+      = Inventario Maestro de Documentos por Cláusula Normativa
+      #v(3pt)
+      #table(
+        columns: (80pt, 80pt, 1fr, 45pt, 140pt, 85pt),
+        fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
+        stroke: 0.5pt + luma(190),
+        align: (center, center, left, center, left, center),
+        table.header([*Cláusula ISO*], [*Código*], [*Título del Documento Institucional*], [*Ver.*], [*Responsable / Custodio*], [*Estado PIMS*]),
+        ..data.at("documents", default: ()).map(doc => (
+          [#doc.at("clause")],
+          [*#doc.at("code")*],
+          [#doc.at("title")],
+          [#doc.at("version")],
+          [#doc.at("custodian")],
+          [*#doc.at("status", default: "VIGENTE")*]
+        )).flatten()
+      )
+    ]
 
     = Trazabilidad con el Repositorio de la Verdad (PIMS GESTITEL)
     #data.at("truth_traceability", default: [
@@ -139,11 +143,11 @@
         [*Tiempo de retención*]
       ),
       ..records-data.map(row => (
-        text(size: 8pt, weight: "bold")[#row.at("name")],
-        text(size: 7.5pt)[#row.at("location")],
-        text(size: 7.5pt)[#row.at("responsible")],
-        text(size: 7.5pt)[#row.at("controls")],
-        text(size: 7.5pt)[#row.at("retention")]
+        [*#row.at("name")*],
+        [#row.at("location")],
+        [#row.at("responsible")],
+        [#row.at("controls")],
+        [#row.at("retention")]
       )).flatten()
     )
 

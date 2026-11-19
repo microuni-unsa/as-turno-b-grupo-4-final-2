@@ -4,10 +4,11 @@
 // Gramática del instructor: Objetivo/alcance/usuarios -> Documentos de referencia -> Secciones sustantivas -> Gestión de registros -> Validez y gestión -> Bloque de firma
 // ZERO datos de instancia en este archivo.
 
-#import "../common/template.typ": doc-template, status-tag, rag-tag, callout, reference-docs, signature-block
+#import "../common/template.typ": doc-template
 
 #let mold(data: (:), body: none) = {
   let title = data.at("title", default: "Programa Anual de Auditorías Internas del SGPI")
+  let short-title = data.at("short-title", default: data.at("short_title", default: none))
   let code = data.at("code", default: "G4-PRG-AUD-01")
   let version = data.at("version", default: "1.0")
   let date = data.at("date", default: "")
@@ -64,6 +65,7 @@
 
   doc-template(
     title: title,
+    short-title: short-title,
     code: code,
     version: version,
     date: date,
@@ -101,23 +103,25 @@
     #v(0.2cm)
     #data.at("scope_and_criteria", default: "")
 
-    = Cronograma y Asignación de Recursos de Auditoría
-    #v(3pt)
-    #table(
-      columns: (40pt, 85pt, 1fr, 75pt, 65pt, 55pt),
-      fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
-      stroke: 0.5pt + luma(190),
-      align: (center, left, left, left, center, center),
-      table.header([*Ciclo*], [*Proceso / Sede*], [*Cláusulas y Controles Foco*], [*Equipo Auditor*], [*Mes / Fecha*], [*Estado*]),
-      ..data.at("schedule", default: ()).map(row => (
-        text(size: 8pt)[#row.at("cycle")],
-        text(size: 8pt)[#row.at("process_site")],
-        text(size: 7.5pt)[#row.at("clauses_controls")],
-        text(size: 7.5pt)[#row.at("auditors")],
-        text(size: 7.5pt)[#row.at("date")],
-        status-tag(row.at("status", default: "VIGENTE"))
-      )).flatten()
-    )
+    #page(flipped: true)[
+      = Cronograma y Asignación de Recursos de Auditoría
+      #v(3pt)
+      #table(
+        columns: (50pt, 120pt, 1fr, 120pt, 85pt, 75pt),
+        fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
+        stroke: 0.5pt + luma(190),
+        align: (center, left, left, left, center, center),
+        table.header([*Ciclo*], [*Proceso / Sede*], [*Cláusulas y Controles Foco*], [*Equipo Auditor*], [*Mes / Fecha*], [*Estado*]),
+        ..data.at("schedule", default: ()).map(row => (
+          [#row.at("cycle")],
+          [#row.at("process_site")],
+          [#row.at("clauses_controls")],
+          [#row.at("auditors")],
+          [#row.at("date")],
+          [*#row.at("status", default: "VIGENTE")*]
+        )).flatten()
+      )
+    ]
 
     = Métodos de Auditoría y Directrices Operativas (ISO 19011:2026)
     #data.at("methods", default: [
@@ -138,11 +142,11 @@
         [*Tiempo de retención*]
       ),
       ..records-data.map(row => (
-        text(size: 8pt, weight: "bold")[#row.at("name")],
-        text(size: 7.5pt)[#row.at("location")],
-        text(size: 7.5pt)[#row.at("responsible")],
-        text(size: 7.5pt)[#row.at("controls")],
-        text(size: 7.5pt)[#row.at("retention")]
+        [*#row.at("name")*],
+        [#row.at("location")],
+        [#row.at("responsible")],
+        [#row.at("controls")],
+        [#row.at("retention")]
       )).flatten()
     )
 

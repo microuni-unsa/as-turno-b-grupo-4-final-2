@@ -2,6 +2,7 @@
 
 #let data = (
   title: "Programa Anual de Auditorías Internas del SGPI",
+  short-title: "Programa Anual de Auditorías Internas",
   code: "G4-PRG-AUD-01",
   version: "2.0",
   date: "2022-09-10",

@@ -4,10 +4,11 @@
 // Gramática del instructor: Objetivo/alcance/usuarios -> Documentos de referencia -> Secciones sustantivas -> Gestión de registros -> Validez y gestión -> Bloque de firma
 // ZERO datos de instancia en este archivo. Mantiene la profundidad técnica requerida (fases, roles, severidad, categorías, criterios de notificación organizacionales, sin reloj de 72h).
 
-#import "../common/template.typ": doc-template, status-tag, rag-tag, callout, reference-docs, signature-block
+#import "../common/template.typ": doc-template
 
 #let mold(data: (:), body: none) = {
   let title = data.at("title", default: "Procedimiento de Respuesta a Incidentes de Privacidad")
+  let short-title = data.at("short-title", default: data.at("short_title", default: none))
   let code = data.at("code", default: "G4-PRC-INC-01")
   let version = data.at("version", default: "1.0")
   let date = data.at("date", default: "")
@@ -52,6 +53,7 @@
 
   doc-template(
     title: title,
+    short-title: short-title,
     code: code,
     version: version,
     date: date,
@@ -84,9 +86,9 @@
     = Base Normativa y Criterio Institucional de Notificación
     #data.at("normative_basis", default: "")
 
-    #callout(title: data.at("notification_callout_title", default: "CRITERIO DE NOTIFICACIÓN ORGANIZACIONAL (GUÍA B.3.12)"), color: rgb("#0284c7"))[
-      #data.at("notification_callout_body", default: "")
-    ]
+    #let lead = str(data.at("notification_callout_title", default: "CRITERIO DE NOTIFICACIÓN ORGANIZACIONAL (GUÍA B.3.12)")).trim()
+    #let lead-str = if lead.ends-with(":") { lead } else { lead + ":" }
+    *#lead-str* #data.at("notification_callout_body", default: "")
 
     = Estructura Organizativa y Responsabilidades ante Incidentes
     #v(3pt)
@@ -97,8 +99,8 @@
       align: (left, left),
       table.header([*Instancia / Rol*], [*Competencias y Responsabilidades*]),
       ..data.at("roles", default: ()).map(r => (
-        text(size: 8pt, weight: "bold")[#r.at("role")],
-        text(size: 7.5pt)[#r.at("responsibility")]
+        [*#r.at("role")*],
+        [#r.at("responsibility")]
       )).flatten()
     )
 
@@ -117,10 +119,10 @@
       align: (center, left, left, center),
       table.header([*Nivel*], [*Criterio de Impacto*], [*Escenario Típico*], [*SLA Contención*]),
       ..data.at("severity_scale", default: ()).map(row => (
-        rag-tag(row.at("level")),
-        text(size: 7.5pt)[#row.at("impact_criterion")],
-        text(size: 7.5pt)[#row.at("typical_scenario")],
-        text(size: 7.5pt, weight: "bold")[#row.at("sla")]
+        [*#row.at("level")*],
+        [#row.at("impact_criterion")],
+        [#row.at("typical_scenario")],
+        [*#row.at("sla")*]
       )).flatten()
     )
 
@@ -150,11 +152,11 @@
         [*Tiempo de retención*]
       ),
       ..records-data.map(row => (
-        text(size: 8pt, weight: "bold")[#row.at("name")],
-        text(size: 7.5pt)[#row.at("location", default: row.at("location", default: ""))],
-        text(size: 7.5pt)[#row.at("responsible", default: row.at("custodian", default: ""))],
-        text(size: 7.5pt)[#row.at("controls", default: "Control de acceso por roles (RBAC), firma digital y respaldo cifrado.")],
-        text(size: 7.5pt)[#row.at("retention")]
+        [*#row.at("name")*],
+        [#row.at("location", default: row.at("location", default: ""))],
+        [#row.at("responsible", default: row.at("custodian", default: ""))],
+        [#row.at("controls", default: "Control de acceso por roles (RBAC), firma digital y respaldo cifrado.")],
+        [#row.at("retention")]
       )).flatten()
     )
 

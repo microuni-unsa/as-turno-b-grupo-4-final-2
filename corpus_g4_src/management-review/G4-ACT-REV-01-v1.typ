@@ -2,6 +2,7 @@
 
 #let data = (
   title: "Acta de Revisión por la Dirección del SGPI",
+  short-title: "Acta de Revisión por la Dirección",
   code: "G4-ACT-REV-01",
   version: "1.0",
   date: "2019-04-15",

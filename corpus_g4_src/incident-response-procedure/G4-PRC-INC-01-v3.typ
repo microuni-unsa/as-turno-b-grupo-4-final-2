@@ -2,6 +2,7 @@
 
 #let data = (
   title: "Procedimiento de Respuesta a Incidentes de Privacidad",
+  short-title: "Procedimiento de Respuesta a Incidentes",
   code: "G4-PRC-INC-01",
   version: "3.0",
   date: "2025-10-28",

@@ -2,6 +2,7 @@
 
 #let data = (
   title: "Informe de Auditoría Interna del SGPI",
+  short-title: "Informe de Auditoría Interna del SGPI",
   code: "G4-REP-AUD-01",
   version: "2.0",
   date: "2022-09-10",

@@ -4,10 +4,11 @@
 // Gramática del instructor: Objetivo/alcance/usuarios -> Documentos de referencia -> Secciones sustantivas -> Gestión de registros -> Validez y gestión -> Bloque de firma
 // ZERO datos de instancia en este archivo.
 
-#import "../common/template.typ": doc-template, status-tag, rag-tag, callout, reference-docs, signature-block
+#import "../common/template.typ": doc-template
 
 #let mold(data: (:), body: none) = {
   let title = data.at("title", default: "Informe de Auditoría Interna del SGPI")
+  let short-title = data.at("short-title", default: data.at("short_title", default: none))
   let code = data.at("code", default: "G4-REP-AUD-01")
   let version = data.at("version", default: "1.0")
   let date = data.at("date", default: "")
@@ -63,6 +64,7 @@
 
   doc-template(
     title: title,
+    short-title: short-title,
     code: code,
     version: version,
     date: date,
@@ -112,11 +114,11 @@
       align: (center, left, left, center, center),
       table.header([*Hallazgo*], [*Tipo*], [*Descripción del Hallazgo y Evidencia*], [*Proceso / Sede*], [*Estado CAPA*]),
       ..data.at("findings", default: ()).map(row => (
-        text(size: 8pt)[#row.at("id")],
-        rag-tag(row.at("tag", default: "VERDE")),
-        text(size: 7.5pt)[#row.at("description")],
-        text(size: 7.5pt)[#row.at("process_site")],
-        text(size: 7.5pt)[#row.at("capa_status")]
+        [#row.at("id")],
+        [*#row.at("tag", default: "VERDE")*],
+        [#row.at("description")],
+        [#row.at("process_site")],
+        [#row.at("capa_status")]
       )).flatten()
     )
 
@@ -137,11 +139,11 @@
         [*Tiempo de retención*]
       ),
       ..records-data.map(row => (
-        text(size: 8pt, weight: "bold")[#row.at("name")],
-        text(size: 7.5pt)[#row.at("location")],
-        text(size: 7.5pt)[#row.at("responsible")],
-        text(size: 7.5pt)[#row.at("controls")],
-        text(size: 7.5pt)[#row.at("retention")]
+        [*#row.at("name")*],
+        [#row.at("location")],
+        [#row.at("responsible")],
+        [#row.at("controls")],
+        [#row.at("retention")]
       )).flatten()
     )
 

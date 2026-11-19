@@ -3,7 +3,7 @@
 // Sistema de Gestión de Privacidad de la Información (SGPI) — ISO/IEC 27701:2025
 // Cumple con el Contrato de Anatomía Documental de 15 Elementos y Cláusula 6.1.3.e
 
-#import "../common/template.typ": doc-template, status-tag, rag-tag, callout, reference-docs, signature-block
+#import "../common/template.typ": doc-template, signature-block
 
 #let get-deep-a311(era) = {
   if era == "v1" [
@@ -212,6 +212,7 @@
 
 #let mold(data) = {
   let doc-title = data.at("title", default: "Declaración de Aplicabilidad del SGPI (SoA)")
+  let doc-short-title = data.at("short-title", default: data.at("short_title", default: none))
   let doc-code = data.at("code", default: "G4-SOA-01")
   let doc-ver = data.at("version", default: "3.0")
   let doc-date = data.at("date", default: "2025-10-28")
@@ -240,6 +241,7 @@
 
   doc-template(
     title: doc-title,
+    short-title: doc-short-title,
     code: doc-code,
     version: doc-ver,
     date: doc-date,
@@ -291,16 +293,16 @@
       == Tabla A.1 — Controles para Responsables del Tratamiento (PII Controllers) [31 Controles]
       #v(0.2cm)
       #table(
-        columns: (52pt, 130pt, 68pt, 1fr),
+        columns: (auto, 115pt, auto, 1fr),
         fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
         stroke: 0.5pt + luma(190),
         align: (center, left, center, left),
         table.header([*Control*], [*Título del Control*], [*Estado*], [*Justificación de Inclusión (Cl. 6.1.3e)*]),
         ..get-a1-table(era).map(row => (
-          text(size: 7.5pt, weight: "bold")[#row.at(0)],
-          text(size: 7.5pt)[#row.at(1)],
-          status-tag("IMPLEMENTADO"),
-          text(size: 7.5pt)[#row.at(2)]
+          [*#row.at(0)*],
+          [#row.at(1)],
+          [*IMPLEMENTADO*],
+          [#row.at(2)]
         )).flatten()
       )
       #v(0.3cm)
@@ -308,16 +310,16 @@
       == Tabla A.2 — Controles para Encargados del Tratamiento (PII Processors) [18 Controles - EXCLUIDOS]
       #v(0.2cm)
       #table(
-        columns: (52pt, 130pt, 68pt, 1fr),
+        columns: (auto, 115pt, auto, 1fr),
         fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
         stroke: 0.5pt + luma(190),
         align: (center, left, center, left),
         table.header([*Control*], [*Título del Control*], [*Estado*], [*Justificación de Exclusión (Cl. 6.1.3e)*]),
         ..get-a2-table().map(row => (
-          text(size: 7.5pt, weight: "bold")[#row.at(0)],
-          text(size: 7.5pt)[#row.at(1)],
-          status-tag("OBSOLETO"),
-          text(size: 7.5pt)[#row.at(2)]
+          [*#row.at(0)*],
+          [#row.at(1)],
+          [*OBSOLETO*],
+          [#row.at(2)]
         )).flatten()
       )
       #v(0.3cm)
@@ -325,16 +327,16 @@
       == Tabla A.3 — Controles de Seguridad de la Información con Enfoque de Privacidad [29 Controles]
       #v(0.2cm)
       #table(
-        columns: (52pt, 130pt, 68pt, 1fr),
+        columns: (auto, 115pt, auto, 1fr),
         fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
         stroke: 0.5pt + luma(190),
         align: (center, left, center, left),
         table.header([*Control*], [*Título del Control*], [*Estado*], [*Justificación de Inclusión (Cl. 6.1.3e)*]),
         ..get-a3-table(era).map(row => (
-          text(size: 7.5pt, weight: "bold")[#row.at(0)],
-          text(size: 7.5pt)[#row.at(1)],
-          status-tag("IMPLEMENTADO"),
-          text(size: 7.5pt)[#row.at(2)]
+          [*#row.at(0)*],
+          [#row.at(1)],
+          [*IMPLEMENTADO*],
+          [#row.at(2)]
         )).flatten()
       )
       #v(0.3cm)

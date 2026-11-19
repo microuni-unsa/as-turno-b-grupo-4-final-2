@@ -5,6 +5,7 @@
   version: "2.0",
   date: "2022-09-10",
   title: "Declaración de Aplicabilidad del SGPI (SoA)",
+  short-title: "Declaración de Aplicabilidad (SoA)",
   confidentiality: "Confidencial",
   era: "v2",
   organization-name: "la Universidad Nacional de San Agustín de Arequipa (UNSA)",

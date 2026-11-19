@@ -2,6 +2,7 @@
 
 #let data = (
   title: "Mapa e Índice Maestro de Documentos (Auditor's Map)",
+  short-title: "Mapa e Índice Maestro de Documentos",
   code: "G4-IDX-01",
   version: "2.0",
   date: "2022-09-10",
