@@ -285,7 +285,7 @@ Se ejecutó el barrido de los 54 archivos invocadores en `corpus_g4_src/*/G4-*.t
 ## 8. Fase P2 — Integración Final, Estandarización 1.5×, Tablas Landscape y QA Exhaustivo (Phase P2 Appendix)
 
 ### 8.1. Resumen Ejecutivo y Eliminación de Helpers Legacy
-El ciclo de refactorización y aseguramiento de calidad Phase P2 integró armoniosamente las 5 contribuciones de los trabajadores especializados (P2-A a P2-E), concluyendo con el rol de cierre (*CLOSER* — SLICE F):
+El ciclo de refactorización y aseguramiento de calidad Phase P2 integró armoniosamente las contribuciones de los trabajadores especializados (P2-A a P2-E), el rol de cierre (*CLOSER* — SLICE F) y la calibración definitiva de paso de línea (*PITCH CALIBRATION* — SLICE G):
 - **Depuración definitiva de helpers**: Se eliminaron formalmente las funciones `status-tag`, `rag-tag` y `callout` de `molds/common/template.typ`.
 - **Prueba de cero referencias (`zero-ref proof`)**:
   ```bash
@@ -296,7 +296,7 @@ El ciclo de refactorización y aseguramiento de calidad Phase P2 integró armoni
   - **`54`** archivos PDF compilados vía Typst 0.15.1.
   - **`9`** libros de cálculo OpenXML normativos XLSX (B.3.12, Apéndice 1, Apéndice 2).
   - **`18`** manifiestos actualizados en `corpus_mirror/*/manifest.json`.
-  - **`324`** páginas inspeccionadas visualmente mediante renders PNG a 150 DPI en `docs/qa-renders/`.
+  - **`340`** páginas inspeccionadas visualmente mediante renders PNG a 150 DPI en `docs/qa-renders/`.
 
 ---
 
@@ -304,10 +304,10 @@ El ciclo de refactorización y aseguramiento de calidad Phase P2 integró armoni
 
 | Fix | Componente Afectado | Descripción del Cambio Técnico | Evidencia de Verificación Visual / Métrica |
 | :---: | :--- | :--- | :---: |
-| **F1** | **Espaciado 1.5× + Corrección de Brechas** | Escalado de espaciado vertical: `set par(leading: 0.7626em, spacing: 1.8em)`, listas/enums a `0.975em`, bloques de encabezado a `above: 1.8em, below: 1.05em`. Corrección del salto anómalo entre `= ` y `== `. | ✅ Verificado en `G4-SOA-01/v3_p03.png`. Transición continua y fluida entre encabezados sin huecos de página. |
-| **F2** | **Tablas 11pt + Páginas Apaisadas (Landscape)** | Barrido de fuentes: todas las tablas heredan estrictamente Carlito 11pt (cabeceras y celdas). Tablas anchas rotadas con `#page(flipped: true)[ #table(...) ]`. | ✅ Verificado en `G4-IDX-01/v3_p04.png`, `G4-REG-INC-01/v3_p05.png`, `G4-OBJ-01/v3_p04.png`, `G4-RSK-INC-01/v3_p06.png`. 30 páginas apaisadas totales sin pérdida de columnas. |
+| **F1** | **Espaciado 1.5× + Corrección de Brechas** | Escalado de espaciado vertical: `set par(leading: 1.085em, spacing: 1.8em)` (pitch calibrado a $\approx 19.0\text{ pt}$, true 1.5×), listas/enums a `0.975em`, bloques de encabezado a `above: 1.8em, below: 1.05em`. Corrección del salto anómalo entre `= ` y `== `. | ✅ Verificado en `G4-SOA-01/v3_p03.png`. Transición continua y fluida entre encabezados sin huecos de página. |
+| **F2** | **Tablas 11pt + Páginas Apaisadas (Landscape)** | Barrido de fuentes: todas las tablas heredan estrictamente Carlito 11pt (cabeceras y celdas). Tablas anchas rotadas con `#page(flipped: true)[ #table(...) ]`. | ✅ Verificado en `G4-IDX-01/v3_p04.png`, `G4-REG-INC-01/v3_p05.png`, `G4-OBJ-01/v3_p04.png`, `G4-RSK-INC-01/v3_p06.png`. 33 páginas apaisadas totales sin pérdida de columnas ni desbordamientos. |
 | **F3** | **Encabezado y Pie 11pt Simétricos** | Supresión de tamaños reducidos (7-8.5pt); encabezado y pie a 11pt. Márgenes reducidos a `top: 2.2cm, bottom: 2.2cm` para eliminar espacio muerto vertical. | ✅ Verificado en `G4-PRC-DOC-01/v3_p02.png`. Espacios equilibrados de 2.2cm y texto nítido a 11pt. |
-| **F4** | **Bloque de Firma Institucional 11pt** | Cargo y nombre a 11pt Carlito (sin rótulo inferior redundante "Firma"). Rúbrica con separación estándar de `1.4cm` y línea `stroke: 0.5pt + luma(120)`. | ✅ Verificado en `G4-PRC-DOC-01/v3_p07.png`. Presentación formal y sobria. |
+| **F4** | **Bloque de Firma Institucional 11pt** | Cargo y nombre a 11pt Carlito (sin rótulo inferior redundante "Firma"). Rúbrica con separación estándar de `1.4cm` y línea `stroke: 0.5pt + luma(120)`. | ✅ Verificado en `G4-PRC-DOC-01/v3_p08.png`. Presentación formal y sobria. |
 | **F5** | **Prohibición de Cajas Callout Decorativas** | Conversión de cajas decorativas `#callout` en párrafos formales de cuerpo normativo: `*LEAD-IN:* cuerpo del texto` a 11pt regular. | ✅ Verificado en `G4-PRC-INC-01/v3_p03.png` (`*CRITERIO DE NOTIFICACIÓN ORGANIZACIONAL (GUÍA B.3.12):*`) y `G4-IDX-01/v3_p03.png`. Cero cajas con borde azul. |
 | **F6** | **XLSX: Autowidth, Formato y Paneles Fijos** | OpenXML puro en generadores: `<cols>` con ancho dinámico acotado a [12, 50], cabecera negrita con relleno suave `#E2E8F0`, bordes delgados en celdas de datos, y panel superior inmovilizado (`freeze pane`). | ✅ Verificado en `corpus_mirror/G4-REG-INC-01/v3.xlsx`, `G4-RSK-INC-01/v3.xlsx`, `G4-PLN-RSK-01/v3.xlsx`. Integridad zip limpia (`corrupt=None`). |
 | **F7** | **Prohibición de Pastillas (Pills / Badges)** | Eliminación de pastillas con esquinas redondeadas `box(radius: ...)`. Sustitución por texto formal en negrita a 11pt (ej. `*VIGENTE*`, `*OBSOLETO*`, `*CRÍTICO*`). | ✅ Verificado en `G4-IDX-01/v3_p04.png` y `G4-REG-INC-01/v3_p05.png`. Rótulos tipográficos sobrios y consistentes. |
@@ -316,45 +316,56 @@ El ciclo de refactorización y aseguramiento de calidad Phase P2 integró armoni
 ---
 
 ### 8.3. Análisis de Desbordamiento de Margen (Overflow Scan)
-Se ejecutó un escaneo exhaustivo sobre las 324 páginas de los 54 documentos PDF generados, discriminando entre páginas verticales y apaisadas:
+Se ejecutó un escaneo exhaustivo sobre las 340 páginas de los 54 documentos PDF generados, discriminando entre páginas verticales y apaisadas:
 - **Total de PDFs inspeccionados**: 54
-- **Total de páginas escaneadas**: **`324`**
-  - Páginas verticales (Portrait): **`294`** (Límite seguro: $x_1 \le 540.0\text{ pt}$, margen derecho en $524.4\text{ pt}$)
-  - Páginas apaisadas (Landscape): **`30`** (Límite seguro: $x_1 \le 791.9\text{ pt}$, ancho de página $841.9\text{ pt}$)
+- **Total de páginas escaneadas**: **`340`**
+  - Páginas verticales (Portrait): **`307`** (Límite seguro: $x_1 \le 540.0\text{ pt}$, margen derecho en $524.4\text{ pt}$)
+  - Páginas apaisadas (Landscape): **`33`** (Límite seguro: $x_1 \le 775.0\text{ pt}$, ancho de página $841.9\text{ pt}$)
 - **Desbordamientos detectados**: **`0`**
 - **Coordenada $x_1^{\max}$ en páginas retrato**: **`529.67 pt`** (completamente dentro del margen seguro).
 - **Coordenada $x_1^{\max}$ en páginas apaisadas**: **`773.40 pt`** (dentro del ancho de papel A4 apaisado).
 
-#### Distribución de Páginas Apaisadas (30 páginas totales en 6 documentos):
-1. `G4-IDX-01` (Índice Maestro): v1 (p4, p5), v2 (p4, p5), v3 (p4, p5) — *Inventario de Documentos del SGPI*.
-2. `G4-OBJ-01` (Objetivos de Privacidad): v1 (p4), v2 (p4), v3 (p4) — *Matriz de Métricas y Planes de Acción*.
-3. `G4-PLN-RSK-01` (Plan de Tratamiento): v1 (p3), v2 (p3, p4), v3 (p3, p4) — *Cuadro Consolidado de Controles*.
-4. `G4-PRG-AUD-01` (Programa de Auditoría): v1 (p4), v2 (p4), v3 (p4) — *Cronograma Multianual de Auditorías*.
-5. `G4-REG-INC-01` (Registro de Incidentes): v1 (p5), v2 (p5), v3 (p5, p6) — *Bitácora de Brechas de Seguridad B.3.12*.
-6. `G4-RSK-INC-01` (Evaluación de Riesgos): v1 (p6, p7), v2 (p6, p7, p8), v3 (p6, p7, p8, p9) — *Inventario de Riesgos de Privacidad*.
+#### Distribución de Páginas Apaisadas (33 páginas totales en 6 documentos):
+1. `G4-IDX-01` (Índice Maestro): v1 (p4, p5), v2 (p4, p5), v3 (p4, p5) — *Inventario de Documentos del SGPI* [6 páginas].
+2. `G4-OBJ-01` (Objetivos de Privacidad): v1 (p4), v2 (p4), v3 (p4) — *Matriz de Métricas y Planes de Acción* [3 páginas].
+3. `G4-PLN-RSK-01` (Plan de Tratamiento): v1 (p3, p4), v2 (p3, p4), v3 (p3, p4, p5) — *Cuadro Consolidado de Controles* [7 páginas].
+4. `G4-PRG-AUD-01` (Programa de Auditoría): v1 (p4), v2 (p4), v3 (p4) — *Cronograma Multianual de Auditorías* [3 páginas].
+5. `G4-REG-INC-01` (Registro de Incidentes): v1 (p5), v2 (p5), v3 (p5, p6) — *Bitácora de Brechas de Seguridad B.3.12* [4 páginas].
+6. `G4-RSK-INC-01` (Evaluación de Riesgos): v1 (p6, p7), v2 (p6, p7, p8), v3 (p6, p7, p8, p9, p10) — *Inventario de Riesgos de Privacidad* [10 páginas].
 
 ---
 
-### 8.4. Histograma y Demostración de Paso de Línea (Line Pitch ≈ 19 pt)
-Conforme a la regla F1, el interlineado y espaciado de párrafos fue escalado a un factor de 1.5×:
-- **Configuración Typst**: `set par(leading: 0.7626em, spacing: 1.8em)` sobre fuente Carlito 11pt.
-- **Paso efectivo de línea (Pitch de texto 11pt)**:
-  - Salto basal inherente del motor Typst (Carlito 11pt + leading $0.7626\text{em}$): **`15.45 pt`**.
-  - Paso de línea conceptual ($11\text{ pt} + 0.7626 \times 11\text{ pt}$): **`19.39 pt`** ($\approx \mathbf{19.4\text{ pt}}$).
-  - Espaciado inter-párrafo configurado (`spacing: 1.8em`): $1.8 \times 11\text{ pt} = \mathbf{19.8\text{ pt}}$.
-- **Histograma medido con PyMuPDF sobre los 54 PDFs (Texto en cuerpo de 11pt)**:
+### 8.4. Histograma y Demostración de Paso de Línea (Line Pitch ≈ 19.0 pt — True 1.5×)
+Conforme a la calibración de interlineado (P2-G), el leading fue ajustado a `1.085em` sobre fuente Carlito 11pt para lograr un interlineado real 1.5×:
+- **Causa Raíz y Calibración del Pitch**:
+  - En Typst con Carlito 11pt, el glifo posee una base intrínseca de $\approx 7.06\text{ pt}$ a la que se adiciona el leading: $\text{pitch} = 7.06\text{ pt} + 11 \times \text{leading}$.
+  - El leading previo de $0.7626\text{em}$ rendía únicamente $15.45\text{ pt}$ ($1.22\times$), insuficiente para el estándar 1.5× requerido respecto al pitch P1 ($12.65\text{ pt} \times 1.5 \approx 19.0\text{ pt}$).
+  - Con `leading: 1.085em`, el pitch medido resulta exactamente en $\mathbf{19.00\text{ pt}}$ (coordenadas basales $88.67 - 69.67\text{ pt}$ en pruebas controladas, y $18.99\text{ pt} \approx 19.00\text{ pt}$ empírico).
+  - Espaciado inter-párrafo configurado (`spacing: 1.8em`): $1.8 \times 11\text{ pt} = \mathbf{19.8\text{ pt}}$, manteniendo listas/enums en `0.975em` y encabezados en `above: 1.8em, below: 1.05em`.
+- **Histograma medido con PyMuPDF en líneas de cuerpo (`G4-PRC-DOC-01/v3.pdf`)**:
   ```text
-  15.45 pt :  4956 ocurrencias  [#################################################]
-  15.52 pt :   667 ocurrencias  [######]
-   0.08 pt :   321 ocurrencias  [###] (solapamiento horizontal de sub-bloques)
-  15.37 pt :    35 ocurrencias
-  12.06 pt :    13 ocurrencias
-  11.13 pt :    13 ocurrencias
-  12.13 pt :    13 ocurrencias
-  15.60 pt :     5 ocurrencias
-  13.13 pt :     4 ocurrencias
+  18.99 pt :   101 ocurrencias  [##################################################]
+  17.78 pt :    22 ocurrencias  [##########] (filas tabulares / bloques densos)
+  17.06 pt :    18 ocurrencias  [########]
+  26.86 pt :    14 ocurrencias  [######] (espaciado entre párrafos / transiciones)
+  18.92 pt :     4 ocurrencias  [#]
+  17.86 pt :     3 ocurrencias  [#]
+  19.07 pt :     3 ocurrencias  [#]
+  31.86 pt :     2 ocurrencias
+  18.61 pt :     2 ocurrencias
   ```
-- **Consistencia tipográfica**: El 100% del texto principal en párrafos y tablas opera a 11pt Carlito (`503,873` caracteres registrados a 11.0pt exactos; cero ocurrencias de `size: Npt` con $N < 11$).
+  *Nota*: La brecha dominante en texto continuo de párrafos es de **`18.99 pt`** ($\approx \mathbf{19.0\text{ pt}}$), demostrando el cumplimiento estricto del salto 1.5×.
+- **Histograma agregado en los 54 PDFs del corpus**:
+  ```text
+  18.99 pt :  2602 ocurrencias  [##################################################]
+  17.06 pt :   942 ocurrencias  [##################]
+  18.92 pt :   659 ocurrencias  [############]
+  17.78 pt :   410 ocurrencias  [#######]
+  19.07 pt :   304 ocurrencias  [#####]
+  26.86 pt :   164 ocurrencias  [###]
+  17.86 pt :   149 ocurrencias  [##]
+  ```
+- **Consistencia tipográfica**: El 100% del texto principal en párrafos y tablas opera a 11pt Carlito (`524,635` caracteres registrados a 11.0pt exactos; cero ocurrencias de `size: Npt` con $N < 11$).
 
 ---
 
@@ -362,24 +373,24 @@ Conforme a la regla F1, el interlineado y espaciado de párrafos fue escalado a 
 
 | Código | Documento Institucional | v1 Págs | v2 Págs | v3 Págs | Distribución Landscape | Fixes Aplicados | Estado |
 | :--- | :--- | :---: | :---: | :---: | :--- | :---: | :---: |
-| `G4-ACT-REV-01` | Revisión por la Dirección | 5 | 5 | 5 | Retrato estricto | F1, F3, F4, F7, F8 | ✅ |
+| `G4-ACT-REV-01` | Revisión por la Dirección | 5 | 5 | 6 | Retrato estricto | F1, F3, F4, F7, F8 | ✅ |
 | `G4-ALC-01` | Determinación del Alcance del SGPI | 5 | 5 | 6 | Retrato estricto | F1, F3, F4, F7, F8 | ✅ |
 | `G4-CAP-INC-01` | Módulo de Capacitación en Privacidad | 4 | 4 | 4 | Retrato estricto | F1, F3, F4, F7, F8 | ✅ |
 | `G4-IDX-01` | Índice Maestro de Documentos (Auditor Map) | 7 | 7 | 7 | v1: p[4, 5], v2: p[4, 5], v3: p[4, 5] | F1, F2, F3, F4, F5, F7, F8 | ✅ |
-| `G4-MET-RSK-01` | Metodología de Gestión del Riesgo | 7 | 8 | 8 | Retrato estricto | F1, F3, F4, F7, F8 | ✅ |
+| `G4-MET-RSK-01` | Metodología de Gestión del Riesgo | 8 | 8 | 8 | Retrato estricto | F1, F3, F4, F7, F8 | ✅ |
 | `G4-OBJ-01` | Objetivos de Privacidad del SGPI | 6 | 6 | 6 | v1: p[4], v2: p[4], v3: p[4] | F1, F2, F3, F4, F7, F8 | ✅ |
-| `G4-PLN-RSK-01` | Plan de Tratamiento de Riesgos (+XLSX) | 3 | 4 | 4 | v1: p[3], v2: p[3, 4], v3: p[3, 4] | F1, F2, F3, F4, F6, F7, F8 | ✅ |
+| `G4-PLN-RSK-01` | Plan de Tratamiento de Riesgos (+XLSX) | 4 | 4 | 5 | v1: p[3, 4], v2: p[3, 4], v3: p[3, 4, 5] | F1, F2, F3, F4, F6, F7, F8 | ✅ |
 | `G4-POL-01` | Política de Privacidad de la Información | 5 | 5 | 5 | Retrato estricto | F1, F3, F4, F7, F8 | ✅ |
 | `G4-PRC-CAPA-01` | Procedimiento de Acciones Correctivas | 5 | 5 | 5 | Retrato estricto | F1, F3, F4, F7, F8 | ✅ |
-| `G4-PRC-DOC-01` | Control de Información Documentada | 7 | 7 | 7 | Retrato estricto | F1, F3, F4, F7, F8 | ✅ |
-| `G4-PRC-INC-01` | Procedimiento de Respuesta a Incidentes | 6 | 6 | 6 | Retrato estricto | F1, F3, F4, F5, F7, F8 | ✅ |
+| `G4-PRC-DOC-01` | Control de Información Documentada | 8 | 8 | 8 | Retrato estricto | F1, F3, F4, F7, F8 | ✅ |
+| `G4-PRC-INC-01` | Procedimiento de Respuesta a Incidentes | 7 | 6 | 7 | Retrato estricto | F1, F3, F4, F5, F7, F8 | ✅ |
 | `G4-PRG-AUD-01` | Programa de Auditoría Interna | 6 | 6 | 6 | v1: p[4], v2: p[4], v3: p[4] | F1, F2, F3, F4, F7, F8 | ✅ |
 | `G4-REG-CAP-01` | Registro de Capacitación en Privacidad | 4 | 4 | 4 | Retrato estricto | F1, F3, F4, F7, F8 | ✅ |
-| `G4-REG-CAPA-01` | Registro de Acciones Correctivas (CAPA) | 5 | 5 | 7 | Retrato estricto | F1, F3, F4, F7, F8 | ✅ |
+| `G4-REG-CAPA-01` | Registro de Acciones Correctivas (CAPA) | 6 | 6 | 8 | Retrato estricto | F1, F3, F4, F7, F8 | ✅ |
 | `G4-REG-INC-01` | Registro Oficial de Incidentes (+XLSX) | 7 | 7 | 8 | v1: p[5], v2: p[5], v3: p[5, 6] | F1, F2, F3, F4, F6, F7, F8 | ✅ |
 | `G4-REP-AUD-01` | Informe de Auditoría Interna | 5 | 5 | 5 | Retrato estricto | F1, F3, F4, F7, F8 | ✅ |
-| `G4-RSK-INC-01` | Evaluación de Riesgos de Privacidad (+XLSX) | 7 | 8 | 9 | v1: p[6, 7], v2: p[6, 7, 8], v3: p[6, 7, 8, 9] | F1, F2, F3, F4, F6, F7, F8 | ✅ |
-| `G4-SOA-01` | Declaración de Aplicabilidad (SoA) | 10 | 10 | 11 | Retrato estricto | F1, F3, F4, F7, F8 | ✅ |
+| `G4-RSK-INC-01` | Evaluación de Riesgos de Privacidad (+XLSX) | 7 | 8 | 10 | v1: p[6, 7], v2: p[6, 7, 8], v3: p[6, 7, 8, 9, 10] | F1, F2, F3, F4, F6, F7, F8 | ✅ |
+| `G4-SOA-01` | Declaración de Aplicabilidad (SoA) | 11 | 11 | 12 | Retrato estricto | F1, F3, F4, F7, F8 | ✅ |
 
 ---
 
@@ -388,8 +399,8 @@ Conforme a la regla F1, el interlineado y espaciado de párrafos fue escalado a 
 - **Documentos G4 procesados**: **`18`**
 - **Acciones POST planificadas**: **`72`** (18 `CREATE_DOCUMENT` + 36 `ADD_VERSION` + 18 `APPROVE_DOCUMENT`).
 - **Archivos físicos involucrados**: **`63`** (54 PDFs + 9 XLSX).
-- **Volumen total de transferencia**: **`30.84 MB`** (`31,581.7 KB`).
+- **Volumen total de transferencia**: **`30.86 MB`** (`31,602.0 KB`).
 - **Código de salida**: **`0`** (Exitoso).
 
 ---
-*Reporte final consolidado y certificado tras ejecución íntegra de Phase P2 (Slices A-F) — SGPI Grupo 4 UNSA.*
+*Reporte final consolidado y certificado tras ejecución íntegra de Phase P2 (Slices A-G) — SGPI Grupo 4 UNSA.*

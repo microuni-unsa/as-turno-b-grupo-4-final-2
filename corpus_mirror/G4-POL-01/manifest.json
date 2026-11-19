@@ -3,7 +3,7 @@
   "pims_doc_id": "G4-POL-01",
   "title": "Política de Privacidad de la Información",
   "latest_version": "3.0",
-  "updated_at": "2026-11-19T19:15:27.277Z",
+  "updated_at": "2026-11-19T19:33:52.258Z",
   "versions": [
     {
       "version": "1.0",
@@ -14,14 +14,14 @@
       "mold_path": "corpus_g4_src/policy/G4-POL-01-v1.typ",
       "filename": "v1.pdf",
       "file_path": "corpus_mirror/G4-POL-01/v1.pdf",
-      "sha256": "2a6130053be0c86371ed1e00ad1bb240d1c41814eb6cc52536095ef073b184e2",
+      "sha256": "44704be1d79e21104068cc729fe0bc8873df03b1c1db69b76b760cb29d9a8245",
       "files": [
         {
           "filename": "v1.pdf",
           "file_path": "corpus_mirror/G4-POL-01/v1.pdf",
           "format": "pdf",
-          "sha256": "2a6130053be0c86371ed1e00ad1bb240d1c41814eb6cc52536095ef073b184e2",
-          "size_bytes": 570107,
+          "sha256": "44704be1d79e21104068cc729fe0bc8873df03b1c1db69b76b760cb29d9a8245",
+          "size_bytes": 570390,
           "source_mold": "corpus_g4_src/policy/G4-POL-01-v1.typ"
         }
       ]
@@ -35,14 +35,14 @@
       "mold_path": "corpus_g4_src/policy/G4-POL-01-v2.typ",
       "filename": "v2.pdf",
       "file_path": "corpus_mirror/G4-POL-01/v2.pdf",
-      "sha256": "f2e2eb6170a968408a98f8a058edb1aa20b7e4b6fecb85cc9654fcf3293d9a2c",
+      "sha256": "489f8b2d410d4689b4b05c00dc504b9d877afd0ca167f635592f2a08b196cfa2",
       "files": [
         {
           "filename": "v2.pdf",
           "file_path": "corpus_mirror/G4-POL-01/v2.pdf",
           "format": "pdf",
-          "sha256": "f2e2eb6170a968408a98f8a058edb1aa20b7e4b6fecb85cc9654fcf3293d9a2c",
-          "size_bytes": 571791,
+          "sha256": "489f8b2d410d4689b4b05c00dc504b9d877afd0ca167f635592f2a08b196cfa2",
+          "size_bytes": 572038,
           "source_mold": "corpus_g4_src/policy/G4-POL-01-v2.typ"
         }
       ]
@@ -56,14 +56,14 @@
       "mold_path": "corpus_g4_src/policy/G4-POL-01-v3.typ",
       "filename": "v3.pdf",
       "file_path": "corpus_mirror/G4-POL-01/v3.pdf",
-      "sha256": "161c65a08bbbda11f63deea4f992284c9fdedfaa8cb58b705b1e267e9e1a41e4",
+      "sha256": "a99739367478b1b1a951e91b41425610a6d9fc1e488c53f97706ab8679e16b4c",
       "files": [
         {
           "filename": "v3.pdf",
           "file_path": "corpus_mirror/G4-POL-01/v3.pdf",
           "format": "pdf",
-          "sha256": "161c65a08bbbda11f63deea4f992284c9fdedfaa8cb58b705b1e267e9e1a41e4",
-          "size_bytes": 575086,
+          "sha256": "a99739367478b1b1a951e91b41425610a6d9fc1e488c53f97706ab8679e16b4c",
+          "size_bytes": 575265,
           "source_mold": "corpus_g4_src/policy/G4-POL-01-v3.typ"
         }
       ]

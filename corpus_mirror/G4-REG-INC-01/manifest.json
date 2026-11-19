@@ -3,7 +3,7 @@
   "pims_doc_id": "G4-REG-INC-01",
   "title": "Registro Oficial de Incidentes de Privacidad (SGPI)",
   "latest_version": "3.0",
-  "updated_at": "2026-11-19T19:15:27.276Z",
+  "updated_at": "2026-11-19T19:33:52.257Z",
   "versions": [
     {
       "version": "1.0",
@@ -14,14 +14,14 @@
       "mold_path": "corpus_g4_src/incident-register/G4-REG-INC-01-v1.typ",
       "filename": "v1.pdf",
       "file_path": "corpus_mirror/G4-REG-INC-01/v1.pdf",
-      "sha256": "a7bb2f3eb0cb6dfb9bdf4ac71b1b30c5d72c8ce6816919c4c3556ecda3a3d2fc",
+      "sha256": "ee9c4d50c42df228b961d509888e393bed0ce4c29faf04e3a375d6d771861a5d",
       "files": [
         {
           "filename": "v1.pdf",
           "file_path": "corpus_mirror/G4-REG-INC-01/v1.pdf",
           "format": "pdf",
-          "sha256": "a7bb2f3eb0cb6dfb9bdf4ac71b1b30c5d72c8ce6816919c4c3556ecda3a3d2fc",
-          "size_bytes": 614464,
+          "sha256": "ee9c4d50c42df228b961d509888e393bed0ce4c29faf04e3a375d6d771861a5d",
+          "size_bytes": 614509,
           "source_mold": "corpus_g4_src/incident-register/G4-REG-INC-01-v1.typ"
         },
         {
@@ -43,14 +43,14 @@
       "mold_path": "corpus_g4_src/incident-register/G4-REG-INC-01-v2.typ",
       "filename": "v2.pdf",
       "file_path": "corpus_mirror/G4-REG-INC-01/v2.pdf",
-      "sha256": "545aa66a0aadd7d8087ce2736bb38bfb8b051618a5ffa84b0b67825d80e044e6",
+      "sha256": "9735de49dc667ab54df01d9bd31ba5fbe40cf9a2fb1a14778ff35b4c5148092f",
       "files": [
         {
           "filename": "v2.pdf",
           "file_path": "corpus_mirror/G4-REG-INC-01/v2.pdf",
           "format": "pdf",
-          "sha256": "545aa66a0aadd7d8087ce2736bb38bfb8b051618a5ffa84b0b67825d80e044e6",
-          "size_bytes": 621279,
+          "sha256": "9735de49dc667ab54df01d9bd31ba5fbe40cf9a2fb1a14778ff35b4c5148092f",
+          "size_bytes": 621301,
           "source_mold": "corpus_g4_src/incident-register/G4-REG-INC-01-v2.typ"
         },
         {
@@ -72,14 +72,14 @@
       "mold_path": "corpus_g4_src/incident-register/G4-REG-INC-01-v3.typ",
       "filename": "v3.pdf",
       "file_path": "corpus_mirror/G4-REG-INC-01/v3.pdf",
-      "sha256": "055b55214b7f33a3dd230ab5ecc1474410d561eb0c2811f7909264153a1a932f",
+      "sha256": "03a8332d04ad8b3b75d2ea45e1a93136caeb4c7844ed62644c0c7d6fb465dbe8",
       "files": [
         {
           "filename": "v3.pdf",
           "file_path": "corpus_mirror/G4-REG-INC-01/v3.pdf",
           "format": "pdf",
-          "sha256": "055b55214b7f33a3dd230ab5ecc1474410d561eb0c2811f7909264153a1a932f",
-          "size_bytes": 632035,
+          "sha256": "03a8332d04ad8b3b75d2ea45e1a93136caeb4c7844ed62644c0c7d6fb465dbe8",
+          "size_bytes": 632138,
           "source_mold": "corpus_g4_src/incident-register/G4-REG-INC-01-v3.typ"
         },
         {

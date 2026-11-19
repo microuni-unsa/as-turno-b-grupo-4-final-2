@@ -86,8 +86,8 @@
   )
 
   set text(font: "Carlito", size: 11pt, lang: "es")
-  // 1.5x espaciado vertical: 0.7626em leading (≈19.4pt pitch at 11pt), 1.8em par spacing
-  set par(justify: true, leading: 0.7626em, spacing: 1.8em)
+  // 1.5x espaciado vertical: pitch = 7.06 + 11×leading ≈ 19.0pt (1.5× P1), 1.8em par spacing
+  set par(justify: true, leading: 1.085em, spacing: 1.8em)
   set heading(numbering: "1.1.")
   show heading: set block(above: 1.8em, below: 1.05em)
   set list(spacing: 0.975em)
