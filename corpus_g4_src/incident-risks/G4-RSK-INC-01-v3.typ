@@ -5,6 +5,7 @@
   version: "3.0",
   date: "2025-10-28",
   title: "Apéndice 3: Formulario - Informe sobre evaluación y tratamiento de riesgos",
+  short-title: "Informe evaluación y tratamiento (Ap. 3)",
   confidentiality: "Confidencial",
   organization-name: "la Universidad Nacional de San Agustín de Arequipa (UNSA)",
   period-name: "Periodo 2025 (Recertificación Multisede ISO/IEC 27701:2025)",

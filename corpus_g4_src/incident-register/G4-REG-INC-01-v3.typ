@@ -5,6 +5,7 @@
   version: "3.0",
   date: "2025-10-28",
   title: "Registro Oficial de Incidentes de Privacidad (SGPI)",
+  short-title: "Registro Oficial de Incidentes (SGPI)",
   confidentiality: "Confidencial",
   era: "v3",
   era-name: "Periodos 2019 – 2025 (Recertificación Multisede ISO/IEC 27701:2025)",

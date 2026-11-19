@@ -5,6 +5,7 @@
   version: "1.0",
   date: "2019-04-15",
   title: "Apéndice 3: Formulario - Informe sobre evaluación y tratamiento de riesgos",
+  short-title: "Informe evaluación y tratamiento (Ap. 3)",
   confidentiality: "Confidencial",
   organization-name: "la Universidad Nacional de San Agustín de Arequipa (UNSA)",
   period-name: "Periodo 2019 (Certificación Inicial SGPI)",

@@ -5,6 +5,7 @@
   version: "1.0",
   date: "2019-04-15",
   title: "Registro Oficial de Incidentes de Privacidad (SGPI)",
+  short-title: "Registro Oficial de Incidentes (SGPI)",
   confidentiality: "Confidencial",
   era: "v1",
   era-name: "Periodo 2019 (Sedes Centrales Arequipa)",

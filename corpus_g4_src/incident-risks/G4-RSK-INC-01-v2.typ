@@ -5,6 +5,7 @@
   version: "2.0",
   date: "2022-09-10",
   title: "Apéndice 3: Formulario - Informe sobre evaluación y tratamiento de riesgos",
+  short-title: "Informe evaluación y tratamiento (Ap. 3)",
   confidentiality: "Confidencial",
   organization-name: "la Universidad Nacional de San Agustín de Arequipa (UNSA)",
   period-name: "Periodo 2022 (Adaptación Post-Pandemia COVID-19)",

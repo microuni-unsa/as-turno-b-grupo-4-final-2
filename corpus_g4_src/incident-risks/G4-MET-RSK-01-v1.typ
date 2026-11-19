@@ -5,6 +5,7 @@
   version: "1.0",
   date: "2019-04-15",
   title: "Metodología de evaluación y tratamiento de riesgos",
+  short-title: "Metodología de evaluación y tratamiento",
   confidentiality: "Confidencial",
   organization-name: "la Universidad Nacional de San Agustín de Arequipa (UNSA)",
   scope-desc: "la totalidad de los procesos presenciales de Admisión Ordinaria y Planillas de Remuneraciones en las Sedes Centrales de Arequipa (Áreas de Ingenierías, Biomédicas y Sociales)",

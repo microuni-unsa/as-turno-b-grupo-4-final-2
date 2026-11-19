@@ -5,6 +5,7 @@
   version: "3.0",
   date: "2025-10-28",
   title: "Metodología de evaluación y tratamiento de riesgos",
+  short-title: "Metodología de evaluación y tratamiento",
   confidentiality: "Confidencial",
   organization-name: "la Universidad Nacional de San Agustín de Arequipa (UNSA)",
   scope-desc: "la totalidad de los procesos de Admisión (Pregrado Ordinario, CEPRUNSA, filiales regionales) y Planillas de Remuneraciones en las Sedes Centrales de Arequipa y Filiales Camaná (RR 0142-2025) y El Pedregal - Majes (RR 0143-2025)",

@@ -5,6 +5,7 @@
   version: "2.0",
   date: "2022-09-10",
   title: "Plan de tratamiento del riesgo",
+  short-title: "Plan de tratamiento del riesgo",
   confidentiality: "Confidencial",
   owner-role: "Oficial de Seguridad de la Información (OSI / DPO)",
   intro-text: "Para cumplir los objetivos del Sistema de Gestión de Privacidad de la Información (SGPI) de la UNSA y reducir los riesgos sobre los titulares de datos a niveles aceptables, es necesario realizar las siguientes actividades:",

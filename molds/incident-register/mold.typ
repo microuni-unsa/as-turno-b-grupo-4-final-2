@@ -4,10 +4,11 @@
 // Gramática del instructor: Objetivo/alcance/usuarios -> Documentos de referencia -> Secciones sustantivas -> Gestión de registros -> Validez y gestión -> Bloque de firma
 // ZERO datos de instancia en este archivo. Typst shell que apunta al libro de registros XLSX oficial.
 
-#import "../common/template.typ": doc-template, status-tag, rag-tag, callout, reference-docs, signature-block
+#import "../common/template.typ": doc-template, signature-block
 
 #let mold(data, body: none) = {
   let doc-title = data.at("title", default: "Registro Oficial de Incidentes de Privacidad (SGPI)")
+  let doc-short-title = data.at("short-title", default: none)
   let doc-code = data.at("code", default: "G4-REG-INC-01")
   let doc-ver = data.at("version", default: "1.0")
   let doc-date = data.at("date", default: "")
@@ -69,6 +70,7 @@
 
   doc-template(
     title: doc-title,
+    short-title: doc-short-title,
     code: doc-code,
     version: doc-ver,
     date: doc-date,
@@ -115,75 +117,35 @@
     8. *Descripción de la PII comprometida:* Categorías de datos (identificatorios, académicos, laborales, financieros o biométricos/sensibles), estimación del número de titulares concernidos y volumen de registros.
     9. *Medidas de notificación ejecutadas:* Detalle de las notificaciones cursadas a la autoridad de control (ANPD), a los titulares afectados o a terceros corresponsables, o justificación motivada de improcedencia de notificación.
 
-    #callout(title: "DELIMITACIÓN NORMATIVA DE NOTIFICACIÓN DE BRECHAS (GUÍA B.3.12)", color: rgb("#0284c7"))[
-      Conforme a la Cláusula 8.1 y las directrices normativas de la Guía B.3.12, los umbrales y plazos de notificación hacia la Autoridad Nacional de Protección de Datos Personales (ANPD) y hacia los titulares son determinados objetivamente por la institución mediante la evaluación del riesgo residual y la efectividad de las salvaguardas técnicas (como el cifrado robusto de datos A.3.26). En estricto rigor normativo, el plazo genérico de 72 horas del Reglamento General de Protección de Datos europeo (RGPD) constituye exclusivamente información documental de referencia (Anexo D) y no rige como obligación en este SGPI.
-    ]
+    *Delimitación normativa de notificación de brechas (Guía B.3.12):* Conforme a la Cláusula 8.1 y las directrices normativas de la Guía B.3.12, los umbrales y plazos de notificación hacia la Autoridad Nacional de Protección de Datos Personales (ANPD) y hacia los titulares son determinados objetivamente por la institución mediante la evaluación del riesgo residual y la efectividad de las salvaguardas técnicas (como el cifrado robusto de datos A.3.26). En estricto rigor normativo, el plazo genérico de 72 horas del Reglamento General de Protección de Datos europeo (RGPD) constituye exclusivamente información documental de referencia (Anexo D) y no rige como obligación en este SGPI.
 
-    = Resumen Ejecutivo del Libro de Registro (#era-name)
-    #v(0.2cm)
+    #page(flipped: true)[
+      = Resumen Ejecutivo del Libro de Registro (#era-name)
+      #v(0.15cm)
 
-    #let tag-badge(st) = {
-      let bg = rgb("#e2e8f0")
-      let fg = rgb("#334155")
-      if st.contains("NO_REQUIERE") or st == "VIGENTE" or st == "CERRADA" or st == "IMPLEMENTADO" or st == "BAJO" or st == "APROBADO" {
-        bg = rgb("#dcfce7")
-        fg = rgb("#166534")
-      } else if st.contains("AUTORIDAD") or st.contains("ANPDP") or st == "OBSOLETO" or st == "ABIERTA" or st == "ALTO" or st == "CRITICO" {
-        bg = rgb("#fee2e2")
-        fg = rgb("#991b1b")
-      } else {
-        bg = rgb("#fef3c7")
-        fg = rgb("#92400e")
-      }
-      box(fill: bg, radius: 2.5pt, inset: (x: 3pt, y: 1.5pt))[
-        #text(fill: fg, weight: "bold", size: 5.5pt)[#st]
-      ]
-    }
-
-    #let sev-badge(level) = {
-      let bg = rgb("#e2e8f0")
-      let fg = rgb("#334155")
-      let label = level
-      if level == "RED" or level == "ROJO" or level == "CRÍTICO" or level == "ALTA" or level == "ALTO" {
-        bg = rgb("#fee2e2")
-        fg = rgb("#991b1b")
-        label = if level == "ALTA" or level == "ALTO" { "ALTA" } else { "ROJO" }
-      } else if level == "AMBER" or level == "AMARILLO" or level == "MEDIO" or level == "MEDIA" {
-        bg = rgb("#fef3c7")
-        fg = rgb("#92400e")
-        label = if level == "MEDIA" or level == "MEDIO" { "MEDIA" } else { "ÁMBAR" }
-      } else if level == "GREEN" or level == "VERDE" or level == "BAJO" or level == "BAJA" {
-        bg = rgb("#dcfce7")
-        fg = rgb("#166534")
-        label = if level == "BAJA" or level == "BAJO" { "BAJA" } else { "VERDE" }
-      }
-      box(fill: bg, radius: 2.5pt, inset: (x: 3pt, y: 1.5pt))[
-        #text(fill: fg, weight: "bold", size: 6pt)[#label]
-      ]
-    }
-
-    #table(
-      columns: (52pt, 48pt, 36pt, 68pt, 68pt, 1fr),
-      fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
-      stroke: 0.5pt + luma(190),
-      inset: (x: 2.5pt, y: 2.5pt),
-      align: (center, center, center, left, left, left),
-      table.header([*ID Incidente*], [*Detección*], [*Severidad*], [*Categoría*], [*Titulares Concernidos*], [*Contención y Notificación*]),
-      ..incident-rows.map(row => (
-        text(size: 7pt, weight: "bold")[#row.id],
-        text(size: 6.5pt)[#row.detection],
-        sev-badge(row.severity),
-        text(size: 6.5pt)[#row.category],
-        text(size: 6.5pt)[#row.affected],
-        [
-          #text(size: 6.5pt)[*Contención:* #row.containment]\
-          #text(size: 6.5pt)[*Notificación:* ]#tag-badge(row.notification-status)
-          #if row.notification-detail != "" [\
-            #text(size: 6pt, fill: luma(60))[#row.notification-detail]
+      #table(
+        columns: (auto, auto, auto, 1fr, 1.2fr, 2fr),
+        fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
+        stroke: 0.5pt + luma(190),
+        inset: (x: 3.5pt, y: 2pt),
+        align: (center, center, center, left, left, left),
+        table.header([*ID Incidente*], [*Detección*], [*Severidad*], [*Categoría*], [*Titulares Concernidos*], [*Contención y Notificación*]),
+        ..incident-rows.map(row => (
+          [*#row.id*],
+          [#row.detection],
+          [*#row.severity*],
+          [#row.category],
+          [#row.affected],
+          [
+            *Contención:* #row.containment \
+            *Notificación:* [*#row.notification-status*]
+            #if row.notification-detail != "" [ \
+              #text(fill: luma(60))[#row.notification-detail]
+            ]
           ]
-        ]
-      )).flatten()
-    )
+        )).flatten()
+      )
+    ]
     #v(0.3cm)
 
     == Indicadores de Desempeño Operacional y Cadena CAPA
@@ -212,11 +174,11 @@
         radius: 4pt,
         inset: 10pt,
         [
-          #text(weight: "bold", size: 9pt, fill: rgb("#0a2540"))[Archivo Electrónico Oficial de Registro Forense y Regulatorio:]\
+          #text(weight: "bold", fill: rgb("#0a2540"))[Archivo Electrónico Oficial de Registro Forense y Regulatorio:]\
           #v(2pt)
-          #text(font: "Liberation Mono", size: 8.5pt, weight: "bold", fill: rgb("#0284c7"))[G4-REG-INC-01-registros.xlsx]\
+          #text(font: "Liberation Mono", weight: "bold", fill: rgb("#0284c7"))[G4-REG-INC-01-registros.xlsx]\
           #v(2pt)
-          #text(size: 7.5pt, fill: luma(80))[
+          #text(fill: luma(80))[
             Generado y sincronizado por el generador institucional scriptado (`generate.ts`)\
             Almacenamiento seguro bajo control de acceso RBAC del DPO | Integridad SHA-256 verificada
           ]
@@ -228,7 +190,7 @@
 
     = Gestión de registros guardados en base a este documento
     #table(
-      columns: (95pt, 75pt, 75pt, 1fr, 50pt),
+      columns: (105pt, 80pt, 80pt, 1fr, 58pt),
       fill: (x, y) => if y == 0 { rgb("#f1f5f9") } else { none },
       stroke: 0.5pt + luma(190),
       inset: (x: 2.5pt, y: 2.5pt),
@@ -241,11 +203,11 @@
         [*Tiempo de retención*]
       ),
       ..records-data.map(row => (
-        text(size: 8pt, weight: "bold")[#row.at("name")],
-        text(size: 7.5pt)[#row.at("location")],
-        text(size: 7.5pt)[#row.at("responsible")],
-        text(size: 7.5pt)[#row.at("controls")],
-        text(size: 7.5pt)[#row.at("retention")]
+        [*#row.at("name")*],
+        [#row.at("location")],
+        [#row.at("responsible")],
+        [#row.at("controls")],
+        [#row.at("retention")]
       )).flatten()
     )
 
