@@ -3,7 +3,7 @@
   "pims_doc_id": "G4-PRG-AUD-01",
   "title": "Programa Anual de Auditorías Internas del SGPI",
   "latest_version": "3.0",
-  "updated_at": "2026-11-19T19:33:52.257Z",
+  "updated_at": "2026-11-19T20:57:26.375Z",
   "versions": [
     {
       "version": "1.0",
@@ -14,14 +14,14 @@
       "mold_path": "corpus_g4_src/audit-programme/G4-PRG-AUD-01-v1.typ",
       "filename": "v1.pdf",
       "file_path": "corpus_mirror/G4-PRG-AUD-01/v1.pdf",
-      "sha256": "50e1bfae26614b85e9505ef9d79d5bb88c25626865e67b24a8fd7e23b1e58365",
+      "sha256": "6b6599bb13ab86930f3e18d8cee83b484e6047ecc46a83130949cccc0fd81288",
       "files": [
         {
           "filename": "v1.pdf",
           "file_path": "corpus_mirror/G4-PRG-AUD-01/v1.pdf",
           "format": "pdf",
-          "sha256": "50e1bfae26614b85e9505ef9d79d5bb88c25626865e67b24a8fd7e23b1e58365",
-          "size_bytes": 577840,
+          "sha256": "6b6599bb13ab86930f3e18d8cee83b484e6047ecc46a83130949cccc0fd81288",
+          "size_bytes": 577824,
           "source_mold": "corpus_g4_src/audit-programme/G4-PRG-AUD-01-v1.typ"
         }
       ]
@@ -35,14 +35,14 @@
       "mold_path": "corpus_g4_src/audit-programme/G4-PRG-AUD-01-v2.typ",
       "filename": "v2.pdf",
       "file_path": "corpus_mirror/G4-PRG-AUD-01/v2.pdf",
-      "sha256": "e4d4c5980ea859c3cb948c25ff579248e93f4ec9affea590a930b66bf6fcea87",
+      "sha256": "d1cc1672479a899d76430d078e68ead4a8da6657f455cc117c9c8b1bc7fd3e99",
       "files": [
         {
           "filename": "v2.pdf",
           "file_path": "corpus_mirror/G4-PRG-AUD-01/v2.pdf",
           "format": "pdf",
-          "sha256": "e4d4c5980ea859c3cb948c25ff579248e93f4ec9affea590a930b66bf6fcea87",
-          "size_bytes": 579155,
+          "sha256": "d1cc1672479a899d76430d078e68ead4a8da6657f455cc117c9c8b1bc7fd3e99",
+          "size_bytes": 579136,
           "source_mold": "corpus_g4_src/audit-programme/G4-PRG-AUD-01-v2.typ"
         }
       ]
@@ -56,14 +56,14 @@
       "mold_path": "corpus_g4_src/audit-programme/G4-PRG-AUD-01-v3.typ",
       "filename": "v3.pdf",
       "file_path": "corpus_mirror/G4-PRG-AUD-01/v3.pdf",
-      "sha256": "773e44c7b43ac4d93457b215ece8e7ea99cd0699d6c66a0c4cc9221c62973eb2",
+      "sha256": "d69361632a48d4492d98f9fb74ffd9532f6f546f56041b510e9dbf3e93657575",
       "files": [
         {
           "filename": "v3.pdf",
           "file_path": "corpus_mirror/G4-PRG-AUD-01/v3.pdf",
           "format": "pdf",
-          "sha256": "773e44c7b43ac4d93457b215ece8e7ea99cd0699d6c66a0c4cc9221c62973eb2",
-          "size_bytes": 589967,
+          "sha256": "d69361632a48d4492d98f9fb74ffd9532f6f546f56041b510e9dbf3e93657575",
+          "size_bytes": 589943,
           "source_mold": "corpus_g4_src/audit-programme/G4-PRG-AUD-01-v3.typ"
         }
       ]

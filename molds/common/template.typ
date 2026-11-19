@@ -60,20 +60,24 @@
     margin: (top: 2.2cm, bottom: 2.2cm, left: 2.5cm, right: 2.5cm),
     header: context {
       if counter(page).get().first() > 1 {
+        set par(leading: 0.3em, spacing: 0.5em)
+        set block(above: 0pt, below: 0pt)
         grid(
           columns: (1fr, auto),
           align: (left + bottom, right + bottom),
           text(weight: "bold", fill: rgb("#0a2540"))[UNIVERSIDAD NACIONAL DE SAN AGUSTÍN DE AREQUIPA],
           text(fill: rgb("#b30000"), weight: "bold")[#confidentiality]
         )
-        v(1pt)
+        v(2.5pt)
         line(length: 100%, stroke: 0.5pt + luma(180))
       }
     },
     footer: context {
       if counter(page).get().first() > 1 {
+        set par(leading: 0.3em, spacing: 0.5em)
+        set block(above: 0pt, below: 0pt)
         line(length: 100%, stroke: 0.5pt + luma(180))
-        v(2pt)
+        v(2.5pt)
         grid(
           columns: (1fr, 150pt, 100pt),
           align: (left + bottom, center + bottom, right + bottom),
@@ -92,6 +96,8 @@
   show heading: set block(above: 1.8em, below: 1.05em)
   set list(spacing: 0.975em)
   set enum(spacing: 0.975em)
+  show list: set block(above: 0.5em, below: 0.5em)
+  show enum: set block(above: 0.5em, below: 0.5em)
 
   // ==========================================
   // PÁGINA 1: PORTADA / CARÁTULA INSTITUCIONAL

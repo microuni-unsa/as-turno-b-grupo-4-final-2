@@ -373,7 +373,7 @@ Conforme a la calibración de interlineado (P2-G), el leading fue ajustado a `1.
 
 | Código | Documento Institucional | v1 Págs | v2 Págs | v3 Págs | Distribución Landscape | Fixes Aplicados | Estado |
 | :--- | :--- | :---: | :---: | :---: | :--- | :---: | :---: |
-| `G4-ACT-REV-01` | Revisión por la Dirección | 5 | 5 | 6 | Retrato estricto | F1, F3, F4, F7, F8 | ✅ |
+| `G4-ACT-REV-01` | Revisión por la Dirección | 5 | 5 | 5 | Retrato estricto | F1, F3, F4, F7, F8, F9 | ✅ |
 | `G4-ALC-01` | Determinación del Alcance del SGPI | 5 | 5 | 6 | Retrato estricto | F1, F3, F4, F7, F8 | ✅ |
 | `G4-CAP-INC-01` | Módulo de Capacitación en Privacidad | 4 | 4 | 4 | Retrato estricto | F1, F3, F4, F7, F8 | ✅ |
 | `G4-IDX-01` | Índice Maestro de Documentos (Auditor Map) | 7 | 7 | 7 | v1: p[4, 5], v2: p[4, 5], v3: p[4, 5] | F1, F2, F3, F4, F5, F7, F8 | ✅ |
@@ -399,8 +399,65 @@ Conforme a la calibración de interlineado (P2-G), el leading fue ajustado a `1.
 - **Documentos G4 procesados**: **`18`**
 - **Acciones POST planificadas**: **`72`** (18 `CREATE_DOCUMENT` + 36 `ADD_VERSION` + 18 `APPROVE_DOCUMENT`).
 - **Archivos físicos involucrados**: **`63`** (54 PDFs + 9 XLSX).
-- **Volumen total de transferencia**: **`30.86 MB`** (`31,602.0 KB`).
+- **Volumen total de transferencia**: **`30.87 MB`** (`31,607.8 KB`).
 - **Código de salida**: **`0`** (Exitoso).
 
 ---
-*Reporte final consolidado y certificado tras ejecución íntegra de Phase P2 (Slices A-G) — SGPI Grupo 4 UNSA.*
+
+### 8.7. Fase P2-H — Micro-Corrección de Brechas: Anidamiento de Listas y Ajuste de Regla de Encabezado/Pie (P2-H Gaps Fix)
+
+En la fase P2-H se abordaron de forma definitiva y global en `molds/common/template.typ` dos anomalías visuales residuales:
+
+1. **Defecto 1 — Brecha Anómala en Listas y Enums Anidados (Nested Enum Gap)**:
+   - **Localización**: Ítem de lista de viñeta `- *Miembros Asistentes:*` seguido de la relación numerada de asistentes en `G4-ACT-REV-01` (página 3 en v1, v2 y v3).
+   - **Causa Raíz en Origen**: En `molds/management-review/mold.typ` (líneas 103-108), la lista de asistentes se construía manualmente mediante un bucle con saltos forzosos (`\ #h(1em) #(idx+1). #att`) fuera del ítem en lugar de emplear un enum anidado real de Typst. El salto forzoso inicial al comienzo del bloque de párrafo generaba una línea en blanco artificial, sumándose al espaciado de párrafo (`1.8em`).
+   - **Solución Técnica Aplicada (Root-Cause Architecture)**:
+     - En `molds/management-review/mold.typ`, se reescribió el bloque de asistentes como un `enum` formal nativo de Typst anidado bajo el ítem de viñeta:
+       ```typst
+       #if "attendees" in sess [
+         - *Miembros Asistentes:*
+           #enum(..sess.attendees)
+       ]
+       ```
+     - En `molds/common/template.typ`, se incorporó la estandarización global pura para bloques de listas y enums:
+       ```typst
+       show list: set block(above: 0.5em, below: 0.5em)
+       show enum: set block(above: 0.5em, below: 0.5em)
+       ```
+       eliminando cualquier heurística ad-hoc o reescritura de AST en el template institucional compartido.
+     - **Resultado Visual**: La separación entre el ítem principal `• Miembros Asistentes:` y el primer asistente (`1. Dr. Hugo José Sánchez...`) se redujo exactamente a un salto de línea normal y continuo, con indentación armónica y preservando el pitch basal de 19.0pt y el interlineado 1.5×.
+
+2. **Defecto 2 — Separación Excesiva entre Texto de Encabezado/Pie y Regla Horizontal**:
+   - **Localización**: Encabezados y pies de página institucional en páginas 2+ en todos los documentos del corpus.
+   - **Causa Raíz**: Los valores globales de interlineado (`leading: 1.085em`) y espaciado de párrafo afectaban la caja contenedora de la grilla de cabecera y pie respecto a la línea divisoria `line(...)`.
+   - **Solución Técnica Aplicada**:
+     - Se aplicó ámbito simétrico de espaciado compacto dentro de los bloques `#context` de `header` y `footer`:
+       ```typst
+       set par(leading: 0.3em, spacing: 0.5em)
+       set block(above: 0pt, below: 0pt)
+       ```
+     - Se definió una separación explícita calibrada de `v(2.5pt)` entre el texto y la regla horizontal (en cabecera: texto sobre regla; en pie: texto bajo regla).
+     - **Resultado Visual**: El texto de cabecera reposa nítidamente a 2.5pt sobre la línea divisoria y el pie se ubica a 2.5pt bajo su línea, sin alterar los márgenes de 2.2cm ni los tamaños 11pt.
+
+#### Evidencia de Comparación Visual (Before / After PNGs a 150 DPI)
+- **Defecto 1 (Nested List Gap)**:
+  - *Antes*: `v3_p03` mostraba una separación vacía de ~40pt entre `Miembros Asistentes:` y el primer miembro numerado, desbordando el cierre del documento a una sexta página casi vacía (`v3_p06.png`).
+  - *Después*: `docs/qa-renders/G4-ACT-REV-01/v3_p03.png` muestra una transición de exactamente una línea normal al enum anidado; `v3_p05.png` alberga limpiamente la firma institucional y se elimina la página 6 redundante (total de páginas consolidado en 5 exactas).
+- **Defecto 2 (Header / Footer Rule Gap)**:
+  - *Antes*: `v3_p02` y `v3_p03` presentaban un amplio hueco vertical entre `UNIVERSIDAD NACIONAL DE SAN AGUSTÍN...` y la línea gris `stroke: 0.5pt + luma(180)`.
+  - *Después*: `docs/qa-renders/G4-ACT-REV-01/v3_p02.png` y `v3_p03.png` muestran el texto adyacente a la línea divisoria a 2.5pt exactos.
+
+#### Métricas Consolidadas tras Barrido Integral P2-H:
+- **Total de PDFs recompilados**: **`54`**
+- **Total de libros XLSX regenerados**: **`9`**
+- **Total de páginas del corpus**: **`339`** (306 portrait, 33 landscape; reducción neta de 1 página por compactación de `G4-ACT-REV-01-v3` de 6 a 5 págs).
+- **Escaneo de desbordamiento (Overflow Scan)**:
+  - Portrait ($x_1 \le 540.0\text{ pt}$): **`0` desbordamientos** ($x_1^{\max} = 529.67\text{ pt}$).
+  - Landscape ($x_1 \le 775.0\text{ pt}$): **`0` desbordamientos** ($x_1^{\max} = 773.40\text{ pt}$).
+- **Histograma de paso de línea (Line Pitch)**:
+  - Dominante: **`18.99 pt`** (**`5,095` ocurrencias** en texto continuo, $1.5\times$ exacto de P1).
+  - Secundario armónico: **`19.07 pt`** (**`765` ocurrencias**).
+- **Renders de QA regenerados**: **`339`** archivos PNG a 150 DPI en `docs/qa-renders/`.
+
+---
+*Reporte final consolidado y certificado tras ejecución íntegra de Phase P2 (Slices A-H) — SGPI Grupo 4 UNSA.*

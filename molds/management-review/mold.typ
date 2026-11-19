@@ -102,9 +102,7 @@
     #if "presides" in sess [ - *Preside:* #sess.presides \ ]
     #if "attendees" in sess [
       - *Miembros Asistentes:*
-      #for (idx, att) in sess.attendees.enumerate() [
-        \ #h(1em) #(idx + 1). #att
-      ]
+        #enum(..sess.attendees)
     ]
 
     = Revisión de Entradas de la Dirección (Cláusula 9.3.2)
