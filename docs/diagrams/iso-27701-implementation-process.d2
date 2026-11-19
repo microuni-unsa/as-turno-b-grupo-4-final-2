@@ -1,0 +1,452 @@
+# ==============================================================================
+# DIAGRAMA DEL PROCESO DE IMPLEMENTACIÓN DE ISO/IEC 27701:2025 (PIMS UNSA)
+# Norma: ISO/IEC 27701:2025 (Segunda edición, 2025-10, Standalone PIMS)
+# Rol: Responsable del Tratamiento de Datos Personales (PII Controller, Cl. 4.1)
+# Organización: Universidad Nacional de San Agustín de Arequipa (UNSA)
+# Entidad: Turno B Grupo 4 (Especialidad: Gestión de Incidentes de Privacidad)
+# Adaptación metodológica: EPOS Services / ISO27001standard.com (Dejan Kosutic)
+# ==============================================================================
+
+vars: {
+  d2-config: {
+    layout-engine: elk
+    theme-id: 0
+  }
+}
+
+grid-columns: 1
+grid-gap: 20
+
+# ------------------------------------------------------------------------------
+# 1. ENCABEZADO Y NOTA METODOLÓGICA
+# ------------------------------------------------------------------------------
+header_block: {
+  grid-columns: 1
+  grid-gap: 12
+  label: ""
+  style.stroke: transparent
+  style.fill: transparent
+
+  title: "Diagrama del Proceso de Implementación — ISO/IEC 27701:2025\nDiagram of ISO/IEC 27701:2025 Implementation Process\nSistema de Gestión de Privacidad de la Información (SGPI) | Rol: Responsable del Tratamiento / PII Controller (Cl. 4.1)\nUniversidad Nacional de San Agustín de Arequipa (UNSA) — Turno B Grupo 4" {
+    shape: rectangle
+    width: 1470
+    style: {
+      fill: "#1f4e79"
+      font-color: white
+      stroke: "#78171d"
+      stroke-width: 3
+      bold: true
+      font-size: 15
+      shadow: true
+      border-radius: 8
+    }
+  }
+
+  note_box: "Nota: Este diagrama ilustra las fases del proceso de implementación y certificación del SGPI bajo ISO/IEC 27701:2025 (rol PII Controller).\nIncorpora los 18 artefactos documentales institucionales de la UNSA (códigos G4). No sustituye el ciclo operativo continuo PHVA (Plan-Do-Check-Act).\n(Note: This diagram shows the steps for ISO/IEC 27701:2025 PIMS implementation and certification for UNSA as PII Controller,\nmapping all 18 institutional G4 document artifacts. It does not replace the complete PDCA operational cycle)." {
+    shape: rectangle
+    width: 1470
+    style: {
+      fill: "#f8f9fa"
+      font-color: "#333333"
+      stroke: "#cccccc"
+      stroke-width: 1
+      font-size: 11
+      italic: true
+      border-radius: 6
+    }
+  }
+}
+
+# ------------------------------------------------------------------------------
+# 2. DEFINICIÓN DE CLASES VISUALES
+# ------------------------------------------------------------------------------
+classes: {
+  process_box: {
+    shape: rectangle
+    width: 330
+    style: {
+      fill: "#2e75b6"
+      font-color: white
+      stroke: "#1f4e79"
+      stroke-width: 2
+      border-radius: 6
+      shadow: true
+      font-size: 12
+      bold: true
+    }
+  }
+  deliverable_doc: {
+    shape: page
+    width: 240
+    style: {
+      fill: "#bdd7ee"
+      font-color: "#103355"
+      stroke: "#2e75b6"
+      stroke-width: 1
+      shadow: true
+      font-size: 11
+    }
+  }
+  rail_bar: {
+    shape: rectangle
+    width: 115
+    style: {
+      fill: "#1f4e79"
+      font-color: white
+      stroke: "#0f2d4a"
+      stroke-width: 2
+      bold: true
+      font-size: 12
+      shadow: true
+    }
+  }
+}
+
+# ------------------------------------------------------------------------------
+# 3. CUERPO PRINCIPAL (RIELES LATERALES Y FLUJO CENTRAL)
+# ------------------------------------------------------------------------------
+main_body: {
+  grid-columns: 3
+  grid-gap: 25
+  label: ""
+  style.stroke: transparent
+  style.fill: transparent
+
+  # --- Riel Izquierdo: Gobernanza, Liderazgo y Mejora Continua ---
+  rail_left: "▲\n\nM\nE\nJ\nO\nR\nA\n\nC\nO\nN\nT\nI\nN\nU\nA\n\nL\nI\nD\nE\nR\nA\nZ\nG\nO\n\nY\n\nC\nO\nM\nU\nN\nI\nC\nA\nC\nI\nÓ\nN\n\n(Cl. 5.1, 5.3,\n7.4, 10.1)\n\n▲" {
+    class: rail_bar
+  }
+
+  # --- Columna Central de Flujo ---
+  flow: {
+    grid-columns: 1
+    grid-gap: 20
+    label: ""
+    style.stroke: transparent
+    style.fill: transparent
+
+    # FASE 01
+    r01: {
+      grid-columns: 4
+      grid-gap: 15
+      label: ""
+      style.stroke: transparent
+      style.fill: transparent
+
+      p01: "1. Obtener Respaldo de Alta Dirección\nObtain Management Support (Cl. 5.1, 7.1)" { class: process_box }
+      d01_1: "Acta de Compromiso del Rectorado\nManagement Commitment Minute" { class: deliverable_doc }
+      d01_2: "Plan de Asignación de Recursos SGPI\nResourcing & Budget Plan" { class: deliverable_doc }
+
+      p01 -> d01_1: { style.stroke: "#2e75b6" }
+      d01_1 -> d01_2: { style.stroke: transparent }
+    }
+
+    # FASE 02
+    r02: {
+      grid-columns: 4
+      grid-gap: 15
+      label: ""
+      style.stroke: transparent
+      style.fill: transparent
+
+      p02: "2. Establecer el Proyecto de Implementación SGPI\nEstablish PIMS Project (Cl. 6.1.1, 5.3)" { class: process_box }
+      d02_1: "Plan de Proyecto SGPI-UNSA\nPIMS Implementation Plan" { class: deliverable_doc }
+      d02_2: "Asignación de Roles PIMS (OSI/DPO, DUTIC)\nPIMS Roles & Responsibilities Matrix" { class: deliverable_doc }
+
+      p02 -> d02_1: { style.stroke: "#2e75b6" }
+      d02_1 -> d02_2: { style.stroke: transparent }
+    }
+
+    # FASE 03
+    r03: {
+      grid-columns: 4
+      grid-gap: 15
+      label: ""
+      style.stroke: transparent
+      style.fill: transparent
+
+      p03: "3. Identificar Contexto, Requisitos y Titulares\nContext, Statutory & Interested Parties (Cl. 4.1, 4.2)" { class: process_box }
+      d03_1: "Registro de Partes Interesadas y Titulares\nInterested Parties & PII Principals Register" { class: deliverable_doc }
+      d03_2: "Matriz Legal de Privacidad\nStatutory Register (Ley 29733, D.S. 003)" { class: deliverable_doc }
+
+      p03 -> d03_1: { style.stroke: "#2e75b6" }
+      d03_1 -> d03_2: { style.stroke: transparent }
+    }
+
+    # FASE 04
+    r04: {
+      grid-columns: 4
+      grid-gap: 15
+      label: ""
+      style.stroke: transparent
+      style.fill: transparent
+
+      p04: "4. Definir Alcance SGPI, Política y Objetivos\nDefine Scope, Policy & Objectives (Cl. 4.3, 5.2, 6.2)" { class: process_box }
+      d04_1: "G4-ALC-01: Alcance SGPI (PII Controller)\nScope (Arequipa, Camaná y Majes)" { class: deliverable_doc }
+      d04_2: "G4-POL-01: Política de Privacidad\nPrivacy Policy (1-Pager Ejecutivo)" { class: deliverable_doc }
+      d04_3: "G4-OBJ-01: Objetivos de Privacidad\nPrivacy Objectives & Plan" { class: deliverable_doc }
+
+      p04 -> d04_1: { style.stroke: "#2e75b6" }
+      d04_1 -> d04_2: { style.stroke: transparent }
+      d04_2 -> d04_3: { style.stroke: transparent }
+    }
+
+    # FASE 05
+    r05: {
+      grid-columns: 4
+      grid-gap: 15
+      label: ""
+      style.stroke: transparent
+      style.fill: transparent
+
+      p05: "5. Implementar Soporte y Control Documental\nImplement Support & Document Control (Cl. 7.5)" { class: process_box }
+      d05_1: "G4-PRC-DOC-01: Control Documentario\nDocument & Records Control Procedure" { class: deliverable_doc }
+      d05_2: "G4-IDX-01: Índice Maestro del SGPI\nMaster Document Index (Auditor's Map)" { class: deliverable_doc }
+
+      p05 -> d05_1: { style.stroke: "#2e75b6" }
+      d05_1 -> d05_2: { style.stroke: transparent }
+    }
+
+    # FASE 06
+    r06: {
+      grid-columns: 4
+      grid-gap: 15
+      label: ""
+      style.stroke: transparent
+      style.fill: transparent
+
+      p06: "6. Metodología de Evaluación y Riesgos Privacidad\nPrivacy Risk Methodology (Cl. 6.1.2 - ISO 27557/31000)" { class: process_box }
+      d06_1: "G4-MET-RSK-01: Metodología de Riesgos\nPrivacy Risk Assessment Methodology" { class: deliverable_doc }
+      d06_2: "Criterios de Aceptación de Riesgo Dual\nDual Impact Criteria (UNSA + Titulares)" { class: deliverable_doc }
+
+      p06 -> d06_1: { style.stroke: "#2e75b6" }
+      d06_1 -> d06_2: { style.stroke: transparent }
+    }
+
+    # FASE 07
+    r07: {
+      grid-columns: 4
+      grid-gap: 15
+      label: ""
+      style.stroke: transparent
+      style.fill: transparent
+
+      p07: "7. Ejecutar Evaluación de Riesgos de Privacidad\nPerform Privacy Risk Assessment (Cl. 6.1.2, 8.2)" { class: process_box }
+      d07_1: "G4-RSK-INC-01: Matriz de Riesgos Incidentes\nIncident Privacy Risk Matrix (XLSX/Typst)" { class: deliverable_doc }
+      d07_2: "Informe de Evaluación de Riesgos\nPrivacy Risk Assessment Report" { class: deliverable_doc }
+
+      p07 -> d07_1: { style.stroke: "#2e75b6" }
+      d07_1 -> d07_2: { style.stroke: transparent }
+    }
+
+    # FASE 08
+    r08: {
+      grid-columns: 4
+      grid-gap: 15
+      label: ""
+      style.stroke: transparent
+      style.fill: transparent
+
+      p08: "8. Elaborar Declaración de Aplicabilidad (SoA)\nProduce Statement of Applicability (Cl. 6.1.3 e, Anexo A)" { class: process_box }
+      d08_1: "G4-SOA-01: Declaración de Aplicabilidad\nSoA (Tab. A.1 Controller + A.3 Security; A.2 Excl.)" { class: deliverable_doc }
+
+      p08 -> d08_1: { style.stroke: "#2e75b6" }
+    }
+
+    # FASE 09
+    r09: {
+      grid-columns: 4
+      grid-gap: 15
+      label: ""
+      style.stroke: transparent
+      style.fill: transparent
+
+      p09: "9. Plan de Tratamiento y Aceptar Riesgos Residuales\nRisk Treatment Plan & Acceptance (Cl. 6.1.3 f, g, 8.3)" { class: process_box }
+      d09_1: "G4-PLN-RSK-01: Plan de Tratamiento\nPrivacy Risk Treatment Plan (XLSX/Typst)" { class: deliverable_doc }
+      d09_2: "Aprobación Formal de Riesgos Residuales\nResidual Risk Acceptance Record" { class: deliverable_doc }
+
+      p09 -> d09_1: { style.stroke: "#2e75b6" }
+      d09_1 -> d09_2: { style.stroke: transparent }
+    }
+
+    # FASE 10
+    r10: {
+      grid-columns: 4
+      grid-gap: 15
+      label: ""
+      style.stroke: transparent
+      style.fill: transparent
+
+      p10: "10. Implementar Controles y Salvaguardas Técnicas\nImplement Required Controls (Cl. 8.1, Anexo A)" { class: process_box }
+      d10_1: "Registros de Implementación de Controles\nControl Implementation Records (A.1 & A.3)" { class: deliverable_doc }
+      d10_2: "Evaluaciones de Impacto (EIPD / DPIA)\nPrivacy Impact Assessments (A.1.2.5)" { class: deliverable_doc }
+
+      p10 -> d10_1: { style.stroke: "#2e75b6" }
+      d10_1 -> d10_2: { style.stroke: transparent }
+    }
+
+    # FASE 11
+    r11: {
+      grid-columns: 4
+      grid-gap: 15
+      label: ""
+      style.stroke: transparent
+      style.fill: transparent
+
+      p11: "11. Programa de Capacitación y Toma de Conciencia\nPrivacy Training & Awareness (Cl. 7.2, 7.3, A.3.17)" { class: process_box }
+      d11_1: "G4-CAP-INC-01: Módulo en Incidentes\nIncident Response Training Syllabus" { class: deliverable_doc }
+      d11_2: "G4-REG-CAP-01: Registro de Asistencia/Test\nTraining Attendance & Pre/Post-Test Record" { class: deliverable_doc }
+
+      p11 -> d11_1: { style.stroke: "#2e75b6" }
+      d11_1 -> d11_2: { style.stroke: transparent }
+    }
+
+    # FASE 12
+    r12: {
+      grid-columns: 4
+      grid-gap: 15
+      label: ""
+      style.stroke: transparent
+      style.fill: transparent
+
+      p12: "12. Operar el SGPI y Responder ante Brechas de PII\nOperate PIMS & Respond to Breaches (Cl. 8.1, A.3.11, B.3.12)" { class: process_box }
+      d12_1: "G4-PRC-INC-01: Procedimiento Incidentes\nPrivacy Incident Response (CSIRT-UNSA)" { class: deliverable_doc }
+      d12_2: "G4-REG-INC-01: Bitácora de Brechas PII\nBreach Log (9 Campos Obligatorios B.3.12)" { class: deliverable_doc }
+      d12_3: "Registros de Ejercicio de Derechos ARCO\nData Subject Rights Records (Cl. A.1.5)" { class: deliverable_doc }
+
+      p12 -> d12_1: { style.stroke: "#2e75b6" }
+      d12_1 -> d12_2: { style.stroke: transparent }
+      d12_2 -> d12_3: { style.stroke: transparent }
+    }
+
+    # FASE 13
+    r13: {
+      grid-columns: 4
+      grid-gap: 15
+      label: ""
+      style.stroke: transparent
+      style.fill: transparent
+
+      p13: "13. Ejecutar Programa de Auditoría Interna SGPI\nConduct Internal PIMS Audit (Cl. 9.2 - ISO 19011:2026)" { class: process_box }
+      d13_1: "G4-PRG-AUD-01: Programa de Auditoría\nAnnual Internal Audit Programme" { class: deliverable_doc }
+      d13_2: "G4-REP-AUD-01: Informe de Auditoría\nInternal Audit Findings Report (Multisede)" { class: deliverable_doc }
+      d13_3: "G4-REG-CAPA-01: Acciones Correctivas (NC)\nCorrective Action Requests Log" { class: deliverable_doc }
+
+      p13 -> d13_1: { style.stroke: "#2e75b6" }
+      d13_1 -> d13_2: { style.stroke: transparent }
+      d13_2 -> d13_3: { style.stroke: transparent }
+    }
+
+    # FASE 14
+    r14: {
+      grid-columns: 4
+      grid-gap: 15
+      label: ""
+      style.stroke: transparent
+      style.fill: transparent
+
+      p14: "14. Efectuar la Revisión por la Dirección\nManagement Review of PIMS (Cl. 9.3, 10.1, 10.2)" { class: process_box }
+      d14_1: "G4-ACT-REV-01: Acta Revisión Dirección\nManagement Review Minutes (Cl. 9.3)" { class: deliverable_doc }
+      d14_2: "G4-PRC-CAPA-01: Procedimiento CAPA\nNonconformity & Corrective Action Procedure" { class: deliverable_doc }
+
+      p14 -> d14_1: { style.stroke: "#2e75b6" }
+      d14_1 -> d14_2: { style.stroke: transparent }
+    }
+
+    # Flujo Vertical Continuo (Fase 1 a 14)
+    r01.p01 -> r02.p02 -> r03.p03 -> r04.p04 -> r05.p05 -> r06.p06 -> r07.p07 -> r08.p08 -> r09.p09 -> r10.p10 -> r11.p11 -> r12.p12 -> r13.p13 -> r14.p14: {
+      style.stroke: "#1f4e79"
+      style.stroke-width: 2
+    }
+
+    # SECCIÓN CERTIFICACIÓN EXTERNA
+    cert_section: "Mandatorio solo para organizaciones en proceso de certificación externa\n(Mandatory only for organizations going for external certification)" {
+      style: {
+        stroke: "#2e75b6"
+        stroke-dash: 4
+        fill: "#f2f7fc"
+        border-radius: 8
+        bold: true
+        font-size: 12
+      }
+
+      grid-columns: 1
+      grid-gap: 15
+
+      # FASE 15
+      r15: {
+        grid-columns: 4
+        grid-gap: 15
+        label: ""
+        style.stroke: transparent
+        style.fill: transparent
+
+        p15: "15. Auditoría de Certificación Externa — Fase 1\nStage 1 Certification Audit - Doc Review (Cl. 9.2)" { class: process_box }
+        d15_1: "Informe de Auditoría Fase 1 (Certificadora)\nStage 1 Audit Report (Documentation Review)" { class: deliverable_doc }
+        d15_2: "G4-REG-CAPA-01: Cierre Observaciones\nCorrective Actions on Stage 1 Findings" { class: deliverable_doc }
+
+        p15 -> d15_1: { style.stroke: "#2e75b6" }
+        d15_1 -> d15_2: { style.stroke: transparent }
+      }
+
+      # FASE 16
+      r16: {
+        grid-columns: 4
+        grid-gap: 15
+        label: ""
+        style.stroke: transparent
+        style.fill: transparent
+
+        p16: "16. Auditoría de Certificación Externa — Fase 2\nStage 2 Certification Audit - On-site Effectiveness" { class: process_box }
+        d16_1: "Informe de Auditoría Fase 2 (Certificadora)\nStage 2 Audit Report & Certification Rec." { class: deliverable_doc }
+        d16_2: "G4-REG-CAPA-01: Plan Cierre Hallazgos\nCorrective Action Plan for Minor NCs" { class: deliverable_doc }
+
+        p16 -> d16_1: { style.stroke: "#2e75b6" }
+        d16_1 -> d16_2: { style.stroke: transparent }
+      }
+
+      r15.p15 -> r16.p16: {
+        style.stroke: "#1f4e79"
+        style.stroke-width: 2
+      }
+    }
+
+    # Conexión entre Fase 14 y Fase 15
+    r14.p14 -> cert_section.r15.p15: {
+      style.stroke: "#1f4e79"
+      style.stroke-width: 2
+    }
+  }
+
+  # --- Riel Derecho: Información Documentada y Medición ---
+  rail_right: "▲\n\nI\nN\nF\nO\nR\nM\nA\nC\nI\nÓ\nN\n\nD\nO\nC\nU\nM\nE\nN\nT\nA\nD\nA\n\nY\n\nM\nE\nD\nI\nC\nI\nÓ\nN\n\n(Cl. 7.5, 9.1)\n\n▲" {
+    class: rail_bar
+  }
+}
+
+# ------------------------------------------------------------------------------
+# 4. BUCLE DE MEJORA CONTINUA (REVISIÓN -> GOBERNANZA Y MEJORA CONTINUA)
+# ------------------------------------------------------------------------------
+main_body.flow.r14.p14 -> main_body.rail_left: "Decisiones de Mejora Continua (Cl. 10)\nContinual Improvement Loop" {
+  style: {
+    stroke: "#1f4e79"
+    stroke-dash: 4
+    stroke-width: 2
+  }
+}
+
+# ------------------------------------------------------------------------------
+# 5. PIE DE PÁGINA INSTITUCIONAL
+# ------------------------------------------------------------------------------
+footer_box: "Universidad Nacional de San Agustín de Arequipa (UNSA) — Turno B Grupo 4 | Sistema de Gestión de Privacidad de la Información (SGPI) ISO/IEC 27701:2025\nAdaptación metodológica basada en EPOS Services / ISO27001standard.com para ISO/IEC 27701:2025 (PII Controller) | 18 Códigos Documentales G4 Mapeados" {
+  shape: rectangle
+  width: 1470
+  style: {
+    fill: "#f8f9fa"
+    font-color: "#555555"
+    stroke: "#cccccc"
+    stroke-width: 1
+    font-size: 11
+    border-radius: 4
+  }
+}
