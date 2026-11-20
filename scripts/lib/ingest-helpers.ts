@@ -11,6 +11,7 @@ export interface IngestDocumentParams {
   readonly filename: string;
   readonly bytes: Uint8Array;
   readonly moldPath?: string | null;
+  readonly supersedes?: string | null;
   readonly db: DatabaseClient;
   readonly embedder: Embedder;
 }
@@ -106,7 +107,7 @@ export async function ingestDocumentToMirrorAndDb(
       params.status,
       chunks.length,
       pgShaArray,
-      null,
+      params.supersedes ?? null,
       params.moldPath ?? null,
     ],
   );
@@ -156,6 +157,7 @@ export async function ingestDocumentToMirrorAndDb(
     content: params.bytes,
     chunk_count: chunks.length,
     chunk_sha256s: chunkSha256s,
+    supersedes: params.supersedes ?? null,
     mold_path: params.moldPath ?? null,
     mirrorDir: RAG_CONFIG.CORPUS_MIRROR_DIR,
   });
