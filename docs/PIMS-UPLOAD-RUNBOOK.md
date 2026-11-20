@@ -95,12 +95,12 @@ flowchart TD
    - Ingesta y vectorización en `pimsai-db` para habilitar el motor RAG del sistema de gestión.
 
 ### Fase 6: Confirmación de Estados y Control Visual en UI GESTITEL
+> **Política de estados vigente (2026-11-19, decisión usuario):** los 18 documentos residen en `en_revision` (`R`) fijado vía `PATCH /api/documents/{id}/` (grupob4 carece de permiso `approve`; `V` es inalcanzable vía API). El agente/ingesta DEBE aceptar estados `R` y `V` por igual. La aprobación formal a `V` queda como paso manual opcional futuro, NO bloqueante para RAG.
 1. Ingresar con credenciales del grupo a `https://unsa.27k.pe`.
 2. Dirigirse al módulo **Gestión Documental** (`/documents/`).
 3. Comprobar que:
-   - La versión activa de cada uno de los 18 documentos figure como `vigente` (`V`).
-   - El historial de versiones muestre las revisiones anteriores (`v1.0`, `v2.0`) en estado `obsoleto` (`O`) y con sus enlaces de descarga íntegros.
-4. **Paso de Control Manual**: Debido a que la API REST de documentos de PIMS no expone un endpoint público para modificar manualmente el estado de versiones históricas individuales (el estado se gestiona automáticamente por el backend al aprobar la última versión), si alguna versión histórica previa no quedara rotulada como `obsoleto`, el administrador debe acceder a la vista de detalle en la interfaz web de GESTITEL y confirmar el selector de estado en `Obsoleto`.
+   - Cada uno de los 18 documentos figure en estado `en_revision` (`R`), versión actual `3.00`.
+   - El historial de versiones muestre las 3 revisiones (`1.00`, `2.00`, `3.00`) con enlaces de descarga íntegros.
 
 ---
 

@@ -181,3 +181,11 @@ Dado que el usuario de servicio `grupob4` no cuenta con permisos para invocar el
 
 ---
 *Informe de evidencia final emitido conforme al estándar de auditoría ISO/IEC 27701:2025 — Turno B Grupo 4 SGPI UNSA.*
+
+---
+
+## 5. Addendum de Estados (2026-11-19, decisión usuario)
+
+Tras la carga completa, los 18 documentos (IDs 1–18) fueron transicionados vía `PATCH /api/documents/{id}/` de `O` a **`en_revision` (`R`)** (18/18 HTTP 200, verificado por lectura). Motivo: `grupob4` carece de permiso `approve` y el backend rechaza `V` por cualquier otra vía (`El estado "Vigente" solo se establece al aprobar`), por lo que `V` es inalcanzable vía API.
+
+**Política vigente:** el agente y la ingesta RAG (`sync-pims-truth`, `pimsai-db`) DEBEN aceptar estados `R` y `V` por igual. La aprobación formal a `V` en UI por un administrador queda como paso opcional futuro, NO bloqueante para RAG ni para el despliegue.
