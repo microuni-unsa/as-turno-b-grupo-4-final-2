@@ -27,11 +27,11 @@ export function extractNormalizedText(bytes: Uint8Array, filename: string): stri
       stdout: "pipe",
       stderr: "pipe",
     });
-    if (proc.exitCode === 0) {
-      raw = new TextDecoder().decode(proc.stdout);
-    } else {
-      raw = new TextDecoder().decode(bytes);
+    if (proc.exitCode !== 0) {
+      const err = new TextDecoder().decode(proc.stderr);
+      throw new Error(`pdftotext extraction failed for ${filename} [exit ${proc.exitCode}]: ${err}`);
     }
+    raw = new TextDecoder().decode(proc.stdout);
   } else {
     raw = new TextDecoder().decode(bytes);
   }

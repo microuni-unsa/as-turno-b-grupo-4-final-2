@@ -86,15 +86,15 @@ services:
 
       # PIMS Tenant & Authentication
       - PIMS_BASE_URL=${PIMS_BASE_URL:-https://unsa.27k.pe}
-      - PIMS_USERNAME=${PIMS_USERNAME:-}
-      - PIMS_PASSWORD=${PIMS_PASSWORD:-}
+      - PIMS_USERNAME=${PIMS_USERNAME:?PIMS_USERNAME must be set in .env}
+      - PIMS_PASSWORD=${PIMS_PASSWORD:?PIMS_PASSWORD must be set in .env}
       - PIMS_TENANT_SCHEMA=${PIMS_TENANT_SCHEMA:-unsa}
       - PIMS_CODE_PREFIX=${PIMS_CODE_PREFIX:-G4-}
 
       # Embeddings & LLM Models
-      - EMBEDDINGS_API_KEY=${EMBEDDINGS_API_KEY:-}
-      - EMBEDDINGS_BASE_URL=${EMBEDDINGS_BASE_URL:-https://api.mistral.ai/v1}
-      - EMBEDDING_MODEL=${EMBEDDING_MODEL:-mistral-embed}
+      - EMBEDDINGS_API_KEY=${EMBEDDINGS_API_KEY:?EMBEDDINGS_API_KEY must be set in .env}
+      - EMBEDDINGS_BASE_URL=${EMBEDDINGS_BASE_URL:?EMBEDDINGS_BASE_URL must be set in .env}
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL:?EMBEDDING_MODEL must be set in .env}
       - AGENT_ENV_VAR=${AGENT_ENV_VAR:-}
       - AGENT_API_KEY=${AGENT_API_KEY:-}
       - AGENT_MODEL=${AGENT_MODEL:-opencode-go/muse-spark-1.3-contributor}

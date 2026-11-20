@@ -19,6 +19,16 @@ export function createOpenAICompatibleEmbedder(options: EmbedderOptions = {}): E
   const apiKey = options.apiKey ?? process.env.EMBEDDINGS_API_KEY;
   const fetchFn = options.fetchFn ?? fetch;
 
+  if (!apiKey || apiKey.trim().length === 0) {
+    throw new Error("createOpenAICompatibleEmbedder: Missing required API key. Set EMBEDDINGS_API_KEY in environment.");
+  }
+  if (!baseUrl || baseUrl.trim().length === 0) {
+    throw new Error("createOpenAICompatibleEmbedder: Missing required baseUrl. Set EMBEDDINGS_BASE_URL in environment.");
+  }
+  if (!model || model.trim().length === 0) {
+    throw new Error("createOpenAICompatibleEmbedder: Missing required model. Set EMBEDDING_MODEL in environment.");
+  }
+
   return {
     async embed(texts: string[]): Promise<number[][]> {
       if (texts.length === 0) {

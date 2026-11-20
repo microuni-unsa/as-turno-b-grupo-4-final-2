@@ -15,12 +15,34 @@ export interface RagConfig {
   readonly DEFAULT_QUERY_LIMIT: number;
 }
 
+function requireEnv(key: string): string {
+  const value = process.env[key];
+  if (value === undefined || value.trim().length === 0) {
+    throw new Error(
+      `[RAG_CONFIG] Missing required environment variable: ${key}. Silent fallbacks are prohibited.`,
+    );
+  }
+  return value;
+}
+
 export const RAG_CONFIG: RagConfig = {
-  EMBEDDING_MODEL: process.env.EMBEDDING_MODEL ?? "mistral-embed",
+  get EMBEDDING_MODEL(): string {
+    return requireEnv("EMBEDDING_MODEL");
+  },
   EMBEDDING_DIM: 1024,
-  EMBEDDING_BASE_URL: process.env.EMBEDDINGS_BASE_URL ?? "https://api.mistral.ai/v1",
-  CORPUS_MIRROR_DIR: process.env.CORPUS_MIRROR_DIR ?? "corpus_mirror",
-  DATABASE_URL: process.env.DATABASE_URL ?? "postgresql://postgres:postgres@localhost:5432/pims",
+  get EMBEDDING_BASE_URL(): string {
+    return requireEnv("EMBEDDINGS_BASE_URL");
+  },
+  get CORPUS_MIRROR_DIR(): string {
+    const dir = process.env.CORPUS_MIRROR_DIR;
+    if (dir !== undefined && dir.trim().length > 0) {
+      return dir;
+    }
+    return "corpus_mirror";
+  },
+  get DATABASE_URL(): string {
+    return requireEnv("DATABASE_URL");
+  },
   DEFAULT_CHUNK_SIZE: 1200,
   DEFAULT_CHUNK_OVERLAP: 2,
   DEFAULT_QUERY_LIMIT: 5,

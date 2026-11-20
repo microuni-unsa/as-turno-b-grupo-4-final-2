@@ -15,16 +15,15 @@ async function syncOnce(tag: string): Promise<void> {
   const username = process.env.PIMS_USERNAME;
   const password = process.env.PIMS_PASSWORD;
   if (!username || !password) {
-    console.log(
-      `${tag} PIMS_USERNAME/PIMS_PASSWORD not set; skipping launch sync.`,
+    throw new Error(
+      `${tag} PIMS_USERNAME and PIMS_PASSWORD must be configured in environment.`,
     );
-    return;
   }
 
   const client = new PimsClient();
   await client.login({ username, password });
 
-  const listResult = await client.listDocuments({ code_prefix: "G4-" });
+  const listResult = await client.listDocuments({ page_size: 100 });
   const docs = listResult.results ?? [];
   console.log(`${tag} Found ${docs.length} G4- documents in PIMS.`);
 
@@ -38,26 +37,34 @@ async function syncOnce(tag: string): Promise<void> {
 
   try {
     for (const doc of docs) {
+      if (doc.id === undefined || doc.id === null) {
+        throw new Error(`${tag} Missing document ID for document ${doc.code}`);
+      }
+      if (!doc.current_version) {
+        throw new Error(`${tag} Missing current_version for document ${doc.code} (ID: ${doc.id})`);
+      }
       const docId = String(doc.id);
-      const version = String(doc.current_version ?? "1.0");
+      const version = String(doc.current_version);
       const manifest = readCorpusManifest(docId, RAG_CONFIG.CORPUS_MIRROR_DIR);
       const existingEntry = manifest?.versions.find(
         (v) => v.pims_version === version,
       );
 
       if (!doc.file) {
-        console.log(
-          `${tag} Skipping ${doc.code} (v${version}): no file URL in PIMS.`,
-        );
-        continue;
+        throw new Error(`${tag} Document ${doc.code} v${version} has no file URL in PIMS.`);
       }
 
-      const response = await fetch(doc.file);
+      const token = await client.auth.getValidAccessToken();
+      const response = await fetch(doc.file, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "X-PIMS-Schema": client.schema,
+        },
+      });
       if (!response.ok) {
-        console.warn(
-          `${tag} Failed to download ${doc.code} v${version}: ${response.status} ${response.statusText}`,
+        throw new Error(
+          `${tag} Failed to download ${doc.code} v${version} from ${doc.file}: ${response.status} ${response.statusText}`,
         );
-        continue;
       }
 
       const bytes = new Uint8Array(await response.arrayBuffer());

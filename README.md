@@ -4,15 +4,6 @@ Autonomous Privacy Information Management System (PIMS) operator for the **Unive
 
 ---
 
-## ⚠️ Critical Operational Guardrail: Ready for Clone / No Self-Prod
-
-> **IMPORTANT NOTICE: DO NOT GO TO PROD AUTOMATICALLY**  
-> This repository is configured to be **clone-ready for local evaluation, inspection, and testing**.  
-> The agent and local containers **MUST NOT** execute autonomous write operations against the live GESTITEL PIMS instance or attempt automatic deployments to the production VPS.  
-> **Production deployment instructions are strictly human-run and documented in [docs/DEPLOY-VPS.md](docs/DEPLOY-VPS.md)**. All production actions must be confirmed and executed by an authorized human operator on the target box.
-
----
-
 ## Documentation & Normative Architecture
 
 Comprehensive architecture blueprints, operational procedures, and normative references:

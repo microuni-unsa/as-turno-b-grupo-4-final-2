@@ -1,8 +1,8 @@
-# Production VPS Deployment Guide — Human Operator Manual
+# Production VPS Deployment Guide — Operator Manual
 
-> **CRITICAL OPERATIONAL POLICY: HUMAN-RUN ONLY**  
-> This deployment runbook is intended **strictly for a human operator running commands directly on the target VPS**.  
-> The autonomous AI agent **NEVER** executes self-deployments, production infrastructure mutations, remote SSH commands, or automated release scripts. All changes to production infrastructure must be confirmed and executed by an authorized human administrator.
+> **CRITICAL OPERATIONAL POLICY: AFTER APPROVAL ONLY**  
+> This deployment runbook is intended **strictly for an approved operator directly on the target VPS**.  
+> All changes to production infrastructure must be confirmed and executed by an authorized human administrator.
 
 ---
 
