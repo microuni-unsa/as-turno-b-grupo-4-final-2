@@ -80,16 +80,24 @@ async function syncOnce(tag: string): Promise<void> {
         );
         const inDb = Number(regCheck.rows[0]?.count ?? "0") > 0;
 
-        // If version is in DB, update status if changed in PIMS
-        if (inDb && regCheck.rows[0]?.status !== status) {
-          await db.query(
-            "UPDATE pims_registry SET status = $1, updated_at = NOW() WHERE pims_doc_id = $2 AND pims_version = $3",
-            [status, docId, versionStr],
-          );
-          await db.query(
-            "UPDATE chunks SET status = $1 WHERE pims_doc_id = $2 AND pims_version = $3",
-            [status, docId, versionStr],
-          );
+        // If version is in DB, update status and supersedes if needed
+        if (inDb) {
+          if (regCheck.rows[0]?.status !== status) {
+            await db.query(
+              "UPDATE pims_registry SET status = $1, updated_at = NOW() WHERE pims_doc_id = $2 AND pims_version = $3",
+              [status, docId, versionStr],
+            );
+            await db.query(
+              "UPDATE chunks SET status = $1 WHERE pims_doc_id = $2 AND pims_version = $3",
+              [status, docId, versionStr],
+            );
+          }
+          if (supersedes !== null) {
+            await db.query(
+              "UPDATE pims_registry SET supersedes = $1 WHERE pims_doc_id = $2 AND pims_version = $3 AND supersedes IS NULL",
+              [supersedes, docId, versionStr],
+            );
+          }
         }
 
         if (existingEntry && inDb) {
