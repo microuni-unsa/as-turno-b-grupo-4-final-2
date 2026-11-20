@@ -133,11 +133,20 @@ export function writeToCorpusMirror(options: WriteMirrorOptions): {
     updatedVersions = [versionEntry];
   }
 
+  // Sort versions ascending by numerical version
+  const sortedVersions = [...updatedVersions].sort((a, b) => {
+    const vA = parseFloat(a.pims_version);
+    const vB = parseFloat(b.pims_version);
+    return vA - vB;
+  });
+
+  const latestVersion = sortedVersions[sortedVersions.length - 1]?.pims_version ?? options.pims_version;
+
   const manifest: CorpusMirrorManifest = {
     pims_doc_id: options.pims_doc_id,
     code: options.code,
-    latest_version: options.pims_version,
-    versions: updatedVersions,
+    latest_version: latestVersion,
+    versions: sortedVersions,
   };
 
   writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), "utf8");
