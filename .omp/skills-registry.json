@@ -43,6 +43,10 @@
     {
       "name": "live-build",
       "contract": "Spawn background subagent to build and test unbuilt connectors live while main session stays responsive"
+    },
+    {
+      "name": "doc-necessity",
+      "contract": "Classify PIMS documents as mandatory or optional from live PIMS state and the ISO 27701 shall-test, with cited verdicts"
     }
   ]
 }

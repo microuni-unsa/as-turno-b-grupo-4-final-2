@@ -38,7 +38,7 @@ skills:
   enableAgentsProject: true
   enablePiProject: true
 
-# Skills Registry: Complete registry of all 11 skills (3 core + 8 behavior) with one-line contracts
+# Skills Registry: Complete registry of all 12 skills (3 core + 9 behavior) with one-line contracts
 skillsRegistry:
   pims-reader: "Standardized fast readers over PIMS REST API with G4-/responsible filtering and mirror fallback"
   connector-builder: "Dynamic connector generation following convention with background subagent and self-heal loop"
@@ -51,3 +51,4 @@ skillsRegistry:
   proactive: "Contextual adjacent suggestions offering related reports, audits, and evidence proactively"
   summons-dispatch: "Query NC/corrective chain, format RAG summons table, require explicit approval, and dispatch mail"
   live-build: "Spawn background subagent to build and test unbuilt connectors live while main session stays responsive"
+  doc-necessity: "Classify PIMS documents as mandatory or optional from live PIMS state and the ISO 27701 shall-test, with cited verdicts"
