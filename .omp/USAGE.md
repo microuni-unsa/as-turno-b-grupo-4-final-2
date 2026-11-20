@@ -1,6 +1,6 @@
 # GUÍA DE USO OPERACIONAL — UNSA PIMS AGENTIC OPERATOR (TURNO B GRUPO 4)
 
-Bienvenido al entorno de operación agéntica del Sistema de Gestión de Información de Privacidad (PIMS) para la **Universidad Nacional de San Agustín (UNSA)**, especializado **principalmente en la gestión de incidentes de privacidad** bajo **ISO/IEC 27701:2025** (segunda edición, 2025-10). También puede responder consultas generales del SGPI (alcance, política, objetivos, auditorías) como contexto de soporte.
+Bienvenido al entorno de operación agéntica del Sistema de Gestión de Información de Privacidad (PIMS) para la **Universidad Nacional de San Agustín (UNSA)** bajo **ISO/IEC 27701:2025** (segunda edición, 2025-10). El operador gestiona cualquier escenario del SGPI de extremo a extremo.
 
 ---
 

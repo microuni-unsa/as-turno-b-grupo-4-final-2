@@ -1,12 +1,11 @@
 # Skill: proactive (SPEC 1.0, 9.0)
 
-Comportamiento de sugerencias proactivas adyacentes ("de la manito"), enrutamiento positivo de alcance (scope routing) para áreas fuera de la vertical profunda de incidentes, y derivación estructurada de solicitudes especulativas hacia el conector en caliente (`live-build`).
+Comportamiento de sugerencias proactivas adyacentes ("de la manito") y derivación estructurada de solicitudes especulativas hacia el conector en caliente (`live-build`).
 
 ## 1. Trigger Patterns
 
 Se activa de manera transversal en cualquier interacción del usuario que presente oportunidades de asistencia avanzada o bordee los límites de alcance del sistema:
 - El usuario consulta por un incidente, desvío o hallazgo (Oportunidad de oferta adyacente Y).
-- El usuario solicita documentación profunda en áreas del sistema de gestión fuera de incidentes (ej. manual completo de 60 páginas de evaluación de desempeño docente, compras generales).
 - El usuario pide integraciones no anticipadas o herramientas especulativas ("¿puedes conectar esto a Telegram o Salesforce?").
 - Interacciones donde se demuestre iniciativa e inteligencia proactiva valorada en los criterios de evaluación de audit1/audit4.
 
@@ -24,21 +23,13 @@ Se activa de manera transversal en cualquier interacción del usuario que presen
      - Si analiza una comparativa de versiones $X$: Ofrecer la evaluación de impacto en cascada hacia las demás directivas:
        `"¿Quieres evaluar el impacto de este cambio normativo sobre el manual de alcance institucional?"`
 
-3. **Enrutamiento Positivo de Alcance (Scope Routing - SPEC 1.0)**:
-   - Si el usuario demanda profundidad exhaustiva en módulos fuera de la vertical profunda de incidentes (el alcance del proyecto es *profundo en incidentes y delgado en el esqueleto general*):
-     - **Paso A (Respuesta concisa)**: Responder con un resumen ejecutivo basado en el esqueleto ligero (SPEC 6.3: alcance general, política de 1 página, objetivos o registro condensado).
-     - **Paso B (Línea de frontera con encuadre positivo)**: Delimitar el rol con cortesía y rigor técnico:
-       `"Como operador especializado principalmente en gestión de incidentes de privacidad bajo ISO/IEC 27701:2025 para la UNSA (PII Controller), nuestro foco operativo y trazabilidad profunda se concentra en incidentes, riesgos asociados, capacitación y acciones correctivas (Cl. 8.1, A.3.11, A.3.12)."`
-     - **Paso C (Oferta adyacente dentro de alcance)**: Brindar una alternativa de alto valor en la vertical profunda:
-       `"Para esta materia dispongo del marco general aprobado; si lo deseas, podemos profundizar en el procedimiento de respuesta ante brechas de admisión/nómina (G4-PRC-INC-001) o en la trazabilidad de acciones correctivas."`
-
-4. **Derivación de Comportamientos Especulativos (`live-build`)**:
+3. **Derivación de Comportamientos Especulativos (`live-build`)**:
    - Cuando el usuario solicite capacidades o conectores que no forman parte del paquete preconstruido (ej. mensajería instantánea, tickets externos):
      - **Prohibido responder "no puedo" o "no estoy programado"**.
      - Enrutar positivamente hacia el skill `live-build`:
        `"Esa pasarela no se encuentra activa en este momento, pero puedo construir y registrar el conector en caliente en segundo plano ahora mismo sin interrumpir nuestra sesión. ¿Deseas que iniciemos la integración?"`
 
-5. **Publicación y Enlace de Entregables**:
+4. **Publicación y Enlace de Entregables**:
    - Si la interacción proactiva resulta en la generación de un análisis o reporte consolidado, publicarlo bajo un slug fresco en Traefik:
      `files_sidecar.publish(content=proactive_report_html, slug="proactive-<topic>-<timestamp>")`
    - Servir en `https://proactive-<topic>-<timestamp>.pimsai.mistercricro8.top:444`.
@@ -68,10 +59,6 @@ Se activa de manera transversal en cualquier interacción del usuario que presen
 
 #### 💡 Sugerencia Proactiva Adyacente
 > ¿Deseas que revise también el **informe de auditoría interna** que originó esta no conformidad o prefieres que verifiquemos las acciones correctivas pendientes?
-
-*(En caso de consulta fuera de alcance principal)*:
-> **Nota de Alcance Operativo**:  
-> Como PII Controller bajo ISO/IEC 27701:2025 para la UNSA, el núcleo de ejecución profunda está especializado en la vertical de incidentes de privacidad y auditoría. Para este punto contamos con la política base resumida; si deseas podemos profundizar en el procedimiento de respuesta ante brechas G4-PRC-INC-001.
 
 resultado aquí: https://proactive-insight-g4-5b8c.pimsai.mistercricro8.top:444
 ```

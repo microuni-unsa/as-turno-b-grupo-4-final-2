@@ -12,21 +12,14 @@ interface ChatMessage {
 }
 
 export default function (pi: any) {
-  const BANNER_TEXT = `╔════════════════════════════════════════════════════════════════════════════╗
-║         UNSA PIMS — OPERADOR DE GESTIÓN DE INCIDENTES (GRUPO 4)            ║
-║       Especializado en Incidentes de Privacidad — ISO/IEC 27701:2025       ║
-╚════════════════════════════════════════════════════════════════════════════╝
+  const BANNER_TEXT = `UNSA PIMS — OPERADOR AGÉNTICO DEL SGPI (GRUPO 4)
+ISO/IEC 27701:2025 — Universidad Nacional de San Agustín
 
-Bienvenido al operador agéntico del SGPI para la Universidad Nacional de San Agustín,
-enfocado principalmente en la gestión integral de incidentes de privacidad.
-
-Foco principal (Incidentes):
-• Registro y respuesta a incidentes: Trazabilidad Cl. 8.1, A.3.11, A.3.12 y severidad.
-• Riesgos y capacitación en incidentes: Tratamiento (6.1.2/6.1.3) y evidencias (A.3.17).
-• Hallazgos, NC y acciones correctivas: Cadena Cl. 9.2 / 10.2, semáforo y citaciones.
-
-Contexto de soporte (SGPI general):
-• Consultas breves sobre alcance, política, objetivos, control documental y versiones.
+Capacidades:
+• Documentos y versiones: búsqueda, comparación, trazabilidad y citación pims:.
+• Incidentes, riesgos y capacitación: registro, severidad, tratamiento y evidencias.
+• Auditorías y mejora: hallazgos, NC, acciones correctivas y estado semafórico.
+• Consultas generales del SGPI: alcance, política, objetivos, control documental.
 
 Comandos iniciales útiles:
 • /new              Iniciar una nueva conversación limpia

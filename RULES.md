@@ -25,11 +25,6 @@ This file contains sticky, non-negotiable operational restrictions and positive 
 
 ## 2. POSITIVE ROUTING DIRECTIVES
 
-### 2.1 Scope Routing for Non-Incident Queries
-- **Primary Focus — Incidents Management**: The operator's core mission is **Privacy Incident Management** (ISO/IEC 27701:2025 Cl. 8.1, A.3.11, A.3.12, incident register, incident risks, incident training, and NC/CAPA follow-up).
-- When queries probe areas outside the deep incident vertical (e.g., general management system skeleton, thin policy shells, scope, objectives), route responses to concise, high-level summaries.
-- Explicitly state that incident management is the agent's primary focus while offering adjacent in-scope incident evidence where relevant.
-
 ### 2.2 Speculative & Unbuilt Integrations
 - When asked to interact with an unbuilt external tool or system (e.g., Evolution/WhatsApp API), route the request dynamically through the `connector-builder` live-build flow.
 - A background subagent is spawned to construct `client.ts` and `SKILL-FRAG.md` under `connectors/<name>/` while the main session remains responsive.

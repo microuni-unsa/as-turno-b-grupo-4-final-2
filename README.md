@@ -69,7 +69,7 @@ The repository is structured into modular components covering all system boundar
     ├── config.yml               # Agent runtime configuration (budgets, memory, models)
     ├── USAGE.md                 # Full operational user guide served on 'mas ayuda' command
     ├── extensions/              # Runtime extensions (session start banner, secret tools)
-    └── skills/                  # Registered skill definitions (11 skills catalog)
+    └── skills/                  # Registered skill definitions (12 skills catalog)
 ```
 
 ---
