@@ -59,7 +59,7 @@ services:
           printf '\ndefault_mode "locked"\n' >> /home/agent/.config/zellij/config.kdl
         fi
         rm -f /home/agent/.config/zellij/layouts/default.kdl
-        bun run /app/scripts/sync-pims-truth.ts || echo "[sync-pims-truth] Continuing startup after non-fatal sync warning"
+        (bun run /app/scripts/sync-pims-truth.ts --loop --interval 300 || echo "[sync-loop] loop exited") &
         zellij web --ip 127.0.0.1 --port 8083 -d
         if [ -n "$${AGENT_MODEL:-}" ]; then
           zellij attach -b pimsai -- omp --model "$${AGENT_MODEL}" || true
