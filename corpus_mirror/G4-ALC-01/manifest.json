@@ -3,7 +3,7 @@
   "pims_doc_id": "G4-ALC-01",
   "title": "Determinación del Alcance del SGPI",
   "latest_version": "3.0",
-  "updated_at": "2026-11-19T21:08:15.678Z",
+  "updated_at": "2026-11-20T16:55:33.104Z",
   "versions": [
     {
       "version": "1.0",
@@ -14,13 +14,13 @@
       "mold_path": "corpus_g4_src/scope/G4-ALC-01-v1.typ",
       "filename": "v1.pdf",
       "file_path": "corpus_mirror/G4-ALC-01/v1.pdf",
-      "sha256": "94b2b1e63c143c31ceeff0366e44fd21653c25400e94e25d54a37dec142d05c5",
+      "sha256": "c15d3e8e52027dcc3dcefe77733bea7f33ea042d0ffab48a2efb17b614278896",
       "files": [
         {
           "filename": "v1.pdf",
           "file_path": "corpus_mirror/G4-ALC-01/v1.pdf",
           "format": "pdf",
-          "sha256": "94b2b1e63c143c31ceeff0366e44fd21653c25400e94e25d54a37dec142d05c5",
+          "sha256": "c15d3e8e52027dcc3dcefe77733bea7f33ea042d0ffab48a2efb17b614278896",
           "size_bytes": 585195,
           "source_mold": "corpus_g4_src/scope/G4-ALC-01-v1.typ"
         }
@@ -35,13 +35,13 @@
       "mold_path": "corpus_g4_src/scope/G4-ALC-01-v2.typ",
       "filename": "v2.pdf",
       "file_path": "corpus_mirror/G4-ALC-01/v2.pdf",
-      "sha256": "2da5fadf832c3265e71cc86871abaeef568a33f123b959a87a32024506e88454",
+      "sha256": "07f5d00033642ca350c953706d08f74dadcb49006284f3eec8f7e81cf340e180",
       "files": [
         {
           "filename": "v2.pdf",
           "file_path": "corpus_mirror/G4-ALC-01/v2.pdf",
           "format": "pdf",
-          "sha256": "2da5fadf832c3265e71cc86871abaeef568a33f123b959a87a32024506e88454",
+          "sha256": "07f5d00033642ca350c953706d08f74dadcb49006284f3eec8f7e81cf340e180",
           "size_bytes": 593614,
           "source_mold": "corpus_g4_src/scope/G4-ALC-01-v2.typ"
         }
@@ -56,13 +56,13 @@
       "mold_path": "corpus_g4_src/scope/G4-ALC-01-v3.typ",
       "filename": "v3.pdf",
       "file_path": "corpus_mirror/G4-ALC-01/v3.pdf",
-      "sha256": "94baf2765e4a564cad64dd0a3ae411026b1d7b561efa906b46103d47988f647b",
+      "sha256": "40095f48e7a19556b57a36b64412c3de60a3228ef3808e8482e71a42dcf01568",
       "files": [
         {
           "filename": "v3.pdf",
           "file_path": "corpus_mirror/G4-ALC-01/v3.pdf",
           "format": "pdf",
-          "sha256": "94baf2765e4a564cad64dd0a3ae411026b1d7b561efa906b46103d47988f647b",
+          "sha256": "40095f48e7a19556b57a36b64412c3de60a3228ef3808e8482e71a42dcf01568",
           "size_bytes": 594694,
           "source_mold": "corpus_g4_src/scope/G4-ALC-01-v3.typ"
         }

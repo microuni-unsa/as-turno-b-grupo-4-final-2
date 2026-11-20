@@ -3,7 +3,7 @@
   "pims_doc_id": "G4-REG-CAPA-01",
   "title": "Apéndice: Formulario para medidas correctivas",
   "latest_version": "3.0",
-  "updated_at": "2026-11-19T21:08:15.678Z",
+  "updated_at": "2026-11-20T16:55:33.104Z",
   "versions": [
     {
       "version": "1.0",
@@ -14,13 +14,13 @@
       "mold_path": "corpus_g4_src/nc-corrective-actions/G4-REG-CAPA-01-v1.typ",
       "filename": "v1.pdf",
       "file_path": "corpus_mirror/G4-REG-CAPA-01/v1.pdf",
-      "sha256": "c7a143610e59aa0d826d12d39051543716f72706f22ea2ec4cfb23890d41c78c",
+      "sha256": "28f2bc8c3dc4eae2870dbe65bde2537a18f8d60d25fd4791fc273ff9b2f2d067",
       "files": [
         {
           "filename": "v1.pdf",
           "file_path": "corpus_mirror/G4-REG-CAPA-01/v1.pdf",
           "format": "pdf",
-          "sha256": "c7a143610e59aa0d826d12d39051543716f72706f22ea2ec4cfb23890d41c78c",
+          "sha256": "28f2bc8c3dc4eae2870dbe65bde2537a18f8d60d25fd4791fc273ff9b2f2d067",
           "size_bytes": 567683,
           "source_mold": "corpus_g4_src/nc-corrective-actions/G4-REG-CAPA-01-v1.typ"
         }
@@ -35,13 +35,13 @@
       "mold_path": "corpus_g4_src/nc-corrective-actions/G4-REG-CAPA-01-v2.typ",
       "filename": "v2.pdf",
       "file_path": "corpus_mirror/G4-REG-CAPA-01/v2.pdf",
-      "sha256": "2e80cbdc5074cb60d49f638adaa69ca7f63ca4f3f45b7c5756e85e53ddb16500",
+      "sha256": "87c3072c46e2f113feee520c2c68ac86deec74f17381e8f07791c0b80513f7cd",
       "files": [
         {
           "filename": "v2.pdf",
           "file_path": "corpus_mirror/G4-REG-CAPA-01/v2.pdf",
           "format": "pdf",
-          "sha256": "2e80cbdc5074cb60d49f638adaa69ca7f63ca4f3f45b7c5756e85e53ddb16500",
+          "sha256": "87c3072c46e2f113feee520c2c68ac86deec74f17381e8f07791c0b80513f7cd",
           "size_bytes": 571419,
           "source_mold": "corpus_g4_src/nc-corrective-actions/G4-REG-CAPA-01-v2.typ"
         }
@@ -56,13 +56,13 @@
       "mold_path": "corpus_g4_src/nc-corrective-actions/G4-REG-CAPA-01-v3.typ",
       "filename": "v3.pdf",
       "file_path": "corpus_mirror/G4-REG-CAPA-01/v3.pdf",
-      "sha256": "65c4122de9cbbc5cad79596323f0b3536123877b3caccc974539c32804cee4d8",
+      "sha256": "b6c93e297a5a238af33f790fc48979c0cf9d26439e93d92800de44ebc1595e29",
       "files": [
         {
           "filename": "v3.pdf",
           "file_path": "corpus_mirror/G4-REG-CAPA-01/v3.pdf",
           "format": "pdf",
-          "sha256": "65c4122de9cbbc5cad79596323f0b3536123877b3caccc974539c32804cee4d8",
+          "sha256": "b6c93e297a5a238af33f790fc48979c0cf9d26439e93d92800de44ebc1595e29",
           "size_bytes": 588307,
           "source_mold": "corpus_g4_src/nc-corrective-actions/G4-REG-CAPA-01-v3.typ"
         }
