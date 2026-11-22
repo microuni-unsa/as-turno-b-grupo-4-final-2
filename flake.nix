@@ -9,6 +9,7 @@
 
   outputs =
     {
+      self,
       nixpkgs,
       nixpkgs-unstable,
       flake-utils,
@@ -25,26 +26,14 @@
           inherit system;
           config.allowUnfree = true;
         };
-        fonts = with pkgs; [
-          carlito
-        ];
+        fonts = with pkgs; [ lato corefonts carlito ];
       in
       {
         devShells.default = pkgs.mkShell {
-          LD_LIBRARY_PATH =
-            with pkgs;
-            lib.makeLibraryPath [
-              stdenv.cc.cc
-              zlib
-              glib
-              libxcb
-              libglvnd
-            ];
-
           packages = pkgs.lib.flatten [
             (with pkgs; [
-              uv
               bun
+              uv
             ])
             (with unstable; [
               typst
@@ -52,15 +41,17 @@
             ])
             fonts
           ];
+
+          buildInputs = [ pkgs.bashInteractive ];
+
           shellHook = ''
             unset SOURCE_DATE_EPOCH
           '';
+
           env = {
-            FONTCONFIG_FILE = pkgs.makeFontsConf {
-              fontDirectories = fonts;
-            };
+            TYPST_FONT_PATHS = pkgs.lib.concatMapStringsSep ":" (f: "${f}/share/fonts") fonts;
+            UV_PYTHON_PREFERENCE = "only-managed";
           };
-          buildInputs = [ pkgs.bashInteractive ];
         };
       }
     );
