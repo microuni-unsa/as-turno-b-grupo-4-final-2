@@ -59,11 +59,11 @@ Examples: `secret:gestitel_jwt@v1`, `secret:smtp_creds@v1`, `secret:evolution_to
    - Secrets rotation generates a new version (e.g., `@v2`).
    - Old versions remain accessible in memory/store so already-running sibling containers or active sessions continue working without disruption until restarted.
 4. **Missing Credentials Flow (Secrets Sidecar):**
-   - If an agent or connector requires a secret that is not yet configured, it calls `secretsStore.requestSecret(label)`.
+   - If an agent or connector requires a user-owned external credential that is not yet configured, it calls `POST http://pimsai-secrets-sidecar:3000/api/secrets/request`.
    - The sidecar returns a one-time URL with a 5-minute expiry:  
-     `https://secrets.pimsai.mistercricro8.top/s/<token>`
-   - The agent provides this link to the instructor/user.
-   - **Crucial Rule:** The main conversational session never blocks; it continues answering queries from the local PIMS mirror while a background worker or sidecar webhook polls `pollSecret(token)` until the handle is delivered.
+     `https://secrets.pimsai.mistercricro8.top:444/s/<token>`
+   - Note: for **self-hosted sibling containers** spawned directly on `internal-proxy` (e.g., Evolution API), generate and inject the API key directly via Docker env rather than prompting via `secrets-sidecar`.
+   - **Crucial Rule:** Register the `async: true` background poll before sending the URL so the main session never blocks while waiting for external submission.
 
 ---
 

@@ -38,8 +38,14 @@ git clone https://github.com/microuni-unsa/as-turno-b-grupo-4-final-2.git pimsai
 cd pimsai
 ```
 
-### Step 2: Environment Configuration
-Copy `.env.example` to `.env` and populate authorized credentials:
+### Step 2: Environment Configuration (Plain `.env` or SOPS `.enc.env`)
+Option A — Decrypt SOPS `.enc.env` using an authorized `age` key (SOPS auto-detects dotenv on `.enc.env`):
+```bash
+umask 077
+sops decrypt .enc.env > .env
+chmod 600 .env
+```
+Option B — Copy `.env.example` to `.env` and populate authorized credentials:
 ```bash
 cp .env.example .env
 chmod 600 .env
@@ -51,31 +57,59 @@ Ensure the following variables are configured:
 - `POSTGRES_PASSWORD`: Strong master password for the local pgvector sidecar database.
 - `EMBEDDINGS_API_KEY` & `EMBEDDINGS_BASE_URL`: OpenAI-compatible 1024-dimension embeddings credentials.
 - `AGENT_ENV_VAR` & `AGENT_API_KEY`: Provider environment variable name (e.g. `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `OPENCODE_API_KEY`) and API key for `omp`.
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USERNAME`, `SMTP_PASSWORD`: Gmail SMTP credentials (Google App Password) for `summons-dispatch`.
+- `CORPUS_MIRROR_DIR`: Set to `/var/lib/pimsai/corpus_mirror` (mounted outside bind-mounted `/app` via `corpus_mirror_data`).
 - `AGE_SECRET_KEY`: Private X25519 identity key for encrypting secrets sidecar storage.
 
 > **Warning**: Never commit `.env` into Git or share it across insecure channels.
 
-### Step 3: Build the Container Images
+### Step 3: Safe Sync (`rsync --delete`) for In-Place VPS Updates
+When syncing code changes from a workstation to an existing `/opt/pimsai` deploy on `cricro-vm`, preserve live runtime state, secrets, and dev-only directories by excluding them explicitly:
+```bash
+rsync -avz --delete \
+  --exclude='.env' \
+  --exclude='.enc.env' \
+  --exclude='.sops.yaml' \
+  --exclude='data/' \
+  --exclude='secrets/' \
+  --exclude='corpus_mirror/' \
+  --exclude='.playwright-mcp/' \
+  --exclude='prompt*' \
+  --exclude='omp-session-*' \
+  --exclude='docs/' \
+  --exclude='corpus_g4_src/' \
+  --exclude='CHECK.md' \
+  --exclude='FIXUP_PLAN.md' \
+  --exclude='.git/' \
+  --exclude='flake.*' \
+  --exclude='node_modules/' \
+  ./ <user>@<vps>:/opt/pimsai/
+```
+
+### Step 4: Build the Container Images
 Build the 3 customized container images:
 ```bash
 docker compose build
 ```
 This builds:
-- `agent` (Debian Bookworm, Bun 1.2.4, Typst 0.15, Zellij 0.45, omp 18.18.1, Docker CLI, PostgreSQL client)
+- `agent` (Debian Bookworm, Bun 1.2.4, Node 22, Chromium + `@playwright/mcp` + `nodemailer` at `/node_modules`, Typst 0.15, Zellij 0.45, omp 18.18.1, Docker CLI, PostgreSQL client, `CORPUS_MIRROR_DIR=/var/lib/pimsai/corpus_mirror`)
 - `files-sidecar` (Node 22 Bookworm, multipart upload engine, 5-min ephemeral minting)
 - `secrets-sidecar` (Node 20 Bookworm, Age encryption engine, PostgreSQL registry client)
 
-### Step 4: Start the Services
-Launch the complete stack in detached mode:
+### Step 5: Clean-Reset & Start Services
+When resetting state before a clean evaluation run:
 ```bash
-docker compose up -d
+# Clear runtime mirror & stale omp memories inside agent volume, and truncate pgvector tables
+docker compose exec agent rm -rf /var/lib/pimsai/corpus_mirror/* /home/agent/.omp/agent/memories/*
+docker compose exec db psql -U "${POSTGRES_USER:-agent}" -d "${POSTGRES_DB:-pims_agent}" -c "TRUNCATE pims_registry, chunks RESTART IDENTITY CASCADE;"
+docker compose up -d --build
 ```
-
-Verify service status:
+Verify initial sync populates `/var/lib/pimsai/corpus_mirror/<doc.code>/` (`v<n>.pdf` + `v<n>.txt` + `manifest.json`) keyed by `doc.code`:
 ```bash
 docker compose ps
+docker compose logs -n 60 agent
 ```
-All four services (`pimsai-agent`, `pimsai-db`, `pimsai-files-sidecar`, `pimsai-secrets-sidecar`) should be in the `running` state, with `pimsai-db` showing `healthy`.
+All four services (`pimsai-agent`, `pimsai-db`, `pimsai-files-sidecar`, `pimsai-secrets-sidecar`) should be `running`, with `pimsai-db` showing `healthy`.
 
 ### Step 5: Traefik Router Verification & Let's Encrypt Cert Check
 Check that host Traefik discovers the containers and binds the routers:

@@ -21,9 +21,14 @@ import * as path from "node:path";
 import { generateIncidentXlsx } from "../molds/incident-register/generate.ts";
 import { generateAssessmentXlsx } from "../molds/incident-risks/generate-assessment.ts";
 import { generateTreatmentXlsx } from "../molds/incident-risks/generate-treatment.ts";
+import { RAG_CONFIG } from "../packages/rag-mirror/config.ts";
 
 const REPO_ROOT = path.resolve(__dirname, "..");
-const CORPUS_DIR = path.join(REPO_ROOT, "corpus_mirror");
+const CORPUS_DIR = RAG_CONFIG.CORPUS_MIRROR_DIR;
+
+function formatMirrorFilePath(absOrRelPath: string): string {
+  return path.isAbsolute(CORPUS_DIR) ? absOrRelPath : path.relative(REPO_ROOT, absOrRelPath);
+}
 
 interface CallerInfo {
   filePath: string;
@@ -205,7 +210,7 @@ async function main(): Promise<void> {
 
     const pdfFilename = `v${info.versionNum}.pdf`;
     const pdfPath = path.join(docDir, pdfFilename);
-    const pdfRel = path.relative(REPO_ROOT, pdfPath);
+    const pdfRel = formatMirrorFilePath(pdfPath);
 
     process.stdout.write(`[render-all] Compilando ${callerRel} -> ${pdfRel}... `);
 
@@ -293,7 +298,7 @@ async function main(): Promise<void> {
       const v = docEntry.versions.get(verNum)!;
       v.files.push({
         filename: xlsxFilename,
-        file_path: path.relative(REPO_ROOT, xlsxPath),
+        file_path: formatMirrorFilePath(xlsxPath),
         format: "xlsx",
         sha256,
         size_bytes: size,
@@ -323,7 +328,7 @@ async function main(): Promise<void> {
       const v = docEntry.versions.get(verNum)!;
       v.files.push({
         filename: xlsxFilename,
-        file_path: path.relative(REPO_ROOT, xlsxPath),
+        file_path: formatMirrorFilePath(xlsxPath),
         format: "xlsx",
         sha256,
         size_bytes: size,
@@ -353,7 +358,7 @@ async function main(): Promise<void> {
       const v = docEntry.versions.get(verNum)!;
       v.files.push({
         filename: xlsxFilename,
-        file_path: path.relative(REPO_ROOT, xlsxPath),
+        file_path: formatMirrorFilePath(xlsxPath),
         format: "xlsx",
         sha256,
         size_bytes: size,
@@ -400,7 +405,7 @@ async function main(): Promise<void> {
   console.log("================================================================================\n");
 
   const dirList = fs.readdirSync(CORPUS_DIR).sort();
-  console.log(`Estructura en ${path.relative(REPO_ROOT, CORPUS_DIR)}/ (${dirList.length} directorios):`);
+  console.log(`Estructura en ${CORPUS_DIR}/ (${dirList.length} directorios):`);
   for (const item of dirList) {
     const subPath = path.join(CORPUS_DIR, item);
     if (fs.statSync(subPath).isDirectory()) {

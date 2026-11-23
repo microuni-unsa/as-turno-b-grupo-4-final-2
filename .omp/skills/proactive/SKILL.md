@@ -1,64 +1,37 @@
-# Skill: proactive (SPEC 1.0, 9.0)
+---
+name: proactive
+description: Contextual adjacent suggestions and positive routing of unanticipated integration requests to live-build, operating across full PIMS data and publishing artifacts via files-sidecar :444/p/<slug>.
+---
 
-Comportamiento de sugerencias proactivas adyacentes ("de la manito") y derivación estructurada de solicitudes especulativas hacia el conector en caliente (`live-build`).
+# Skill: proactive
+
+Comportamiento transversal de sugerencias adyacentes útiles y enrutamiento positivo de solicitudes de integración hacia `live-build`.
 
 ## 1. Trigger Patterns
 
-Se activa de manera transversal en cualquier interacción del usuario que presente oportunidades de asistencia avanzada o bordee los límites de alcance del sistema:
-- El usuario consulta por un incidente, desvío o hallazgo (Oportunidad de oferta adyacente Y).
-- El usuario pide integraciones no anticipadas o herramientas especulativas ("¿puedes conectar esto a Telegram o Salesforce?").
-- Interacciones donde se demuestre iniciativa e inteligencia proactiva valorada en los criterios de evaluación de audit1/audit4.
+- Tras responder consultas sobre incidentes, no conformidades, auditorías o comparaciones de versiones (oportunidad de oferta adyacente).
+- Cuando el usuario solicite conectores o integraciones no preinstaladas ("¿puedes conectar WhatsApp / Telegram / Jira?").
 
 ## 2. Step Protocol
 
-1. **Aislamiento Multi-Tenant (Filtro G4 Obligatorio)**:
-   - Toda sugerencia, referencia a documentos o propuesta de acción debe circunscribirse estrictamente a artefactos pertenecientes al namespace `G4-` o al personal responsable del Grupo 4 en el esquema compartido `unsa`.
+1. **Visibilidad Completa en Lecturas / Guardia `G4-` Solo en Escrituras**:
+   - Las sugerencias y análisis cubren todos los incidentes, auditorías y documentos del sistema sin filtrar lecturas por `G4-`. Si la sugerencia implica crear o modificar un registro en PIMS, advertir que requiere prefijo `G4-` y confirmación explícita humana.
 
-2. **Oferta Adyacente "Y" (Adjacent-Y Offer - Audit1)**:
-   - Tras responder certeramente a la consulta directa $X$, identificar y ofrecer proactivamente el artefacto o acción $Y$ lógicamente vinculado que aporte valor inmediato:
-     - Si pregunta por una No Conformidad $X$: Ofrecer el informe de auditoría de origen que la motivó:
-       `"¿Quieres también el informe de auditoría interna que originó esta observación?"`
-     - Si consulta el estado de un Incidente $X$: Ofrecer la matriz de riesgos asociada o el borrador de citación para el responsable:
-       `"¿Deseas que revise la fila de tratamiento de riesgos (Cl. 6.1.3) correspondiente a este incidente?"`
-     - Si analiza una comparativa de versiones $X$: Ofrecer la evaluación de impacto en cascada hacia las demás directivas:
-       `"¿Quieres evaluar el impacto de este cambio normativo sobre el manual de alcance institucional?"`
+2. **Oferta Adyacente Contextual**:
+   - Responder primero con precisión a la consulta principal y luego proponer máximo una o dos acciones adyacentes verificadas existentes en PIMS/espejo:
+     - Tras consultar una NC / incidente abierto → ofrecer redactar notificación con `summons-dispatch` o revisar el plan de riesgos / evidencia asociada.
+     - Tras comparar versiones → ofrecer análisis de impacto en cascada (`cascade`) o verificación normativa contra `reference/iso-27701-2025.md` (`doc-necessity`).
+   - Verificar antes que el artefacto o capacidad propuesta realmente exista.
 
-3. **Derivación de Comportamientos Especulativos (`live-build`)**:
-   - Cuando el usuario solicite capacidades o conectores que no forman parte del paquete preconstruido (ej. mensajería instantánea, tickets externos):
-     - **Prohibido responder "no puedo" o "no estoy programado"**.
-     - Enrutar positivamente hacia el skill `live-build`:
-       `"Esa pasarela no se encuentra activa en este momento, pero puedo construir y registrar el conector en caliente en segundo plano ahora mismo sin interrumpir nuestra sesión. ¿Deseas que iniciemos la integración?"`
+3. **Derivación Positiva a `live-build`**:
+   - Si el usuario solicita una nueva pasarela o herramienta interactiva (ej. Evolution API / WhatsApp, dashboard web), **nunca responder "no puedo"**; ofrecer activarla vía `live-build` en contenedor hermano o sidecar.
 
-4. **Publicación y Enlace de Entregables**:
-   - Si la interacción proactiva resulta en la generación de un análisis o reporte consolidado, publicarlo bajo un slug fresco en Traefik:
-     `files_sidecar.publish(content=proactive_report_html, slug="proactive-<topic>-<timestamp>")`
-   - Servir en `https://proactive-<topic>-<timestamp>.pimsai.mistercricro8.top:444`.
-   - Concluir obligatoriamente la respuesta con la convención: `"resultado aquí: link"`.
+4. **Publicación Correcta de Entregables (`files-sidecar`)**:
+   - Si una entrega genera un archivo/reporte estático HTML, PDF o Markdown, publicarlo vía `POST http://pimsai-files-sidecar:3000/api/publish` (`slug`, `filename`, `content` / `content_base64`) y entregar el enlace exacto:
+     `https://files.pimsai.mistercricro8.top:444/p/<slug>`
+   - Concluir con: `resultado aquí: https://files.pimsai.mistercricro8.top:444/p/<slug>`.
 
 ## 3. Failure Branches
 
-- **Usuario Rechaza la Oferta Adyacente**:
-  - Si el usuario indica "no, solo respóndeme lo que pedí" o similar:
-    - Retirarse con neutralidad y responder exclusivamente a la pregunta formulada sin insistencia.
-- **Falla en Localización del Artefacto Adyacente**:
-  - Si el documento complementario no existe en PIMS ni en la réplica local pgvector: omitir la sugerencia para no generar expectativas falsas.
-- **Límite de Presupuesto Alcanzado (Loan Profile Degraded-at-Cap)**:
-  - Si se alcanza el límite de `task.softRequestBudget` o la cuota en perfil loan:
-    - La recuperación de datos permanece activa: lectura de documentos existentes y respuestas directas continúan funcionando.
-    - La generación de sugerencias proactivas y ofertas adyacentes complejas se pausa inmediatamente.
-    - Mensaje de contacto obligatorio:
-      `"Límite de presupuesto de tokens alcanzado en perfil loan. La recuperación continúa activa, pero las sugerencias proactivas generativas están pausadas. Contacte al equipo Turno B Grupo 4 para ampliación de cuota."`
-
-## 4. Response Shape
-
-```markdown
-### [Respuesta Directa a la Consulta del Usuario]
-[Explicación concisa y técnicamente rigurosa con referencias a normas y registros de PIMS]
-
----
-
-#### 💡 Sugerencia Proactiva Adyacente
-> ¿Deseas que revise también el **informe de auditoría interna** que originó esta no conformidad o prefieres que verifiquemos las acciones correctivas pendientes?
-
-resultado aquí: https://proactive-insight-g4-5b8c.pimsai.mistercricro8.top:444
-```
+- **Usuario Declina Oferta**: Respetar de inmediato y limitarse estrictamente a la pregunta solicitada.
+- **Artefacto Inexistente**: Omitir ofertas sobre registros no verificados en PIMS ni en el espejo.

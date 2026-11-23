@@ -6,20 +6,17 @@ This file contains sticky, non-negotiable operational restrictions and positive 
 
 ## 1. HARD RESTRICTIONS (STICKY)
 
-### 1.1 Production Write Approval Gate
-- **Approval Rule**: All mutating write operations directed outside the standard operational domains (`documents`, `incidents`, `audits`, `risk-evaluations`) are strictly approval-gated.
-- **Explicit Consent Required**: No mutating call or write to production PIMS GESTITEL may be executed without explicit user or coordinator authorization.
-- **Fail-Safe**: If an operation is requested that modifies unapproved production schemas, endpoints, or system configurations, fail fast and request explicit approval before taking action.
+### 1.1 Production Write Approval Gate & Write-Only `G4-` Tenancy
+- **Approval Rule**: ALL live PIMS mutating write operations (`documents`, `versions`, `incidents`, `audits`, `risk-evaluations`, `assets`, or external systems) are strictly approval-gated.
+- **Explicit Consent Required**: No `POST`, `PATCH`, `PUT`, or `DELETE` against production PIMS GESTITEL or outbound SMTP/messaging systems may execute without explicit human confirmation. Always present staged previews (`files-sidecar` `:444/p/<slug>` via `content_base64`) or email drafts before executing.
+- **Uniform System-Wide Reads**: Reads across `documents`, `incidents`, `audits`, `risk-evaluations`, and `assets` operate uniformly without `G4-` filtering; only writes strictly require `G4-`.
 
 ### 1.2 Secret & Credential Handling
-- **Handles Only**: Plaintext credentials (passwords, JWT tokens, private keys, API keys) must **NEVER** appear in chat transcripts, console logs, or repository files.
-- **Sidecar Workflow**:
-  1. When a credential is required, invoke `secrets.request(label)` (or `secrets_request`).
-  2. The sidecar issues a one-time submission URL: `https://secrets.pimsai.mistercricro8.top:444/s/<token>` with a 5-minute expiry.
-  3. The operator provides this link to the instructor/user to securely input the secret in the browser.
-  4. The operator polls `secrets.poll(handle)` (or `secrets_poll`) using `bash` with `async: true` to obtain an opaque handle: `secret:<name>@<version>`.
-- **Handle Resolution**: Opaque handles resolve exclusively as environment variables inside spawned sibling Docker containers (`secret:<name>@<v>` injected at `docker run`) or as Authorization headers inside the isolated connector execution runtime.
-- **Transcripts**: Any accidental exposure of tokens or passwords in conversational turns must be intercepted and replaced with redacted place markers.
+- **Credential Hygiene**: **NEVER** inspect `/app/.env`, `cat .env`, or echo/print JWTs, passwords, SMTP credentials, API keys, or DB URIs into tool outputs or chat transcripts. Process-local SDKs (`PimsClient`, `MailConnectorClient`) read `process.env` natively.
+- **Self-Hosted vs External Secrets**:
+  - For **self-hosted sibling containers** we deploy (`docker-proxy:2375` on `internal-proxy`, e.g., Evolution API), generate/inject API keys directly at launch and surface QR/setup URLs (`:444`) directly—do NOT prompt via `secrets-sidecar`.
+  - For **external user-owned credentials**, mint a one-time URL via `secrets-sidecar` (`https://secrets.pimsai.mistercricro8.top:444/s/<token>`), register an `async: true` background poll before replying, and resolve to opaque handles `secret:<name>@<version>`.
+- **Transcripts**: Any accidental exposure of tokens or passwords in conversational turns must be redacted cleanly.
 
 ---
 
@@ -36,17 +33,12 @@ This file contains sticky, non-negotiable operational restrictions and positive 
   3. Clearly label the returned information: `[FUENTE: Cache local pgvector mirror (PIMS no disponible)]`.
 
 ### 2.4 Document Mutation Routing (Parameterized Copy-Then-Fill)
-- **Mandatory Copy-Then-Fill Protocol**: All document modifications and version increments MUST route through the copy-then-fill workflow:
-  1. Locate `mold.typ` (the parameterized pure function) in `molds/<category>/` and the latest version caller in `corpus_g4_src/<category>/`.
-  2. Copy `mold.typ` from `molds/<category>/` and the caller from `corpus_g4_src/<category>/` to an isolated staging directory (e.g. `/tmp/pims-staging/<code>-v<n>/`).
-  3. Write a NEW thin version caller (`G4-XXX-v<n>.typ`) in staging that imports `mold.typ` and passes the updated instance data dictionary (or extends existing data parameters).
-  4. Render the compiled artifact (PDF via `typst compile` or XLSX via `bun run generate.ts`) strictly from staging.
-  5. Store the rendered artifact in `corpus_mirror/<doc_id>/v<n>.<ext>` and re-index into `pimsai-db` (`chunks` + `pims_registry`).
-  6. Submit to PIMS via `POST /api/documents/{id}/versions/` with a structured `change_summary` (or `POST /api/documents/` with `category` ≤ 50 chars for initial creation) when authorized.
-  7. Re-ingest into `pgvector` with SHA-256 chunk hashing and generate diff/cascade reports.
+- **Mandatory Copy-Then-Fill Protocol**: All document modifications and version increments MUST route through isolated staging without requiring `corpus_g4_src/` at runtime:
+  1. Inspect live PIMS `/versions/` (`PimsClient.getDocumentVersions`) and align the PDF version to the next PIMS integer (e.g., `"3.00"` in PIMS → `"4.0"` on PDF cover/footer/history → `"4.00"` on upload), stating minor vs. major in `change_summary`.
+  2. Pull current institutional content from `CORPUS_MIRROR_DIR/<doc.code>/v<n>.txt` (`bun scripts/rag-query.ts --full --doc <code>`) or live PIMS PDF extracted with `pdftotext`, inspect exact `#let mold*` symbol & parameters in `molds/<category>/mold*.typ`, and read `molds/<category>/RAFA.md` **silently** (never cite `RAFA.md` to the user).
+  3. Copy `molds/common/` → `/tmp/pims-staging/common/` and `molds/<category>/*.typ` → `/tmp/pims-staging/<code>-v<n>/`.
+  4. Write a new thin caller in staging passing updated `#let data` parameters, compile with `typst compile` (or `bun run generate*.ts` for XLSX), publish a preview via `http://pimsai-files-sidecar:3000/api/publish` (`content_base64`), and **halt for explicit human approval**.
+  5. Only after approval: upload to PIMS (`POST /api/documents/{id}/versions/` with explicit `.pdf` `fileName` and structured `change_summary`), re-sync via `bun scripts/sync-pims-truth.ts` into `CORPUS_MIRROR_DIR` and `pimsai-db`.
 - **Hard Restrictions on Mold Mutation**:
-  - The operator **MUST copy-then-fill** for all document updates and new versions (pulling mold from `molds/` and caller from `corpus_g4_src/`).
-  - The operator **MUST NOT mutate `molds/` in place for instance data** (`molds/` holds ONLY data-free parameterized templates; filled Typst sources reside in `corpus_g4_src/`).
-  - The operator **MUST NOT edit `mold.typ` prose for instance data**; edits to `mold.typ` prose are permitted ONLY when the template definition itself structurally changes, requiring explicit user approval and a version bump of the mold contract.
-  - The operator **MUST NOT hand-edit rendered PDFs** or compiled binaries.
-- **Immutability**: Overwriting existing records or versions is strictly prohibited. All changes register as a new sequential version. Prior versions transition to `obsoleto` and remain immutable.
+  - **MUST NOT** mutate `molds/` in place for instance data (template edits require explicit structural approval).
+  - **MUST NOT** hand-edit compiled PDFs or cite internal files (`RAFA.md`, `molds/*`) in user-facing responses.

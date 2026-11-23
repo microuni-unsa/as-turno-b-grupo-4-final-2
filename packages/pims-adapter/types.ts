@@ -58,7 +58,7 @@ export interface PimsDocumentRelated {
 export interface PimsDocument {
   id: number;
   code: string;
-  current_version: number;
+  current_version: string | number;
   name: string;
   category: string;
   status: DocumentStatusAPI;
@@ -77,23 +77,27 @@ export interface CreateDocumentInput {
   status: DocumentStatusUI | DocumentStatusAPI;
   responsible: string;
   upload_file: Blob | Uint8Array | ArrayBuffer | File;
-  fileName?: string;
+  fileName: string;
 }
 
 export interface PimsDocumentVersion {
   id: number;
-  document_id: number;
-  version_number: number;
+  document?: number;
+  document_id?: number;
+  version?: string;
+  version_number?: number;
   file: string;
   change_summary: string;
-  uploaded_at: string;
+  created_at?: string;
+  uploaded_at?: string;
+  created_by_name?: string;
   uploaded_by_name?: string;
 }
 
 export interface AddDocumentVersionInput {
   file: Blob | Uint8Array | ArrayBuffer | File;
   change_summary: string;
-  fileName?: string;
+  fileName: string;
 }
 
 export interface ListDocumentsParams {
@@ -121,15 +125,23 @@ export interface PimsIncidentAction {
 
 export interface PimsIncident {
   id: number;
-  code: string;
+  code?: string;
+  incident_code?: string;
   title: string;
   description: string;
-  severity: IncidentSeverity;
-  status: IncidentStatus;
-  incident_type: string;
-  incident_date: string;
-  responsible: string;
-  involves_personal_data: boolean;
+  severity: IncidentSeverity | "L" | "M" | "H";
+  status: IncidentStatus | "P" | "C";
+  impact?: string;
+  incident_type?: string;
+  incident_date?: string;
+  assigned_to?: string;
+  reported_by?: string;
+  responsible?: string;
+  dpo_contact_name?: string;
+  dpo_contact_email?: string;
+  dpo_contact_phone?: string;
+  rep_email?: string;
+  involves_personal_data?: boolean;
   actions?: PimsIncidentAction[];
   created_at?: string;
   updated_at?: string;
@@ -204,11 +216,19 @@ export interface PimsAuditFinding {
 
 export interface PimsAudit {
   id: number;
-  code: string;
-  title: string;
-  status: string;
-  responsible: string;
+  code?: string;
+  audit_code?: string;
+  title?: string;
+  name?: string;
+  audit_type?: string;
+  status?: string;
+  responsible?: string;
+  lead_auditor?: string;
+  start_date?: string;
+  end_date?: string;
   audit_date?: string;
+  progress?: number;
+  findings_count?: number;
   scope?: string;
   findings?: PimsAuditFinding[];
 }

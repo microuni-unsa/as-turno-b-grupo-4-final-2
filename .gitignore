@@ -26,6 +26,8 @@ corpus_mirror/**
 .env
 .env.*
 !.env.example
+!.enc.env
+!*.enc.env
 *.age
 *.key
 key.txt

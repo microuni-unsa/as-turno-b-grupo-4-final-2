@@ -25,11 +25,11 @@ import {
   PimsReadFailureError,
   PimsValidationError,
 } from "./errors.ts";
+import { assertG4WriteCode } from "./guards.ts";
 import {
-  assertG4WriteCode,
-  assertGroup4Record,
-  filterGroup4Records,
-} from "./guards.ts";
+  normalizeArrayResponse,
+  normalizePaginatedResponse,
+} from "./normalize.ts";
 import type {
   CreateIncidentInput,
   ListIncidentsParams,
@@ -168,20 +168,12 @@ export class IncidentsModule {
       );
     }
 
-    const data = (await response.json()) as PaginatedResult<PimsIncident>;
-    const filteredResults = filterGroup4Records(data.results ?? []);
-
-    return {
-      count: filteredResults.length,
-      next: data.next,
-      previous: data.previous,
-      results: filteredResults,
-    };
+    const raw = (await response.json()) as unknown;
+    return normalizePaginatedResponse<PimsIncident>(raw, endpoint);
   }
 
   /**
    * Retrieves a single incident by ID.
-   * Asserts the incident belongs to Group 4.
    */
   async getIncident(id: number): Promise<PimsIncident> {
     const endpoint = `/api/incidents/${id}/`;
@@ -213,9 +205,7 @@ export class IncidentsModule {
       );
     }
 
-    const incident = (await response.json()) as PimsIncident;
-    assertGroup4Record(incident, "Incident");
-    return incident;
+    return (await response.json()) as PimsIncident;
   }
 
   /**
@@ -307,9 +297,7 @@ export class IncidentsModule {
       );
     }
 
-    const incident = (await response.json()) as PimsIncident;
-    assertGroup4Record(incident, "Updated Incident");
-    return incident;
+    return (await response.json()) as PimsIncident;
   }
 
   /**
@@ -373,11 +361,7 @@ export class IncidentsModule {
     }
 
     const raw = (await response.json()) as unknown;
-    if (Array.isArray(raw)) {
-      return raw as PimsIncidentHistory[];
-    }
-    const paginated = raw as PaginatedResult<PimsIncidentHistory>;
-    return paginated.results ?? [];
+    return normalizeArrayResponse<PimsIncidentHistory>(raw, endpoint);
   }
 
   /**
@@ -414,11 +398,7 @@ export class IncidentsModule {
     }
 
     const raw = (await response.json()) as unknown;
-    if (Array.isArray(raw)) {
-      return raw as PimsIncidentAttachment[];
-    }
-    const paginated = raw as PaginatedResult<PimsIncidentAttachment>;
-    return paginated.results ?? [];
+    return normalizeArrayResponse<PimsIncidentAttachment>(raw, endpoint);
   }
 
   /**
@@ -441,7 +421,7 @@ export class IncidentsModule {
       blobPart = new Blob([file]);
     } else {
       byteLength = file.byteLength;
-      blobPart = new Blob([file as Uint8Array]);
+      blobPart = new Blob([new Uint8Array(file)]);
     }
 
     // Client-side format & 10MB size validation

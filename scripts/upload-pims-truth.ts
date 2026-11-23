@@ -25,10 +25,11 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { PimsClient } from "../packages/pims-adapter/client.ts";
 import { assertG4WriteCode } from "../packages/pims-adapter/guards.ts";
+import { RAG_CONFIG } from "../packages/rag-mirror/config.ts";
 import type { CorpusMirrorManifest } from "../packages/rag-mirror/types.ts";
 
 const REPO_ROOT = path.resolve(__dirname, "..");
-const CORPUS_DIR = path.join(REPO_ROOT, "corpus_mirror");
+const CORPUS_DIR = RAG_CONFIG.CORPUS_MIRROR_DIR;
 
 // Orden canónico de cláusulas ISO/IEC 27701:2025 (4 -> 10)
 const NORMATIVE_DOC_ORDER: string[] = [
@@ -390,7 +391,8 @@ async function runLive(plan: PlannedPostAction[]): Promise<void> {
     const existingVers = await client.documents.getDocumentVersions(doc.id);
     const verSet = new Set<string>();
     for (const v of existingVers) {
-      verSet.add(v.version);
+      const verVal = v.version ?? (v.version_number !== undefined ? String(v.version_number) : undefined);
+      if (verVal) verSet.add(verVal);
     }
     docVersionsCache.set(doc.id, verSet);
     console.log(`[live] Detectado documento existente: ${doc.code} (ID: ${doc.id}) con ${verSet.size} versiones.`);
@@ -407,7 +409,7 @@ async function runLive(plan: PlannedPostAction[]): Promise<void> {
       if (!action.attachedFile) {
         throw new Error(`Acción CREATE_DOCUMENT para ${action.docCode} carece de archivo adjunto.`);
       }
-      const fullPath = path.join(REPO_ROOT, action.attachedFile.localPath);
+      const fullPath = path.resolve(REPO_ROOT, action.attachedFile.localPath);
       const fileBytes = fs.readFileSync(fullPath);
 
       console.log(`[live] Creando documento ${action.docCode} (${action.formFields.name})...`);
@@ -442,7 +444,7 @@ async function runLive(plan: PlannedPostAction[]): Promise<void> {
       if (!action.attachedFile) {
         throw new Error(`Acción ADD_VERSION para ${action.docCode} carece de archivo adjunto.`);
       }
-      const fullPath = path.join(REPO_ROOT, action.attachedFile.localPath);
+      const fullPath = path.resolve(REPO_ROOT, action.attachedFile.localPath);
       const fileBytes = fs.readFileSync(fullPath);
 
       console.log(`[live] Agregando versión para documento ${action.docCode} (ID: ${docId})...`);

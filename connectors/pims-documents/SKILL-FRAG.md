@@ -1,8 +1,9 @@
-# PIMS Documents Connector Skill Fragment
+# PIMS Documents Connector Skill Fragment (LEGACY REFERENCE ONLY)
 
-> **Connector Type:** GESTITEL PIMS Documents Management API (SPEC 3.1)  
-> **Tenant Code Prefix:** `G4-` (Mandatory multi-tenant isolation constraint)  
-> **Base Domain:** `https://pimsai.mistercricro8.top`
+> **Important Notice**: This connector fragment reflects the early standalone connector prototype. **All production PIMS operations** (documents, versions, incidents, audits, risks, assets) MUST use `packages/pims-adapter/client.ts` (and the unified SDK/CLI specified in `docs/PIMS-SDK-SPEC.md`).  
+> **Connector Type:** GESTITEL PIMS Documents Management API  
+> **Tenant Write Prefix:** `G4-` (Enforced strictly on writes; reads operate across the full system)  
+> **Base URL:** `https://unsa.27k.pe` (Schema: `unsa`)
 
 ---
 
@@ -34,8 +35,8 @@
 ## 3. Multi-Tenant Isolation Constraints (SPEC 3.1 & 13)
 
 - **Shared Tenant Environment:** The GESTITEL instance is shared with other university project groups.
-- **Strict Prefix Enforcement:** Writes (`POST /api/documents/`) MUST prefix all document codes with `G4-` (e.g., `G4-POL-001`, `G4-PROC-002`). Attempts to write without this prefix fail immediately.
-- **Read Isolation:** All document listing operations strictly filter by `code.startsWith("G4-")` and/or Group 4 responsible names to prevent leakage or pollution of other teams' data.
+- **Strict Write Prefix Enforcement:** Writes (`POST /api/documents/`, `POST /api/incidents/`, `PATCH /api/incidents/{id}/`) MUST prefix all codes with `G4-` (e.g., `G4-POL-01`, `G4-INC-01`). Attempts to write without this prefix fail immediately.
+- **Uniform System-Wide Reads:** Read operations (`GET /api/documents/`, `GET /api/incidents/`, `GET /api/audits/`) operate across the full system without filtering out non-`G4-` records.
 
 ---
 

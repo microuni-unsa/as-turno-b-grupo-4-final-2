@@ -31,13 +31,11 @@ Run this probe sequence before handing access tokens to the instructor:
   - Request JWT credentials using Group 4 credentials.
   - Verify receipt of `access` and `refresh` tokens.
 - [ ] **Documents API (`GET /api/documents/`)**:
-  - Verify endpoint responds HTTP 200.
-  - Confirm ability to filter documents by `code` prefix `G4-`.
+  - Verify endpoint responds HTTP 200 and returns all PIMS documents uniformly (array/paginated normalized).
 - [ ] **Incidents API (`GET /api/incidents/`)**:
-  - Verify endpoint responds HTTP 200.
-  - Check multi-tenant incident count (ensure non-G4 records are ignored).
+  - Verify endpoint responds HTTP 200 across all system incidents (`INC-001`..`INC-012`, `G4-...`).
 - [ ] **Audits API (`GET /api/audits/`)**:
-  - Verify endpoint responds HTTP 200.
+  - Verify endpoint responds HTTP 200 across all audits (`AUD-2026-001`..`003`) with cloned findings deduplicated in analysis.
 - [ ] **Risk Evaluations API (`GET /api/risk-evaluations/`)**:
   - Verify endpoint responds HTTP 200.
 
@@ -68,15 +66,13 @@ Run this probe sequence before handing access tokens to the instructor:
 Because the GESTITEL PIMS instance is shared with other student teams:
 
 1. **Prefix Discipline on All Writes (`G4-`)**:
-   - Every document code (`G4-DOC-...`, `G4-POL-...`, `G4-PRC-...`).
-   - Every incident identifier (`G4-INC-2025-...`).
-   - Every audit record and corrective action entry (`G4-AUD-...`, `G4-AC-...`).
-   - **Violation of this rule causes cross-group contamination.**
-2. **Strict Filtering on All Reads**:
-   - Reads must filter exclusively for `G4-` codes and responsible identity `Turno B Grupo 4` / `grupob4`.
-   - Never display, edit, or delete records belonging to other groups.
-3. **No Unapproved Production Writes**:
-   - Destructive operations or uploads must require explicit human approval in chat before submission.
+   - Every written/created document code (`G4-POL-...`, `G4-PRC-...`), incident (`G4-INC-...`), audit record, or risk evaluation must start with `G4-`.
+   - **Violation of this rule is blocked client-side before network calls.**
+2. **Uniform Full-System Reads**:
+   - Reads (`GET /api/documents/`, `/api/incidents/`, `/api/audits/`, `/api/assets/`) operate uniformly across the system without filtering out non-`G4-` records.
+   - Never mutate or delete records belonging to other student groups.
+3. **Mandatory Approval Gate on All Live PIMS Writes**:
+   - All live PIMS mutations (documents, new versions, incidents) and outbound SMTP/messaging dispatches require explicit human approval after presenting a preview or draft.
 
 ---
 
@@ -86,13 +82,13 @@ Verify each of the 8 canonical behaviors plus proactive intelligence:
 
 | ID | Behavior | Primary Standard Clause | Verification Action | Expected Artifact / Output |
 |---|---|---|---|---|
-| **1** | `version-compare` | ISO 27701 Cl. 7.5.3 (Control of documented info) | Request comparison of two document versions (e.g., v1.0 vs v2.0 or v2.0 vs v3.0). | Structural diff narrative, change rationale from history table, RAFA scope shift explanation. |
-| **2** | `incident RAG summons + dispatch` | ISO 27701 Cl. 8.1, A.3.11, A.3.12 | Query NC/corrective action chain for active incident findings. | Red/Amber/Green status table with owners, deadlines, and RAG evidence quotes; summons draft; dispatch on explicit `"envíalo"`. |
-| **3** | `upload-and-read + ingest tool` | ISO 27701 Cl. 7.5.2 | Ask *"¿cómo te subo un archivo?"*. | Files sidecar link (`https://files.../upload/<tok>`); 5-min timeout timer; parse; upload to PIMS; run `ingest(doc_id, v)`. |
-| **5** | `live connector-build` | ISO 27701 Cl. 6.1.3 / ISO 42001 Cl. 8.4 | Request integration with external platform (e.g. WhatsApp/Evolution or Jira). | Background subagent spawns via `connectors/_template/`; main session answers uninterrupted; verified announcement. |
-| **6** | `audit-chain drill-down` | ISO 27701 Cl. 9.2.2, 10.2 (NC & corrective action) | Request drill-down on finding ID. | Trace: Finding → NC → Corrective Action → Owner/Deadline → Verbatim evidence citation (`pims:<id>:v<v>:chunk:<c>:lines:<l>`). |
-| **7** | `directed new-version` | ISO 27701 Cl. 4.1, 7.5.3 | Direct a scope change (e.g. add filial Camaná or shift remote payroll). | Mold updated; version bumped (1.x vs 2.x); Typst PDF compiled; uploaded via PIMS API; `change_summary` logged; published link. |
-| **8** | `university-change cascade` | ISO 27701 Cl. 4.1, 6.1.3 (Scope & Risk cascade) | Introduce a new university fact (e.g. Rectoral Resolution for filial expansion). | Fact recorded in `university-facts/`; scan impacted molds/docs; propose remake set; await approval; execute cascade & re-ingest. |
+| **1** | `version-compare` | ISO 27701 Cl. 7.5.3 (Control of documented info) | Request comparison of two live PIMS document versions (e.g., v1.00 vs v3.00). | Extracted-text structural diff, change rationale from PIMS version history & PDF revision table (internal files never cited), `:444/p/<slug>` link. |
+| **2** | `incident RAG summons + dispatch` | ISO 27701 Cl. 8.1, A.3.11, A.3.12 | Query full-system incident/audit corrective chain. | Deduplicated Red/Amber/Green status table (strict verified green), persisted email draft using real PIMS emails, real Gmail SMTP dispatch only on `"envíalo"`. |
+| **3** | `upload-and-read + ingest tool` | ISO 27701 Cl. 7.5.2 | Ask *"¿cómo te subo un archivo?"*. | Files sidecar link (`https://files.pimsai.mistercricro8.top:444/upload/<tok>`); `async: true` poll; "Ask First" before vectorize/PIMS upload. |
+| **5** | `live connector-build` | ISO 27701 Cl. 6.1.3 / ISO 42001 Cl. 8.4 | Request integration with external platform (e.g. WhatsApp/Evolution or Jira). | Background subagent via `connectors/_template/` (`fetch()`); self-hosted container keys injected directly + QR surfaced immediately (secrets-sidecar only for external user creds). |
+| **6** | `audit-chain drill-down` | ISO 27701 Cl. 9.2.2, 10.2 (NC & corrective action) | Request drill-down on finding/incident ID. | Trace: Finding/Incident → NC → Corrective Action → Owner/Deadline → Verbatim evidence citation (`pims:<code>:v<v>:<chunk>:lines:<l>`) + `:444/p/<slug>` link. |
+| **7** | `directed new-version` | ISO 27701 Cl. 4.1, 7.5.3 | Direct a change on a `G4-` document. | Next PIMS integer aligned on PDF cover/footer/history; copy-then-fill staging with `molds/common/`; preview published via `content_base64`; explicit approval gate before PIMS upload + re-ingest. |
+| **8** | `university-change cascade` | ISO 27701 Cl. 4.1, 6.1.3 (Scope & Risk cascade) | Introduce a new university fact. | Fact recorded in `university-facts/`; scan full mirror + PIMS; propose remake set; await approval; compile via staging & re-ingest after consent. |
 | **+** | **Proactive Suggestions** | Audit 1 ("de la manito" guideline) | Ask any standard operational question. | Operator offers contextually adjacent item (e.g., *"¿Desea examinar también el informe de auditoría que originó esta acción correctiva?"*). |
 
 ---

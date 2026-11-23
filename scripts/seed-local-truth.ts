@@ -14,26 +14,26 @@ interface SeedDoc {
 }
 
 const BASELINE_DOCS: readonly SeedDoc[] = [
-  { code: "G4-ALC-01", version: "3.0", moldPath: "corpus_g4_src/scope/G4-ALC-01-v3.typ" },
-  { code: "G4-POL-01", version: "3.0", moldPath: "corpus_g4_src/policy/G4-POL-01-v3.typ" },
-  { code: "G4-RSK-INC-01", version: "3.0", moldPath: "corpus_g4_src/incident-risks/G4-RSK-INC-01-v3.typ" },
-  { code: "G4-SOA-01", version: "3.0", moldPath: "corpus_g4_src/soa/G4-SOA-01-v3.typ" },
-  { code: "G4-OBJ-01", version: "3.0", moldPath: "corpus_g4_src/objectives/G4-OBJ-01-v3.typ" },
-  { code: "G4-PRC-DOC-01", version: "3.0", moldPath: "corpus_g4_src/document-control/G4-PRC-DOC-01-v3.typ" },
-  { code: "G4-CAP-INC-01", version: "3.0", moldPath: "corpus_g4_src/incident-training/G4-CAP-INC-01-v3.typ" },
-  { code: "G4-REG-CAP-01", version: "3.0", moldPath: "corpus_g4_src/incident-training/G4-REG-CAP-01-v3.typ" },
-  { code: "G4-PRC-INC-01", version: "3.0", moldPath: "corpus_g4_src/incident-response-procedure/G4-PRC-INC-01-v3.typ" },
-  { code: "G4-REG-INC-01", version: "3.0", moldPath: "corpus_g4_src/incident-register/G4-REG-INC-01-v3.typ" },
-  { code: "G4-PRG-AUD-01", version: "3.0", moldPath: "corpus_g4_src/audit-programme/G4-PRG-AUD-01-v3.typ" },
-  { code: "G4-REP-AUD-01", version: "3.0", moldPath: "corpus_g4_src/audit-programme/G4-REP-AUD-01-v3.typ" },
-  { code: "G4-ACT-REV-01", version: "3.0", moldPath: "corpus_g4_src/management-review/G4-ACT-REV-01-v3.typ" },
-  { code: "G4-REG-CAPA-01", version: "3.0", moldPath: "corpus_g4_src/nc-corrective-actions/G4-REG-CAPA-01-v3.typ" },
-  { code: "G4-IDX-01", version: "3.0", moldPath: "corpus_g4_src/document-index/G4-IDX-01-v3.typ" },
+  { code: "G4-ALC-01", version: "3.00", moldPath: "corpus_g4_src/scope/G4-ALC-01-v3.typ" },
+  { code: "G4-POL-01", version: "3.00", moldPath: "corpus_g4_src/policy/G4-POL-01-v3.typ" },
+  { code: "G4-RSK-INC-01", version: "3.00", moldPath: "corpus_g4_src/incident-risks/G4-RSK-INC-01-v3.typ" },
+  { code: "G4-SOA-01", version: "3.00", moldPath: "corpus_g4_src/soa/G4-SOA-01-v3.typ" },
+  { code: "G4-OBJ-01", version: "3.00", moldPath: "corpus_g4_src/objectives/G4-OBJ-01-v3.typ" },
+  { code: "G4-PRC-DOC-01", version: "3.00", moldPath: "corpus_g4_src/document-control/G4-PRC-DOC-01-v3.typ" },
+  { code: "G4-CAP-INC-01", version: "3.00", moldPath: "corpus_g4_src/incident-training/G4-CAP-INC-01-v3.typ" },
+  { code: "G4-REG-CAP-01", version: "3.00", moldPath: "corpus_g4_src/incident-training/G4-REG-CAP-01-v3.typ" },
+  { code: "G4-PRC-INC-01", version: "3.00", moldPath: "corpus_g4_src/incident-response-procedure/G4-PRC-INC-01-v3.typ" },
+  { code: "G4-REG-INC-01", version: "3.00", moldPath: "corpus_g4_src/incident-register/G4-REG-INC-01-v3.typ" },
+  { code: "G4-PRG-AUD-01", version: "3.00", moldPath: "corpus_g4_src/audit-programme/G4-PRG-AUD-01-v3.typ" },
+  { code: "G4-REP-AUD-01", version: "3.00", moldPath: "corpus_g4_src/audit-programme/G4-REP-AUD-01-v3.typ" },
+  { code: "G4-ACT-REV-01", version: "3.00", moldPath: "corpus_g4_src/management-review/G4-ACT-REV-01-v3.typ" },
+  { code: "G4-REG-CAPA-01", version: "3.00", moldPath: "corpus_g4_src/nc-corrective-actions/G4-REG-CAPA-01-v3.typ" },
+  { code: "G4-IDX-01", version: "3.00", moldPath: "corpus_g4_src/document-index/G4-IDX-01-v3.typ" },
 ];
 
 /**
- * TEMPORARY MANUAL-ONLY SEED SCRIPT.
- * Do NOT auto-execute on container launch.
+ * TEMPORARY DEV-ONLY MANUAL SEED SCRIPT (do NOT auto-execute on container launch).
+ * Aligns versions to PIMS decimal strings ("3.00") and status ("R").
  * Pass --force to re-chunk/re-ingest even when file_sha256 already matches.
  */
 async function main(): Promise<void> {
@@ -67,7 +67,7 @@ async function main(): Promise<void> {
           "SELECT count(*)::text AS count FROM pims_registry WHERE pims_doc_id = $1 AND pims_version = $2",
           [doc.code, doc.version],
         );
-        if (existing?.file_sha256 === fileSha256 && Number(regCheck.rows[0]?.count ?? "0") > 0) {
+        if (existing?.sha256 === fileSha256 && Number(regCheck.rows[0]?.count ?? "0") > 0) {
           console.log(`[seed-local-truth] Skipping ${doc.code} v${doc.version} (unchanged).`);
           continue;
         }
@@ -77,7 +77,7 @@ async function main(): Promise<void> {
         docId: doc.code,
         code: doc.code,
         version: doc.version,
-        status: "V",
+        status: "R",
         filename: `${doc.code}-v${doc.version}.pdf`,
         bytes: pdfBytes,
         moldPath: doc.moldPath,

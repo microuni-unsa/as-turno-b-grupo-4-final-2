@@ -3,7 +3,7 @@
   "pims_doc_id": "G4-MET-RSK-01",
   "title": "Metodología de evaluación y tratamiento de riesgos",
   "latest_version": "3.0",
-  "updated_at": "2026-11-20T16:55:33.102Z",
+  "updated_at": "2026-11-23T05:49:22.878Z",
   "versions": [
     {
       "version": "1.0",
@@ -14,13 +14,13 @@
       "mold_path": "corpus_g4_src/incident-risks/G4-MET-RSK-01-v1.typ",
       "filename": "v1.pdf",
       "file_path": "corpus_mirror/G4-MET-RSK-01/v1.pdf",
-      "sha256": "cc2be8afd08adccba3dcb154126c12ccba59d358e36e0e8fd59a7dd8188c885a",
+      "sha256": "438b45d7fc477e2e564dbf49c347b4b05c054e13adcc574b824dea162b06f485",
       "files": [
         {
           "filename": "v1.pdf",
           "file_path": "corpus_mirror/G4-MET-RSK-01/v1.pdf",
           "format": "pdf",
-          "sha256": "cc2be8afd08adccba3dcb154126c12ccba59d358e36e0e8fd59a7dd8188c885a",
+          "sha256": "438b45d7fc477e2e564dbf49c347b4b05c054e13adcc574b824dea162b06f485",
           "size_bytes": 609869,
           "source_mold": "corpus_g4_src/incident-risks/G4-MET-RSK-01-v1.typ"
         }
@@ -35,13 +35,13 @@
       "mold_path": "corpus_g4_src/incident-risks/G4-MET-RSK-01-v2.typ",
       "filename": "v2.pdf",
       "file_path": "corpus_mirror/G4-MET-RSK-01/v2.pdf",
-      "sha256": "72a939dffa1ccee4696f502c1860591a754f6aaaee90a07cbc830042bd8e943f",
+      "sha256": "cd9ec8928e7a25113810c306d586d157435c4f8fdf7ae7801e3de3f416c6b89c",
       "files": [
         {
           "filename": "v2.pdf",
           "file_path": "corpus_mirror/G4-MET-RSK-01/v2.pdf",
           "format": "pdf",
-          "sha256": "72a939dffa1ccee4696f502c1860591a754f6aaaee90a07cbc830042bd8e943f",
+          "sha256": "cd9ec8928e7a25113810c306d586d157435c4f8fdf7ae7801e3de3f416c6b89c",
           "size_bytes": 611909,
           "source_mold": "corpus_g4_src/incident-risks/G4-MET-RSK-01-v2.typ"
         }
@@ -56,13 +56,13 @@
       "mold_path": "corpus_g4_src/incident-risks/G4-MET-RSK-01-v3.typ",
       "filename": "v3.pdf",
       "file_path": "corpus_mirror/G4-MET-RSK-01/v3.pdf",
-      "sha256": "d58672ff329db76fda4248c3eb147206b37ecebf4f10c4b35b6e0bd60bb069d2",
+      "sha256": "89adbbd0a2cfc24eb35fa49f30329edd08057665eac18339ac33855b72d87726",
       "files": [
         {
           "filename": "v3.pdf",
           "file_path": "corpus_mirror/G4-MET-RSK-01/v3.pdf",
           "format": "pdf",
-          "sha256": "d58672ff329db76fda4248c3eb147206b37ecebf4f10c4b35b6e0bd60bb069d2",
+          "sha256": "89adbbd0a2cfc24eb35fa49f30329edd08057665eac18339ac33855b72d87726",
           "size_bytes": 613067,
           "source_mold": "corpus_g4_src/incident-risks/G4-MET-RSK-01-v3.typ"
         }

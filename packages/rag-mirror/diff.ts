@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { chunkTextWithLines } from "./chunker.js";
 import { RAG_CONFIG } from "./config.js";
 import { readFromCorpusMirror } from "./mirror.js";
+import { extractNormalizedText } from "./pdf.js";
 import type {
   ChunkDiffItem,
   DiffStats,
@@ -90,10 +91,7 @@ async function loadVersionData(
           );
         }
 
-        const text =
-          typeof doc.content === "string"
-            ? doc.content
-            : Buffer.from(doc.content).toString("utf8");
+        const text = extractNormalizedText(doc.content, doc.filename);
 
         const sha256 = createHash("sha256").update(text, "utf8").digest("hex");
         const chunks = chunkTextWithLines(text, {

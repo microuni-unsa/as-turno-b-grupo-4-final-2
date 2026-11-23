@@ -1,7 +1,10 @@
 import { chunkTextWithLines } from "../../packages/rag-mirror/chunker.ts";
 import { RAG_CONFIG } from "../../packages/rag-mirror/config.ts";
 import { writeToCorpusMirror } from "../../packages/rag-mirror/mirror.ts";
+import { extractNormalizedText } from "../../packages/rag-mirror/pdf.ts";
 import type { DatabaseClient, Embedder } from "../../packages/rag-mirror/types.ts";
+
+export { extractNormalizedText };
 
 export interface IngestDocumentParams {
   readonly docId: string;
@@ -14,34 +17,6 @@ export interface IngestDocumentParams {
   readonly supersedes?: string | null;
   readonly db: DatabaseClient;
   readonly embedder: Embedder;
-}
-
-/**
- * Extracts normalized UTF-8 text from PDF (via pdftotext) or text files.
- * Collapses excessive blank lines to avoid wasting embedding tokens on PDF whitespace.
- */
-export function extractNormalizedText(bytes: Uint8Array, filename: string): string {
-  let raw = "";
-  if (filename.toLowerCase().endsWith(".pdf")) {
-    const proc = Bun.spawnSync(["pdftotext", "-", "-"], {
-      stdin: bytes,
-      stdout: "pipe",
-      stderr: "pipe",
-    });
-    if (proc.exitCode !== 0) {
-      const err = new TextDecoder().decode(proc.stderr);
-      throw new Error(`pdftotext extraction failed for ${filename} [exit ${proc.exitCode}]: ${err}`);
-    }
-    raw = new TextDecoder().decode(proc.stdout);
-  } else {
-    raw = new TextDecoder().decode(bytes);
-  }
-
-  return raw
-    .replace(/\r\n/g, "\n")
-    .replace(/[ \t]+\n/g, "\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
 }
 
 /**
@@ -155,6 +130,7 @@ export async function ingestDocumentToMirrorAndDb(
     status: params.status,
     filename: params.filename,
     content: params.bytes,
+    extracted_text: text,
     chunk_count: chunks.length,
     chunk_sha256s: chunkSha256s,
     supersedes: params.supersedes ?? null,

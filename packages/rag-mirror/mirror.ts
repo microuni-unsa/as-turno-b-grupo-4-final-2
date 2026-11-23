@@ -1,7 +1,8 @@
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { extname, join, relative } from "node:path";
+import { dirname, extname, join } from "node:path";
 import { RAG_CONFIG } from "./config.js";
+import { extractNormalizedText } from "./pdf.js";
 import type { CorpusMirrorManifest, ManifestVersionEntry } from "./types.js";
 
 export interface WriteMirrorOptions {
@@ -11,6 +12,7 @@ export interface WriteMirrorOptions {
   readonly status: string;
   readonly filename: string;
   readonly content: Uint8Array | string;
+  readonly extracted_text?: string;
   readonly chunk_count: number;
   readonly chunk_sha256s: string[];
   readonly supersedes?: string | null;
@@ -21,8 +23,10 @@ export interface WriteMirrorOptions {
 
 export interface ReadMirrorResult {
   readonly pims_doc_id: string;
+  readonly code: string;
   readonly pims_version: string;
   readonly filePath: string;
+  readonly textPath: string;
   readonly content: Uint8Array;
   readonly text: string;
   readonly sha256: string;
@@ -91,6 +95,20 @@ export function writeToCorpusMirror(options: WriteMirrorOptions): {
   const fileSha256 = createHash("sha256").update(contentBytes).digest("hex");
   writeFileSync(filePath, contentBytes);
 
+  // Persist sibling normalized UTF-8 text (v<n>.txt) for PDF/binary files so reads/diffs never decode %PDF- bytes
+  const txtFileName = `v${options.pims_version}.txt`;
+  const textPath = ext.toLowerCase() === ".txt" ? filePath : join(docDir, txtFileName);
+  const extractedText =
+    options.extracted_text !== undefined
+      ? options.extracted_text
+      : extractNormalizedText(
+          typeof options.content === "string" ? options.content : contentBytes,
+          options.filename,
+        );
+  if (textPath !== filePath) {
+    writeFileSync(textPath, extractedText, "utf8");
+  }
+
   // Read existing manifest or initialize new
   const manifestPath = getManifestPath(options.pims_doc_id, mirrorDir);
   const existingManifest = readCorpusManifest(options.pims_doc_id, mirrorDir);
@@ -108,6 +126,7 @@ export function writeToCorpusMirror(options: WriteMirrorOptions): {
     pims_version: options.pims_version,
     filename: versionFileName,
     file_path: filePath,
+    text_path: textPath,
     sha256: fileSha256,
     chunk_count: options.chunk_count,
     chunk_sha256s: options.chunk_sha256s,
@@ -187,12 +206,17 @@ export function readFromCorpusMirror(
   }
 
   const content = readFileSync(versionEntry.file_path);
-  const text = content.toString("utf8");
+  const candidateTxtPath = versionEntry.text_path ?? join(dirname(versionEntry.file_path), `v${version}.txt`);
+  const text = existsSync(candidateTxtPath) && candidateTxtPath !== versionEntry.file_path
+    ? readFileSync(candidateTxtPath, "utf8")
+    : extractNormalizedText(content, versionEntry.filename);
 
   return {
     pims_doc_id: docId,
+    code: manifest.code,
     pims_version: version,
     filePath: versionEntry.file_path,
+    textPath: existsSync(candidateTxtPath) ? candidateTxtPath : versionEntry.file_path,
     content,
     text,
     sha256: versionEntry.sha256,

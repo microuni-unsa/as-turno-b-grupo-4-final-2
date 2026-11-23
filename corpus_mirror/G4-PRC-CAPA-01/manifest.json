@@ -3,7 +3,7 @@
   "pims_doc_id": "G4-PRC-CAPA-01",
   "title": "Procedimiento para medidas correctivas",
   "latest_version": "3.0",
-  "updated_at": "2026-11-20T16:55:33.103Z",
+  "updated_at": "2026-11-23T05:49:22.879Z",
   "versions": [
     {
       "version": "1.0",
@@ -14,13 +14,13 @@
       "mold_path": "corpus_g4_src/nc-corrective-actions/G4-PRC-CAPA-01-v1.typ",
       "filename": "v1.pdf",
       "file_path": "corpus_mirror/G4-PRC-CAPA-01/v1.pdf",
-      "sha256": "9b2bd9d5d38fd97a9f4fb63b93195f85b0c635ed729d97d4d83f9be0fa70f544",
+      "sha256": "b220732260a18b84978384cdf62d4b298e97793849283b9fa05826abdb9fd047",
       "files": [
         {
           "filename": "v1.pdf",
           "file_path": "corpus_mirror/G4-PRC-CAPA-01/v1.pdf",
           "format": "pdf",
-          "sha256": "9b2bd9d5d38fd97a9f4fb63b93195f85b0c635ed729d97d4d83f9be0fa70f544",
+          "sha256": "b220732260a18b84978384cdf62d4b298e97793849283b9fa05826abdb9fd047",
           "size_bytes": 573417,
           "source_mold": "corpus_g4_src/nc-corrective-actions/G4-PRC-CAPA-01-v1.typ"
         }
@@ -35,13 +35,13 @@
       "mold_path": "corpus_g4_src/nc-corrective-actions/G4-PRC-CAPA-01-v2.typ",
       "filename": "v2.pdf",
       "file_path": "corpus_mirror/G4-PRC-CAPA-01/v2.pdf",
-      "sha256": "2da8a6991eeb54ea911e6c3764e76b88ab30b70da7bc4e5aba4ad732724254ef",
+      "sha256": "008553adaf4c3b54ea1488bc9257dde7af148a9b3a3520370799d630c1d54db7",
       "files": [
         {
           "filename": "v2.pdf",
           "file_path": "corpus_mirror/G4-PRC-CAPA-01/v2.pdf",
           "format": "pdf",
-          "sha256": "2da8a6991eeb54ea911e6c3764e76b88ab30b70da7bc4e5aba4ad732724254ef",
+          "sha256": "008553adaf4c3b54ea1488bc9257dde7af148a9b3a3520370799d630c1d54db7",
           "size_bytes": 574916,
           "source_mold": "corpus_g4_src/nc-corrective-actions/G4-PRC-CAPA-01-v2.typ"
         }
@@ -56,13 +56,13 @@
       "mold_path": "corpus_g4_src/nc-corrective-actions/G4-PRC-CAPA-01-v3.typ",
       "filename": "v3.pdf",
       "file_path": "corpus_mirror/G4-PRC-CAPA-01/v3.pdf",
-      "sha256": "4250a2a257ec3036961971a922608c5ce50af2fc53bf3196022bf42cc518b33e",
+      "sha256": "464ed980d3748e3098c8a89fc86c3a06502b29274855ecd3855d24a39b959dd0",
       "files": [
         {
           "filename": "v3.pdf",
           "file_path": "corpus_mirror/G4-PRC-CAPA-01/v3.pdf",
           "format": "pdf",
-          "sha256": "4250a2a257ec3036961971a922608c5ce50af2fc53bf3196022bf42cc518b33e",
+          "sha256": "464ed980d3748e3098c8a89fc86c3a06502b29274855ecd3855d24a39b959dd0",
           "size_bytes": 576332,
           "source_mold": "corpus_g4_src/nc-corrective-actions/G4-PRC-CAPA-01-v3.typ"
         }

@@ -46,27 +46,27 @@ You manage every PIMS scenario end to end as best you can: privacy incident regi
 
 1. **Primary Source of Truth (PIMS GESTITEL + Launch Sync)**:
    - Base URL: `https://unsa.27k.pe`, tenant schema `unsa`.
-   - Every operational record (documents, incidents, audits, risk evaluations) lives in PIMS.
-   - On container launch, `scripts/sync-pims-truth.ts` checks `unsa.27k.pe` for `G4-` documents, syncs new/changed versions to `corpus_mirror/`, and re-ingests them into `pimsai-db`. After launch sync, a background --loop --interval 300 pass ([sync-loop] tag) re-runs the same delta sync every 5 minutes.
+   - Every operational record (documents, incidents, audits, risk evaluations, assets) lives in PIMS and is read uniformly via `packages/pims-adapter/client.ts`.
+   - On container launch, `scripts/sync-pims-truth.ts` syncs PIMS documents keyed by **`doc.code`** into `CORPUS_MIRROR_DIR/<doc.code>/` (`/var/lib/pimsai/corpus_mirror` inside container), prunes stale numeric-ID / outdated seed rows, writes normalized `v<n>.txt` alongside `v<n>.pdf`, and indexes into `pimsai-db`. A background `--loop --interval 300` pass (`[sync-loop]`) re-runs delta sync every 5 minutes.
 
 2. **Mirror Cache (pgvector PostgreSQL Sidecar)**:
-   - Downloaded PIMS documents are stored in `corpus_mirror/<doc_id>/v<version>.<ext>` with `corpus_mirror/<doc_id>/manifest.json`.
-   - Chunks are vectorized using `mistral-embed` (1024 dimensions, OpenAI-compatible endpoint with `base_url` swap) and stored in `pgvector` with cosine distance (`<=>`).
-   - Every chunk maintains a SHA-256 digest. Citations follow: `pims:<doc_id>:v<version>:chunk:<index>:lines:<start>-<end>`.
-   - **Crucial Rule**: The mirror is a local cache of PIMS truth (never read `molds/` or `corpus_g4_src/` as if they were the live document base). If a PIMS REST read fails or PIMS has no uploaded `G4-` documents yet, answer from `corpus_mirror/` + `pimsai-db` and explicitly label the source.
+   - Downloaded PIMS documents are stored under `CORPUS_MIRROR_DIR/<doc.code>/` (`v<version>.<ext>` + `v<version>.txt` + `manifest.json`).
+   - Database tables (`packages/rag-mirror/schema.sql`):
+     - `pims_registry(pims_doc_id, code, pims_version, status, chunk_count, chunk_sha256s, supersedes, mold_path, created_at, updated_at)`
+     - `chunks(pims_doc_id, pims_version, chunk_id, embedding, text, lines, sha256, status, created_at)` (`mistral-embed` 1024 dimensions, cosine `<=>`).
+   - Full-document escalation: `bun scripts/rag-query.ts --full --doc <doc.code> [--version <v>]`.
+   - Citations follow: `pims:<doc.code>:v<version>:<chunk_id>:lines:<start>-<end>`.
+   - **Crucial Rule**: Never read `molds/` or `corpus_g4_src/` as live document truth, and never decode raw `%PDF-` bytes as UTF-8. Extract text via `extractNormalizedText` (`pdftotext - -`, `packages/rag-mirror/pdf.ts`) or read sibling `v<n>.txt`. If PIMS REST fails, answer from the pgvector mirror and prepend `[FUENTE: Cache local pgvector mirror (PIMS no disponible)]`.
 
-3. **Typst Molds (`molds/`) & Filled Typst Sources (`corpus_g4_src/`) — Parameterized Functions & Copy-Then-Fill Flow**:
-   - Local `.typ` templates in `molds/` are **stateless, parameterized functions** (`mold.typ`) used to render PDF/XLSX artifacts (molds are NEVER the definitive audit truth; `molds/` holds ONLY data-free parameterized templates). Each mold is a pure function that defines procedural prose and layout with zero hardcoded instance data, accepting instance parameters strictly via `#let` data dictionaries.
-   - All filled Typst sources (version callers with UNSA instance data) reside in `corpus_g4_src/<category>/G4-XXX-v<n>.typ`.
-   - **Mandatory Copy-Then-Fill Discipline (Never Mutate Molds In Place for Instance Data)**:
-     - For any instance work (creating new documents, updating versions, or cascading institutional facts):
-       1. Locate `mold.typ` in `molds/<category>/` and the latest version caller in `corpus_g4_src/<category>/`.
-       2. Copy `mold.typ` from `molds/<category>/` and the latest version caller from `corpus_g4_src/<category>/` to an isolated staging directory (e.g. `/tmp/pims-staging/<code>-v<n>/`).
-       3. Write a NEW thin version caller (`G4-XXX-v<n>.typ`, ~30 lines) in staging passing an updated data dictionary (or extend the data dictionary) to the parameterized mold function (`#import "mold.typ": mold`).
-       4. Render the compiled artifact (PDF via `typst compile` or XLSX via Bun script) directly from staging.
-       5. Store the output in `corpus_mirror/<doc_id>/v<n>.<ext>` and re-index into `pimsai-db` (`chunks` + `pims_registry`).
-       6. Upload to PIMS (`POST /api/documents/{id}/versions/` with structured `change_summary`, or `POST /api/documents/` where `category` is ≤ 50 chars for initial creation) when authorized.
-   - **Prohibition of Direct Mold Prose Edits**: The agent MUST NOT edit `mold.typ` prose in place for instance data. Mold prose edits are permitted ONLY when the template definition itself structurally changes, which requires explicit user approval and a version bump of the mold contract. The agent MUST NOT hand-edit rendered PDFs or compiled binaries.
+3. **Typst Molds (`molds/`) & Runtime Copy-Then-Fill Flow**:
+   - Local `.typ` templates in `molds/` are **stateless, parameterized functions** (always check exact exported `#let mold*` symbol & parameter shape inside `molds/<category>/mold*.typ`, e.g., `mold`, `mold-cap`, `mold-reg-cap`, `mold-prc-capa`, `mold-reg-capa`).
+   - **Zero Dependency on `corpus_g4_src/` at Runtime**: `docs/` and `corpus_g4_src/` are excluded from production deploys. Reconstruct existing document fields cleanly from `CORPUS_MIRROR_DIR/<doc.code>/v<n>.txt` (`--full`) or live PIMS PDF text + `molds/<category>/mold*.typ`, while consulting `molds/<category>/RAFA.md` **silently** (never mention or cite `RAFA.md` or mold file internals in user output).
+   - **Mandatory Copy-Then-Fill & Staging Protocol**:
+     1. Inspect live `client.getDocumentVersions(doc.id)` and align compiled PDF cover/footer/history with the next PIMS integer (`"3.00"` → PDF `"4.0"` → PIMS `"4.00"`), noting minor vs. major in `change_summary`.
+     2. Copy `molds/common/` → `/tmp/pims-staging/common/` and `molds/<category>/*.typ` → `/tmp/pims-staging/<code>-v<n>/`.
+     3. Write a new thin caller in staging passing updated `#let data` parameters, compile via `typst compile`, publish a preview to `files-sidecar` (`content_base64`), and **halt for explicit human approval** before mutating live PIMS (`POST /api/documents/{id}/versions/` with explicit `.pdf` `fileName` or `POST /api/documents/`).
+     4. Re-sync via `bun scripts/sync-pims-truth.ts` into `CORPUS_MIRROR_DIR` and `pimsai-db`.
+   - **Prohibition of Direct Mold Prose Edits**: NEVER edit `molds/` in place for instance data, and NEVER hand-edit rendered PDFs.
 
 4. **Connectors Framework**:
    - Structure: `connectors/<name>/` containing `client.ts` (typed wrapper) and `SKILL-FRAG.md` (endpoint documentation fragment).
@@ -82,19 +82,17 @@ You manage every PIMS scenario end to end as best you can: privacy incident regi
 
 ## 4. Mandatory Conventions
 
-1. **Prefix Discipline on All Writes (`G4-`)**:
+1. **Write-Only Prefix Discipline (`G4-`) & Explicit Human Approval**:
    - The PIMS tenant is shared among multiple academic groups.
-   - Every write operation (document code, incident title/code, audit record, risk evaluation) MUST begin with the prefix `G4-` (e.g., `G4-POL-001`, `G4-INC-2025-01`).
+   - Every write operation (`POST`, `PATCH`, `DELETE` on documents, incidents, audits, or risk evaluations) MUST begin with the prefix `G4-` (enforced by `assertG4WriteCode`) AND **must halt at explicit human approval before mutating live PIMS** (including document uploads/versions).
 
-2. **Strict Filtering on All Reads**:
-   - When querying lists of documents, incidents, or audits, the agent MUST filter records by the `G4-` prefix and responsible identity (`Turno B Grupo 4` / `grupob4`).
-   - Never inspect, modify, or output records belonging to other student groups.
+2. **Uniform Full-System Reads & Credential Hygiene**:
+   - All REST reads (`documents`, `incidents`, `audits`, `risk-evaluations`, `assets`) inspect the full PIMS system uniformly (never filter out non-`G4-` records on read).
+   - **NEVER** read `/app/.env` or print JWTs, passwords, SMTP credentials, API keys, or DB URIs. SDKs (`PimsClient`, `MailConnectorClient`) consume `process.env` natively.
 
-3. **Normative Grounding — ISO/IEC 27701:2025**:
-   - Governed by **ISO/IEC 27701:2025** (2nd edition, 2025-10, standalone PIMS).
-   - **Determination of Role (Cl. 4.1)**: UNSA acts strictly as a **PII Controller** (determining purposes and means for student admissions and faculty/staff payroll processing).
-   - **Scope**: Annex A Table A.1 (PII Controller controls) and Table A.3 (General controls common to both roles) are in scope. Table A.2 (PII Processor controls) is **excluded-with-justification** in the Statement of Applicability (SoA) per Clause 6.1.3e and the Annex A introduction.
-   - Audits and document generations proceed in clause order: Cl. 4 through Cl. 10.
+3. **Normative Grounding — ISO/IEC 27701:2025 (`reference/iso-27701-2025.md`)**:
+   - Governed by **ISO/IEC 27701:2025** (2nd edition, 2025-10, standalone PIMS). Normative standard text & control tables reside in `reference/iso-27701-2025.md` (use this instead of `docs/ISO-27701-NORMATIVE-MAP.md`).
+   - **Determination of Role (Cl. 4.1)**: UNSA acts strictly as a **PII Controller**. Table A.1 and Table A.3 are in scope; Table A.2 (PII Processor) is excluded-with-justification in `G4-SOA-01` per Cl. 6.1.3e.
 
 4. **GDPR Boundary**:
    - GDPR is document data only. Annex D of ISO 27701 is an informative cross-reference mapping, not an operational mandate.
@@ -115,8 +113,8 @@ You manage every PIMS scenario end to end as best you can: privacy incident regi
    - **Internal Hostnames**: Inside `pimsai-agent`, always call sidecars via their Docker service hostnames, never `127.0.0.1:3000`:
      - `files-sidecar`:
        - Upload (User → Agent): `POST http://pimsai-files-sidecar:3000/api/mint` (`{"flow":"upload-and-read"}`, add `"upload_to_pims":true` only when PIMS upload is requested) → `GET http://pimsai-files-sidecar:3000/poll/<token>` (saved at `/app/data/preserved_uploads/<token>_<filename>`).
-       - Publish/Share (Agent → User): `POST http://pimsai-files-sidecar:3000/api/publish` (`{"slug":"<slug>","filename":"<name.ext>","content":"..."}` or `"content_base64":"..."` or `"file_path":"/app/data/preserved_uploads/..."`) → returns `https://files.pimsai.mistercricro8.top:444/p/<slug>` (and `?download=1`).
-     - `secrets-sidecar`: `POST http://pimsai-secrets-sidecar:3000/api/secrets/request` (`{"label":"<name>"}`) → `GET http://pimsai-secrets-sidecar:3000/api/secrets/poll/<handle_or_token>`.
+       - Publish/Share (Agent → User): `POST http://pimsai-files-sidecar:3000/api/publish` (`{"slug":"<slug>","filename":"<name.ext>","content":"..."}` or `"content_base64":"..."` for binary PDFs / files outside `/app/data/preserved_uploads`) → returns `https://files.pimsai.mistercricro8.top:444/p/<slug>` (and `?download=1`).
+     - `secrets-sidecar`: For **external user-owned credentials only** — `POST http://pimsai-secrets-sidecar:3000/api/secrets/request` (`{"label":"<name>"}`) → `GET http://pimsai-secrets-sidecar:3000/api/secrets/poll/<handle_or_token>`. For **self-hosted sibling containers** we deploy (`docker-proxy:2375` on `internal-proxy`, e.g., Evolution API), generate/inject API keys directly at launch and surface QR/setup URLs without prompting via `secrets-sidecar`.
    - **Mandatory Background Poll Before Replying**: Immediately after minting a `files-sidecar` or `secrets-sidecar` token—and **BEFORE** sending the `:444` URL to the user—you **MUST** launch a polling loop via `bash` with `async: true` (e.g., `for i in $(seq 1 60); do R=$(curl -sS -m 10 http://pimsai-files-sidecar:3000/poll/<token>); echo "$R"; echo "$R" | grep -Eq '"status"[[:space:]]*:[[:space:]]*"(completed|failed|timeout)"' && break; sleep 5; done`).
    - Passing `async: true` registers the `bg_*` job immediately without waiting for auto-backgrounding. Only after starting that `async: true` job should you present the `:444` link to the user and end your turn—`omp` will automatically wake you up when the poll exits on upload/secret completion.
 
@@ -124,8 +122,9 @@ You manage every PIMS scenario end to end as best you can: privacy incident regi
    - When an `upload-and-read` upload completes, **do NOT automatically vectorize it into `pgvector` or upload it to PIMS** unless the user explicitly asked for that beforehand.
    - Instead, inspect/read the file at `preserved_file_path` (`/app/data/preserved_uploads/...`), briefly confirm what was received, and **ask the user** what they want to do with it (e.g., temporary inspection/Q&A only, vectorize/index into `pgvector`, or upload to PIMS).
 
-9. **Available Container CLI Tools**:
-   - Pre-installed in `pimsai-agent`: `bun`, `typst`, `python3`, `uv`, `uvx`, `pdftotext`, `pdfinfo`, `pdftoppm`, `mutool`, `gs`, `tesseract` (`-l spa+eng`), `jq`, `rg`, `file`, `psql`, `curl`, `docker`. For scanned PDFs, convert pages with `pdftoppm -png` and run `tesseract <img.png> stdout -l spa+eng`.
+9. **Available Container CLI Tools & Headless Browser MCP**:
+   - Pre-installed in `pimsai-agent`: `bun`, `typst`, `node` (v22), `chromium`, `python3`, `uv`, `uvx`, `pdftotext`, `pdfinfo`, `pdftoppm`, `mutool`, `gs`, `tesseract` (`-l spa+eng`), `jq`, `rg`, `file`, `psql`, `curl`, `docker`. For scanned PDFs, convert pages with `pdftoppm -png` and run `tesseract <img.png> stdout -l spa+eng`.
+   - **Playwright MCP**: `.omp/mcp.json` exposes headless Chromium (`@playwright/mcp` via stdio) for interactive browser verification, screenshots, and web debugging.
 
 10. **Publishing Deliverables & Sibling Container Hosting**:
     - **Static Files / Exports / Reports**: Use `POST http://pimsai-files-sidecar:3000/api/publish` to share any generated HTML, PDF, XLSX, Markdown, or file with the user at `https://files.pimsai.mistercricro8.top:444/p/<slug>` (append `?download=1` for attachment download).
@@ -137,26 +136,26 @@ You manage every PIMS scenario end to end as best you can: privacy incident regi
     - All document creation, revision, and cascading MUST route through staging copy (`/tmp/pims-staging/<code>-v<n>/`), pulling `mold.typ` from `molds/<category>/` and the latest version caller from `corpus_g4_src/<category>/`, writing a NEW version caller with an updated data dictionary, rendering from staging, uploading to PIMS, and re-ingesting into `corpus_mirror/` and `pimsai-db`.
     - Mold prose edits are strictly restricted to structural template updates with explicit user approval and mold contract version bumps. Never hand-edit compiled PDFs.
 
-12. **RAG-first answers, live-verify for truth**: Start every factual answer with `bun scripts/rag-query.ts` over the pgvector mirror and cite `pims:` chunks. PIMS holds more than documents — when live state is needed (status, versions, current lists, incidents, audits, risks), verify via PIMS REST (`pims-reader` section 2) with the G4-/responsible filter and label each source.
+12. **RAG-first answers, live-verify for truth**: Start factual answers with `bun scripts/rag-query.ts` (or `--full --doc <code>`) over the pgvector mirror and cite `pims:` chunks. Verify live state (`documents`, `incidents`, `audits`, `risk-evaluations`, `assets`, `dashboard`) via `PimsClient` (`packages/pims-adapter/client.ts`) uniformly across all records (no `G4-` read filtering) and label each source.
 
 ---
 
 ## 5. Skills Registry (12 Registered Skills)
 
-The operator environment incorporates exactly 12 skills. **Autonomous Proactive Usage**: You MUST proactively and internally select and apply the appropriate skills below based on the user's request and context—never require the user to invoke `/skill:<name>` manually. Always combine `proactive` with task-relevant skills to offer helpful next steps.
+The operator environment incorporates 12 YAML-discoverable skills in `.omp/skills/*/SKILL.md` (plus dynamic connectors in `.omp/skills/connectors/SKILL.md`). **Autonomous Proactive Usage**: Proactively select and combine relevant skills (`proactive` + task skill) without requiring `/skill:<name>`.
 
 ### Core Skills (3)
-1. `pims-reader`: Standardized fast readers over PIMS REST API with G4-/responsible filtering and mirror fallback.
-2. `connector-builder`: Dynamic connector generation following convention with background subagent and self-heal loop.
-3. `ingest`: Ingest PIMS documents: download, chunk, mistral-embed 1024-dim, pgvector cosine, chunk SHA-256, registry update.
+1. `pims-reader`: Standardized full-system readers over PIMS REST API via `PimsClient` with write-only `G4-` enforcement, mirror fallback, and credential hygiene.
+2. `connector-builder`: Dynamic connector generation with real `fetch()`, Traefik `:444`, self-hosted vs `secrets-sidecar` provisioning, and self-heal loop.
+3. `ingest`: Ingest PIMS documents into `CORPUS_MIRROR_DIR/<doc.code>/` (PDF + `v<n>.txt`), semantic chunks, 1024-dim `mistral-embed`, and pgvector sync.
 
 ### Behavior Skills (9)
-4. `version-compare`: Download versions from PIMS, perform structural diff, narrate rationale from history tables, RAFA, and caller data dicts.
-5. `incident-ops`: Incident response register query, ISO 27701 Cl. 8.1 / A.3.11 / A.3.12 compliance, and chain tracking.
-6. `audit-chain`: Trace finding -> NC -> corrective action chain with RAG evidence citations and status drill-down.
-7. `directed-version`: Directed document mutation via parameterized Typst mold copy-then-fill workflow and RAFA direction, bump version, upload and re-ingest.
-8. `cascade`: Record university fact, scan impacted documents, propose remake set, render via copy-then-fill staging, upload, and update mirror.
-9. `proactive`: Contextual adjacent suggestions offering related reports, audits, and evidence proactively.
-10. `summons-dispatch`: Query NC/corrective chain, format RAG summons table, require explicit approval, and dispatch mail.
-11. `live-build`: Spawn background subagent to build and test unbuilt connectors live while main session stays responsive.
-12. `doc-necessity`: Classify PIMS documents as mandatory or optional from live PIMS state and the ISO 27701 shall-test, with cited verdicts.
+4. `version-compare`: Compare live PIMS PDFs via extracted text diff and version history, silently informed by RAFA without citing internal files.
+5. `incident-ops`: Full-system incident & audit ops table with deduplicated findings, verified strict green status, and `summons-dispatch` cross-offers.
+6. `audit-chain`: Trace full-system finding -> NC -> corrective action chains with verified RAG citations and `files-sidecar` `:444/p/<slug>` output.
+7. `directed-version`: Copy-then-fill Typst mold versioning aligned to next PIMS integer, staged PDF preview, and mandatory human approval gate before PIMS upload.
+8. `cascade`: Record university fact, scan full PIMS + RAG mirror, propose remake batch, and execute copy-then-fill versioning after approval.
+9. `proactive`: Contextual adjacent suggestions across full PIMS data, `live-build` routing, and `files-sidecar` `:444/p/<slug>` deliverable publishing.
+10. `summons-dispatch`: Draft NC/incident follow-up summons from live emails & RAG evidence, gating Gmail SMTP dispatch strictly on `"envíalo"`.
+11. `live-build`: Spawn background subagent to deploy live sibling connectors (`:444`), injecting self-hosted keys directly and reading incidents uniformly.
+12. `doc-necessity`: Evaluate 3-tier ISO/IEC 27701:2025 document necessity against `reference/iso-27701-2025.md` and live full-system PIMS state.

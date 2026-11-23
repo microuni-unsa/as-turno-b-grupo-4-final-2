@@ -9,6 +9,9 @@
 # Environment configurations and secrets
 .env
 .env.*
+.enc.env
+*.enc.env
+.sops.yaml
 !.env.example
 *.age
 *.key

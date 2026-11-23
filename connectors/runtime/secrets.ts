@@ -8,6 +8,7 @@
  */
 
 import {
+  PIMSAI_PUBLIC_PORT,
   SECRETS_HANDLE_PREFIX,
   SECRETS_HANDLE_REGEX,
   SECRETS_SIDECAR_DOMAIN,
@@ -211,7 +212,7 @@ export class SecretsStore {
   public requestSecret(label: string, scope: string = "default"): SecretRequestSession {
     const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
     const expiresAt = new Date(Date.now() + SECRETS_TOKEN_TTL_MS).toISOString();
-    const url = `https://${SECRETS_SIDECAR_DOMAIN}/s/${token}`;
+    const url = `https://${SECRETS_SIDECAR_DOMAIN}:${PIMSAI_PUBLIC_PORT}/s/${token}`;
 
     const session: SecretRequestSession = {
       token,

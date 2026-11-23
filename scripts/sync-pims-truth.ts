@@ -1,15 +1,18 @@
-import { createHash } from "node:crypto";
+import { existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { parseArgs } from "node:util";
 import { PimsClient } from "../packages/pims-adapter/client.ts";
 import { RAG_CONFIG } from "../packages/rag-mirror/config.ts";
 import { createOpenAICompatibleEmbedder } from "../packages/rag-mirror/embedder.ts";
-import { readCorpusManifest } from "../packages/rag-mirror/mirror.ts";
+import { getDocMirrorDir, readCorpusManifest } from "../packages/rag-mirror/mirror.ts";
+import { extractNormalizedText } from "../packages/rag-mirror/pdf.ts";
 import { ingestDocumentToMirrorAndDb } from "./lib/ingest-helpers.ts";
 import { createBunPgClient } from "./lib/pg-client.ts";
 
 /**
- * Launch-time / periodic sync: checks all G4- documents at 27k PIMS (https://unsa.27k.pe),
- * downloads new or changed versions into corpus_mirror/, and re-ingests them into pimsai-db.
+ * Launch-time / periodic sync: checks all documents at GESTITEL PIMS (https://unsa.27k.pe),
+ * downloads new or changed versions into CORPUS_MIRROR_DIR/<doc.code>/ (PDF + v<n>.txt + manifest.json),
+ * re-ingests them into pimsai-db keyed strictly by doc.code, and prunes legacy numeric/stale rows.
  */
 async function syncOnce(tag: string): Promise<void> {
   const username = process.env.PIMS_USERNAME;
@@ -23,9 +26,9 @@ async function syncOnce(tag: string): Promise<void> {
   const client = new PimsClient();
   await client.login({ username, password });
 
-  const listResult = await client.listDocuments({ page_size: 100 });
+  const listResult = await client.listDocuments({ page_size: 200 });
   const docs = listResult.results ?? [];
-  console.log(`${tag} Found ${docs.length} G4- documents in PIMS.`);
+  console.log(`${tag} Found ${docs.length} documents in PIMS.`);
 
   if (docs.length === 0) {
     return;
@@ -36,11 +39,26 @@ async function syncOnce(tag: string): Promise<void> {
   let syncedCount = 0;
 
   try {
+    // 1. Clean up legacy numeric-ID DB rows and numeric mirror directories from older sync runs
+    await db.query("DELETE FROM chunks WHERE pims_doc_id ~ '^[0-9]+$'");
+    await db.query("DELETE FROM pims_registry WHERE pims_doc_id ~ '^[0-9]+$'");
+    if (existsSync(RAG_CONFIG.CORPUS_MIRROR_DIR)) {
+      for (const entry of readdirSync(RAG_CONFIG.CORPUS_MIRROR_DIR, { withFileTypes: true })) {
+        if (entry.isDirectory() && /^[0-9]+$/.test(entry.name)) {
+          rmSync(join(RAG_CONFIG.CORPUS_MIRROR_DIR, entry.name), { recursive: true, force: true });
+          console.log(`${tag} Removed legacy numeric mirror directory: ${entry.name}`);
+        }
+      }
+    }
+
     for (const doc of docs) {
       if (doc.id === undefined || doc.id === null) {
         throw new Error(`${tag} Missing document ID for document ${doc.code}`);
       }
-      const docId = String(doc.id);
+      if (!doc.code || doc.code.trim() === "") {
+        throw new Error(`${tag} Missing document code for document ID ${doc.id}`);
+      }
+      const docId = doc.code.trim().replace(/\//g, "-");
 
       const docVersions = await client.getDocumentVersions(doc.id);
       if (docVersions.length === 0) {
@@ -54,6 +72,10 @@ async function syncOnce(tag: string): Promise<void> {
         return vA - vB;
       });
 
+      const liveVersions = sortedVersions
+        .map((v) => (v.version ? String(v.version) : ""))
+        .filter((v) => v.length > 0);
+
       for (let i = 0; i < sortedVersions.length; i++) {
         const ver = sortedVersions[i];
         if (!ver.version) {
@@ -65,7 +87,6 @@ async function syncOnce(tag: string): Promise<void> {
 
         const versionStr = String(ver.version);
         const isCurrent = doc.current_version !== undefined && String(ver.version) === String(doc.current_version);
-        // Current live version takes doc.status from PIMS (R or V); prior superseded versions are Obsolete (O)
         const status = isCurrent ? doc.status : "O";
         const supersedes = i > 0 ? String(sortedVersions[i - 1].version) : null;
 
@@ -80,7 +101,6 @@ async function syncOnce(tag: string): Promise<void> {
         );
         const inDb = Number(regCheck.rows[0]?.count ?? "0") > 0;
 
-        // If version is in DB, update status and supersedes if needed
         if (inDb) {
           if (regCheck.rows[0]?.status !== status) {
             await db.query(
@@ -100,7 +120,15 @@ async function syncOnce(tag: string): Promise<void> {
           }
         }
 
-        if (existingEntry && inDb) {
+        // Backfill missing v<n>.txt alongside existing cached PDF so full-text reads never touch raw PDF binary
+        const docDir = getDocMirrorDir(docId, RAG_CONFIG.CORPUS_MIRROR_DIR);
+        const txtPath = join(docDir, `v${versionStr}.txt`);
+        if (existingEntry && inDb && existsSync(existingEntry.file_path)) {
+          if (!existsSync(txtPath)) {
+            const cachedBytes = new Uint8Array(readFileSync(existingEntry.file_path));
+            const extracted = extractNormalizedText(cachedBytes, existingEntry.filename);
+            writeFileSync(txtPath, extracted, "utf8");
+          }
           continue;
         }
 
@@ -136,6 +164,19 @@ async function syncOnce(tag: string): Promise<void> {
         syncedCount++;
         console.log(
           `${tag} Synced ${doc.code} v${versionStr} [${status}] (${result.chunkCount} chunks: ${result.embeddedCount} embedded, ${result.reusedCount} reused).`,
+        );
+      }
+
+      // 2. Reconcile stale DB version rows for this docId (e.g. seed-local-truth '3.0' vs PIMS '3.00')
+      if (liveVersions.length > 0) {
+        const pgVerArray = `{${liveVersions.join(",")}}`;
+        await db.query(
+          "DELETE FROM chunks WHERE pims_doc_id = $1 AND NOT (pims_version = ANY($2::text[]))",
+          [docId, pgVerArray],
+        );
+        await db.query(
+          "DELETE FROM pims_registry WHERE pims_doc_id = $1 AND NOT (pims_version = ANY($2::text[]))",
+          [docId, pgVerArray],
         );
       }
     }

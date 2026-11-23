@@ -2,7 +2,7 @@
 
 > **Connector Type:** REST API + Inbound Webhook  
 > **Canonical Target:** Evolution API / WhatsApp Bridge  
-> **Hosting Slug Convention:** `https://<slug>.pimsai.mistercricro8.top` (SPEC 4.1)
+> **Hosting Slug Convention:** `https://<slug>.pimsai.mistercricro8.top:444` (Mandatory `:444` port)
 
 ---
 
@@ -18,13 +18,10 @@
 
 ## 2. Inbound Webhook Configuration
 
-- **Callback Slug Convention:** Inbound webhook callbacks must be exposed under a designated slug:  
-  `https://<slug>.pimsai.mistercricro8.top/webhook`
-- **Container Network Mode:** Spawned container runs on `internal-proxy` network with Traefik labels:
-  - `traefik.enable=true`
-  - `traefik.http.routers.pimsai-<slug>.rule=Host(\`<slug>.pimsai.mistercricro8.top\`)`
-  - `traefik.http.routers.pimsai-<slug>.entrypoints=https`
-  - `traefik.http.routers.pimsai-<slug>.tls.certresolver=cloudflare`
+- **Callback Slug Convention:** Inbound webhook callbacks must include `:444`:  
+  `https://<slug>.pimsai.mistercricro8.top:444/webhook`
+- **Container Network Mode:** Spawned container runs on `internal-proxy` network with Traefik labels (`traefik.docker.network=internal-proxy`, `traefik.http.services.pimsai-<slug>.loadbalancer.server.port=<port>`, plus TLS router labels).
+- **Read Filtering Policy:** Incident/audit webhook watchers read ALL system incidents/audits uniformly (do NOT filter out non-`G4-` alerts). Only writes to PIMS enforce the `G4-` prefix.
 
 ---
 
@@ -32,11 +29,10 @@
 
 - **Protocol:** Connector operations MUST supply a secret handle: `secret:<name>@<v>` (e.g., `secret:evolution_api_key@v1`).
 - **Zero-Exposure Policy:** The agent process never inspects, logs, or prints raw tokens. Secrets resolve to HTTP headers or Docker environment variables solely inside the connector runtime boundary.
-- **Missing Credentials:** If the required handle is absent at runtime, the connector triggers the Secrets Sidecar flow (`SPEC 4.3`):
-  1. Calls `secrets.request(label)`.
-  2. Emits user URL `https://secrets.pimsai.mistercricro8.top/s/<token>`.
-  3. Main session continues without blocking.
-  4. Once entered, retrieves handle `secret:<name>@<v>`.
+- **Missing Credentials (External User-Owned Secrets Only):** If prompting for external credentials, use `secrets-sidecar`:
+  1. Call `POST http://pimsai-secrets-sidecar:3000/api/secrets/request`.
+  2. Emit user URL `https://secrets.pimsai.mistercricro8.top:444/s/<token>` (after starting `async: true` poll).
+  3. Note: for self-hosted containers spawned ourselves (e.g. Evolution API), inject generated credentials directly via `--env` without prompting via `secrets-sidecar`.
 
 ---
 

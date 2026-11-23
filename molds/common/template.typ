@@ -197,18 +197,20 @@
   // ==========================================
   if show-signature {
     v(0.6cm)
-    let sig-role = if owner-role != none and owner-role != "" {
-      owner-role
-    } else if type(approver) == dictionary and approver.at("role", default: "") != "" {
+    let has-approver = type(approver) == dictionary and approver.at("name", default: "") != ""
+    let has-author = type(author) == dictionary and author.at("name", default: "") != ""
+    let sig-role = if has-approver and approver.at("role", default: "") != "" {
       approver.role
-    } else if type(author) == dictionary and author.at("role", default: "") != "" {
+    } else if has-author and author.at("role", default: "") != "" {
       author.role
+    } else if owner-role != none and owner-role != "" {
+      owner-role
     } else {
       "Rector - Presidente del Comité SGPI"
     }
-    let sig-name = if type(approver) == dictionary and approver.at("name", default: "") != "" {
+    let sig-name = if has-approver {
       approver.name
-    } else if type(author) == dictionary and author.at("name", default: "") != "" {
+    } else if has-author {
       author.name
     } else {
       "Dr. Hugo José Sánchez"

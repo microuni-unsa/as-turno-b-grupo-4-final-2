@@ -16,15 +16,16 @@ Bienvenido al entorno de operación agéntica del Sistema de Gestión de Informa
 1. **Fuente Primaria de Verdad (PIMS GESTITEL)**:
    - URL: `https://unsa.27k.pe` | Esquema del tenant: `unsa`.
    - Todos los documentos, incidentes, auditorías y evaluaciones de riesgo oficiales residen en GESTITEL.
-   - El operador interactúa directamente mediante la API REST (`/business/login/` con JWT y `/api/.../`).
-2. **Espejo y Cache Semántico (pgvector Sidecar)**:
-   - Copia local versionada en `corpus_mirror/<doc_id>/v<version>.<ext>` con `manifest.json`.
-   - Vectorización semántica (1024 dimensiones, endpoint compatible con OpenAI configurado mediante `EMBEDDINGS_BASE_URL` y `EMBEDDING_MODEL`) almacenada en PostgreSQL con índice coseno (`<=>`).
-   - Citas verbatim con formato: `pims:<doc_id>:v<version>:chunk:<index>:lines:<inicio>-<fin>` y hash SHA-256 por fragmento.
+   - El operador interactúa mediante `PimsClient` (`packages/pims-adapter/client.ts`) y la API REST (`/business/login/` con JWT y `/api/.../`).
+2. **Espejo y Cache Semántico (`CORPUS_MIRROR_DIR` + pgvector)**:
+   - Copia local versionada en `CORPUS_MIRROR_DIR/<doc.code>/v<version>.<ext>` (con `v<version>.txt` normalizado y `manifest.json`), montada fuera de `/app` en `/var/lib/pimsai/corpus_mirror`.
+   - Vectorización semántica (`mistral-embed`, 1024 dimensiones) almacenada en `pims_registry` y `chunks` (`pimsai-db`) con índice coseno (`<=>`) y SHA-256 por fragmento.
+   - Consulta directa: `bun scripts/rag-query.ts "<consulta>"` o `bun scripts/rag-query.ts --full --doc <doc.code>`.
+   - Citas verbatim con formato: `pims:<doc.code>:v<version>:<chunk_id>:lines:<inicio>-<fin>`.
    - **Regla de Cache**: El espejo es estrictamente una cache. Si la API de PIMS no responde, el operador responde desde el espejo etiquetando: `[FUENTE: Cache local pgvector mirror (PIMS no disponible)]`.
-3. **Moldes Parametrizados Typst (`molds/`) y Fuentes Rellenadas (`corpus_g4_src/`)**:
-   - Funciones puras y desacopladas en `molds/` (`mold.typ`) para renderizar artefactos PDF y XLSX mediante invocadores delgados de versión (`G4-XXX-v<n>.typ`) con diccionarios de datos alojados en `corpus_g4_src/`. `molds/` contiene ÚNICAMENTE plantillas parametrizadas sin datos de instancia; los invocadores de versión residen en `corpus_g4_src/`. Los archivos locales son moldes y fuentes de compilación, nunca el registro oficial de auditoría.
-   - **Flujo Copy-Then-Fill (Prohibición de Edición en su Lugar)**: Toda creación de documentos o nuevas versiones opera mediante copia a staging (`/tmp/pims-staging/<code>-v<n>/`) extrayendo el molde desde `molds/<category>/` y el invocador previo desde `corpus_g4_src/<category>/`, redacción de un nuevo invocador pasando el diccionario de datos actualizado, compilación desde staging, almacenamiento en `corpus_mirror/` + `pimsai-db` y carga a PIMS con `change_summary`. NUNCA se edita `mold.typ` en su lugar (in-place) para datos de instancia; las modificaciones de prosa del molde están reservadas exclusivamente a cambios estructurales de la plantilla con aprobación explícita del usuario y versionado del contrato del molde. Queda terminantemente prohibido editar a mano los PDFs renderizados.
+3. **Moldes Parametrizados Typst (`molds/`) y Flujo Copy-Then-Fill**:
+   - Funciones puras en `molds/<category>/mold*.typ` (copiando `molds/common/` a `/tmp/pims-staging/common/`).
+   - **Sin dependencia de `corpus_g4_src/`**: Los valores vigentes del documento se reconstruyen desde `CORPUS_MIRROR_DIR/<doc.code>/v<n>.txt` o PDF vivo de PIMS, alineando la versión del PDF al siguiente entero de PIMS (`"3.00"` → PDF `"4.0"` → `"4.00"`), compilando en staging y esperando aprobación humana antes de cargar a PIMS. `RAFA.md` se consulta en silencio (jamás se cita al usuario).
 4. **Sidecars de Soporte (`*.pimsai.mistercricro8.top`)**:
    - `demo`: Interfaz web de terminal Zellij.
    - `files`: Servicio de carga temporal de archivos con URL de 1 solo uso (expira en 5 min).
@@ -33,16 +34,15 @@ Bienvenido al entorno de operación agéntica del Sistema de Gestión de Informa
 ---
 
 ## 3. REGLAS OPERATIVAS OBLIGATORIAS
-1. **Prefijo `G4-` en Escrituras**:
-   - Al compartir el tenant de GESTITEL con otros grupos, **toda escritura** (código de documento, incidente, auditoría o riesgo) DEBE incluir el prefijo `G4-` (ej. `G4-POL-001`, `G4-INC-2025-01`).
-2. **Filtrado Estricto en Lecturas**:
-   - En todas las consultas se filtran exclusivamente los registros de Turno B Grupo 4 (`G4-` / `grupob4`), ignorando datos de otros equipos.
+1. **Prefijo `G4-` en Escrituras / Lecturas Uniformes**:
+   - Toda escritura en PIMS (código de documento o incidente) DEBE iniciar con `G4-` y contar con aprobación humana explícita.
+   - Las lecturas (`GET /api/documents/`, `/api/incidents/`, `/api/audits/`) inspeccionan el sistema completo de forma uniforme sin filtrar por `G4-`.
 3. **Manejo Seguro de Secretos**:
-   - Nunca escriba contraseñas o tokens en el chat. Utilice el flujo de sidecar (`secrets.request` / `secrets.poll`) para obtener identificadores opacos (`secret:<nombre>@<v>`).
+   - Jamás leer `.env` ni mostrar contraseñas, JWTs o claves en el chat. Contenedores auto-alojados usan claves generadas al iniciar; solo credenciales externas del usuario pasan por `secrets-sidecar` (`:444/s/<token>`).
 4. **Aprobación para Escrituras en Producción**:
-   - Mutaciones fuera de documentos, incidentes, auditorías o riesgos requieren confirmación explícita del operador humano.
-5. **Disciplina Copy-Then-Fill en Moldes y Fuentes**:
-   - Toda actualización o nueva versión documental debe realizarse mediante el flujo copy-then-fill en staging, extrayendo el molde desde `molds/` y el invocador desde `corpus_g4_src/`. Queda prohibido mutar `molds/` en su lugar (in-place) para datos de instancia o editar a mano PDFs renderizados.
+   - Toda mutación en PIMS (incluidos documentos y versiones) o envío SMTP (`"envíalo"`) requiere confirmación explícita humana tras presentar vista previa o borrador.
+5. **Disciplina Copy-Then-Fill y Referencia Normativa**:
+   - Nuevas versiones se compilan en `/tmp/pims-staging/` desde `molds/` + `CORPUS_MIRROR_DIR` sin editar `molds/` en su lugar ni PDFs a mano; las evaluaciones normativas usan `reference/iso-27701-2025.md`.
 
 ---
 

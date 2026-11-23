@@ -102,6 +102,17 @@ services:
       # Secrets store configuration (SPEC §4.3)
       - SECRETS_STORE_PATH=/app/secrets
 
+      # Runtime Corpus Mirror outside bind-mounted /app
+      - CORPUS_MIRROR_DIR=${CORPUS_MIRROR_DIR:-/var/lib/pimsai/corpus_mirror}
+
+      # Outbound Gmail SMTP configuration for summons & notifications
+      - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_SECURE=${SMTP_SECURE:-false}
+      - SMTP_USERNAME=${SMTP_USERNAME:-}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
+      - SMTP_FROM=${SMTP_FROM:-}
+
       # Domain root & runtime flags
       - DOMAIN_ROOT=${DOMAIN_ROOT:-pimsai.mistercricro8.top}
       - PI_SKIP_VERSION_CHECK=1
@@ -110,6 +121,8 @@ services:
       - agent_data:/home/agent
       # Secrets store path (SPEC §4.3)
       - secrets_data:/app/secrets
+      # Synced PIMS corpus mirror persisted outside /app bind-mount
+      - corpus_mirror_data:/var/lib/pimsai/corpus_mirror
       # Application workspace
       - .:/app
       # Shared uploaded files from files-sidecar
@@ -222,6 +235,8 @@ volumes:
   agent_data:
     driver: local
   secrets_data:
+    driver: local
+  corpus_mirror_data:
     driver: local
   pgvector_data:
     driver: local

@@ -22,10 +22,7 @@ import {
   PimsReadFailureError,
   PimsTrainingsForbiddenError,
 } from "./errors.ts";
-import {
-  assertGroup4Record,
-  filterGroup4Records,
-} from "./guards.ts";
+import { normalizePaginatedResponse } from "./normalize.ts";
 import type {
   ListAuditsParams,
   PaginatedResult,
@@ -130,20 +127,12 @@ export class ReadsModule {
       );
     }
 
-    const data = (await response.json()) as PaginatedResult<PimsAudit>;
-    const filteredResults = filterGroup4Records(data.results ?? []);
-
-    return {
-      count: filteredResults.length,
-      next: data.next,
-      previous: data.previous,
-      results: filteredResults,
-    };
+    const raw = (await response.json()) as unknown;
+    return normalizePaginatedResponse<PimsAudit>(raw, endpoint);
   }
 
   /**
    * Retrieves a single audit by ID.
-   * Asserts the audit belongs to Group 4.
    */
   async getAudit(id: number): Promise<PimsAudit> {
     const endpoint = `/api/audits/${id}/`;
@@ -175,9 +164,7 @@ export class ReadsModule {
       );
     }
 
-    const audit = (await response.json()) as PimsAudit;
-    assertGroup4Record(audit, "Audit");
-    return audit;
+    return (await response.json()) as PimsAudit;
   }
 
   /**
@@ -213,7 +200,8 @@ export class ReadsModule {
       );
     }
 
-    return (await response.json()) as PaginatedResult<PimsRiskEvaluation>;
+    const raw = (await response.json()) as unknown;
+    return normalizePaginatedResponse<PimsRiskEvaluation>(raw, endpoint);
   }
 
   /**
@@ -285,7 +273,8 @@ export class ReadsModule {
       );
     }
 
-    return (await response.json()) as PaginatedResult<PimsAsset>;
+    const raw = (await response.json()) as unknown;
+    return normalizePaginatedResponse<PimsAsset>(raw, endpoint);
   }
 
   /**
@@ -321,7 +310,8 @@ export class ReadsModule {
       );
     }
 
-    return (await response.json()) as PaginatedResult<Partial<PimsAsset>>;
+    const raw = (await response.json()) as unknown;
+    return normalizePaginatedResponse<Partial<PimsAsset>>(raw, endpoint);
   }
 
   /**

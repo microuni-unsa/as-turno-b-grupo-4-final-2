@@ -22,11 +22,11 @@ import {
   PimsReadFailureError,
   PimsValidationError,
 } from "./errors.ts";
+import { assertG4WriteCode } from "./guards.ts";
 import {
-  assertG4WriteCode,
-  assertGroup4Record,
-  filterGroup4Records,
-} from "./guards.ts";
+  normalizeArrayResponse,
+  normalizePaginatedResponse,
+} from "./normalize.ts";
 import type {
   AddDocumentVersionInput,
   CreateDocumentInput,
@@ -89,8 +89,29 @@ export function mapDocumentStatusAPIToUI(
   }
 }
 
+function resolvePdfFileName(
+  explicitName: string | undefined,
+  file: Blob | Uint8Array | ArrayBuffer | File,
+): string {
+  const candidate =
+    typeof explicitName === "string" && explicitName.trim() !== ""
+      ? explicitName.trim()
+      : file instanceof File && file.name.trim() !== ""
+        ? file.name.trim()
+        : "";
+
+  if (candidate === "") {
+    throw new PimsValidationError(
+      "fileName",
+      "Document upload requires a non-empty PDF fileName (e.g. 'G4-POL-01_v4.0.pdf').",
+    );
+  }
+  assertDocumentPdfFile(candidate);
+  return candidate;
+}
+
 /**
- * Converts status from either UI string or API code to normalized API code.
+ * Normalizes UI or API status into API code.
  */
 export function normalizeDocumentStatusToAPI(
   status: DocumentStatusUI | DocumentStatusAPI,
@@ -184,9 +205,8 @@ export class DocumentsModule {
     // Shared-tenant guard: Write enforcement
     assertG4WriteCode(input.code, "Document");
 
-    // Format enforcement
-    const fileName = input.fileName ?? "document.pdf";
-    assertDocumentPdfFile(fileName);
+    // Format enforcement (no silent fallback filename)
+    const fileName = resolvePdfFileName(input.fileName, input.upload_file);
 
     const apiStatus = normalizeDocumentStatusToAPI(input.status);
 
@@ -200,8 +220,10 @@ export class DocumentsModule {
     let blobPart: Blob;
     if (input.upload_file instanceof Blob) {
       blobPart = input.upload_file;
+    } else if (input.upload_file instanceof ArrayBuffer) {
+      blobPart = new Blob([input.upload_file], { type: "application/pdf" });
     } else {
-      blobPart = new Blob([input.upload_file as Uint8Array], {
+      blobPart = new Blob([new Uint8Array(input.upload_file)], {
         type: "application/pdf",
       });
     }
@@ -249,8 +271,7 @@ export class DocumentsModule {
     id: number,
     input: AddDocumentVersionInput,
   ): Promise<PimsDocumentVersion> {
-    const fileName = input.fileName ?? "version.pdf";
-    assertDocumentPdfFile(fileName);
+    const fileName = resolvePdfFileName(input.fileName, input.file);
 
     if (!input.change_summary || input.change_summary.trim() === "") {
       throw new PimsValidationError(
@@ -265,8 +286,10 @@ export class DocumentsModule {
     let blobPart: Blob;
     if (input.file instanceof Blob) {
       blobPart = input.file;
+    } else if (input.file instanceof ArrayBuffer) {
+      blobPart = new Blob([input.file], { type: "application/pdf" });
     } else {
-      blobPart = new Blob([input.file as Uint8Array], {
+      blobPart = new Blob([new Uint8Array(input.file)], {
         type: "application/pdf",
       });
     }
@@ -350,22 +373,12 @@ export class DocumentsModule {
       );
     }
 
-    const data = (await response.json()) as PaginatedResult<PimsDocument>;
-
-    // Shared-tenant guard: filter results by our group's codes and responsible names
-    const filteredResults = filterGroup4Records(data.results ?? []);
-
-    return {
-      count: filteredResults.length,
-      next: data.next,
-      previous: data.previous,
-      results: filteredResults,
-    };
+    const raw = (await response.json()) as unknown;
+    return normalizePaginatedResponse<PimsDocument>(raw, endpoint);
   }
 
   /**
    * Retrieves a single document by ID from GET /api/documents/{id}/.
-   * Asserts the document belongs to Group 4 (guards against reading other groups' docs).
    */
   async getDocument(id: number): Promise<PimsDocument> {
     const endpoint = `/api/documents/${id}/`;
@@ -397,12 +410,7 @@ export class DocumentsModule {
       );
     }
 
-    const doc = (await response.json()) as PimsDocument;
-
-    // Shared-tenant guard: reject foreign group's documents
-    assertGroup4Record(doc, "Document");
-
-    return doc;
+    return (await response.json()) as PimsDocument;
   }
 
   /**
@@ -439,16 +447,11 @@ export class DocumentsModule {
     }
 
     const raw = (await response.json()) as unknown;
-    if (Array.isArray(raw)) {
-      return raw as PimsDocumentVersion[];
-    }
-    const paginated = raw as PaginatedResult<PimsDocumentVersion>;
-    return paginated.results ?? [];
+    return normalizeArrayResponse<PimsDocumentVersion>(raw, endpoint);
   }
 
   /**
    * Approves a document via POST /api/documents/{id}/approve/.
-   * Verifies document ownership before returning.
    */
   async approveDocument(id: number): Promise<PimsDocument> {
     const endpoint = `/api/documents/${id}/approve/`;
@@ -483,8 +486,6 @@ export class DocumentsModule {
       );
     }
 
-    const doc = (await response.json()) as PimsDocument;
-    assertGroup4Record(doc, "Approved Document");
-    return doc;
+    return (await response.json()) as PimsDocument;
   }
 }

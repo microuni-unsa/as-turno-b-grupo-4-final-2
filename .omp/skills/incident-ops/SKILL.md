@@ -1,93 +1,54 @@
-# Skill: incident-ops (SPEC 9.2)
+---
+name: incident-ops
+description: Query all live PIMS incidents and audit findings without G4- read filtering, compute verified RAG operational tables with deduplicated audit rows, and cross-offer summons-dispatch.
+---
 
-Consulta y gestión operativa de la cadena de no conformidades, incidentes y acciones correctivas con clasificación semafórica (Rojo/Ámbar/Verde) orientada a la toma de decisiones según el estándar audit4.
+# Skill: incident-ops
+
+Consulta y gestión operativa de incidentes, hallazgos de auditoría, no conformidades y acciones correctivas con clasificación semafórica **Rojo / Ámbar / Verde** bajo criterios estrictos de verificación auditada.
 
 ## 1. Trigger Patterns
 
-Se activa ante consultas sobre la salud operativa del sistema de gestión de incidentes, estado de no conformidades o seguimiento de acciones correctivas:
 - "¿Cuál es el estado de los incidentes y no conformidades?"
-- "Muestra el semáforo de acciones correctivas de incidentes."
-- "¿Quiénes tienen acciones vencidas o pendientes en incidentes?"
-- "Reporte de hallazgos de incidentes y evidencias asociadas."
-- "Revisa el cumplimiento de compromisos tras la última auditoría."
+- "Muestra el semáforo de acciones correctivas."
+- "¿Qué acciones están vencidas o pendientes?"
+- "Revisa el cumplimiento de auditorías e incidentes en PIMS."
 
 ## 2. Step Protocol
 
-1. **Aislamiento Multi-Tenant (Filtro G4 Obligatorio)**:
-   - Consultar la API de PIMS asegurando el filtrado estricto por prefijo `G4-` y nombres de responsables asignados al Grupo 4 en el esquema compartido `unsa`:
-     `pims_adapter.incidents.list(code_prefix="G4-")`
-     `pims_adapter.incidents.get_corrective_actions(code_prefix="G4-")`
-   - Descartar cualquier registro perteneciente a otros grupos de trabajo para prevenir contaminación cruzada.
+1. **Lectura Uniforme en PIMS en Vivo + RAG (`packages/pims-adapter/client.ts`)**:
+   - Consultar **todos** los incidentes y auditorías del sistema (sin filtrar por `G4-` en lectura):
+     - `client.listIncidents({ page_size: 200 })` (`INC-001`..`INC-012`, `G4-...`, etc.; campos reales: `incident_code`, `title`, `status: "P"|"C"`, `severity: "L"|"M"|"H"`, `impact`, `dpo_contact_email`, `rep_email`, `actions[]`).
+     - `client.listAudits({ page_size: 200 })` (`AUD-2026-001`..`003`, `audit_code`, `name`, `findings[].{classification, description, evidence, position, actions[]}`).
+   - Complementar verificando el sustento normativo y documental en el espejo local: `bun scripts/rag-query.ts "<tema/código>"`.
 
-2. **Resolución de la Cadena Hallazgo → NC → Acción Correctiva**:
-   - Reconstruir la trazabilidad operativa por cada incidente:
-     - Hallazgo (`G4-FND-xxx`): Origen del desvío (ISO/IEC 27701:2025 Cl. 8.1, A.3.11, etc.).
-     - No Conformidad (`G4-NC-xxx`): Descripción de la falla de control.
-     - Acción Correctiva (`G4-ACT-xxx`): Tarea de mitigación asignada, responsable y fecha límite de levantamiento.
-   - Contrastar la fecha de compromiso (`deadline`) frente a la fecha de evaluación actual y verificar el estado de la evidencia documental en PIMS.
+2. **Deduplicación Determinista de Hallazgos Clonados (`AUD-2026-003`)**:
+   - Algunos registros de auditoría (como `AUD-2026-003`) contienen hallazgos/acciones clonados en la respuesta de PIMS.
+   - Deduplicar en memoria por clave compuesta `(classification, description, action_plan, responsible)` y reportar explícitamente ambos conteos cuando existan duplicados (ej. *"5 hallazgos únicos de 30 entradas registradas en `AUD-2026-003`"*).
 
-3. **Clasificación Semafórica (Estándar audit4)**:
-   - **Rojo (Vencido / Crítico)**:
-     - Criterio: Plazo de implementación vencido sin evidencia adjunta o acción no atendida.
-     - Objetivo operativo audit4: Convocatoria urgente a **reunión de 5 minutos** (apercibimiento por escrito / llamada de atención formal).
-   - **Ámbar (En curso / Próximo a vencer)**:
-     - Criterio: Acción en progreso, dentro de plazo o con observaciones intermedias por subsanar antes de la visita de auditoría externa.
-     - Objetivo operativo audit4: **Reunión de seguimiento a las 10:00 h** (identificación de faltantes: recursos, proveedores, presupuesto o apoyo administrativo).
-   - **Verde (Cerrado / Conforme)**:
-     - Criterio: Acción ejecutada al 100%, verificada con evidencia documental registrada en PIMS.
-     - Objetivo operativo audit4: **Invitación a almuerzo de reconocimiento** (felicitación formal y socialización de buenas prácticas).
+3. **Clasificación Semafórica Estrica (Cero Falsos Verdes)**:
+   Evaluar cada acción frente a la fecha actual real:
+   - **🔴 ROJO (Vencido / Crítico)**: `is_overdue === true`, o `due_date < hoy` con `status !== "C"`, o incidente `status === "P"` con severidad `"H"` vencida / sin contención.
+     - Acción recomendada: Reunión urgente de 5 minutos / escalamiento formal.
+   - **🟡 ÁMBAR (Pendiente / En curso / Evidencia incompleta)**: `status !== "C"`, `progress < 100`, `closed_at === null`, o acción reportada cerrada **sin** `evidence` verificable.
+     - Acción recomendada: Seguimiento a las 10:00 h (recursos, plazos, evidencia).
+   - **🟢 VERDE (Cerrado y Verificado — Regla Estricta)**:
+     - **SOLO** se clasifica `🟢 VERDE` cuando se cumplen simultáneamente **todas** las condiciones:
+       1. `status === "C"` (o incidente `"C"`)
+       2. `progress === 100`
+       3. `closed_at !== null` (fecha de cierre real)
+       4. Existe evidencia documental no vacía verificable (`evidence` o cita `pims:...`).
+     - **PROHIBIDO** clasificar una fila con `status: "P"`, `progress: 0` o `closed_at: null` como `🟢 VERDE`.
 
-4. **Extracción y Validación de Evidencia Documental**:
-   - Verificar la existencia de enlaces a documentos en PIMS mediante cita estandarizada:
-     `pims:<doc_id>:v<version>:chunk:lines`
-   - Si no existe evidencia cargada, marcar la celda correspondiente como pendiente de sustento.
+4. **Enlace Proactivo con `summons-dispatch`**:
+   - Para las filas Rojas o Ámbar identificadas, indicar los correos de contacto reales si existen (`dpo_contact_email`, `rep_email`) y ofrecer preparar los borradores de notificación con `summons-dispatch`.
 
-5. **Enlace Proactivo con Summons-Dispatch**:
-   - Ofrecer la preparación inmediata de citaciones a través del skill `summons-dispatch` para los responsables de las filas Rojas o Ámbar identificadas.
-
-6. **Publicación del Tablero Operativo**:
-   - Generar el dashboard de control de incidentes.
-   - Publicar vía `files-sidecar` (`POST http://pimsai-files-sidecar:3000/api/publish`, `slug: "incident-ops-<timestamp>"`).
-   - Servir en `https://files.pimsai.mistercricro8.top:444/p/incident-ops-<timestamp>`.
-   - Concluir obligatoriamente con la convención: `"resultado aquí: link"`.
+5. **Publicación de Entregable (`files-sidecar`)**:
+   - Si se genera dashboard HTML/PDF/Markdown, publicar vía `POST http://pimsai-files-sidecar:3000/api/publish` y entregar URL exacto:
+     `https://files.pimsai.mistercricro8.top:444/p/<slug>`
+   - Concluir con: `resultado aquí: https://files.pimsai.mistercricro8.top:444/p/<slug>`.
 
 ## 3. Failure Branches
 
-- **Falla en API PIMS (500/503/Timeout)**:
-  - Notificar el incidente técnico: `"Falla al consultar pims_adapter.incidents.list: Conexión rechazada por GESTITEL"`.
-  - Consultar la réplica local pgvector:
-    `rag_mirror.query(filter={"tenant": "G4", "type": "incident_action"})`
-  - Rotular claramente en la respuesta que el semáforo se calcula sobre la réplica local en caché.
-- **Registros Ajenos al Tenant G4**:
-  - Si la API retorna incidentes de otros grupos, aplicar exclusión silenciosa y registrar advertencia interna. Si ningún registro pertenece a G4, responder: `"No se encontraron registros de incidentes o no conformidades para el grupo G4 en PIMS."`
-- **Falta de Evidencia Vinculada**:
-  - Si una acción marcada como cerrada carece de cita documental verificable, reclasificar automáticamente la fila a Ámbar con advertencia de auditoría.
-- **Límite de Presupuesto Alcanzado (Loan Profile Degraded-at-Cap)**:
-  - Si se alcanza el límite de `task.softRequestBudget` o cuota loan:
-    - La recuperación de datos permanece activa: lectura de incidentes, estados y semáforos existentes desde PIMS o réplica local continúa funcionando.
-    - La generación de análisis complejos y sugerencias de gestión se pausa inmediatamente.
-    - Mensaje de contacto obligatorio:
-      `"Límite de presupuesto de tokens alcanzado en perfil loan. La recuperación continúa activa, pero la generación está pausada. Contacte al equipo Turno B Grupo 4 para ampliación de cuota."`
-
-## 4. Response Shape
-
-```markdown
-### Tablero Operativo de Incidentes y Acciones Correctivas (G4 - UNSA)
-**Alcance**: Sistema de Gestión de Privacidad PIMS (ISO/IEC 27701:2025 Cl. 8.1 / 10.2)  
-**Tenant**: GESTITEL `unsa` (Filtrado estricto Grupo 4)
-
-| Semáforo | Hallazgo / NC | Acción Correctiva | Responsable (G4) | Vencimiento | Evidencia PIMS | Acción Operativa Recomendada (audit4) |
-|---|---|---|---|---|---|---|
-| 🔴 ROJO | G4-FND-001 / G4-NC-001 | Implementar doble factor en admisión | Carlos Mamani | 2026-10-15 (Vencido) | *Sin evidencia* | Reunión de 5 min (apercibimiento por escrito) |
-| 🟡 ÁMBAR | G4-FND-002 / G4-NC-002 | Actualizar cláusula de cesión filiales | Lucía Flores | 2026-11-30 (17 días) | `pims:G4-PRC-INC-001:v2:chunk-04:L12-L28` | Reunión 10:00 h (seguimiento y recursos) |
-| 🟢 VERDE | G4-FND-003 / G4-NC-003 | Capacitación en respuesta a brechas | Jorge Ramos | 2026-11-01 (Cerrado) | `pims:G4-REG-CAP-001:v1:chunk-01:L05-L40` | Invitación a almuerzo de reconocimiento |
-
-#### Resumen Ejecutivo
-- **Acciones Rojas**: 1 (Atención inmediata requerida).
-- **Acciones Ámbar**: 1 (Monitoreo preventivo previo a auditoría externa).
-- **Acciones Verdes**: 1 (Cerradas con evidencia documental íntegra).
-
-¿Deseas que prepare el borrador de citaciones para los responsables en Rojo y Ámbar mediante el conector de correo?
-
-resultado aquí: https://incident-ops-g4-live-8b2c.pimsai.mistercricro8.top:444
-```
+- **PIMS No Disponible**: Reportar endpoint + HTTP status, responder desde `bun scripts/rag-query.ts` y anteponer `[FUENTE: Cache local pgvector mirror (PIMS no disponible)]`.
+- **Escrituras de Incidentes**: Recordar que solo la creación/edición (`POST /api/incidents/`, `PATCH /api/incidents/{id}/`) exige prefijo `G4-` y autorización explícita humana.

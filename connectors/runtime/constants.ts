@@ -5,7 +5,15 @@
 
 export const PIMSAI_BASE_DOMAIN = "pimsai.mistercricro8.top";
 
+export const PIMSAI_PUBLIC_PORT = 444;
+
 export const SECRETS_SIDECAR_DOMAIN = "secrets.pimsai.mistercricro8.top";
+
+export const DEFAULT_SMTP_HOST = "smtp.gmail.com";
+
+export const DEFAULT_SMTP_PORT = 587;
+
+export const DEFAULT_MAIL_DRAFTS_PATH = "/tmp/pims-mail-drafts.json";
 
 export const SECRETS_TOKEN_TTL_MS = 5 * 60 * 1000; // 5 minutes
 

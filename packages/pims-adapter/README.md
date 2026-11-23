@@ -4,7 +4,8 @@ Typed, bun-compatible TypeScript client for **GESTITEL PIMS** (`https://unsa.27k
 
 Designed for high-reliability agentic workflows, featuring:
 - **Zero build step required**: runs natively in Bun or modern Node.js runtimes.
-- **Strict tenant guards**: enforces the `G4-` prefix on writes and isolates reads to Group 4 records.
+- **Write-only tenant guard (`G4-`)**: enforces the `G4-` prefix on all writes while reading the full PIMS tenant uniformly across all groups/entities (no read-side filtering).
+- **Uniform response normalization**: `normalizePaginatedResponse` and `normalizeArrayResponse` handle both DRF `{ count, results }` envelopes and plain JSON arrays.
 - **Fail-safe read protocols**: typed error classes carrying failed endpoints and HTTP statuses for instant fallback to the local mirror.
 - **Deterministic state handling**: exhaustive switch mappers for UI <-> API statuses with zero silent defaults.
 - **Zero hardcoded credentials or arbitrary URLs**: credentials resolved strictly from environment variables or secrets handles; production base URL declared once in `config.ts`.
@@ -17,22 +18,22 @@ Designed for high-reliability agentic workflows, featuring:
 | :--- | :--- | :--- | :--- |
 | **Auth** | `POST` | `/business/login/` | Obtains JWT pair `{access, refresh}`. Credentials from env/secrets. |
 | **Auth** | `POST` | `/business/token/refresh/` | Rotates access token via `{refresh: token}`. |
-| **Documents** | `POST` | `/api/documents/` | Multipart upload (`code`, `name`, `category`, `status`, `responsible`, `upload_file`). **Guard: code must start with `G4-`; file must be PDF.** |
-| **Documents** | `POST` | `/api/documents/{id}/versions/` | Uploads new document version (`file`, `change_summary`). **Guard: file must be PDF.** |
-| **Documents** | `GET` | `/api/documents/` | Lists documents. **Guard: filters results to `G4-` and Group 4 responsible.** |
-| **Documents** | `GET` | `/api/documents/{id}/` | Fetches document detail. **Guard: throws `TenantGuardViolationError` if not Group 4.** |
-| **Documents** | `GET` | `/api/documents/{id}/versions/` | Lists all historical versions of a document. |
-| **Documents** | `POST` | `/api/documents/{id}/approve/` | Approves a document. **Guard: asserts document belongs to Group 4.** |
-| **Incidents** | `GET` | `/api/incidents/` | Lists incidents. **Guard: filters results to `G4-` and Group 4 responsible.** |
-| **Incidents** | `GET` | `/api/incidents/{id}/` | Fetches single incident. **Guard: rejects foreign group incidents.** |
+| **Documents** | `POST` | `/api/documents/` | Multipart upload (`code`, `name`, `category`, `status`, `responsible`, `upload_file`). **Guard: code must start with `G4-`; explicit `.pdf` `fileName` required.** |
+| **Documents** | `POST` | `/api/documents/{id}/versions/` | Uploads new document version (`file`, `change_summary`). **Guard: explicit `.pdf` `fileName` required.** |
+| **Documents** | `GET` | `/api/documents/` | Lists all PIMS documents uniformly (array or paginated envelope). |
+| **Documents** | `GET` | `/api/documents/{id}/` | Fetches document detail without read-side group filtering. |
+| **Documents** | `GET` | `/api/documents/{id}/versions/` | Lists all historical versions of a document (normalizes plain array or paginated envelope). |
+| **Documents** | `POST` | `/api/documents/{id}/approve/` | Approves a document (note: `grupob4` receives RBAC 403 unless executed by administrator). |
+| **Incidents** | `GET` | `/api/incidents/` | Lists all PIMS incidents uniformly (`INC-001`, `G4-...`, etc.). |
+| **Incidents** | `GET` | `/api/incidents/{id}/` | Fetches single incident detail uniformly. |
 | **Incidents** | `POST` | `/api/incidents/` | Creates incident. **Guard: enforces `G4-` code prefix.** |
 | **Incidents** | `PATCH` | `/api/incidents/{id}/` | Updates incident. **Guard: enforces `G4-` code prefix if code provided.** |
 | **Incidents** | `DELETE` | `/api/incidents/{id}/` | Deletes incident. |
 | **Incidents** | `GET` | `/api/incidents/{id}/history/` | Fetches audit trail of events for an incident. |
 | **Incidents** | `GET` | `/api/incidents/{id}/attachments/` | Lists attachments for an incident. |
 | **Incidents** | `POST` | `/api/incidents/{id}/attachments/` | Uploads attachment. **Guard: checks format (`png,tif,bmp,pdf,doc,docx,txt`) and ≤ 10MB limit.** |
-| **Reads** | `GET` | `/api/audits/` | Lists audit records. **Guard: filters results to Group 4.** |
-| **Reads** | `GET` | `/api/audits/{id}/` | Fetches audit detail. **Guard: rejects foreign group audits.** |
+| **Reads** | `GET` | `/api/audits/` | Lists all audit records uniformly (`AUD-2026-001`..`003`, etc.). |
+| **Reads** | `GET` | `/api/audits/{id}/` | Fetches audit detail uniformly. |
 | **Reads** | `GET` | `/api/risk-evaluations/` | Lists risk evaluations. |
 | **Reads** | `GET` | `/api/risk-evaluations/catalogs/` | Retrieves threats and vulnerability catalogs. |
 | **Reads** | `GET` | `/api/risk-evaluations/eligible-assets/`| Lists assets eligible for risk assessment. |
@@ -68,17 +69,17 @@ const refreshedToken = await auth.refreshToken();
 
 ---
 
-## 3. Shared-Tenant Guard Rules (SPEC §3.1 & §13)
+## 3. Shared-Tenant Guard Rules (Write-Only Enforcement)
 
-The production GESTITEL instance uses a single shared database schema (`unsa`) across multiple university groups. To prevent data corruption or leaking cross-group information:
+The production GESTITEL instance uses a single shared database schema (`unsa`). To prevent accidental overwrites of records belonging to other student groups while allowing uniform full-system visibility:
 
 1. **Write Guard (`G4-` Prefix)**:
-   - Every creation or update specifying an entity code must start with `G4-`.
+   - Every creation or update specifying an entity code (`createDocument`, `createIncident`, `updateIncident`) must start with `G4-`.
    - If a code does not start with `G4-`, `TenantGuardViolationError` is thrown before any network request is sent.
-2. **Read Filters**:
-   - `listDocuments()`, `listIncidents()`, and `listAudits()` inspect every returned item and filter out records that do not belong to `G4-` or Group 4 responsible assignees (`Grupo 4`, `grupob4`, `G4`).
-3. **Detail Guard**:
-   - `getDocument(id)`, `getIncident(id)`, and `getAudit(id)` verify that the retrieved entity belongs to Group 4. If a foreign record is returned, access is denied immediately via `TenantGuardViolationError`.
+2. **Explicit PDF File Names**:
+   - `createDocument` and `addDocumentVersion` require an explicit non-empty `.pdf` `fileName` (or `File.name`) and fail fast with `PimsValidationError` rather than falling back to generic names like `version.pdf`.
+3. **Uniform System-Wide Reads**:
+   - `listDocuments()`, `getDocument(id)`, `listIncidents()`, `getIncident(id)`, `listAudits()`, and `getAudit(id)` normalize both plain JSON arrays and DRF paginated envelopes (`{ count, next, previous, results }`) and return the full PIMS view without `G4-` read-side filtering.
 
 ---
 

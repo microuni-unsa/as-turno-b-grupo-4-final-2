@@ -2,51 +2,51 @@
   "skills": [
     {
       "name": "pims-reader",
-      "contract": "Standardized fast readers over PIMS REST API with G4-/responsible filtering and mirror fallback"
+      "contract": "Standardized full-system readers over PIMS REST API via PimsClient with write-only G4- enforcement, mirror fallback, and credential hygiene"
     },
     {
       "name": "connector-builder",
-      "contract": "Dynamic connector generation following convention with background subagent and self-heal loop"
+      "contract": "Dynamic connector generation with real fetch(), Traefik :444, self-hosted vs secrets-sidecar provisioning, and self-heal loop"
     },
     {
       "name": "ingest",
-      "contract": "Ingest PIMS documents: download, chunk, mistral-embed 1024-dim, pgvector cosine, chunk SHA-256, registry update"
+      "contract": "Ingest PIMS documents into CORPUS_MIRROR_DIR/<doc.code>/ (PDF + v<n>.txt), semantic chunks, 1024-dim mistral-embed, and pgvector sync"
     },
     {
       "name": "version-compare",
-      "contract": "Download versions from PIMS, perform structural diff, narrate rationale from history tables and RAFA"
+      "contract": "Compare live PIMS PDFs via extracted text diff and version history, silently informed by RAFA without citing internal files"
     },
     {
       "name": "incident-ops",
-      "contract": "Incident response register query, ISO 27701 Cl. 8.1 / A.3.11 / A.3.12 compliance, and chain tracking"
+      "contract": "Full-system incident & audit ops table with deduplicated findings, verified strict green status, and summons-dispatch cross-offers"
     },
     {
       "name": "audit-chain",
-      "contract": "Trace finding -> NC -> corrective action chain with RAG evidence citations and status drill-down"
+      "contract": "Trace full-system finding -> NC -> corrective action chains with verified RAG citations and files-sidecar :444/p/<slug> output"
     },
     {
       "name": "directed-version",
-      "contract": "Directed document mutation via parameterized Typst mold copy-then-fill workflow and RAFA direction, bump version, upload and re-ingest"
+      "contract": "Copy-then-fill Typst mold versioning aligned to next PIMS integer, staged PDF preview, and mandatory human approval gate before PIMS upload"
     },
     {
       "name": "cascade",
-      "contract": "Record university fact, scan impacted documents, propose remake set, render, upload, and update mirror"
+      "contract": "Record university fact, scan full PIMS + RAG mirror, propose remake batch, and execute copy-then-fill versioning after approval"
     },
     {
       "name": "proactive",
-      "contract": "Contextual adjacent suggestions offering related reports, audits, and evidence proactively"
+      "contract": "Contextual adjacent suggestions across full PIMS data, live-build routing, and files-sidecar :444/p/<slug> deliverable publishing"
     },
     {
       "name": "summons-dispatch",
-      "contract": "Query NC/corrective chain, format RAG summons table, require explicit approval, and dispatch mail"
+      "contract": "Draft NC/incident follow-up summons from live emails & RAG evidence, gating Gmail SMTP dispatch strictly on 'envíalo'"
     },
     {
       "name": "live-build",
-      "contract": "Spawn background subagent to build and test unbuilt connectors live while main session stays responsive"
+      "contract": "Spawn background subagent to deploy live sibling connectors (:444), injecting self-hosted keys directly and reading incidents uniformly"
     },
     {
       "name": "doc-necessity",
-      "contract": "Classify PIMS documents as mandatory or optional from live PIMS state and the ISO 27701 shall-test, with cited verdicts"
+      "contract": "Evaluate 3-tier ISO/IEC 27701:2025 document necessity against reference/iso-27701-2025.md and live full-system PIMS state"
     }
   ]
 }

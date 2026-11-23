@@ -6,6 +6,7 @@ import {
   readFromCorpusMirror,
   writeToCorpusMirror,
 } from "./mirror.js";
+import { extractNormalizedText } from "./pdf.js";
 import type {
   DatabaseClient,
   Embedder,
@@ -137,11 +138,8 @@ export async function ingest(
     );
   }
 
-  // Normalize text representation for chunking
-  const textContent =
-    typeof docInfo.content === "string"
-      ? docInfo.content
-      : Buffer.from(docInfo.content).toString("utf8");
+  // Normalize text representation for chunking (PDF extraction via pdftotext, never raw UTF-8 decode on %PDF-)
+  const textContent = extractNormalizedText(docInfo.content, docInfo.filename);
 
   // Step 2: Chunk text with exact line boundaries
   const chunks = chunkTextWithLines(textContent, {
@@ -216,7 +214,7 @@ export async function ingest(
     );
   }
 
-  // Step 6: Write to local corpus mirror (corpus_mirror/<doc_id>/v<n>.<ext> + manifest)
+  // Step 6: Write to local corpus mirror (corpus_mirror/<doc_id>/v<n>.<ext> + v<n>.txt + manifest)
   const mirrorResult = writeToCorpusMirror({
     pims_doc_id,
     code: docInfo.code,
@@ -224,6 +222,7 @@ export async function ingest(
     status: docInfo.status,
     filename: docInfo.filename,
     content: docInfo.content,
+    extracted_text: textContent,
     chunk_count: chunks.length,
     chunk_sha256s: chunkSha256s,
     supersedes: docInfo.supersedes ?? null,
@@ -314,7 +313,7 @@ export async function revectorize(
          updated_at = NOW()`,
       [
         pims_doc_id,
-        mirrorData.manifestEntry.pims_doc_id,
+        mirrorData.code,
         version,
         mirrorData.manifestEntry.status,
         chunks.length,
@@ -328,11 +327,12 @@ export async function revectorize(
   // Update manifest entry with new chunk metrics
   const mirrorResult = writeToCorpusMirror({
     pims_doc_id,
-    code: mirrorData.manifestEntry.pims_doc_id,
+    code: mirrorData.code,
     pims_version: version,
     status: mirrorData.manifestEntry.status,
     filename: mirrorData.manifestEntry.filename,
     content: mirrorData.content,
+    extracted_text: mirrorData.text,
     chunk_count: chunks.length,
     chunk_sha256s: chunkSha256s,
     supersedes: mirrorData.manifestEntry.supersedes,
@@ -344,7 +344,7 @@ export async function revectorize(
   return {
     pims_doc_id,
     pims_version: version,
-    code: mirrorData.manifestEntry.pims_doc_id,
+    code: mirrorData.code,
     status: mirrorData.manifestEntry.status,
     chunk_count: chunks.length,
     file_path: mirrorResult.filePath,

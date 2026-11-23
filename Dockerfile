@@ -6,13 +6,15 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Build arguments for pinned versions
 ARG BUN_VERSION=1.2.4
+ARG NODE_VERSION=22.14.0
 ARG TYPST_VERSION=0.15.0
 ARG ZELLIJ_VERSION=0.45.1
 ARG OMP_VERSION=18.18.1
 
-# Install baseline OS dependencies, Python, PDF/OCR tools, postgresql-client, docker CLI, curl, git
+# Install baseline OS dependencies, Chromium, Python, PDF/OCR tools, postgresql-client, docker CLI, curl, git
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
+    chromium \
     curl \
     git \
     postgresql-client \
@@ -93,11 +95,30 @@ RUN set -eux; \
     PI_INSTALL_DIR=/usr/local/bin sh -c "$(curl -fsSL https://omp.sh/install)" -- --binary --ref "v${OMP_VERSION}"; \
     chmod +x /usr/local/bin/omp
 
+# Install Node.js (>=20 required by @playwright/mcp, multi-arch support)
+RUN set -eux; \
+    ARCH="$(uname -m)"; \
+    case "$ARCH" in \
+        x86_64) NODE_ARCH="x64" ;; \
+        aarch64|arm64) NODE_ARCH="arm64" ;; \
+        *) echo "Unsupported architecture for node: $ARCH" && exit 1 ;; \
+    esac; \
+    curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.xz" -o /tmp/node.tar.xz; \
+    tar -xJf /tmp/node.tar.xz --strip-components=1 -C /usr/local; \
+    rm -f /tmp/node.tar.xz
+
+# Install runtime Node/Bun packages at /node_modules so .:/app bind mount never shadows them
+COPY package.json bun.lock /tmp/deps/
+RUN set -eux; \
+    cd /tmp/deps && bun install --production --frozen-lockfile && \
+    mv /tmp/deps/node_modules /node_modules && \
+    rm -rf /tmp/deps
+
 # Create unprivileged agent user and directories (never run as root)
 RUN groupadd -g 1000 agent && \
     useradd -u 1000 -g agent -m -s /bin/bash agent && \
-    mkdir -p /app /home/agent/.omp /home/agent/.local/share /home/agent/.cache && \
-    chown -R agent:agent /app /home/agent
+    mkdir -p /app /home/agent/.omp /home/agent/.local/share /home/agent/.cache /var/lib/pimsai/corpus_mirror /tmp/playwright-mcp && \
+    chown -R agent:agent /app /home/agent /var/lib/pimsai /tmp/playwright-mcp
 
 # Working directory and user configuration
 WORKDIR /app

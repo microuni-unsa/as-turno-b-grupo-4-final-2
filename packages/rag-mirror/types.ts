@@ -36,6 +36,7 @@ export interface ManifestVersionEntry {
   readonly pims_version: string;
   readonly filename: string;
   readonly file_path: string;
+  readonly text_path?: string;
   readonly sha256: string;
   readonly chunk_count: number;
   readonly chunk_sha256s: string[];

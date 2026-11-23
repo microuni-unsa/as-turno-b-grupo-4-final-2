@@ -2,33 +2,42 @@
 /**
  * scripts/rag-query.ts
  *
- * Bun CLI for one-shot direct read of vectorized data from pgvector mirror.
+ * Bun CLI for one-shot direct read of vectorized data from pgvector mirror,
+ * or full normalized document text via --full --doc <code_or_id> [--version <v>].
  *
  * Usage:
  *   bun scripts/rag-query.ts "<query text>" [--limit N] [--doc <pims_doc_id>] [--version <v>] [--status <s>] [--json]
+ *   bun scripts/rag-query.ts --full --doc <pims_doc_id> [--version <v>] [--json]
  *   bun scripts/rag-query.ts --help
  */
 
 import { RAG_CONFIG } from "../packages/rag-mirror/config.ts";
 import { createOpenAICompatibleEmbedder } from "../packages/rag-mirror/embedder.ts";
+import {
+  readCorpusManifest,
+  readFromCorpusMirror,
+} from "../packages/rag-mirror/mirror.ts";
 import { query } from "../packages/rag-mirror/query.ts";
 import type { QueryFilter, QueryResultItem } from "../packages/rag-mirror/types.ts";
 import { createBunPgClient } from "./lib/pg-client.ts";
 
 function printHelpAndExit(): never {
   const helpText = `Uso: bun scripts/rag-query.ts "<query text>" [opciones]
+       bun scripts/rag-query.ts --full --doc <pims_doc_id> [--version <v>] [--json]
 
 Opciones:
   --limit <N>         Número máximo de resultados a retornar (por defecto: ${RAG_CONFIG.DEFAULT_QUERY_LIMIT})
-  --doc <pims_doc_id> Filtrar por ID de documento PIMS
-  --version <v>       Filtrar por versión de documento
+  --doc <pims_doc_id> Filtrar por código o ID de documento PIMS (ej: G4-POL-01)
+  --version <v>       Filtrar por versión de documento (ej: 3.00)
   --status <s>        Filtrar por estado (ej: R, V, O)
+  --full              Volcar el texto completo normalizado del documento (--doc obligatorio)
   --json              Imprimir los resultados en formato JSON plano
   -h, --help          Mostrar esta ayuda y salir
 
 Ejemplos:
   bun scripts/rag-query.ts "tratamiento de riesgos"
   bun scripts/rag-query.ts "politica de privacidad" --limit 3 --status R
+  bun scripts/rag-query.ts --full --doc G4-POL-01
   bun scripts/rag-query.ts "auditoria interna" --json
 `;
   console.log(helpText);
@@ -41,11 +50,13 @@ interface CliArgs {
   doc?: string;
   version?: string;
   status?: string;
+  full: boolean;
   json: boolean;
 }
 
 function parseCliArgs(args: string[]): CliArgs {
   const result: CliArgs = {
+    full: false,
     json: false,
   };
 
@@ -56,6 +67,8 @@ function parseCliArgs(args: string[]): CliArgs {
 
     if (arg === "-h" || arg === "--help") {
       printHelpAndExit();
+    } else if (arg === "--full") {
+      result.full = true;
     } else if (arg === "--json") {
       result.json = true;
     } else if (arg === "--limit") {
@@ -99,17 +112,117 @@ function parseCliArgs(args: string[]): CliArgs {
     }
   }
 
-  if (positional.length === 0) {
+  if (result.full) {
+    if (!result.doc || result.doc.trim() === "") {
+      console.error("Error: --full requiere especificar --doc <pims_doc_id> (ej: G4-POL-01).");
+      process.exit(1);
+    }
+  } else if (positional.length === 0) {
     console.error("Error: Se requiere el texto de consulta. Use --help para ver la sintaxis.");
     process.exit(1);
   }
 
-  result.queryText = positional.join(" ");
+  if (positional.length > 0) {
+    result.queryText = positional.join(" ");
+  }
   return result;
+}
+
+async function dumpFullDocument(docId: string, requestedVersion: string | undefined, asJson: boolean): Promise<void> {
+  const manifest = readCorpusManifest(docId, RAG_CONFIG.CORPUS_MIRROR_DIR);
+  if (manifest !== null) {
+    const targetVersion = requestedVersion ?? manifest.latest_version;
+    const mirror = readFromCorpusMirror(docId, targetVersion, RAG_CONFIG.CORPUS_MIRROR_DIR);
+    if (asJson) {
+      console.log(
+        JSON.stringify(
+          {
+            source: "corpus_mirror",
+            pims_doc_id: mirror.pims_doc_id,
+            code: mirror.code,
+            pims_version: mirror.pims_version,
+            text_path: mirror.textPath,
+            sha256: mirror.sha256,
+            text: mirror.text,
+          },
+          null,
+          2,
+        ),
+      );
+      return;
+    }
+    console.log(`[FUENTE: corpus_mirror (${mirror.textPath}) | ${mirror.code} v${mirror.pims_version}]`);
+    console.log(mirror.text);
+    return;
+  }
+
+  const db = createBunPgClient();
+  try {
+    let targetVersion = requestedVersion;
+    if (targetVersion === undefined) {
+      const reg = await db.query<{ pims_version: string }>(
+        `SELECT pims_version
+         FROM pims_registry
+         WHERE pims_doc_id = $1 OR code = $1
+         ORDER BY updated_at DESC
+         LIMIT 1`,
+        [docId],
+      );
+      if (reg.rows.length === 0) {
+        throw new Error(`Document '${docId}' not found in CORPUS_MIRROR_DIR or pims_registry.`);
+      }
+      targetVersion = reg.rows[0].pims_version;
+    }
+
+    const rows = await db.query<{ chunk_id: string; lines: string; text: string; status: string }>(
+      `SELECT chunk_id, lines, text, status
+       FROM chunks
+       WHERE pims_doc_id = $1 AND pims_version = $2`,
+      [docId, targetVersion],
+    );
+    if (rows.rows.length === 0) {
+      throw new Error(`No chunks stored for '${docId}' v${targetVersion}.`);
+    }
+
+    const ordered = [...rows.rows].sort((a, b) => {
+      const numA = parseInt(a.chunk_id.replace(/[^0-9]/g, ""), 10) || 0;
+      const numB = parseInt(b.chunk_id.replace(/[^0-9]/g, ""), 10) || 0;
+      return numA - numB;
+    });
+
+    if (asJson) {
+      console.log(
+        JSON.stringify(
+          {
+            source: "pgvector_db",
+            pims_doc_id: docId,
+            pims_version: targetVersion,
+            chunks: ordered,
+          },
+          null,
+          2,
+        ),
+      );
+      return;
+    }
+
+    console.log(`[FUENTE: pgvector mirror chunks (pimsai-db) | ${docId} v${targetVersion}]`);
+    for (const chunk of ordered) {
+      console.log(`--- pims:${docId}:v${targetVersion}:${chunk.chunk_id}:lines:${chunk.lines} [${chunk.status}] ---`);
+      console.log(chunk.text);
+    }
+  } finally {
+    await db.close();
+  }
 }
 
 async function main(): Promise<void> {
   const cliArgs = parseCliArgs(process.argv.slice(2));
+
+  if (cliArgs.full && cliArgs.doc) {
+    await dumpFullDocument(cliArgs.doc, cliArgs.version, cliArgs.json);
+    process.exit(0);
+  }
 
   if (!process.env.DATABASE_URL && !RAG_CONFIG.DATABASE_URL) {
     console.error("Error: DATABASE_URL no está configurado.");
@@ -140,16 +253,11 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  const filter: QueryFilter = {};
-  if (cliArgs.doc !== undefined) {
-    filter.pims_doc_id = cliArgs.doc;
-  }
-  if (cliArgs.version !== undefined) {
-    filter.pims_version = cliArgs.version;
-  }
-  if (cliArgs.status !== undefined) {
-    filter.status = cliArgs.status;
-  }
+  const filter: QueryFilter = {
+    ...(cliArgs.doc !== undefined ? { pims_doc_id: cliArgs.doc } : {}),
+    ...(cliArgs.version !== undefined ? { pims_version: cliArgs.version } : {}),
+    ...(cliArgs.status !== undefined ? { status: cliArgs.status } : {}),
+  };
 
   const hasFilter =
     filter.pims_doc_id !== undefined ||
@@ -160,7 +268,7 @@ async function main(): Promise<void> {
   try {
     results = await query({
       db,
-      queryText: cliArgs.queryText,
+      queryText: cliArgs.queryText ?? "",
       filter: hasFilter ? filter : undefined,
       limit: cliArgs.limit ?? RAG_CONFIG.DEFAULT_QUERY_LIMIT,
       embedder,

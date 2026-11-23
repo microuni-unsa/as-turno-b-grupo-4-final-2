@@ -8,7 +8,7 @@
  * - Deterministic error hierarchy and exhaustive branching.
  */
 
-import { PIMSAI_BASE_DOMAIN } from "../runtime/constants";
+import { PIMSAI_BASE_DOMAIN, PIMSAI_PUBLIC_PORT } from "../runtime/constants";
 import { SecretsStore } from "../runtime/secrets";
 
 // ============================================================================
@@ -131,29 +131,56 @@ export class TemplateConnectorClient {
     this.secretsStore = SecretsStore.getInstance();
   }
 
+  private async requestJson<T>(
+    endpointPath: string,
+    init: RequestInit,
+  ): Promise<T> {
+    const url = `${this.baseUrl}${endpointPath}`;
+    const authHeaders = this.secretsStore.resolveAuthHeader(this.authHandle, "Bearer");
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), this.timeoutMs);
+
+    try {
+      const response = await fetch(url, {
+        ...init,
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          ...authHeaders,
+          ...(init.headers as Record<string, string> | undefined),
+        },
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        const errBody = await response.text();
+        throw new TemplateApiError(endpointPath, response.status, errBody);
+      }
+
+      return (await response.json()) as T;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
   /**
    * Read-only probe method used by the self-heal loop (SPEC 8.3).
    * Validates endpoint connectivity without mutating production state.
    */
   public async healthCheck(): Promise<HealthCheckResult> {
     const start = Date.now();
-    const endpoint = `${this.baseUrl}/health`;
-
-    return await this.secretsStore.executeWithSecret(this.authHandle, async (_secret) => {
-      // In real runtime, this executes an HTTP GET to health probe endpoint.
-      // Simulated response contract adhering to deterministic typed result:
-      const latencyMs = Date.now() - start;
-      return {
-        ok: true,
-        service: "template-connector",
-        latencyMs,
-        checkedAt: new Date().toISOString(),
-      };
-    });
+    const endpoint = "/health";
+    await this.requestJson<Record<string, unknown>>(endpoint, { method: "GET" });
+    return {
+      ok: true,
+      service: "template-connector",
+      latencyMs: Date.now() - start,
+      checkedAt: new Date().toISOString(),
+    };
   }
 
   /**
-   * Example REST dispatch method: sends a message to external service.
+   * Example REST dispatch method: sends a real HTTP POST to the external service.
    */
   public async sendMessage(request: SendMessageRequest): Promise<SendMessageResponse> {
     if (!request.recipientId || request.recipientId.trim().length === 0) {
@@ -165,7 +192,6 @@ export class TemplateConnectorClient {
 
     switch (request.messageType) {
       case "text":
-        // Valid text message
         break;
       case "template":
         if (!request.metadata || Object.keys(request.metadata).length === 0) {
@@ -183,20 +209,22 @@ export class TemplateConnectorClient {
       }
     }
 
-    return await this.secretsStore.executeWithSecret(this.authHandle, async (_secret) => {
-      // Simulated authenticated REST dispatch
-      return {
-        messageId: `msg_${Math.random().toString(36).substring(2, 10)}`,
-        status: "sent",
-        timestamp: new Date().toISOString(),
-        recipientId: request.recipientId,
-      };
+    const data = await this.requestJson<SendMessageResponse>("/message/send", {
+      method: "POST",
+      body: JSON.stringify(request),
     });
+
+    return {
+      messageId: data.messageId,
+      status: data.status,
+      timestamp: data.timestamp ?? new Date().toISOString(),
+      recipientId: data.recipientId ?? request.recipientId,
+    };
   }
 
   /**
-   * Registers a webhook callback according to SPEC 4.1:
-   * URL format: https://<slug>.pimsai.mistercricro8.top/webhook
+   * Registers a webhook callback with mandatory :444 port:
+   * URL format: https://<slug>.pimsai.mistercricro8.top:444/webhook
    */
   public async registerWebhook(
     req: WebhookRegistrationRequest
@@ -208,16 +236,22 @@ export class TemplateConnectorClient {
       throw new TemplateValidationError("subscribedEvents list cannot be empty");
     }
 
-    const callbackUrl = `https://${req.callbackSlug}.${PIMSAI_BASE_DOMAIN}/webhook`;
+    const callbackUrl = `https://${req.callbackSlug}.${PIMSAI_BASE_DOMAIN}:${PIMSAI_PUBLIC_PORT}/webhook`;
 
-    return await this.secretsStore.executeWithSecret(this.authHandle, async (_secret) => {
-      return {
-        webhookId: `wh_${Math.random().toString(36).substring(2, 10)}`,
+    const data = await this.requestJson<WebhookRegistrationResponse>("/webhook/register", {
+      method: "POST",
+      body: JSON.stringify({
         callbackUrl,
-        active: true,
-        registeredAt: new Date().toISOString(),
-      };
+        subscribedEvents: req.subscribedEvents,
+      }),
     });
+
+    return {
+      webhookId: data.webhookId,
+      callbackUrl: data.callbackUrl ?? callbackUrl,
+      active: data.active,
+      registeredAt: data.registeredAt ?? new Date().toISOString(),
+    };
   }
 
   /**

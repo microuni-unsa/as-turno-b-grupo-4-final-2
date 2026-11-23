@@ -20,21 +20,9 @@ export const PIMS_CONFIG = {
 
   /**
    * Mandatory code prefix for Group 4 mutations.
-   * Shared-tenant guard enforces this prefix on all write operations.
+   * Shared-tenant write guard enforces this prefix on all write operations.
    */
   GROUP_CODE_PREFIX: "G4-",
-
-  /**
-   * Identifiers and responsible names assigned to Group 4.
-   * Used for tenant isolation filtering on reads.
-   */
-  RESPONSIBLE_NAMES: [
-    "Grupo 4",
-    "grupob4",
-    "G4",
-    "Grupo 4 - Turno B",
-    "Equipo 4",
-  ] as const,
 
   /**
    * Default request timeout in milliseconds.

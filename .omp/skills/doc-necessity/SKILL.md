@@ -1,83 +1,65 @@
+---
+name: doc-necessity
+description: Classify ISO/IEC 27701:2025 PIMS documents across 3 tiers (Mandatory / Context-Dependent / Optional) using live PIMS state and reference/iso-27701-2025.md without G4- read filtering or circular static mappings.
+---
+
 # Skill: doc-necessity
 
-Evaluación dinámica y en tiempo real de la necesidad documental (Obligatorio vs Opcional) para registros del PIMS bajo el marco ISO/IEC 27701:2025 (rol PII-Controller en UNSA). Los veredictos se computan en vivo por cada consulta combinando la prueba normativa *shall* de ISO 27701 frente al estado actual del PIMS (contenido real en vivo), sin depender jamás de tablas fijas o mapeos estáticos *hardcoded* por documento.
+Evaluación dinámica y en tiempo real de la necesidad documental en ISO/IEC 27701:2025 (rol UNSA: PII Controller), fundamentada **únicamente** en la norma (`reference/iso-27701-2025.md`), el contexto institucional (`university-facts/`, `G4-ALC-01`, `G4-SOA-01`), y el estado vivo completo del PIMS (`https://unsa.27k.pe`), sin depender de tablas pre-asignadas (`ISO-27701-NORMATIVE-MAP.md` ni archivos en `docs/` excluidos en despliegue).
 
 ## 1. Trigger Patterns
 
-Se activa ante consultas que solicitan evaluar la necesidad, exigibilidad o justificación de inclusión de uno o varios documentos en el PIMS:
-- "¿El documento G4-POL-001 es obligatorio u opcional?"
-- "Evalúa la necesidad documental de las políticas y procedimientos en PIMS."
-- "¿Por qué este documento es obligatorio según ISO 27701?"
-- "¿Cuáles documentos de nuestro alcance son opcionales y cuáles son mandatorios?"
-- "Verifica si el procedimiento de gestión de incidentes es exigido por la norma."
+- "¿El documento `<código o tema>` es obligatorio u opcional?"
+- "¿Qué documentos exige obligatoriamente la ISO/IEC 27701:2025?"
+- "Evalúa si nuestra documentación actual en PIMS cubre todo lo mandatorio."
+- "¿Por qué necesitamos o no necesitamos `<procedimiento/registro>` según ISO 27701?"
 
 ## 2. Step Protocol
 
-1. **Aislamiento Multi-Tenant (Filtro G4 Obligatorio)**:
-   - Toda lectura en el PIMS (`https://unsa.27k.pe`, tenant compartido `unsa`) debe aplicar estrictamente el filtro de prefijo de código `G4-` y responsable `Turno B Grupo 4` / `grupob4`:
-     - Al listar documentos: `GET /api/documents/?code_prefix=G4-`
-     - Al obtener detalle: validar que `code` inicie con `G4-` y `responsible` corresponda a `"Turno B Grupo 4"`.
-   - Excluir silenciosamente cualquier registro o documento que pertenezca a otros grupos de trabajo para evitar fugas y contaminación cruzada entre tenants.
+1. **Lectura Normativa Directa (`reference/iso-27701-2025.md`)**:
+   - **Prohibición absoluta**: Nunca usar `docs/ISO-27701-NORMATIVE-MAP.md` ni listas fijas pre-armadas de códigos `G4-*`.
+   - Toda verificación del texto normativo (`"shall be available as documented information"`, `"retain documented information"`, `"shall document"`, `"shall have a written contract"`, etc.) debe citar exactamente cláusula o control en `reference/iso-27701-2025.md`:
+     - **En alcance para UNSA (PII Controller, Cl. 4.1)**: Cláusulas 4–10 + Anexo A Tabla A.1 (`A.1.2.2`–`A.1.5.5`) + Anexo A Tabla A.3 (`A.3.3`–`A.3.31`).
+     - **Excluido con justificación (Cl. 6.1.3 e)**: Anexo A Tabla A.2 (PII Processors, `A.2.*`), verificable en vivo contra `G4-SOA-01`.
 
-2. **Resolución del Estado Organizacional en Vivo (PIMS Org State)**:
-   - Consultar el documento a través de los endpoints de lectura estandarizados de la skill `pims-reader` (`GET /api/documents/`, `GET /api/documents/{id}/` y `GET /api/documents/{id}/versions/`).
-   - Extraer y registrar los atributos en vivo:
-     - Código del registro (`code`, ej. `G4-POL-001`).
-     - Identificador PIMS (`id`).
-     - Estado del ciclo de vida (`status`): tanto `R` (Revisión) como `V` (Vigente) son aceptados por igual conforme a la política 2026-11-19 (los documentos activos y operativos en vivo residen habitualmente en estado `R`).
-     - Versión actual (`current_version`): tratar siempre como una cadena opaca (opaque string, ej. `"1.0"`, `"2"`, `"v2.1"`).
-     - O registrar formalmente la **ausencia** del registro en caso de no existir en PIMS.
-   - **Regla estricta de códigos de categoría**: Tratar los códigos de categoría en PIMS (`PO`, `PR`, `IN`, `FO`, `RE` u otros) estrictamente como códigos opacos de catálogo; **NUNCA** inferir la necesidad o el veredicto documental a partir de la categoría.
+2. **Clasificación en 3 Niveles (3-Tier Evaluation)**:
+   Evaluar cada documento o requisito en 3 categorías rigurosas:
+   - **Nivel 1 — OBLIGATORIO INCONDICIONAL (*Unconditional `shall`*)**:
+     - Mandatos explícitos que no dependen de tamaño o complejidad:
+       - Cl. 4.3: Alcance del SGPI (*"shall be available as documented information"*)
+       - Cl. 5.2 a): Política de privacidad (*"shall be available as documented information"*)
+       - Cl. 6.1.2: Criterios/proceso y resultados de evaluación de riesgos (*"shall retain documented information..."*)
+       - Cl. 6.1.3: Proceso de tratamiento de riesgos y Declaración de Aplicabilidad (SoA)
+       - Cl. 6.2: Objetivos de privacidad (*"shall retain documented information on the privacy objectives"*)
+       - Cl. 7.2: Evidencia de competencia (*"shall retain appropriate documented information as evidence of competence"*)
+       - Cl. 8.2 & 8.3: Resultados de evaluación y tratamiento de riesgos
+       - Cl. 9.1: Evidencia de seguimiento, medición, análisis y evaluación
+       - Cl. 9.2.2: Implementación del programa de auditoría interna y resultados
+       - Cl. 9.3.3: Resultados de revisión por la dirección
+       - Cl. 10.2: Naturaleza de no conformidades, acciones tomadas y resultados de acciones correctivas
+       - Anexo A (controles aplicables A.1 / A.3 con `"shall document"` / `"policies and procedures"`, p. ej. `A.1.2.2`, `A.1.2.3`, `A.1.2.4`, `A.1.2.9`, `A.1.3.2`, `A.1.3.3`, `A.1.3.10`, `A.3.11`, `A.3.12`, `A.3.13`, `A.3.14`, `A.3.18`).
+   - **Nivel 2 — OBLIGATORIO CONDICIONAL AL CONTEXTO (*Context-/Scope-/Risk-/Legal-/State-Dependent*)**:
+     - Documentos cuyo carácter mandatorio depende del **contexto real** (Cl. 7.5.1 b: necesario para la eficacia; Cl. 8.1: control operacional según riesgo/alcance; hechos en `university-facts/`, `G4-ALC-01`, `G4-SOA-01` y registros vivos en PIMS):
+       - ¿UNSA usa encargados de tratamiento (subcontratistas/proveedores TIC)? → Si sí, `A.1.2.7` exige contrato escrito con requisitos Tabla A.2.
+       - ¿Hay transferencias internacionales o nuevos tratamientos de PII? → Exige evaluación de impacto (`A.1.2.6`) y registros de transferencia (`A.1.5.2`–`A.1.5.5`).
+       - ¿Hay incidentes abiertos (`GET /api/incidents/`), riesgos registrados (`GET /api/risk-evaluations/`), o hallazgos en auditorías (`GET /api/audits/`)? → Determina si procedimientos operacionales o registros específicos son necesarios bajo Cl. 7.5.1 b) / Cl. 8.1.
+       - ¿Preguntas normativas generales (sin documento concreto)? → Evaluar de forma pura frente a `reference/iso-27701-2025.md`, distinguiendo claramente mandatos generales de condiciones contextuales UNSA.
+   - **Nivel 3 — OPCIONAL / ADICIONAL (*Discretionary Operational Artifact*)**:
+     - Documentos sin mandato expreso *shall* en Cl. 4–10 ni Tabla A.1/A.3 y no requeridos por riesgo/ley aplicable en el contexto actual (aunque si ya existen en PIMS con estado `R` o `V`, constituyen adopción voluntaria institucional sujeta al control documental Cl. 7.5.3).
 
-3. **Prueba Normativa ISO 27701 (ISO Shall-Test)**:
-   - Contrastar los requisitos documentales contra el mapa normativo oficial en `docs/ISO-27701-NORMATIVE-MAP.md`.
-   - Localizar si existe un mandato expreso de información documentada (*"retain documented information"* / *"shall be available as documented information"*) aplicable al alcance de la UNSA como **PII-controller** (Responsable del Tratamiento de Datos Personales):
-     - **En alcance**: Tablas A.1 (Controles para Responsables / PII Controllers) y A.3 (Controles de Seguridad de la Información para Ambos Roles), además de las cláusulas base 4 a 10 aplicables a PII-controllers.
-     - **Fuera de alcance**: Tabla A.2 (Controles para Encargados / PII Processors — formalmente excluida con justificación técnica).
+3. **Lectura Uniforme del Estado Vivo en PIMS**:
+   - Usar `PimsClient` (`packages/pims-adapter/client.ts`) sin filtrar por `G4-`:
+     - `listDocuments({ page_size: 200 })`, `listIncidents({ page_size: 200 })`, `listAudits({ page_size: 200 })`, `listRiskEvaluations()`, `listAssets()`.
+   - Extraer `id`, `code`, `status` (`B`/`R`/`V`/`O`; tanto `R` como `V` son activos válidos según estado operativo actual), y `current_version` (string opaco `"3.00"`, nunca inferir veredicto desde `category`).
+   - Inspeccionar el texto real en `G4-ALC-01`, `G4-SOA-01` o del documento evaluado vía `bun scripts/rag-query.ts --full --doc <code>` y `university-facts/facts.json`.
 
-4. **Computación Dinámica del Veredicto (Live Verdict Computation)**:
-   - Evaluar en vivo cada vez; **PROHIBIDO** predefinir o tener listas *hardcoded* de veredictos por documento:
-     - **OBLIGATORIO (MANDATORY)**: Si un mandato normativo *shall* dentro del alcance de ISO 27701 (Cl. 4-10, Tabla A.1, Tabla A.3) lo exige de forma explícita. Se debe citar textualmente la cláusula o control correspondiente.
-     - **OPCIONAL (OPTIONAL)**: Si no existe un mandato normativo expreso en ISO 27701 que obligue a mantenerlo como información documentada. La adopción se determina a partir del estado actual de la organización:
-       - Si está presente y adoptado en el PIMS en vivo (con estado `R` o `V`), cuenta como adoptado institucionalmente por la organización.
-       - Si está ausente en el PIMS en vivo, se clasifica como opcional no adoptado, salvo que el escenario planteado por el instructor demande explícitamente su incorporación.
-
-5. **Evidencia y Ficha de Respuesta**:
-   - Generar la tabla de veredicto con las columnas requeridas:
-     `Documento | Veredicto | Base Normativa | Estado en PIMS`
-   - Acompañar cada fila con la cita formal de la cláusula ISO 27701 y los datos del registro en PIMS (código, id, estado `R`/`V`, versión actual opaca) o la constancia explícita de su ausencia.
+4. **Veredicto Dinámico y Citas Verificables**:
+   - Formato de tabla obligatoria:
+     `Documento / Artefacto | Clasificación (3 Niveles) | Cláusula / Control ISO 27701:2025 (`reference/iso-27701-2025.md`) | Evidencia Contextual y Estado en PIMS`
 
 ## 3. Failure Branches
 
-- **PIMS No Disponible (Caída de Red / Falla de Conexión)**:
-  - Si la API de PIMS GESTITEL no responde o genera un error de red:
-    - Resolver la consulta utilizando la réplica local en `pgvector mirror` (corpus sincronizado).
-    - Rotular obligatoriamente al inicio de la respuesta con la etiqueta:
-      `[FUENTE: Cache local pgvector mirror (PIMS no disponible)]`
-- **Código de Documento Desconocido / No Registrado**:
-  - Si un código o documento no existe en PIMS y no se encuentra en el mapeo normativo:
-    - Emitir el veredicto `desconocido`.
-    - **NUNCA** inventar requisitos, cláusulas ni registros simulados.
-- **Límite de Presupuesto Alcanzado (Loan Profile Degraded-at-Cap)**:
-  - Si se alcanza el límite de `task.softRequestBudget` o la cuota en perfil loan:
-    - La recuperación de datos permanece activa: verificación de existencia en PIMS, consultas de estado y contrastes contra `docs/ISO-27701-NORMATIVE-MAP.md` continúan operando.
-    - La generación de explicaciones extensas y análisis narrativos se pausa inmediatamente.
-    - Mensaje de contacto obligatorio:
-      `"Límite de presupuesto de tokens alcanzado en perfil loan. La recuperación continúa activa, pero la generación analítica está pausada. Contacte al equipo Turno B Grupo 4 para ampliación de cuota."`
-
-## 4. Response Shape
-
-```markdown
-### Evaluación de Necesidad Documental (ISO/IEC 27701:2025 / PIMS en Vivo)
-
-| Documento | Veredicto | Base Normativa | Estado en PIMS |
-| :--- | :--- | :--- | :--- |
-| `G4-POL-001` | **OBLIGATORIO** | ISO/IEC 27701:2025 Cl. 5.2 ("The privacy policy shall be available as documented information") | Presente (ID: 101, Estado: R, Versión: "1.0") |
-| `G4-PRC-INC-001` | **OBLIGATORIO** | ISO/IEC 27701:2025 Cl. 8.1 / Control A.3.11 ("The organization shall define and document privacy incident management procedures") | Presente (ID: 102, Estado: V, Versión: "2.0") |
-| `G4-GUI-INT-001` | **OPCIONAL** | No mandatorio por ISO 27701 (Guía de apoyo operativo seleccionada por el estado de la organización) | Presente (ID: 108, Estado: R, Versión: "1") |
-| `G4-REG-EXT-001` | **OPCIONAL** | Sin mandato expreso en Tablas A.1/A.3 de ISO 27701 | Ausente en PIMS |
-
-**Justificación y Trazabilidad**:
-- **Criterio de Evaluación**: Veredictos calculados dinámicamente según el estado actual de PIMS y el mapa normativo en `docs/ISO-27701-NORMATIVE-MAP.md`.
-- **Lector de PIMS**: Integración operativa mediante la skill `pims-reader` con filtro estricto de tenant `G4-` / `Turno B Grupo 4`.
-```
+- **PIMS No Disponible**:
+  - Usar `bun scripts/rag-query.ts` / `--full` y anteponer `[FUENTE: Cache local pgvector mirror (PIMS no disponible)]`. Contrastar normalmente contra `reference/iso-27701-2025.md`.
+- **Artefacto Inexistente**:
+  - Si no figura en PIMS ni aplica a ningún mandato *shall*/contextual de `reference/iso-27701-2025.md`, reportar ausente y clasificar en Nivel 2 o Nivel 3 según análisis factual; jamás inventar cláusulas.

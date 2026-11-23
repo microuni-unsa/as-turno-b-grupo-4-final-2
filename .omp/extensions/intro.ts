@@ -165,7 +165,8 @@ Comandos iniciales útiles:
       return text
         .replace(/eyJ[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}/g, "[REDACTED_JWT_TOKEN]")
         .replace(/(bearer\s+)[a-zA-Z0-9_\-\.]{20,}/gi, "$1[REDACTED_TOKEN]")
-        .replace(/(password|passwd|secret_value|api_key|token)\s*[:=]\s*["']?([a-zA-Z0-9_\-\.\/]{8,})["']?/gi, "$1: [REDACTED_SECRET]");
+        .replace(/(postgresql?:\/\/[^:\s]+:)([^@\s]+)(@)/gi, "$1[REDACTED_DB_PASS]$3")
+        .replace(/(PIMS_PASSWORD|SMTP_PASSWORD|EMBEDDINGS_API_KEY|AGENT_API_KEY|POSTGRES_PASSWORD|AGE_SECRET_KEY|password|passwd|secret_value|api_key|token)\s*[:=]\s*["']?([^\s"']{6,})["']?/gi, "$1: [REDACTED_SECRET]");
     };
 
     for (const message of event.messages as ChatMessage[]) {

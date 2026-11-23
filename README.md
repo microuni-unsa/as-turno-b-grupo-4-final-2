@@ -16,7 +16,9 @@ Comprehensive architecture blueprints, operational procedures, and normative ref
 - [RULES.md](RULES.md) — Non-negotiable architectural, security, and tenant isolation rules.
 
 ### Normative Standards Library
+- [reference/iso-27701-2025.md](reference/iso-27701-2025.md) — Clean Markdown standard text & control catalog for ISO/IEC 27701:2025 (deployed in runtime for `doc-necessity` evaluations).
 - [docs/ISO 27701-2025_ocr.pdf](docs/ISO%2027701-2025_ocr.pdf) — ISO/IEC 27701:2025 (2nd edition), Standalone PIMS standard (PII Controller role: Clauses 4–10, Tables A.1 & A.3).
+- [docs/PIMS-SDK-SPEC.md](docs/PIMS-SDK-SPEC.md) — Live-verified unified TypeScript PIMS SDK & `scripts/pims.ts` CLI specification.
 - [docs/ISO-19011-2026-en_ocr.pdf](docs/ISO-19011-2026-en_ocr.pdf) — Guidelines for auditing management systems (internal audit programme).
 - [docs/ISO-42001-2023-en_ocr.pdf](docs/ISO-42001-2023-en_ocr.pdf) — AI Management System governance applied to autonomous agent behaviors.
 - [docs/GDPR.txt](docs/GDPR.txt) — Informative cross-reference mapping only (Annex D); does not govern operational agent logic.
@@ -163,6 +165,6 @@ Host(`<slug>.pimsai.mistercricro8.top`)
 
 ## Shared-Tenant Isolation Guardrails
 
-1. **Mandatory Prefix Discipline (`G4-`)**: Every document code, incident identifier, audit row, and risk evaluation created by this system must strictly begin with `G4-`.
-2. **Strict Read Filtering**: All REST queries against GESTITEL must filter by prefix `G4-` and responsible identity `Turno B Grupo 4` / `grupob4`. Records belonging to other academic groups must never be viewed, modified, or deleted.
-3. **PIMS is the Primary Source of Truth**: Typst molds (`molds/*.typ`) and pgvector caches are strictly generative templates and caches. Authentic audit records exist only once uploaded and versioned in GESTITEL PIMS.
+1. **Mandatory Write Prefix Discipline (`G4-`)**: Every write operation (document code, incident creation/update, audit record, risk evaluation) must strictly begin with `G4-` and pass human approval.
+2. **Uniform System-Wide Reads**: REST queries against GESTITEL (`documents`, `incidents`, `audits`, `risk-evaluations`, `assets`) inspect the full system uniformly without `G4-` read filtering.
+3. **PIMS is the Primary Source of Truth**: Typst molds (`molds/*.typ`) and the `CORPUS_MIRROR_DIR` (`corpus_mirror_data` volume at `/var/lib/pimsai/corpus_mirror`) + pgvector caches are generative templates and caches. Authentic audit records live in GESTITEL PIMS.

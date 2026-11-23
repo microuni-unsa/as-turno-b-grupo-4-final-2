@@ -82,8 +82,13 @@ export async function registerConnector(
   let updatedContent: string;
 
   if (!fileExisted) {
-    // Initialize base skill file with standard header
+    // Initialize base skill file with valid YAML frontmatter so omp discovers dynamic connectors
     const baseHeader = [
+      "---",
+      "name: connectors",
+      "description: Dynamically registered external and internal service connectors compiled via connector-builder or live-build.",
+      "---",
+      "",
       "# Connector Capability Registry",
       "",
       "This document is dynamically assembled by the connector runtime upon registration.",

@@ -25,8 +25,8 @@ flowchart TD
 
 ## Phase 1: Environment & Container Orchestration Verification
 
-### Task 1.1: Verify Environment Configuration (`.env`)
-- [ ] Inspect `.env` against [.env.example](file:///home/cricro/tiny-projects/documents/2026-B/as-turno-b-grupo-4-final-2/.env.example).
+### Task 1.1: Verify Environment Configuration (`.env` & `.enc.env`)
+- [ ] Inspect `.env` (or decrypt SOPS `.enc.env` via `nix run nixpkgs#sops -- decrypt .enc.env > .env`) against [.env.example](.env.example).
 - [ ] Verify that all required variables are populated with valid values:
   - `PIMS_BASE_URL=https://unsa.27k.pe`
   - `PIMS_USERNAME` & `PIMS_PASSWORD` (Group 4 credentials)
@@ -35,9 +35,11 @@ flowchart TD
   - `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `DATABASE_URL`
   - `EMBEDDINGS_API_KEY`, `EMBEDDINGS_BASE_URL`, `EMBEDDING_MODEL`
   - `AGENT_ENV_VAR`, `AGENT_API_KEY`, `AGENT_MODEL`
+  - `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`, `SMTP_SECURE=false`, `SMTP_USERNAME`, `SMTP_PASSWORD`
+  - `CORPUS_MIRROR_DIR=/var/lib/pimsai/corpus_mirror`
   - `DOMAIN_ROOT=pimsai.mistercricro8.top`
   - `DOCKER_HOST=tcp://docker-proxy:2375` (or host daemon)
-- [ ] Confirm no placeholder string `CHANGEME` remains in `.env`.
+- [ ] Confirm no placeholder string `CHANGEME` remains in `.env` and that `.enc.env` exists in repo encrypted with the configured `age` recipients.
 
 ### Task 1.2: External Docker Network Verification
 - [ ] Verify or create the external proxy network:
@@ -52,9 +54,9 @@ flowchart TD
   docker compose build
   ```
 - [ ] Verify clean compilation of:
-  - `pimsai-agent` (from [Dockerfile](file:///home/cricro/tiny-projects/documents/2026-B/as-turno-b-grupo-4-final-2/Dockerfile): Debian Bookworm, Bun, Typst 0.15, Zellij 0.45, omp)
-  - `pimsai-files-sidecar` (from [services/files-sidecar/Dockerfile](file:///home/cricro/tiny-projects/documents/2026-B/as-turno-b-grupo-4-final-2/services/files-sidecar/Dockerfile): Node 22 native TS)
-  - `pimsai-secrets-sidecar` (from [services/secrets-sidecar/Dockerfile](file:///home/cricro/tiny-projects/documents/2026-B/as-turno-b-grupo-4-final-2/services/secrets-sidecar/Dockerfile): Node 20, Age CLI)
+  - `pimsai-agent` (from [Dockerfile](Dockerfile): Debian Bookworm, Bun 1.2.4, Node 22, Chromium + `/node_modules` `@playwright/mcp` & `nodemailer`, Typst 0.15, Zellij 0.45, omp 18.18.1, `/var/lib/pimsai/corpus_mirror`)
+  - `pimsai-files-sidecar` (from [services/files-sidecar/Dockerfile](services/files-sidecar/Dockerfile): Node 22 native TS)
+  - `pimsai-secrets-sidecar` (from [services/secrets-sidecar/Dockerfile](services/secrets-sidecar/Dockerfile): Node 20, Age CLI)
 
 ### Task 1.4: Stack Startup & Healthcheck
 - [ ] Start the stack:
@@ -95,6 +97,14 @@ flowchart TD
   ```
 - [ ] Access `https://demo.pimsai.mistercricro8.top:444` in a browser.
 - [ ] Enter the Read-Write token and verify that the `omp` interactive terminal attaches with clean locked mode.
+
+### Task 1.7: Headless Browser / Playwright MCP Verification
+- [ ] Inside `pimsai-agent`, confirm Chromium and `@playwright/mcp` resolve cleanly:
+  ```bash
+  docker compose exec agent which chromium node
+  docker compose exec agent node /node_modules/@playwright/mcp/cli.js --version
+  ```
+- [ ] Verify [.omp/mcp.json](.omp/mcp.json) configures stdio `"playwright"` (`--headless --browser chrome --executable-path /usr/bin/chromium --no-sandbox --output-dir /tmp/playwright-mcp`) and loads in `omp`.
 
 ---
 
@@ -191,28 +201,28 @@ flowchart TD
 ## Phase 3: Core Packages & Data Pipeline Testing
 
 ### Task 3.1: PIMS Adapter Package (`packages/pims-adapter`)
-- [ ] **Multi-Tenant Write Guard (`assertG4WriteCode`)**:
-  Verify that calling `createDocument` or `addDocumentVersion` with a code not starting with `G4-` (e.g. `G2-POL-001`) immediately throws `PimsTenantIsolationError`.
-- [ ] **Multi-Tenant Read Filter (`filterG4Records`)**:
-  Verify that `listDocuments` and `listIncidents` automatically filter out all records that do not match prefix `G4-` or responsible `Turno B Grupo 4` / `grupob4`.
+- [ ] **Multi-Tenant Write-Only Guard (`assertG4WriteCode`)**:
+  Verify that calling `createDocument`, `createIncident`, or `updateIncident` with a code not starting with `G4-` (e.g. `G2-POL-001`) immediately throws `TenantGuardViolationError` BEFORE sending an HTTP request. Also verify `createDocument` and `addDocumentVersion` reject missing `fileName` (`PimsValidationError`, never silently defaulting to `"version.pdf"`).
+- [ ] **Uniform System-Wide Reads & Envelope Normalization**:
+  Verify that `listDocuments`, `listIncidents`, `listAudits`, `listRiskEvaluations`, `listAssets`, `getEligibleAssets`, and `getDocumentVersions` normalize both plain JSON arrays and `{ count, results }` paginated envelopes and return full system records without `G4-` read filtering.
 - [ ] **Authentication & Token Lifecycle**:
-  Run in Bun:
+  Run in Bun without printing tokens/secrets:
   ```typescript
   import { PimsClient } from "./packages/pims-adapter/client.ts";
   const client = new PimsClient();
-  const tokens = await client.login({ username: process.env.PIMS_USERNAME!, password: process.env.PIMS_PASSWORD! });
-  console.log("Logged in successfully, token length:", tokens.access.length);
+  await client.login({ username: process.env.PIMS_USERNAME!, password: process.env.PIMS_PASSWORD! });
+  console.log("PIMS auth verified cleanly.");
   ```
-- [ ] **Live Document & Incident Reads**:
+- [ ] **Live Full-System Reads (Documents, Incidents, Audits)**:
   ```typescript
-  const docs = await client.listDocuments({ page_size: 5 });
-  console.log("G4 Documents:", docs.results.map(d => `${d.code} (${d.status})`));
-  const incidents = await client.listIncidents({ page_size: 5 });
-  console.log("G4 Incidents:", incidents.results.length);
+  const docs = await client.listDocuments({ page_size: 100 });
+  const incidents = await client.listIncidents({ page_size: 100 });
+  const audits = await client.listAudits({ page_size: 100 });
+  console.log({ docs: docs.count, incidents: incidents.count, audits: audits.count });
   ```
 - [ ] **403 Probe Fallback Verification**:
   Call `client.getTrainings()` and `client.getSystemCatalogs()`.
-  Confirm both safely handle HTTP 403 Forbidden without throwing unhandled exceptions, and that the operator sources training/catalog information from uploaded documents (`G4-CAP-INC-01`) instead.
+  Confirm both throw `PimsTrainingsForbiddenError` (HTTP 403), and that training records come from uploaded documents (`G4-CAP-INC-01` / `G4-REG-CAP-01`).
 
 ### Task 3.2: Typst Molds & XLSX Compilation (`molds/`, `corpus_g4_src/`)
 - [ ] **Full Render Test (`scripts/render-all.ts`)**:
@@ -254,26 +264,27 @@ flowchart TD
   - Returns verbatim quotes from `chunks`.
   - Citation follows exact standard: `pims:<doc_id>:v<version>:chunk:<id>:lines:<start>-<end>`.
   - Check distance metric is cosine distance (`<=>`).
-- [ ] **Test Structural Diff**:
+- [ ] **Test Full-Document Read & Extracted PDF Diff (`scripts/rag-query.ts --full`, `packages/rag-mirror/diff.ts`)**:
   ```bash
+  bun scripts/rag-query.ts --full --doc G4-PRC-INC-01 | head -n 40
   bun -e '
     import { compareVersions } from "./packages/rag-mirror/diff.ts";
-    const res = await compareVersions("G4-PRC-INC-01", "1", "2");
+    const res = await compareVersions("G4-PRC-INC-01", "1.00", "3.00");
     console.log(res.summary);
   '
   ```
-  Verify: Summarizes added, modified, and unchanged chunks.
+  Verify: `--full` dumps clean normalized UTF-8 text from `CORPUS_MIRROR_DIR/<doc.code>/v<n>.txt` (or ordered `chunks`), and `compareVersions` diffs extracted PDF text cleanly (never `%PDF-` binary bytes).
 
 ### Task 3.4: PIMS Truth Synchronization (`scripts/sync-pims-truth.ts`)
-- [ ] **One-Shot Sync Pass**:
+- [ ] **One-Shot Sync Pass (`doc.code` Keying)**:
   ```bash
   bun scripts/sync-pims-truth.ts
   ```
   Verify:
-  - Connects to `https://unsa.27k.pe`.
-  - Fetches all `G4-` documents and versions.
-  - Compares SHA-256 hashes against `corpus_mirror/` and `pimsai-db`.
-  - Re-ingests any missing or updated document versions into pgvector.
+  - Connects to `https://unsa.27k.pe` and fetches all PIMS documents.
+  - Keys `CORPUS_MIRROR_DIR/<doc.code>/` and `pimsai-db` (`pims_registry`, `chunks`) strictly by **`doc.code`** (e.g. `G4-POL-01`), never numeric DB IDs.
+  - Writes sibling extracted `v<n>.txt` alongside every `.pdf`.
+  - Prunes any stale numeric-ID rows/folders and mismatched seed versions.
 - [ ] **Loop Mode Check**:
   Verify `bun scripts/sync-pims-truth.ts --loop --interval 300` starts the background daemon and reports `[sync-loop]` log entries every 5 minutes.
 
@@ -311,26 +322,27 @@ flowchart TD
   ```
   Verify: Idempotently wraps and inserts `<!-- CONNECTOR: pims-documents START -->` into `.omp/skills/connectors/SKILL.md`.
 
-### Task 4.2: Mail Connector & Summons Dispatch (`connectors/mail/`)
-- [ ] **Draft Summons Creation**:
-  Create draft summons for a Red status finding:
+### Task 4.2: Mail Connector & Real Gmail SMTP Dispatch (`connectors/mail/`)
+- [ ] **Persisted Draft Summons Creation**:
+  Create draft summons across citations (`pims:`, `audit:`, `incident:`, or `"Sin evidencia"`):
   ```typescript
   import { MailConnectorClient } from "./connectors/mail/client.ts";
-  const mailClient = new MailConnectorClient({ fromAddress: "dpo@unsa.edu.pe", authHandle: "secret:smtp@v1" });
-  const draft = mailClient.createDraftSummons({
-    findingId: "G4-FND-001",
+  const mailClient = new MailConnectorClient({ fromAddress: process.env.SMTP_USERNAME! });
+  const draft = await mailClient.createDraftSummons({
+    findingId: "AUD-2026-003-F01",
     nonConformityTitle: "Falta de MFA en portal de admisión",
     severity: "red",
-    recipientName: "Dr. Walter Delgado Manrique",
-    recipientEmail: "wdelgado@unsa.edu.pe",
-    deadlineDate: "2026-10-15",
-    evidenceCitation: "pims:G4-PRC-INC-01:v3:chunk-02:L10-L25",
-    correctiveActionSummary: "Implementar autenticación de doble factor en servidor LDAP",
+    recipientName: "Responsable SGPI",
+    recipientEmail: "dpo@unsa.edu.pe",
+    deadlineDate: "2026-11-30",
+    evidenceCitation: "pims:G4-PRC-INC-01:v3.00:chunk-1:lines:1-24",
+    correctiveActionSummary: "Implementar autenticación de doble factor en portal de admisión",
   });
   ```
-- [ ] **Strict Dispatch Gate ("envíalo")**:
-  - Confirm that calling dispatch without confirmation throws `MailValidationError` / gate exception.
-  - Confirm that passing the explicit phrase `"envíalo"` executes dispatch and returns message tracking ID (`G4-SUMMONS-...`).
+  Verify: Draft survives in a fresh `bun` process via `mailClient.getDraft(draft.draftId)` (`MAIL_DRAFTS_PATH`).
+- [ ] **Strict Dispatch Gate ("envíalo") + Real Gmail SMTP (`nodemailer`)**:
+  - Confirm calling `dispatchSummons(draft.draftId, "ok")` throws `SummonsApprovalRequiredError` (`SUMMONS_APPROVAL_REQUIRED`).
+  - Confirm `SMTP_USERNAME` + `SMTP_PASSWORD` resolve cleanly via `nodemailer` (`smtp.gmail.com:587`) and real Gmail SMTP delivery requires `"envíalo"`.
 
 ---
 
@@ -379,110 +391,88 @@ flowchart TD
 
 ## Phase 6: The 12 Operational Skills Verification (Behavior Matrix)
 
-Test each skill with its canonical prompt and verify expected behavior:
+Verify all 12 `.omp/skills/*/SKILL.md` skills carry valid YAML frontmatter (`name` + `description`), then test each skill:
 
 ### Skill 1: `pims-reader`
 - [ ] **Prompt**: `"Consulta el documento G4-POL-01 en PIMS y muestra su estado actual y versiones."`
 - [ ] **Expected Output**:
-  - Connects to GESTITEL API.
-  - Applies `G4-` and `Turno B Grupo 4` filter.
-  - Returns ID, version `3.00`, status `V` or `R`, and version history table.
+  - Connects to GESTITEL API via `PimsClient` without reading `.env` or printing JWTs.
+  - Reads full PIMS system uniformly (`G4-` enforced only on writes).
+  - Returns ID, version (`"3.00"`), status (`R` or `V`), and version history table.
 - [ ] **Failure Fallback Probe**:
-  - Simulate network disconnection or point `PIMS_BASE_URL` to an unreachable IP.
-  - Ask the same query.
-  - Verify: Reports HTTP error, answers immediately from `corpus_mirror/` + `pimsai-db`, and prefixes output with:  
-    `[FUENTE: Cache local pgvector mirror (PIMS no disponible)]`.
+  - Simulate network disconnection (`PIMS_BASE_URL` unreachable).
+  - Verify: Reports exact endpoint + HTTP error, answers immediately from `CORPUS_MIRROR_DIR` + `pimsai-db`, and prefixes with `[FUENTE: Cache local pgvector mirror (PIMS no disponible)]`.
 
 ### Skill 2: `doc-necessity`
 - [ ] **Prompt**: `"¿Cuáles documentos del SGPI son obligatorios y cuáles son opcionales según ISO/IEC 27701:2025?"`
 - [ ] **Expected Output**:
-  - Evaluates dynamically against live PIMS state + [docs/ISO-27701-NORMATIVE-MAP.md](file:///home/cricro/tiny-projects/documents/2026-B/as-turno-b-grupo-4-final-2/docs/ISO-27701-NORMATIVE-MAP.md).
-  - Never uses static hardcoded lists.
-  - Evaluates UNSA strictly as PII Controller (Cl. 4.1, Table A.1 & A.3 mandatory; Table A.2 excluded with justification).
-  - Returns structured table: `Documento | Veredicto | Base Normativa | Estado en PIMS`.
+  - Evaluates against clean [reference/iso-27701-2025.md](reference/iso-27701-2025.md) (NOT `docs/ISO-27701-NORMATIVE-MAP.md`) + live PIMS state + `university-facts/`/`G4-ALC-01`/`G4-SOA-01`.
+  - Applies 3-tier classification (Unconditional `shall` / Context-/Risk-/Scope-dependent / Discretionary Optional) and PII Controller scope (Tables A.1 & A.3 in scope; A.2 excluded with justification).
+  - Also test general normative question (`"¿La ISO 27701 exige un procedimiento de gestión de incidentes?"`) and verify direct normative citation from `reference/iso-27701-2025.md`.
 
 ### Skill 3: `version-compare`
 - [ ] **Prompt**: `"Compara la versión 1 y la versión 3 de la política de privacidad G4-POL-01 y explica el racional del cambio."`
 - [ ] **Expected Output**:
-  - Structural diff of document sections (v1: 2019 initial cert vs v3: 2025 recertification + filiales Camaná and Pedregal).
-  - Extracts `change_summary` and revision table history.
-  - Synthesizes RAFA prompt context from [molds/policy/RAFA.md](file:///home/cricro/tiny-projects/documents/2026-B/as-turno-b-grupo-4-final-2/molds/policy/RAFA.md).
-  - Publishes report via `files-sidecar` and ends with `"resultado aquí: https://..."`.
+  - Diffs **live PIMS PDFs** via extracted text (`packages/rag-mirror/diff.ts` / `v<n>.txt`) without relying on `corpus_g4_src/`.
+  - Extracts `change_summary` and PDF revision history table; uses internal template rationale **silently (never mentions `RAFA.md` or `RAFA`)**.
+  - Publishes via `http://pimsai-files-sidecar:3000/api/publish` and returns `https://files.pimsai.mistercricro8.top:444/p/<slug>`.
 
 ### Skill 4: `incident-ops`
 - [ ] **Prompt**: `"Muestra el tablero semafórico de acciones correctivas de incidentes."`
 - [ ] **Expected Output**:
-  - Returns table with columns: Semáforo, Hallazgo/NC, Acción Correctiva, Responsable (G4), Vencimiento, Evidencia PIMS, Acción Operativa Recomendada.
-  - Strict audit4 traffic-light classifications:
-    - 🔴 **Rojo** (Vencido): Convocatoria a reunión de 5 min (apercibimiento por escrito).
-    - 🟡 **Ámbar** (En curso): Reunión de seguimiento a las 10:00 h (revisión de recursos y presupuesto).
-    - 🟢 **Verde** (Cerrado): Invitación a almuerzo de reconocimiento institucional.
+  - Reads **all** system incidents (`INC-001`..`INC-012`) and audits (`AUD-2026-001`..`003`) uniformly; deduplicates cloned findings on `AUD-2026-003`.
+  - Strict green verification: `🟢 VERDE` ONLY when `status === "C"`, `progress === 100`, `closed_at !== null`, and evidence exists (open `progress: 0` items are never green).
   - Proactively offers to prepare summons via `summons-dispatch`.
-  - Publishes deliverable link.
+  - Publishes deliverable via `https://files.pimsai.mistercricro8.top:444/p/<slug>`.
 
 ### Skill 5: `summons-dispatch`
 - [ ] **Prompt**: `"Prepara las citaciones para los responsables con acciones en rojo y ámbar."`
 - [ ] **Expected Output (Phase A)**:
-  - Drafts summons table with recipient, institutional role, subject, and agenda.
-  - **Does NOT send any emails**.
-  - Clearly displays warning: `Compuerta de Despacho Activa: Escribe 'envíalo' para autorizar el envío`.
+  - Resolves real recipient emails (`dpo_contact_email`, `rep_email`, or asks user when missing on audit records).
+  - Persists drafts on disk via `MailConnectorClient` (`connectors/mail/client.ts`); sends ZERO emails.
+  - Displays warning: `Compuerta de Despacho Activa: Escribe 'envíalo' para autorizar el envío`.
 - [ ] **Prompt**: `"envíalo"`
 - [ ] **Expected Output (Phase B)**:
-  - Invokes `connectors.mail.send` with tracking IDs.
-  - Publishes dispatch log.
-  - Ends with `"resultado aquí: https://..."`.
+  - Dispatches real email via Gmail SMTP (`nodemailer`) using `SMTP_*` env without printing credentials.
+  - Ends with `resultado aquí: https://files.pimsai.mistercricro8.top:444/p/<slug>` if report generated.
 
 ### Skill 6: `audit-chain`
-- [ ] **Prompt**: `"Rastrea la cadena de auditoría del hallazgo G4-FND-002 y muestra su evidencia exacta en PIMS."`
+- [ ] **Prompt**: `"Rastrea la cadena de auditoría del hallazgo o incidente pendiente y muestra su evidencia exacta en PIMS."`
 - [ ] **Expected Output**:
-  - Traces: Finding (`G4-FND-002`) → NC (`G4-NC-002`) → Corrective Action (`G4-ACT-002`) → Owner/Deadline.
-  - Verbatim text extracted from pgvector mirror.
-  - Verifiable citation: `pims:G4-PRC-INC-01:v2:chunk-04:L12-L28` with SHA-256 chunk hash ("ChatGPT can't do this" proof).
-  - Publishes audit chain page.
+  - Reads audits & incidents uniformly (no `G4-` read gate).
+  - Traces Finding/Incident → NC → Corrective Action → Owner/Deadline → verbatim RAG chunk citation `pims:<doc.code>:v<version>:<chunk_id>:lines:<l1>-<l2>` (`--full` when needed).
+  - Publishes via `files-sidecar` at `https://files.pimsai.mistercricro8.top:444/p/<slug>`.
 
 ### Skill 7: `directed-version`
 - [ ] **Prompt**: `"Actualiza el procedimiento de incidentes G4-PRC-INC-01 para formalizar el canal de reporte en la filial Camaná."`
 - [ ] **Expected Output**:
-  - Enforces `G4-` prefix.
-  - Evaluates version bump: minor 1.x vs major 2.x/3.x.
-  - Executes copy-then-fill workflow in isolated staging (`/tmp/pims-staging/...`):
-    - Copies `mold.typ` and latest caller.
-    - Writes new caller with updated data dictionary (leaves `mold.typ` prose untouched).
-    - Compiles PDF via Typst.
-  - Uploads new version to PIMS with 3-part structured `change_summary`.
-  - Re-ingests into pgvector mirror.
-  - Publishes diff report with `"resultado aquí: link"`.
+  - Enforces `G4-` write prefix.
+  - Inspects live PIMS `/versions/`, aligns PDF cover/footer/history with next PIMS integer (`"4.0"` matching PIMS `"4.00"`), and notes minor vs. major in `change_summary`.
+  - Executes copy-then-fill staging (`/tmp/pims-staging/...`) copying `molds/common/` and `molds/<category>/mold*.typ`, reconstructing current data from `CORPUS_MIRROR_DIR` `v<n>.txt` (without `corpus_g4_src/`), and reading `RAFA.md` **silently**.
+  - Compiles PDF via Typst, publishes preview via `content_base64`, and **HALTS for explicit human approval** before calling `addDocumentVersion` (with explicit `.pdf` `fileName`) or syncing `pgvector`.
 
 ### Skill 8: `cascade`
 - [ ] **Prompt**: `"La UNSA aprobó la Resolución Rectoral N° 0143-2025 formalizando la Filial Pedregal. Aplica el cambio en cascada sobre los documentos del PIMS."`
 - [ ] **Expected Output (Phase A)**:
   - Records institutional fact in `university-facts/`.
-  - Performs 3-way impact scan (registry, mold text, pgvector).
-  - Presents proposed remake batch vs unaffected documents.
-  - Halts at approval gate.
+  - Scans all documents uniformly across PIMS + `CORPUS_MIRROR_DIR` (`--full` + RAG query).
+  - Presents proposed remake batch (with aligned next PIMS integer versions) vs unaffected documents and halts at approval gate.
 - [ ] **Prompt**: `"aprobado, procede con la cascada"`
 - [ ] **Expected Output (Phase B)**:
-  - Executes copy-then-fill for approved documents.
-  - Uploads new versions to PIMS and re-ingests.
-  - Publishes consolidated cascade report.
+  - Compiles approved documents via copy-then-fill staging, uploads new versions with `change_summary` after consent, runs `sync-pims-truth.ts`, and publishes report at `https://files.pimsai.mistercricro8.top:444/p/<slug>`.
 
 ### Skill 9: `live-build`
 - [ ] **Prompt**: `"Conecta el sistema de incidentes con WhatsApp usando Evolution API."`
 - [ ] **Expected Output**:
-  - Restates target immediately: *"Objetivo recibido: Construcción y despliegue del conector Evolution API / WhatsApp..."*.
-  - Confirms main chat remains 100% interactive.
-  - Launches background subagent via `connectors/_template/`.
-  - Triggers secrets sidecar flow: provides one-time URL `https://secrets.pimsai.mistercricro8.top:444/s/<token>` for the user to input the Evolution API key.
-  - Polls in background with `async: true`.
-  - Performs read probe, announces verified endpoints, and provides published link.
+  - Restates target immediately and keeps main chat responsive.
+  - Spawns background subagent building `connectors/evolution/...` (`fetch()` real HTTP, no `G4-` read filtering on incident watchers, registered via `registerConnector()`).
+  - Deploys self-hosted container via `docker-proxy:2375` on `internal-proxy` with Traefik `:444`, injects self-generated API key directly at launch (NOT prompting via `secrets-sidecar`), creates instance, and returns live WhatsApp QR code / `:444` setup URL cleanly. (Reserve `secrets-sidecar` + `async: true` poll strictly for external user-owned credentials.)
 
 ### Skill 10: `ingest`
-- [ ] **Prompt**: `"Sincroniza y re-ingesta el documento G4-SOA-01 versión 3 en la base de datos vectorial."`
+- [ ] **Prompt**: `"Sincroniza y re-ingesta el documento G4-SOA-01 en la base de datos vectorial."`
 - [ ] **Expected Output**:
-  - Downloads binary from PIMS.
-  - Saves in `corpus_mirror/G4-SOA-01/v3.pdf`.
-  - Computes per-chunk SHA-256 digests and 1024-dim mistral embeddings.
-  - Upserts to PostgreSQL `chunks` and updates `pims_registry`.
+  - Downloads PDF from PIMS, saves under `CORPUS_MIRROR_DIR/G4-SOA-01/` (`v<n>.pdf` + extracted `v<n>.txt` + `manifest.json`) keyed strictly by `doc.code`.
+  - Computes per-chunk SHA-256 digests + 1024-dim `mistral-embed` vectors and upserts `pims_registry` + `chunks`.
 
 ### Skill 11: `connector-builder`
 - [ ] **Prompt**: Simulate a connector schema breakage or test connector scaffolding.
@@ -520,23 +510,23 @@ Conduct this unbroken sequence simulating the course instructor's live evaluatio
 
 [Step 3: Incidents & Traffic Light Governance]
   7. Ask: "Muestra el estado de incidentes y no conformidades."
-     -> Verify: incident-ops Red/Amber/Green audit4 table.
+     -> Verify: incident-ops Red/Amber/Green audit4 table across all system incidents/audits with deduplicated findings and strict green check.
   8. Ask: "Prepara las citaciones para los responsables en rojo."
-     -> Verify: summons-dispatch draft table; pauses at human gate.
+     -> Verify: summons-dispatch persisted draft table using real PIMS emails; pauses at human gate.
   9. Send: envíalo
-     -> Verify: mail connector dispatch executed and delivery log published.
+     -> Verify: real Gmail SMTP dispatch executed and delivery log published at `:444/p/<slug>`.
 
 [Step 4: Evidence & Version Control]
-  10. Ask: "Explica el hallazgo G4-FND-002 y muestra su evidencia auditable."
+  10. Ask: "Explica el hallazgo o incidente pendiente y muestra su evidencia auditable."
       -> Verify: audit-chain trace with verbatim chunk quote and pims:... citation.
   11. Ask: "¿Qué cambió entre la v1 y v3 del procedimiento de incidentes G4-PRC-INC-01?"
-      -> Verify: version-compare structural diff and RAFA scope shift rationale.
+      -> Verify: version-compare extracted-text structural diff and history rationale (no internal file citations).
 
 [Step 5: Live Mutation & Dynamic Build]
   12. Ask: "¿Cómo te subo un archivo de auditoría externo?"
-      -> Verify: files-sidecar minting link; 5-min timeout; "Ask First" inspection upon upload.
+      -> Verify: files-sidecar minting link; async: true poll; "Ask First" inspection upon upload.
   13. Ask: "Conecta las alertas de incidentes con Evolution API / WhatsApp."
-      -> Verify: live-build background dispatch; secrets link; uninterrupted main chat.
+      -> Verify: live-build background dispatch; self-hosted key injected & QR code returned directly; uninterrupted main chat.
 ```
 
 ---

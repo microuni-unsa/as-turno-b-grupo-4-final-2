@@ -37,24 +37,18 @@ cp connectors/_template/SKILL-FRAG.md connectors/<connector-name>/SKILL-FRAG.md
 ### Step 3: Handle Webhooks & Callback Slugs (SPEC 4.1)
 If the connector receives callbacks or webhooks (e.g., inbound WhatsApp events):
 1. Allocate an unreserved subdomain slug `<slug>`.
-2. Construct the webhook URL according to the platform convention:  
-   `https://<slug>.pimsai.mistercricro8.top/webhook`
+2. Construct the webhook URL according to the platform convention (always include `:444`):  
+   `https://<slug>.pimsai.mistercricro8.top:444/webhook`
 3. If running a receiving sibling container, join Docker network `internal-proxy` with Traefik routing labels:
    - `traefik.enable=true`
    - `traefik.http.routers.pimsai-<slug>.rule=Host(\`<slug>.pimsai.mistercricro8.top\`)`
    - `traefik.http.routers.pimsai-<slug>.entrypoints=https`
    - `traefik.http.routers.pimsai-<slug>.tls.certresolver=cloudflare`
 
-### Step 4: Handle Missing Credentials via Secrets Sidecar (SPEC 4.3)
-**Rule:** Never wait or block the main conversational session for missing credentials.
-1. Check if the secret handle exists in the runtime registry: `secret:<name>@<v>`.
-2. If missing, initiate a sidecar request:
-   ```typescript
-   const session = SecretsStore.getInstance().requestSecret("evolution_api_key");
-   // Sidecar provides: https://secrets.pimsai.mistercricro8.top/s/<token>
-   ```
-3. Announce the one-time link (5-minute expiry) to the user and let the main session continue answering questions from the local mirror.
-4. The background subagent polls `secrets.pollSecret(token)` until the handle is delivered.
+### Step 4: Credentials & Container Provisioning
+- **Self-Hosted Sibling Containers** (e.g., Evolution API on `internal-proxy`): generate an internal API key directly when starting the container via `docker-proxy:2375` (`-e AUTHENTICATION_API_KEY=...`), trigger instance creation, and present the QR code or setup link (`:444`) immediately — never ask the user for self-generated internal keys via `secrets-sidecar`.
+- **External User-Owned Credentials**: if missing, mint a one-time URL via `POST http://pimsai-secrets-sidecar:3000/api/secrets/request`, register an `async: true` background poll, and share `https://secrets.pimsai.mistercricro8.top:444/s/<token>`.
+- **No `G4-` Read Filtering**: incident/audit pollers and webhooks read all PIMS records uniformly (`G4-` applies strictly to PIMS writes).
 
 ### Step 5: Read-Only Probe Pass
 Before announcing completion:

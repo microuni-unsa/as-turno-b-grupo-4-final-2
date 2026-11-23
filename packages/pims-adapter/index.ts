@@ -8,6 +8,7 @@ export * from "./config.ts";
 export * from "./types.ts";
 export * from "./errors.ts";
 export * from "./guards.ts";
+export * from "./normalize.ts";
 export * from "./auth.ts";
 export * from "./documents.ts";
 export * from "./incidents.ts";

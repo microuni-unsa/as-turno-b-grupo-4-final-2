@@ -43,20 +43,20 @@
 
 ## 3. Evidence Citation Format
 
-In compliance with SPEC 2 & SPEC 9:
-- Citing PIMS document chunks requires format:  
-  `pims:<doc_id>:v<version>:chunk:lines`  
-  Example: `pims:101:v1:chunk:15-28`
-- Citation is verified before draft creation.
+- Citing PIMS document chunks requires format: `pims:<doc_id>:v<version>:chunk:lines` (e.g. `pims:G4-PRC-INC-01:v3.00:chunk-0:lines:1-18`).
+- Citing live audit/incident records accepts `audit:<audit_code>:<finding>` or `incident:<incident_code>`.
+- When an open audit finding genuinely lacks uploaded evidence, pass an explicit note beginning with `Sin evidencia` instead of fabricating a citation.
 
 ---
 
-## 4. Authentication & Secrets Handles
+## 4. Gmail SMTP Configuration & Credential Security
 
-- Mail credentials (SMTP user/pass or API keys) MUST NEVER be passed as plaintext.
-- Must use handles: `secret:smtp_creds@v1` or `secret:sendgrid_key@v1`.
-- If credentials are not present, trigger Secrets Sidecar (`SPEC 4.3`):
-  `https://secrets.pimsai.mistercricro8.top/s/<token>`
+- Real dispatch runs through **Gmail SMTP via `nodemailer`** (`SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`, `SMTP_SECURE=false`).
+- `MailConnectorClient` resolves credentials cleanly in-process from `SMTP_USERNAME` + `SMTP_PASSWORD` (Google App Password) OR a `SecretsStore` handle (`secret:<name>@<v>`). Drafts persist at `MAIL_DRAFTS_PATH` (`/tmp/pims-mail-drafts.json`).
+- **Recipient Email Resolution**: Check PIMS incident fields (`dpo_contact_email`, `rep_email`) first; for audit findings whose `responsible` has no email stored in PIMS, ask the user for the recipient email before calling `createDraftSummons`.
+- Mail credentials MUST NEVER be echoed or printed to stdout/logs.
+- If credentials are not present and external input is required, trigger `secrets-sidecar`:
+  `https://secrets.pimsai.mistercricro8.top:444/s/<token>`
 
 ---
 
