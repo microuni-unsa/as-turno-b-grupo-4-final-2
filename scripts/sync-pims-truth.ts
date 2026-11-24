@@ -14,7 +14,7 @@ import { createBunPgClient } from "./lib/pg-client.ts";
  * downloads new or changed versions into CORPUS_MIRROR_DIR/<doc.code>/ (PDF + v<n>.txt + manifest.json),
  * re-ingests them into pimsai-db keyed strictly by doc.code, and prunes legacy numeric/stale rows.
  */
-async function syncOnce(tag: string): Promise<void> {
+async function syncOnce(tag: string, force?: { docCode?: string }): Promise<void> {
   const username = process.env.PIMS_USERNAME;
   const password = process.env.PIMS_PASSWORD;
   if (!username || !password) {
@@ -39,6 +39,29 @@ async function syncOnce(tag: string): Promise<void> {
   let syncedCount = 0;
 
   try {
+    if (force !== undefined) {
+      if (force.docCode !== undefined) {
+        console.log(`${tag} FORCE re-ingest scoped to ${force.docCode}: purging cached rows/files.`);
+        await db.query("DELETE FROM chunks WHERE pims_doc_id = $1", [force.docCode]);
+        await db.query("DELETE FROM pims_registry WHERE pims_doc_id = $1", [force.docCode]);
+        const forceDir = getDocMirrorDir(force.docCode, RAG_CONFIG.CORPUS_MIRROR_DIR);
+        if (existsSync(forceDir)) {
+          rmSync(forceDir, { recursive: true, force: true });
+        }
+      } else {
+        console.log(`${tag} FORCE full re-ingest: purging all cached rows/files.`);
+        await db.query("DELETE FROM chunks");
+        await db.query("DELETE FROM pims_registry");
+        if (existsSync(RAG_CONFIG.CORPUS_MIRROR_DIR)) {
+          for (const entry of readdirSync(RAG_CONFIG.CORPUS_MIRROR_DIR, { withFileTypes: true })) {
+            if (entry.isDirectory()) {
+              rmSync(join(RAG_CONFIG.CORPUS_MIRROR_DIR, entry.name), { recursive: true, force: true });
+            }
+          }
+        }
+      }
+    }
+
     // 1. Clean up legacy numeric-ID DB rows and numeric mirror directories from older sync runs
     await db.query("DELETE FROM chunks WHERE pims_doc_id ~ '^[0-9]+$'");
     await db.query("DELETE FROM pims_registry WHERE pims_doc_id ~ '^[0-9]+$'");
@@ -195,12 +218,38 @@ async function main(): Promise<void> {
     options: {
       loop: { type: "boolean", default: false },
       interval: { type: "string" },
+      force: { type: "boolean", default: false },
+      code: { type: "string" },
+      confirm: { type: "boolean", default: false },
+      help: { type: "boolean", default: false },
     },
     strict: true,
     allowPositionals: true,
   });
 
+  if (values.help === true) {
+    console.log(
+      "Usage: bun scripts/sync-pims-truth.ts [--loop --interval <sec>] [--force [--code <doc.code>]]\n" +
+        "  --loop --interval <sec>  Run delta sync periodically (compose background hook).\n" +
+        "  --force                 Purge cache and re-ingest from PIMS (destructive).\n" +
+        "  --code <doc.code>        Scope --force to one document (e.g. G4-SOA-01).\n" +
+        "Full --force without --code requires --confirm.",
+    );
+    return;
+  }
+
   const isLoop = Boolean(values.loop);
+  const isForce = values.force === true;
+  const forceCode = typeof values.code === "string" ? values.code : undefined;
+
+  if (isLoop && isForce) {
+    console.error("[sync-loop] ERROR: --force is not allowed with --loop (one-shot only).");
+    process.exit(1);
+  }
+  if (isForce && forceCode === undefined && values.confirm !== true) {
+    console.error("[sync-pims-truth] ERROR: full --force without --code requires --confirm.");
+    process.exit(1);
+  }
 
   if (isLoop) {
     if (values.interval === undefined) {
@@ -225,7 +274,7 @@ async function main(): Promise<void> {
     }
   } else {
     const tag = "[sync-pims-truth]";
-    await syncOnce(tag);
+    await syncOnce(tag, isForce ? { docCode: forceCode } : undefined);
   }
 }
 

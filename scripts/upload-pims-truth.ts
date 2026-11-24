@@ -25,6 +25,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { PimsClient } from "../packages/pims-adapter/client.ts";
 import { assertG4WriteCode } from "../packages/pims-adapter/guards.ts";
+import type { DocumentCategory, DocumentStatusAPI } from "../packages/pims-adapter/types.ts";
 import { RAG_CONFIG } from "../packages/rag-mirror/config.ts";
 import type { CorpusMirrorManifest } from "../packages/rag-mirror/types.ts";
 
@@ -391,8 +392,7 @@ async function runLive(plan: PlannedPostAction[]): Promise<void> {
     const existingVers = await client.documents.getDocumentVersions(doc.id);
     const verSet = new Set<string>();
     for (const v of existingVers) {
-      const verVal = v.version ?? (v.version_number !== undefined ? String(v.version_number) : undefined);
-      if (verVal) verSet.add(verVal);
+      if (v.version) verSet.add(v.version);
     }
     docVersionsCache.set(doc.id, verSet);
     console.log(`[live] Detectado documento existente: ${doc.code} (ID: ${doc.id}) con ${verSet.size} versiones.`);
@@ -416,8 +416,8 @@ async function runLive(plan: PlannedPostAction[]): Promise<void> {
       const created = await client.documents.createDocument({
         code: action.docCode,
         name: action.formFields.name,
-        category: action.formFields.category,
-        status: action.formFields.status as any,
+        category: action.formFields.category as DocumentCategory,
+        status: action.formFields.status as DocumentStatusAPI,
         responsible: action.formFields.responsible,
         upload_file: fileBytes,
         fileName: action.attachedFile.filename
@@ -454,7 +454,7 @@ async function runLive(plan: PlannedPostAction[]): Promise<void> {
         fileName: action.attachedFile.filename
       });
       currentVers.add(targetVerStr);
-      console.log(`[live] Versión agregada exitosamente (v${versionResult.version_number ?? targetVerNum}).`);
+      console.log(`[live] Versión agregada exitosamente (v${versionResult.version ?? targetVerNum}).`);
     } else if (action.actionType === "APPROVE_DOCUMENT") {
       // Orden del coordinador: Omitir llamadas a approve debido a 403 en grupob4
       console.log(`[live] Omitiendo aprobación API para ${action.docCode} (requiere paso manual en UI por administrador conforme a runbook Fase 6).`);
