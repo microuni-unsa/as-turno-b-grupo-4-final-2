@@ -5,11 +5,15 @@
  * Bun-compatible with zero build step required.
  */
 
-import { AuthManager } from "./auth.ts";
+import { AuthManager, loadEnvSilently } from "./auth.ts";
 import { PIMS_CONFIG } from "./config.ts";
 import { DocumentsModule } from "./documents.ts";
 import { IncidentsModule } from "./incidents.ts";
-import { ReadsModule } from "./reads.ts";
+import {
+  type DedupeAuditFindingsResult,
+  type PimsSystemCatalog,
+  ReadsModule,
+} from "./reads.ts";
 import type {
   AddDocumentVersionInput,
   CreateDocumentInput,
@@ -17,11 +21,14 @@ import type {
   ListAuditsParams,
   ListDocumentsParams,
   ListIncidentsParams,
+  PaginatedEligibleAssetsResult,
   PaginatedResult,
   PimsAdapterConfig,
   PimsAnnexAControlsMeta,
   PimsAsset,
   PimsAudit,
+  PimsAuditFinding,
+  PimsAuditFindingAction,
   PimsAuthTokens,
   PimsCredentials,
   PimsDashboardKpis,
@@ -40,20 +47,52 @@ export class PimsClient {
   readonly documents: DocumentsModule;
   readonly incidents: IncidentsModule;
   readonly reads: ReadsModule;
-  readonly baseUrl: string;
-  readonly schema: string;
+  private readonly _baseUrl: string;
+  private readonly _schema: string;
 
   constructor(config: PimsAdapterConfig = {}) {
-    this.baseUrl = (config.baseUrl ?? PIMS_CONFIG.DEFAULT_BASE_URL).replace(
-      /\/+$/,
-      "",
-    );
-    this.schema = config.schema ?? PIMS_CONFIG.DEFAULT_SCHEMA;
+    let envBaseUrl =
+      typeof process !== "undefined" && process.env?.PIMS_BASE_URL
+        ? process.env.PIMS_BASE_URL
+        : undefined;
+    let envSchema =
+      typeof process !== "undefined" && process.env?.PIMS_SCHEMA
+        ? process.env.PIMS_SCHEMA
+        : undefined;
 
-    this.auth = new AuthManager(config);
-    this.documents = new DocumentsModule(this.auth, config);
-    this.incidents = new IncidentsModule(this.auth, config);
-    this.reads = new ReadsModule(this.auth, config);
+    if ((!config.baseUrl && !envBaseUrl) || (!config.schema && !envSchema)) {
+      loadEnvSilently();
+      if (!envBaseUrl && typeof process !== "undefined" && process.env?.PIMS_BASE_URL) {
+        envBaseUrl = process.env.PIMS_BASE_URL;
+      }
+      if (!envSchema && typeof process !== "undefined" && process.env?.PIMS_SCHEMA) {
+        envSchema = process.env.PIMS_SCHEMA;
+      }
+    }
+
+    const rawBaseUrl =
+      config.baseUrl ?? envBaseUrl ?? PIMS_CONFIG.DEFAULT_BASE_URL;
+    this._baseUrl = rawBaseUrl.replace(/\/+$/, "");
+    this._schema = config.schema ?? envSchema ?? PIMS_CONFIG.DEFAULT_SCHEMA;
+
+    const mergedConfig: PimsAdapterConfig = {
+      ...config,
+      baseUrl: this._baseUrl,
+      schema: this._schema,
+    };
+
+    this.auth = new AuthManager(mergedConfig);
+    this.documents = new DocumentsModule(this.auth, mergedConfig);
+    this.incidents = new IncidentsModule(this.auth, mergedConfig);
+    this.reads = new ReadsModule(this.auth, mergedConfig);
+  }
+
+  get baseUrl(): string {
+    return this._baseUrl;
+  }
+
+  get schema(): string {
+    return this._schema;
   }
 
   // --- Auth Shortcuts ---
@@ -91,6 +130,14 @@ export class PimsClient {
     return this.documents.getDocument(id);
   }
 
+  async resolveDocument(idOrCode: number | string): Promise<PimsDocument> {
+    return this.documents.resolveDocument(idOrCode);
+  }
+
+  async downloadDocumentPdf(urlOrPath: string): Promise<Uint8Array> {
+    return this.documents.downloadDocumentPdf(urlOrPath);
+  }
+
   async getDocumentVersions(id: number): Promise<PimsDocumentVersion[]> {
     return this.documents.getDocumentVersions(id);
   }
@@ -108,6 +155,10 @@ export class PimsClient {
 
   async getIncident(id: number): Promise<PimsIncident> {
     return this.incidents.getIncident(id);
+  }
+
+  async resolveIncident(idOrCode: number | string): Promise<PimsIncident> {
+    return this.incidents.resolveIncident(idOrCode);
   }
 
   async createIncident(input: CreateIncidentInput): Promise<PimsIncident> {
@@ -152,6 +203,21 @@ export class PimsClient {
     return this.reads.getAudit(id);
   }
 
+  async resolveAudit(idOrCode: number | string): Promise<PimsAudit> {
+    return this.reads.resolveAudit(idOrCode);
+  }
+
+  dedupeAuditFindings(audit: PimsAudit): DedupeAuditFindingsResult {
+    return this.reads.dedupeAuditFindings(audit);
+  }
+
+  isActionClosedVerified(
+    action: PimsAuditFindingAction,
+    findingEvidence?: PimsAuditFinding | string | null,
+  ): boolean {
+    return this.reads.isActionClosedVerified(action, findingEvidence);
+  }
+
   async listRiskEvaluations(): Promise<PaginatedResult<PimsRiskEvaluation>> {
     return this.reads.listRiskEvaluations();
   }
@@ -164,7 +230,7 @@ export class PimsClient {
     return this.reads.listAssets();
   }
 
-  async getEligibleAssets(): Promise<PaginatedResult<Partial<PimsAsset>>> {
+  async getEligibleAssets(): Promise<PaginatedEligibleAssetsResult> {
     return this.reads.getEligibleAssets();
   }
 
@@ -180,7 +246,7 @@ export class PimsClient {
     return this.reads.getTrainings();
   }
 
-  async getSystemCatalogs(): Promise<never> {
+  async getSystemCatalogs(): Promise<PaginatedResult<PimsSystemCatalog>> {
     return this.reads.getSystemCatalogs();
   }
 }

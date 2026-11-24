@@ -10,6 +10,8 @@
  * variables (PIMS_USERNAME, PIMS_PASSWORD) or secrets handles.
  */
 
+import * as fs from "node:fs";
+import * as path from "node:path";
 import { PIMS_CONFIG } from "./config.ts";
 import { PimsAuthError, PimsReadFailureError } from "./errors.ts";
 import type {
@@ -17,6 +19,86 @@ import type {
   PimsAuthTokens,
   PimsCredentials,
 } from "./types.ts";
+
+/**
+ * Sanitizes an error message or string so that sensitive tokens or passwords
+ * are never leaked into errors, logs, or exception traces.
+ */
+function sanitizeError(
+  message: string,
+  secrets: Array<string | undefined | null>,
+): string {
+  let sanitized = message;
+  for (const s of secrets) {
+    if (s && typeof s === "string" && s.trim().length > 0) {
+      sanitized = sanitized.replaceAll(s, "[REDACTED]");
+    }
+  }
+  return sanitized;
+}
+
+/**
+ * Quietly loads the repo-root .env file into process.env without producing any
+ * stdout/stderr or logging credentials or tokens.
+ * Only sets variables in process.env that are currently undefined.
+ */
+export function loadEnvSilently(): void {
+  if (typeof process === "undefined" || !process.env) {
+    return;
+  }
+
+  const candidatePaths: string[] = [];
+
+  try {
+    if (typeof import.meta !== "undefined" && import.meta.url) {
+      const fileUrl = new URL(import.meta.url);
+      const fileDir = path.dirname(fileUrl.pathname);
+      candidatePaths.push(path.resolve(fileDir, "../../.env"));
+      candidatePaths.push(path.resolve(fileDir, "../../../.env"));
+    }
+  } catch {
+    // Ignore
+  }
+
+  try {
+    candidatePaths.push(path.resolve(process.cwd(), ".env"));
+  } catch {
+    // Ignore
+  }
+
+  for (const envPath of candidatePaths) {
+    try {
+      if (fs.existsSync(envPath)) {
+        const content = fs.readFileSync(envPath, "utf-8");
+        const lines = content.split(/\r?\n/);
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed || trimmed.startsWith("#")) continue;
+
+          const eqIdx = trimmed.indexOf("=");
+          if (eqIdx === -1) continue;
+
+          const key = trimmed.slice(0, eqIdx).trim();
+          let val = trimmed.slice(eqIdx + 1).trim();
+
+          if (
+            (val.startsWith('"') && val.endsWith('"')) ||
+            (val.startsWith("'") && val.endsWith("'"))
+          ) {
+            val = val.slice(1, -1);
+          }
+
+          if (process.env[key] === undefined) {
+            process.env[key] = val;
+          }
+        }
+        break;
+      }
+    } catch {
+      // Quietly ignore
+    }
+  }
+}
 
 export class AuthManager {
   private readonly baseUrl: string;
@@ -44,6 +126,7 @@ export class AuthManager {
   /**
    * Resolves credentials strictly from explicitly supplied values,
    * environment variables, or secrets handle. Never defaults to hardcoded strings.
+   * Precedence: explicit credentials > config credentials > process.env > silent .env fallback > secret handle.
    */
   private resolveCredentials(
     explicitCredentials?: PimsCredentials,
@@ -56,15 +139,28 @@ export class AuthManager {
       return this.credentials;
     }
 
-    // Attempt resolution from environment variables
-    const envUser =
+    // Attempt resolution from environment variables (process.env)
+    let envUser =
       typeof process !== "undefined" && process.env?.PIMS_USERNAME
         ? process.env.PIMS_USERNAME
         : undefined;
-    const envPass =
+    let envPass =
       typeof process !== "undefined" && process.env?.PIMS_PASSWORD
         ? process.env.PIMS_PASSWORD
         : undefined;
+
+    // Silent .env fallback if unset in process.env
+    if (!envUser || !envPass) {
+      loadEnvSilently();
+      envUser =
+        typeof process !== "undefined" && process.env?.PIMS_USERNAME
+          ? process.env.PIMS_USERNAME
+          : undefined;
+      envPass =
+        typeof process !== "undefined" && process.env?.PIMS_PASSWORD
+          ? process.env.PIMS_PASSWORD
+          : undefined;
+    }
 
     if (envUser && envPass) {
       return { username: envUser, password: envPass };
@@ -121,8 +217,9 @@ export class AuthManager {
 
       if (!response.ok) {
         const errText = await response.text();
+        const sanitizedErr = sanitizeError(errText, [creds.password]);
         throw new PimsAuthError(
-          `PIMS login failed with HTTP ${response.status}: ${errText}`,
+          `PIMS login failed with HTTP ${response.status}: ${sanitizedErr}`,
           `HTTP_${response.status}`,
         );
       }
@@ -152,7 +249,11 @@ export class AuthManager {
         throw err;
       }
       const message = err instanceof Error ? err.message : String(err);
-      throw new PimsAuthError(`Network error during login: ${message}`, "LOGIN_NETWORK_ERROR");
+      const sanitizedMessage = sanitizeError(message, [creds.password]);
+      throw new PimsAuthError(
+        `Network error during login: ${sanitizedMessage}`,
+        "LOGIN_NETWORK_ERROR",
+      );
     } finally {
       clearTimeout(timeoutId);
     }
@@ -189,10 +290,12 @@ export class AuthManager {
 
       if (!response.ok) {
         const errText = await response.text();
+        const activeToken = this.accessToken;
         this.accessToken = null;
         this.refreshTokenVal = null;
+        const sanitizedErr = sanitizeError(errText, [refresh, activeToken]);
         throw new PimsAuthError(
-          `Token refresh failed with HTTP ${response.status}: ${errText}`,
+          `Token refresh failed with HTTP ${response.status}: ${sanitizedErr}`,
           `REFRESH_HTTP_${response.status}`,
         );
       }
@@ -216,7 +319,14 @@ export class AuthManager {
         throw err;
       }
       const message = err instanceof Error ? err.message : String(err);
-      throw new PimsAuthError(`Network error during token refresh: ${message}`, "REFRESH_NETWORK_ERROR");
+      const sanitizedMessage = sanitizeError(message, [
+        refresh,
+        this.accessToken ?? undefined,
+      ]);
+      throw new PimsAuthError(
+        `Network error during token refresh: ${sanitizedMessage}`,
+        "REFRESH_NETWORK_ERROR",
+      );
     } finally {
       clearTimeout(timeoutId);
     }

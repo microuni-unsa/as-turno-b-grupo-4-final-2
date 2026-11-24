@@ -59,6 +59,26 @@ export class PimsTrainingsForbiddenError extends PimsReadFailureError {
 }
 
 /**
+ * Thrown when attempting to approve a document (POST /api/documents/{id}/approve/)
+ * returns HTTP 403 due to RBAC permissions.
+ * As documented in SPEC §2.2 and PROBE-01, user grupob4 lacks 'aprobar' permission
+ * (aprobar: false). Document approvals must be performed via the PIMS web UI
+ * by an authorized administrator.
+ */
+export class PimsApprovalForbiddenError extends PimsReadFailureError {
+  constructor(endpoint = "/api/documents/{id}/approve/", details?: unknown) {
+    super(
+      endpoint,
+      403,
+      "Document approval is forbidden (HTTP 403) for grupob4 per RBAC policy. Approvals must be executed in the PIMS web UI by an authorized administrator.",
+      details,
+      "Forbidden",
+    );
+    this.name = "PimsApprovalForbiddenError";
+  }
+}
+
+/**
  * Thrown when an operation violates multi-tenant isolation rules:
  * - A write lacks the mandatory 'G4-' code prefix.
  * - A read/update attempts to touch or mutate records owned by other groups.

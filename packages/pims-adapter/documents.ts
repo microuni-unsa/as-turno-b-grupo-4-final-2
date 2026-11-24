@@ -1,13 +1,15 @@
 /**
- * Documents module for GESTITEL PIMS (SPEC §3.1).
+ * Documents module for GESTITEL PIMS (SPEC §2.2 & §3.1).
  *
  * Implements:
  * - POST /api/documents/ multipart (code, name, category, status, responsible, upload_file)
  * - POST /api/documents/{id}/versions/ multipart (file, change_summary)
- * - GET /api/documents/ list (filtered by Group 4 tenant guard)
- * - GET /api/documents/{id}/ detail (guarded)
+ * - GET /api/documents/ list (uniform read across all documents, search, category, status, pagination)
+ * - GET /api/documents/{id}/ detail
  * - GET /api/documents/{id}/versions/ list
- * - POST /api/documents/{id}/approve/
+ * - POST /api/documents/{id}/approve/ (maps HTTP 403 to PimsApprovalForbiddenError)
+ * - resolveDocument (resolves by numeric ID or exact code match)
+ * - downloadDocumentPdf (downloads binary PDF with auth headers)
  *
  * Response shape:
  * id, code, current_version, name, category, status, responsible, file,
@@ -18,7 +20,9 @@ import type { AuthManager } from "./auth.ts";
 import { PIMS_CONFIG } from "./config.ts";
 import {
   DocumentStatusMappingError,
+  PimsApprovalForbiddenError,
   PimsAttachmentFormatError,
+  PimsNotFoundError,
   PimsReadFailureError,
   PimsValidationError,
 } from "./errors.ts";
@@ -202,8 +206,21 @@ export class DocumentsModule {
    * Enforces G4- code prefix and PDF format.
    */
   async createDocument(input: CreateDocumentInput): Promise<PimsDocument> {
-    // Shared-tenant guard: Write enforcement
+    // Shared-tenant guard: Write enforcement FIRST (before any I/O)
     assertG4WriteCode(input.code, "Document");
+
+    // Category length validation (SPEC §2.2: max 50 chars)
+    if (
+      !input.category ||
+      typeof input.category !== "string" ||
+      input.category.trim() === "" ||
+      input.category.length > 50
+    ) {
+      throw new PimsValidationError(
+        "category",
+        `Document category must not be empty and must not exceed 50 characters (received: "${input.category}").`,
+      );
+    }
 
     // Format enforcement (no silent fallback filename)
     const fileName = resolvePdfFileName(input.fileName, input.upload_file);
@@ -329,7 +346,8 @@ export class DocumentsModule {
 
   /**
    * Lists documents from GET /api/documents/.
-   * Applies shared-tenant read filter: only returns Group 4 documents.
+   * Uniform full-system read across all documents without tenant restrictions.
+   * Supports search, category, status, page, and page_size query parameters per probe-01 semantics.
    */
   async listDocuments(
     params?: ListDocumentsParams,
@@ -414,6 +432,100 @@ export class DocumentsModule {
   }
 
   /**
+   * Resolves a document by either numeric ID or business code.
+   *
+   * If `idOrCode` is a number or an all-digit string, fetches directly via GET /api/documents/{id}/.
+   * Otherwise, queries GET /api/documents/?search=<code> and filters for exact code matches:
+   * - 0 exact matches: throws PimsNotFoundError.
+   * - >1 exact matches: orders deterministically by ascending ID and returns the first match.
+   */
+  async resolveDocument(idOrCode: number | string): Promise<PimsDocument> {
+    if (typeof idOrCode === "number") {
+      return this.getDocument(idOrCode);
+    }
+
+    const trimmed = idOrCode.trim();
+    if (/^\d+$/.test(trimmed)) {
+      return this.getDocument(Number.parseInt(trimmed, 10));
+    }
+
+    const response = await this.listDocuments({ search: trimmed });
+    const exactMatches = response.results.filter((doc) => doc.code === trimmed);
+
+    if (exactMatches.length === 0) {
+      throw new PimsNotFoundError("Document", trimmed);
+    }
+
+    // Deterministic order: sort ascending by primary key id, taking the first match
+    exactMatches.sort((a, b) => a.id - b.id);
+    return exactMatches[0];
+  }
+
+  /**
+   * Downloads a document's binary PDF from an absolute URL or relative media path.
+   * Resolves relative media paths against baseUrl and attaches authentication headers.
+   * Returns raw binary bytes as a Uint8Array.
+   * Never logs URL bytes or headers.
+   */
+  async downloadDocumentPdf(urlOrPath: string): Promise<Uint8Array> {
+    if (!urlOrPath || typeof urlOrPath !== "string" || urlOrPath.trim() === "") {
+      throw new PimsValidationError(
+        "urlOrPath",
+        "PDF download requires a non-empty URL or path.",
+      );
+    }
+
+    const trimmedPath = urlOrPath.trim();
+    let fullUrl: string;
+    let endpoint: string;
+
+    if (trimmedPath.startsWith("http://") || trimmedPath.startsWith("https://")) {
+      fullUrl = trimmedPath;
+      try {
+        const parsed = new URL(trimmedPath);
+        endpoint = parsed.pathname;
+      } catch {
+        endpoint = trimmedPath;
+      }
+    } else {
+      const normalizedPath = trimmedPath.startsWith("/")
+        ? trimmedPath
+        : `/${trimmedPath}`;
+      fullUrl = `${this.baseUrl}${normalizedPath}`;
+      endpoint = normalizedPath;
+    }
+
+    const response = await this.authenticatedFetch(
+      fullUrl,
+      {
+        method: "GET",
+        headers: { Accept: "application/pdf, */*" },
+      },
+      endpoint,
+    );
+
+    if (!response.ok) {
+      const errText = await response.text().catch(() => "");
+      let details: unknown = errText;
+      try {
+        details = JSON.parse(errText);
+      } catch {
+        // Keep raw text or empty
+      }
+      throw new PimsReadFailureError(
+        endpoint,
+        response.status,
+        `Failed to download PDF from ${endpoint}: HTTP ${response.status}`,
+        details,
+        response.statusText,
+      );
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    return new Uint8Array(arrayBuffer);
+  }
+
+  /**
    * Retrieves version history for a document from GET /api/documents/{id}/versions/.
    */
   async getDocumentVersions(id: number): Promise<PimsDocumentVersion[]> {
@@ -452,6 +564,9 @@ export class DocumentsModule {
 
   /**
    * Approves a document via POST /api/documents/{id}/approve/.
+   *
+   * Maps HTTP 403 to PimsApprovalForbiddenError directing administrators
+   * to execute approvals via the PIMS web UI per RBAC policy.
    */
   async approveDocument(id: number): Promise<PimsDocument> {
     const endpoint = `/api/documents/${id}/approve/`;
@@ -477,6 +592,11 @@ export class DocumentsModule {
       } catch {
         // Keep raw text
       }
+
+      if (response.status === 403) {
+        throw new PimsApprovalForbiddenError(endpoint, details);
+      }
+
       throw new PimsReadFailureError(
         endpoint,
         response.status,

@@ -3,11 +3,12 @@
  *
  * Implements:
  * - CRUD operations:
- *   - listIncidents (GET /api/incidents/ with Group 4 tenant filtering)
- *   - getIncident (GET /api/incidents/{id}/ with tenant guard)
+ *   - listIncidents (GET /api/incidents/)
+ *   - getIncident (GET /api/incidents/{id}/)
+ *   - resolveIncident (resolves by numeric ID or exact incident_code match)
  *   - createIncident (POST /api/incidents/ with G4- code prefix enforcement)
  *   - updateIncident (PATCH /api/incidents/{id}/)
- *   - deleteIncident (DELETE /api/incidents/{id}/)
+ *   - deleteIncident (DELETE /api/incidents/{id}/ with tenant isolation guard)
  * - Incident history:
  *   - getIncidentHistory (GET /api/incidents/{id}/history/)
  * - Incident attachments:
@@ -22,6 +23,7 @@ import { PIMS_CONFIG } from "./config.ts";
 import {
   PimsAttachmentFormatError,
   PimsAttachmentSizeError,
+  PimsNotFoundError,
   PimsReadFailureError,
   PimsValidationError,
 } from "./errors.ts";
@@ -125,7 +127,7 @@ export class IncidentsModule {
 
   /**
    * Lists incidents from GET /api/incidents/.
-   * Applies shared-tenant read filter: only returns Group 4 incidents.
+   * Uniform reads across all incidents without read-side filtering.
    */
   async listIncidents(
     params?: ListIncidentsParams,
@@ -135,8 +137,8 @@ export class IncidentsModule {
     if (params?.status) query.set("status", params.status);
     if (params?.severity) query.set("severity", params.severity);
     if (params?.incident_type) query.set("incident_type", params.incident_type);
-    if (params?.page) query.set("page", String(params.page));
-    if (params?.page_size) query.set("page_size", String(params.page_size));
+    if (params?.page !== undefined) query.set("page", String(params.page));
+    if (params?.page_size !== undefined) query.set("page_size", String(params.page_size));
 
     const qs = query.toString();
     const endpoint = `/api/incidents/${qs ? `?${qs}` : ""}`;
@@ -209,15 +211,51 @@ export class IncidentsModule {
   }
 
   /**
+   * Resolves an incident by numeric ID or exact incident_code match.
+   * If numeric, fetches directly via GET /api/incidents/{id}/.
+   * Otherwise searches by code and filters for an exact incident_code match.
+   * Throws PimsNotFoundError on miss.
+   */
+  async resolveIncident(idOrCode: number | string): Promise<PimsIncident> {
+    if (typeof idOrCode === "number") {
+      return this.getIncident(idOrCode);
+    }
+
+    const trimmed = idOrCode.trim();
+    if (/^\d+$/.test(trimmed)) {
+      return this.getIncident(Number.parseInt(trimmed, 10));
+    }
+
+    const response = await this.listIncidents({ search: trimmed });
+    const exactMatches = response.results.filter(
+      (incident) => incident.incident_code === trimmed,
+    );
+
+    if (exactMatches.length === 0) {
+      throw new PimsNotFoundError("Incident", trimmed);
+    }
+
+    // Deterministic order: sort ascending by primary key id, taking first match
+    exactMatches.sort((a, b) => a.id - b.id);
+    return exactMatches[0];
+  }
+
+  /**
    * Creates a new incident via POST /api/incidents/.
    * Enforces G4- code prefix.
    */
   async createIncident(input: CreateIncidentInput): Promise<PimsIncident> {
     // Shared-tenant guard: Write enforcement
-    assertG4WriteCode(input.code, "Incident");
+    const code = input.incident_code ?? input.code ?? "";
+    assertG4WriteCode(code, "Incident");
 
     const endpoint = "/api/incidents/";
     const url = `${this.baseUrl}${endpoint}`;
+
+    const payload = {
+      ...input,
+      incident_code: code,
+    };
 
     const response = await this.authenticatedFetch(
       url,
@@ -227,7 +265,7 @@ export class IncidentsModule {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify(input),
+        body: JSON.stringify(payload),
       },
       endpoint,
     );
@@ -243,7 +281,7 @@ export class IncidentsModule {
       throw new PimsReadFailureError(
         endpoint,
         response.status,
-        `Failed to create incident ${input.code}: ${errText}`,
+        `Failed to create incident ${code}: ${errText}`,
         details,
         response.statusText,
       );
@@ -260,12 +298,18 @@ export class IncidentsModule {
     id: number,
     input: UpdateIncidentInput,
   ): Promise<PimsIncident> {
-    if (input.code !== undefined) {
-      assertG4WriteCode(input.code, "Incident");
+    const codeToValidate = input.incident_code ?? input.code;
+    if (codeToValidate !== undefined) {
+      assertG4WriteCode(codeToValidate, "Incident");
     }
 
     const endpoint = `/api/incidents/${id}/`;
     const url = `${this.baseUrl}${endpoint}`;
+
+    const payload = {
+      ...input,
+      ...(codeToValidate !== undefined ? { incident_code: codeToValidate } : {}),
+    };
 
     const response = await this.authenticatedFetch(
       url,
@@ -275,7 +319,7 @@ export class IncidentsModule {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify(input),
+        body: JSON.stringify(payload),
       },
       endpoint,
     );
@@ -302,8 +346,12 @@ export class IncidentsModule {
 
   /**
    * Deletes an incident via DELETE /api/incidents/{id}/.
+   * Fetches incident first to assert tenant isolation on live incident_code.
    */
   async deleteIncident(id: number): Promise<void> {
+    const incident = await this.getIncident(id);
+    assertG4WriteCode(incident.incident_code, "Incident");
+
     const endpoint = `/api/incidents/${id}/`;
     const url = `${this.baseUrl}${endpoint}`;
 
