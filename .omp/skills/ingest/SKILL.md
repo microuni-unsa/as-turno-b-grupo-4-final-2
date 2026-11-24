@@ -14,8 +14,13 @@ Executes the ingestion pipeline synchronizing documents from GESTITEL PIMS into 
 - **Configured Mirror Root**: `RAG_CONFIG.CORPUS_MIRROR_DIR` (`CORPUS_MIRROR_DIR`, `/var/lib/pimsai/corpus_mirror` inside Docker agent container; `corpus_mirror` relative locally when unset).
 - **Text Extraction Rule**: Never decode PDF bytes via `Buffer.from(...).toString("utf8")`. Extract normalized UTF-8 via `extractNormalizedText` (`pdftotext - -`, `packages/rag-mirror/pdf.ts`) and persist sibling text as `v<version>.txt` alongside `v<version>.pdf`.
 - **Execution**:
-  - Live incremental sync & stale numeric/seed pruning: `bun scripts/sync-pims-truth.ts`
-  - Query chunks or full extracted text: `bun scripts/rag-query.ts "<query>"` or `bun scripts/rag-query.ts --full --doc <doc.code> [--version <v>]`
+  - Live incremental sync & mirror management: `bun scripts/pims.ts mirror sync` (supports continuous sync mode with `bun scripts/pims.ts mirror sync --loop --interval 300` for periodic 300-second reconciliation).
+  - Forced re-ingest (delta reports 0 but fresh embeddings needed): `bun scripts/pims.ts mirror sync --force --code <doc.code>` (scoped, no confirm needed) or full `bun scripts/pims.ts mirror sync --force --confirm` (destructive, confirm required). NEVER hand-roll `DELETE FROM chunks/...` SQL — the flag runs the same tested path with logging.
+  - Queries:
+    - Extracted document text: `bun scripts/pims.ts mirror read <doc.code> [--ver <v>]`
+    - Semantic similarity query: `bun scripts/rag-query.ts "<query>"`
+  - If PIMS is unreachable, fallback to `bun scripts/pims.ts mirror read <code>` / `bun scripts/rag-query.ts "<query>"` and label `[FUENTE: Cache local pgvector mirror (PIMS no disponible)]`.
+  - **Training Evidence Note**: `/api/trainings/` returns HTTP 403 for `grupob4`; training evidence is ingested via documents `G4-REG-CAP-*` / `G4-PRG-CAP-*` (e.g., `G4-REG-CAP-01`, `G4-PRG-CAP-01`).
 
 ## 2. Corpus Mirror & Schema Contract (`packages/rag-mirror/schema.sql`)
 Directory structure under `CORPUS_MIRROR_DIR`:
@@ -34,4 +39,4 @@ Database tables in `pimsai-db`:
 - Citation format: `pims:<doc.code>:v<version>:<chunk_id>:lines:<l1>-<l2>`
 
 ## 3. Immutability
-Never overwrite historical versions. New versions are uploaded via `POST /api/documents/{id}/versions/` (explicit `.pdf` `fileName` required + `change_summary`), synced to `CORPUS_MIRROR_DIR/<doc.code>/`, and ingested while prior versions transition to `O` (`obsoleto`).
+Never overwrite historical versions. New versions are uploaded via `bun scripts/pims.ts docs add-version <id_or_code> --file <path.pdf> --file-name <name.pdf> --summary "..."` (explicit `.pdf` filename required + `change_summary`) or created via `bun scripts/pims.ts docs create --code G4-... --name ... --category PO|PR|RE|IN --status B|R|V|O --responsible ... --file <path.pdf> --file-name <name.pdf>` (with `--confirm`), synced to `CORPUS_MIRROR_DIR/<doc.code>/` via `bun scripts/pims.ts mirror sync`, and ingested while prior versions transition to `O` (`obsoleto`).

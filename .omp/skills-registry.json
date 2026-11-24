@@ -2,7 +2,7 @@
   "skills": [
     {
       "name": "pims-reader",
-      "contract": "Standardized full-system readers over PIMS REST API via PimsClient with write-only G4- enforcement, mirror fallback, and credential hygiene"
+      "contract": "Standardized full-system readers over PIMS REST API via bun scripts/pims.ts with write-only G4- enforcement, mirror fallback, and credential hygiene"
     },
     {
       "name": "connector-builder",

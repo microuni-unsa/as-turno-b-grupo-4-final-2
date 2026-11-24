@@ -42,7 +42,6 @@ The repository is structured into modular components covering all system boundar
 ├── RULES.md                     # Strict architectural and tenant-isolation constraints
 ├── docs/                        # Normative specifications, presentation templates, checklists, and ISO PDFs
 ├── connectors/                  # Connector framework: client.ts + SKILL-FRAG.md (see connectors/README.md)
-│   ├── pims-documents/          # GESTITEL Documents API adapter (PDF multipart, versions, approval)
 │   ├── mail/                    # Summons dispatch connector with explicit approval gate ("envíalo")
 │   ├── runtime/                 # Secret handles resolution (secret:<name>@<v>) and skill registration
 │   └── _template/               # Live-build template for dynamic integrations (e.g., WhatsApp, Jira)
@@ -54,6 +53,8 @@ The repository is structured into modular components covering all system boundar
 ├── packages/                    # Core TypeScript libraries
 │   ├── pims-adapter/            # Typed GESTITEL REST client (see packages/pims-adapter/README.md)
 │   └── rag-mirror/              # Vector database client, chunking, and diff engine (see packages/rag-mirror/README.md)
+├── scripts/                     # Operational scripts and companion CLI
+│   └── pims.ts                  # Canonical PIMS CLI (reads, gated writes, mirror sync, diff, publish)
 ├── services/                    # Autonomous HTTP sidecar services
 │   ├── files-sidecar/           # Ephemeral upload receiver (5-min token TTL, see services/files-sidecar/README.md)
 │   └── secrets-sidecar/         # Zero-knowledge age-encrypted credentials store (see services/secrets-sidecar/README.md)

@@ -200,29 +200,29 @@ flowchart TD
 
 ## Phase 3: Core Packages & Data Pipeline Testing
 
-### Task 3.1: PIMS Adapter Package (`packages/pims-adapter`)
+### Task 3.1: PIMS Adapter Package & Companion CLI (`packages/pims-adapter`, `scripts/pims.ts`)
 - [ ] **Multi-Tenant Write-Only Guard (`assertG4WriteCode`)**:
-  Verify that calling `createDocument`, `createIncident`, or `updateIncident` with a code not starting with `G4-` (e.g. `G2-POL-001`) immediately throws `TenantGuardViolationError` BEFORE sending an HTTP request. Also verify `createDocument` and `addDocumentVersion` reject missing `fileName` (`PimsValidationError`, never silently defaulting to `"version.pdf"`).
+  Verify that calling `docs create`, `incidents create`, or `incidents update` with a code not starting with `G4-` (e.g. `G2-POL-001`) immediately exits non-zero with `TenantGuardViolationError` BEFORE sending an HTTP request. Also verify `docs create` and `docs add-version` reject missing `.pdf` filename / `--file-name` (`PimsValidationError`, never silently defaulting to `"version.pdf"`).
 - [ ] **Uniform System-Wide Reads & Envelope Normalization**:
-  Verify that `listDocuments`, `listIncidents`, `listAudits`, `listRiskEvaluations`, `listAssets`, `getEligibleAssets`, and `getDocumentVersions` normalize both plain JSON arrays and `{ count, results }` paginated envelopes and return full system records without `G4-` read filtering.
+  Verify that `docs list`, `incidents list`, `audits list`, `risks list`, `assets list`, and `docs versions` normalize both plain JSON arrays and `{ count, results }` paginated envelopes and return full system records without `G4-` read filtering.
 - [ ] **Authentication & Token Lifecycle**:
-  Run in Bun without printing tokens/secrets:
-  ```typescript
-  import { PimsClient } from "./packages/pims-adapter/client.ts";
-  const client = new PimsClient();
-  await client.login({ username: process.env.PIMS_USERNAME!, password: process.env.PIMS_PASSWORD! });
-  console.log("PIMS auth verified cleanly.");
+  Execute via `bun scripts/pims.ts` without printing tokens/secrets:
+  ```bash
+  bun scripts/pims.ts docs list --compact
   ```
-- [ ] **Live Full-System Reads (Documents, Incidents, Audits)**:
-  ```typescript
-  const docs = await client.listDocuments({ page_size: 100 });
-  const incidents = await client.listIncidents({ page_size: 100 });
-  const audits = await client.listAudits({ page_size: 100 });
-  console.log({ docs: docs.count, incidents: incidents.count, audits: audits.count });
+  Verify: Authenticates cleanly with PIMS GESTITEL in-process using `PIMS_USERNAME` / `PIMS_PASSWORD`, zero JWT/credential leakage to stdout/stderr.
+- [ ] **Live Full-System Reads (Documents, Incidents, Audits, Risks, Assets, Dashboard)**:
+  ```bash
+  bun scripts/pims.ts docs list --compact
+  bun scripts/pims.ts incidents list --compact
+  bun scripts/pims.ts audits list --dedupe --compact
+  bun scripts/pims.ts risks list --compact
+  bun scripts/pims.ts assets list --compact
+  bun scripts/pims.ts dashboard --compact
   ```
+  Verify: Structured, compact summary output across all records without `G4-` read filtering.
 - [ ] **403 Probe Fallback Verification**:
-  Call `client.getTrainings()` and `client.getSystemCatalogs()`.
-  Confirm both throw `PimsTrainingsForbiddenError` (HTTP 403), and that training records come from uploaded documents (`G4-CAP-INC-01` / `G4-REG-CAP-01`).
+  Note that `/api/trainings/` and `/api/system-catalogs/` return HTTP 403 for `grupob4` (`PimsTrainingsForbiddenError`), and that training records come from uploaded documents (`G4-CAP-INC-01` / `G4-REG-CAP-01`).
 
 ### Task 3.2: Typst Molds & XLSX Compilation (`molds/`, `corpus_g4_src/`)
 - [ ] **Full Render Test (`scripts/render-all.ts`)**:
@@ -264,20 +264,18 @@ flowchart TD
   - Returns verbatim quotes from `chunks`.
   - Citation follows exact standard: `pims:<doc_id>:v<version>:chunk:<id>:lines:<start>-<end>`.
   - Check distance metric is cosine distance (`<=>`).
-- [ ] **Test Full-Document Read & Extracted PDF Diff (`scripts/rag-query.ts --full`, `packages/rag-mirror/diff.ts`)**:
+- [ ] **Test Full-Document Read & Extracted PDF Diff (`scripts/pims.ts mirror read`, `scripts/pims.ts diff`)**:
   ```bash
-  bun scripts/rag-query.ts --full --doc G4-PRC-INC-01 | head -n 40
-  bun -e '
-    import { compareVersions } from "./packages/rag-mirror/diff.ts";
-    const res = await compareVersions("G4-PRC-INC-01", "1.00", "3.00");
-    console.log(res.summary);
-  '
+  bun scripts/pims.ts mirror read G4-PRC-INC-01 | head -n 40
+  bun scripts/pims.ts diff G4-PRC-INC-01 --from 1.00 --to 3.00
   ```
-  Verify: `--full` dumps clean normalized UTF-8 text from `CORPUS_MIRROR_DIR/<doc.code>/v<n>.txt` (or ordered `chunks`), and `compareVersions` diffs extracted PDF text cleanly (never `%PDF-` binary bytes).
+  Verify: `mirror read` (delegating to canonical `scripts/rag-query.ts --full`) dumps clean normalized UTF-8 text from `CORPUS_MIRROR_DIR/<doc.code>/v<n>.txt` (or ordered `chunks`), and `diff` diffs extracted PDF text cleanly via `pdftotext` (never `%PDF-` binary bytes).
 
-### Task 3.4: PIMS Truth Synchronization (`scripts/sync-pims-truth.ts`)
+### Task 3.4: PIMS Truth Synchronization (`scripts/pims.ts mirror sync`, `scripts/sync-pims-truth.ts`)
 - [ ] **One-Shot Sync Pass (`doc.code` Keying)**:
   ```bash
+  bun scripts/pims.ts mirror sync
+  # (Delegates directly to canonical scripts/sync-pims-truth.ts)
   bun scripts/sync-pims-truth.ts
   ```
   Verify:
@@ -285,8 +283,8 @@ flowchart TD
   - Keys `CORPUS_MIRROR_DIR/<doc.code>/` and `pimsai-db` (`pims_registry`, `chunks`) strictly by **`doc.code`** (e.g. `G4-POL-01`), never numeric DB IDs.
   - Writes sibling extracted `v<n>.txt` alongside every `.pdf`.
   - Prunes any stale numeric-ID rows/folders and mismatched seed versions.
-- [ ] **Loop Mode Check**:
-  Verify `bun scripts/sync-pims-truth.ts --loop --interval 300` starts the background daemon and reports `[sync-loop]` log entries every 5 minutes.
+- [ ] **Loop Mode Check (Compose Hook)**:
+  Verify `bun scripts/pims.ts mirror sync --loop --interval 300` (or `bun scripts/sync-pims-truth.ts --loop --interval 300` invoked as background sync hook in compose) starts the background daemon and reports `[sync-loop]` log entries every 5 minutes.
 
 ### Task 3.5: PIMS Upload Tool (`scripts/upload-pims-truth.ts`)
 - [ ] **Dry-Run Validation**:
@@ -316,11 +314,11 @@ flowchart TD
   ```typescript
   import { registerConnector } from "./connectors/runtime/register.ts";
   await registerConnector({
-    connectorDir: "connectors/pims-documents",
+    connectorDir: "connectors/mail",
     skillPath: ".omp/skills/connectors/SKILL.md",
   });
   ```
-  Verify: Idempotently wraps and inserts `<!-- CONNECTOR: pims-documents START -->` into `.omp/skills/connectors/SKILL.md`.
+  Verify: Idempotently wraps and inserts `<!-- CONNECTOR: mail START -->` into `.omp/skills/connectors/SKILL.md`.
 
 ### Task 4.2: Mail Connector & Real Gmail SMTP Dispatch (`connectors/mail/`)
 - [ ] **Persisted Draft Summons Creation**:
@@ -396,7 +394,7 @@ Verify all 12 `.omp/skills/*/SKILL.md` skills carry valid YAML frontmatter (`nam
 ### Skill 1: `pims-reader`
 - [ ] **Prompt**: `"Consulta el documento G4-POL-01 en PIMS y muestra su estado actual y versiones."`
 - [ ] **Expected Output**:
-  - Connects to GESTITEL API via `PimsClient` without reading `.env` or printing JWTs.
+  - Connects to GESTITEL API via `bun scripts/pims.ts docs get G4-POL-01` and `bun scripts/pims.ts docs versions G4-POL-01` without reading `.env` or printing JWTs.
   - Reads full PIMS system uniformly (`G4-` enforced only on writes).
   - Returns ID, version (`"3.00"`), status (`R` or `V`), and version history table.
 - [ ] **Failure Fallback Probe**:
@@ -413,9 +411,9 @@ Verify all 12 `.omp/skills/*/SKILL.md` skills carry valid YAML frontmatter (`nam
 ### Skill 3: `version-compare`
 - [ ] **Prompt**: `"Compara la versión 1 y la versión 3 de la política de privacidad G4-POL-01 y explica el racional del cambio."`
 - [ ] **Expected Output**:
-  - Diffs **live PIMS PDFs** via extracted text (`packages/rag-mirror/diff.ts` / `v<n>.txt`) without relying on `corpus_g4_src/`.
+  - Diffs **live PIMS PDFs** via extracted text (`bun scripts/pims.ts diff G4-POL-01 --from 1.00 --to 3.00` or `packages/rag-mirror/diff.ts` / `v<n>.txt`) without relying on `corpus_g4_src/`.
   - Extracts `change_summary` and PDF revision history table; uses internal template rationale **silently (never mentions `RAFA.md` or `RAFA`)**.
-  - Publishes via `http://pimsai-files-sidecar:3000/api/publish` and returns `https://files.pimsai.mistercricro8.top:444/p/<slug>`.
+  - Publishes via `bun scripts/pims.ts publish` and returns `https://files.pimsai.mistercricro8.top:444/p/<slug>`.
 
 ### Skill 4: `incident-ops`
 - [ ] **Prompt**: `"Muestra el tablero semafórico de acciones correctivas de incidentes."`
@@ -447,9 +445,9 @@ Verify all 12 `.omp/skills/*/SKILL.md` skills carry valid YAML frontmatter (`nam
 - [ ] **Prompt**: `"Actualiza el procedimiento de incidentes G4-PRC-INC-01 para formalizar el canal de reporte en la filial Camaná."`
 - [ ] **Expected Output**:
   - Enforces `G4-` write prefix.
-  - Inspects live PIMS `/versions/`, aligns PDF cover/footer/history with next PIMS integer (`"4.0"` matching PIMS `"4.00"`), and notes minor vs. major in `change_summary`.
+  - Inspects live PIMS `/versions/` (via `bun scripts/pims.ts docs versions G4-PRC-INC-01`), aligns PDF cover/footer/history with next PIMS integer (`"4.0"` matching PIMS `"4.00"`), and notes minor vs. major in `change_summary`.
   - Executes copy-then-fill staging (`/tmp/pims-staging/...`) copying `molds/common/` and `molds/<category>/mold*.typ`, reconstructing current data from `CORPUS_MIRROR_DIR` `v<n>.txt` (without `corpus_g4_src/`), and reading `RAFA.md` **silently**.
-  - Compiles PDF via Typst, publishes preview via `content_base64`, and **HALTS for explicit human approval** before calling `addDocumentVersion` (with explicit `.pdf` `fileName`) or syncing `pgvector`.
+  - Compiles PDF via Typst, publishes preview via `bun scripts/pims.ts publish`, and **HALTS for explicit human approval** before calling `bun scripts/pims.ts docs add-version ... --confirm` (with explicit `.pdf` `fileName`) or syncing `pgvector`.
 
 ### Skill 8: `cascade`
 - [ ] **Prompt**: `"La UNSA aprobó la Resolución Rectoral N° 0143-2025 formalizando la Filial Pedregal. Aplica el cambio en cascada sobre los documentos del PIMS."`
@@ -458,8 +456,11 @@ Verify all 12 `.omp/skills/*/SKILL.md` skills carry valid YAML frontmatter (`nam
   - Scans all documents uniformly across PIMS + `CORPUS_MIRROR_DIR` (`--full` + RAG query).
   - Presents proposed remake batch (with aligned next PIMS integer versions) vs unaffected documents and halts at approval gate.
 - [ ] **Prompt**: `"aprobado, procede con la cascada"`
-- [ ] **Expected Output (Phase B)**:
-  - Compiles approved documents via copy-then-fill staging, uploads new versions with `change_summary` after consent, runs `sync-pims-truth.ts`, and publishes report at `https://files.pimsai.mistercricro8.top:444/p/<slug>`.
+- [ ] **Expected Output (Phase B — compile+preview, then STOPS)**:
+  - Compiles approved documents via copy-then-fill staging, publishes previews via `bun scripts/pims.ts publish`, and **HALTS at the second gate** (preview gate is SEPARATE from upload gate).
+- [ ] **Prompt**: `"confirmo subida de <doc> v<ver>"` (names doc+version explicitly)
+- [ ] **Expected Output (Phase C — upload)**:
+  - Uploads new versions with `change_summary` via `bun scripts/pims.ts docs add-version ... --confirm`, runs `bun scripts/pims.ts mirror sync` (or canonical `sync-pims-truth.ts`), and publishes report at `https://files.pimsai.mistercricro8.top:444/p/<slug>`.
 
 ### Skill 9: `live-build`
 - [ ] **Prompt**: `"Conecta el sistema de incidentes con WhatsApp usando Evolution API."`

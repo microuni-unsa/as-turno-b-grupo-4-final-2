@@ -40,7 +40,7 @@ skills:
 
 # Skills Registry: Complete registry of all 12 skills (3 core + 9 behavior) with one-line contracts
 skillsRegistry:
-  pims-reader: "Standardized full-system readers over PIMS REST API via PimsClient with write-only G4- enforcement, mirror fallback, and credential hygiene"
+  pims-reader: "Standardized full-system readers over PIMS REST API via bun scripts/pims.ts with write-only G4- enforcement, mirror fallback, and credential hygiene"
   connector-builder: "Dynamic connector generation with real fetch(), Traefik :444, self-hosted vs secrets-sidecar provisioning, and self-heal loop"
   ingest: "Ingest PIMS documents into CORPUS_MIRROR_DIR/<doc.code>/ (PDF + v<n>.txt), semantic chunks, 1024-dim mistral-embed, and pgvector sync"
   version-compare: "Compare live PIMS PDFs via extracted text diff and version history, silently informed by RAFA without citing internal files"

@@ -8,11 +8,11 @@ This file contains sticky, non-negotiable operational restrictions and positive 
 
 ### 1.1 Production Write Approval Gate & Write-Only `G4-` Tenancy
 - **Approval Rule**: ALL live PIMS mutating write operations (`documents`, `versions`, `incidents`, `audits`, `risk-evaluations`, `assets`, or external systems) are strictly approval-gated.
-- **Explicit Consent Required**: No `POST`, `PATCH`, `PUT`, or `DELETE` against production PIMS GESTITEL or outbound SMTP/messaging systems may execute without explicit human confirmation. Always present staged previews (`files-sidecar` `:444/p/<slug>` via `content_base64`) or email drafts before executing.
+- **Explicit Consent Required**: No `POST`, `PATCH`, `PUT`, or `DELETE` against production PIMS GESTITEL or outbound SMTP/messaging systems may execute without explicit human confirmation. Always present staged previews (via `bun scripts/pims.ts publish --slug <slug> --file <path>` returning `https://files.pimsai.mistercricro8.top:444/p/<slug>`) or email drafts before executing.
 - **Uniform System-Wide Reads**: Reads across `documents`, `incidents`, `audits`, `risk-evaluations`, and `assets` operate uniformly without `G4-` filtering; only writes strictly require `G4-`.
 
 ### 1.2 Secret & Credential Handling
-- **Credential Hygiene**: **NEVER** inspect `/app/.env`, `cat .env`, or echo/print JWTs, passwords, SMTP credentials, API keys, or DB URIs into tool outputs or chat transcripts. Process-local SDKs (`PimsClient`, `MailConnectorClient`) read `process.env` natively.
+- **Credential Hygiene**: **NEVER** inspect `/app/.env`, `cat .env`, or echo/print JWTs, passwords, SMTP credentials, API keys, or DB URIs into tool outputs or chat transcripts. Process-local tools and SDKs (`bun scripts/pims.ts`, `MailConnectorClient`) read `process.env` natively.
 - **Self-Hosted vs External Secrets**:
   - For **self-hosted sibling containers** we deploy (`docker-proxy:2375` on `internal-proxy`, e.g., Evolution API), generate/inject API keys directly at launch and surface QR/setup URLs (`:444`) directly—do NOT prompt via `secrets-sidecar`.
   - For **external user-owned credentials**, mint a one-time URL via `secrets-sidecar` (`https://secrets.pimsai.mistercricro8.top:444/s/<token>`), register an `async: true` background poll before replying, and resolve to opaque handles `secret:<name>@<version>`.
@@ -34,11 +34,11 @@ This file contains sticky, non-negotiable operational restrictions and positive 
 
 ### 2.4 Document Mutation Routing (Parameterized Copy-Then-Fill)
 - **Mandatory Copy-Then-Fill Protocol**: All document modifications and version increments MUST route through isolated staging without requiring `corpus_g4_src/` at runtime:
-  1. Inspect live PIMS `/versions/` (`PimsClient.getDocumentVersions`) and align the PDF version to the next PIMS integer (e.g., `"3.00"` in PIMS → `"4.0"` on PDF cover/footer/history → `"4.00"` on upload), stating minor vs. major in `change_summary`.
-  2. Pull current institutional content from `CORPUS_MIRROR_DIR/<doc.code>/v<n>.txt` (`bun scripts/rag-query.ts --full --doc <code>`) or live PIMS PDF extracted with `pdftotext`, inspect exact `#let mold*` symbol & parameters in `molds/<category>/mold*.typ`, and read `molds/<category>/RAFA.md` **silently** (never cite `RAFA.md` to the user).
+  1. Inspect live PIMS `/versions/` via `bun scripts/pims.ts docs versions <id_or_code>` and align the PDF version to the next PIMS integer (e.g., `"3.00"` in PIMS → `"4.0"` on PDF cover/footer/history → `"4.00"` on upload), stating minor vs. major in `change_summary`.
+  2. Pull current institutional content from `CORPUS_MIRROR_DIR/<doc.code>/v<n>.txt` (`bun scripts/pims.ts mirror read <code>` or canonical `bun scripts/rag-query.ts --full --doc <code>`) or live PIMS PDF extracted with `pdftotext`, inspect exact `#let mold*` symbol & parameters in `molds/<category>/mold*.typ`, and read `molds/<category>/RAFA.md` **silently** (never cite `RAFA.md` to the user).
   3. Copy `molds/common/` → `/tmp/pims-staging/common/` and `molds/<category>/*.typ` → `/tmp/pims-staging/<code>-v<n>/`.
-  4. Write a new thin caller in staging passing updated `#let data` parameters, compile with `typst compile` (or `bun run generate*.ts` for XLSX), publish a preview via `http://pimsai-files-sidecar:3000/api/publish` (`content_base64`), and **halt for explicit human approval**.
-  5. Only after approval: upload to PIMS (`POST /api/documents/{id}/versions/` with explicit `.pdf` `fileName` and structured `change_summary`), re-sync via `bun scripts/sync-pims-truth.ts` into `CORPUS_MIRROR_DIR` and `pimsai-db`.
+  4. Write a new thin caller in staging passing updated `#let data` parameters, compile with `typst compile` (or `bun run generate*.ts` for XLSX), publish a preview via `bun scripts/pims.ts publish --slug <slug> --file <path>`, and **halt for explicit human approval**.
+  5. Only after approval: upload to PIMS via `bun scripts/pims.ts docs add-version <id_or_code> --file <path.pdf> --file-name <name.pdf> --summary "..." --confirm` (or `bun scripts/pims.ts docs create --code G4-... --confirm`; note the mandatory human confirmation gate), and re-sync via `bun scripts/pims.ts mirror sync` (or canonical `bun scripts/sync-pims-truth.ts`) into `CORPUS_MIRROR_DIR` and `pimsai-db`.
 - **Hard Restrictions on Mold Mutation**:
   - **MUST NOT** mutate `molds/` in place for instance data (template edits require explicit structural approval).
   - **MUST NOT** hand-edit compiled PDFs or cite internal files (`RAFA.md`, `molds/*`) in user-facing responses.

@@ -15,13 +15,16 @@ Construcción, despliegue en contenedor hermano y registro en caliente de conect
 
 ## 2. Step Protocol
 
-1. **Reafirmación Inmediata y Ejecución No Bloqueante**:
-   - Confirmar al usuario el objetivo y despachar un subagente en segundo plano mientras la sesión principal continúa atendiendo consultas del espejo PIMS.
+1. **Reafirmación Inmediata y Ejecución No Bloqueante (o INLINE si no interactivo)**:
+   - En sesión interactiva: confirmar al usuario el objetivo y despachar un subagente en segundo plano mientras la sesión principal continúa atendiendo consultas del espejo PIMS.
+   - En modo NO interactivo / print (`omp -p` sin wake-ups): NO despachar subagente en segundo plano — el proceso muere al terminar el turno y el trabajo se evapora. Ejecutar la construcción INLINE (foreground) en la sesión principal.
+   - NUNCA anunciar entrega al despachar: verificar antes de anunciar (ver `connector-builder` §2.3: `healthCheck()` real + URLs probadas con `curl` antes de reportar).
 
 2. **Modelo Correcto de Credenciales (Self-Hosted vs Externas)**:
    - **Servicios Auto-Alojados que Desplegamos Nosotros** (ej. **Evolution API** en `docker-proxy:2375` sobre red `internal-proxy`):
      - **NO** pedirle claves al usuario por `secrets-sidecar`.
-     - Generar aleatoriamente una `AUTHENTICATION_API_KEY` segura al crear el contenedor hermano, inyectarla en sus variables de entorno (`-e AUTHENTICATION_API_KEY=...` junto con URL pública `:444`), crear la instancia vía HTTP y obtener el **código QR / pairing URL** para mostrárselo directamente al usuario (publicando imagen QR en `files-sidecar` `:444/p/<slug>` si aplica).
+     - Generar aleatoriamente una `AUTHENTICATION_API_KEY` segura al crear el contenedor hermano, inyectarla en sus variables de entorno (`-e AUTHENTICATION_API_KEY=...` junto con URL pública `:444`), crear la instancia vía HTTP.
+     - **Handoff de vinculación (QR/pairing) — SIEMPRE vía relay, NUNCA QR estático**: desplegar `scripts/deploy-qr-relay.sh --slug <slug>-qr --instance <name>` (token-gated, QR auto-refrescante, llave server-side) y anunciar SOLO la URL del relay + 3 pasos de escaneo. Prohibido: publicar PNG QR en files-sidecar (rota antes que el TTL), pedir login en manager con API key (fricción + expone secreto).
    - **Servicios Externos Propiedad del Usuario** (Slack workspace token, Jira cloud API token, webhook externo externo):
      - Solicitar la credencial mediante `POST http://pimsai-secrets-sidecar:3000/api/secrets/request`, iniciar el sondeo obligatorio con `async: true` sobre `/api/secrets/poll/<token>` **antes** de responder, y entregar `https://secrets.pimsai.mistercricro8.top:444/s/<token>`.
 

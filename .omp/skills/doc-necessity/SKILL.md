@@ -42,16 +42,20 @@ Evaluación dinámica y en tiempo real de la necesidad documental en ISO/IEC 277
      - Documentos cuyo carácter mandatorio depende del **contexto real** (Cl. 7.5.1 b: necesario para la eficacia; Cl. 8.1: control operacional según riesgo/alcance; hechos en `university-facts/`, `G4-ALC-01`, `G4-SOA-01` y registros vivos en PIMS):
        - ¿UNSA usa encargados de tratamiento (subcontratistas/proveedores TIC)? → Si sí, `A.1.2.7` exige contrato escrito con requisitos Tabla A.2.
        - ¿Hay transferencias internacionales o nuevos tratamientos de PII? → Exige evaluación de impacto (`A.1.2.6`) y registros de transferencia (`A.1.5.2`–`A.1.5.5`).
-       - ¿Hay incidentes abiertos (`GET /api/incidents/`), riesgos registrados (`GET /api/risk-evaluations/`), o hallazgos en auditorías (`GET /api/audits/`)? → Determina si procedimientos operacionales o registros específicos son necesarios bajo Cl. 7.5.1 b) / Cl. 8.1.
+       - ¿Hay incidentes abiertos (`incidents list`), riesgos registrados (`risks list`), o hallazgos en auditorías (`audits list`)? → Determina si procedimientos operacionales o registros específicos son necesarios bajo Cl. 7.5.1 b) / Cl. 8.1.
        - ¿Preguntas normativas generales (sin documento concreto)? → Evaluar de forma pura frente a `reference/iso-27701-2025.md`, distinguiendo claramente mandatos generales de condiciones contextuales UNSA.
    - **Nivel 3 — OPCIONAL / ADICIONAL (*Discretionary Operational Artifact*)**:
      - Documentos sin mandato expreso *shall* en Cl. 4–10 ni Tabla A.1/A.3 y no requeridos por riesgo/ley aplicable en el contexto actual (aunque si ya existen en PIMS con estado `R` o `V`, constituyen adopción voluntaria institucional sujeta al control documental Cl. 7.5.3).
 
 3. **Lectura Uniforme del Estado Vivo en PIMS**:
-   - Usar `PimsClient` (`packages/pims-adapter/client.ts`) sin filtrar por `G4-`:
-     - `listDocuments({ page_size: 200 })`, `listIncidents({ page_size: 200 })`, `listAudits({ page_size: 200 })`, `listRiskEvaluations()`, `listAssets()`.
+   - Consultar en vivo mediante el CLI unificado (`bun scripts/pims.ts`) sin filtrar por `G4-`:
+     - `bun scripts/pims.ts docs list --compact`
+     - `bun scripts/pims.ts incidents list --compact`
+     - `bun scripts/pims.ts audits list --compact`
+     - `bun scripts/pims.ts risks list --compact`
+     - `bun scripts/pims.ts assets list --compact`
    - Extraer `id`, `code`, `status` (`B`/`R`/`V`/`O`; tanto `R` como `V` son activos válidos según estado operativo actual), y `current_version` (string opaco `"3.00"`, nunca inferir veredicto desde `category`).
-   - Inspeccionar el texto real en `G4-ALC-01`, `G4-SOA-01` o del documento evaluado vía `bun scripts/rag-query.ts --full --doc <code>` y `university-facts/facts.json`.
+   - Inspeccionar el texto real en `G4-ALC-01`, `G4-SOA-01` o del documento evaluado vía `bun scripts/pims.ts mirror read <doc.code>` (o búsqueda semántica con `bun scripts/rag-query.ts "<consulta>"`) y `university-facts/facts.json`.
 
 4. **Veredicto Dinámico y Citas Verificables**:
    - Formato de tabla obligatoria:
@@ -60,6 +64,6 @@ Evaluación dinámica y en tiempo real de la necesidad documental en ISO/IEC 277
 ## 3. Failure Branches
 
 - **PIMS No Disponible**:
-  - Usar `bun scripts/rag-query.ts` / `--full` y anteponer `[FUENTE: Cache local pgvector mirror (PIMS no disponible)]`. Contrastar normalmente contra `reference/iso-27701-2025.md`.
+  - Si la lectura en vivo falla, usar el espejo local vía `bun scripts/pims.ts mirror read <doc.code>` o búsqueda semántica con `bun scripts/rag-query.ts "<consulta>"` y anteponer obligatoriamente `[FUENTE: Cache local pgvector mirror (PIMS no disponible)]`. Contrastar normalmente contra `reference/iso-27701-2025.md`.
 - **Artefacto Inexistente**:
   - Si no figura en PIMS ni aplica a ningún mandato *shall*/contextual de `reference/iso-27701-2025.md`, reportar ausente y clasificar en Nivel 2 o Nivel 3 según análisis factual; jamás inventar cláusulas.
