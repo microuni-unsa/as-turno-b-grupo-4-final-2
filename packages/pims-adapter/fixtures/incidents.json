@@ -1,116 +1,764 @@
 {
-  "list": {
-    "count": 2,
-    "next": null,
-    "previous": null,
-    "results": [
-      {
-        "id": 501,
-        "code": "G4-INC-2026-001",
-        "title": "Fuga potencial de credenciales en repositorio de pruebas",
-        "description": "Se detectaron tokens de prueba expuestos en registros de logs locales sin cifrar.",
-        "severity": "medium",
-        "status": "resolved",
-        "incident_type": "security_breach",
-        "incident_date": "2026-11-05T08:15:00Z",
-        "responsible": "Grupo 4 - Turno B",
-        "involves_personal_data": false,
-        "actions": [
-          {
-            "id": 1,
-            "action_description": "Revocación inmediata de tokens y rotación de secretos",
-            "due_date": "2026-11-05T12:00:00Z",
-            "responsible": "Grupo 4 - Turno B",
-            "status": "completed"
-          }
-        ],
-        "created_at": "2026-11-05T08:20:00Z",
-        "updated_at": "2026-11-05T11:45:00Z"
-      },
-      {
-        "id": 502,
-        "code": "G4-INC-2026-002",
-        "title": "Acceso no autorizado a registros de prueba de estudiantes",
-        "description": "Intento de acceso masivo a endpoint no anonimizado durante simulacro de auditoría.",
-        "severity": "high",
-        "status": "open",
-        "incident_type": "privacy_breach",
-        "incident_date": "2026-11-12T16:00:00Z",
-        "responsible": "Grupo 4 - Turno B",
-        "involves_personal_data": true,
-        "actions": [
-          {
-            "id": 2,
-            "action_description": "Bloqueo de IP de origen y activación de protocolo de notificación a afectados",
-            "due_date": "2026-11-14T16:00:00Z",
-            "responsible": "Grupo 4 - Turno B",
-            "status": "in_progress"
-          }
-        ],
-        "created_at": "2026-11-12T16:10:00Z",
-        "updated_at": "2026-11-13T09:00:00Z"
-      }
-    ]
-  },
+  "list": [
+    {
+      "id": 12,
+      "incident_code": "INC-012",
+      "rep_document_number": null,
+      "rep_document_expiry": null,
+      "rep_first_name": null,
+      "rep_last_name_p": null,
+      "rep_last_name_m": null,
+      "rep_position": null,
+      "rep_phone": null,
+      "rep_email": null,
+      "entity_type": null,
+      "entity_ruc": null,
+      "entity_name": null,
+      "entity_phone": null,
+      "entity_extension": null,
+      "entity_department": null,
+      "entity_province": null,
+      "entity_district": null,
+      "involves_personal_data": true,
+      "incident_date": "2026-11-05",
+      "incident_time": null,
+      "detection_date": null,
+      "detection_time": null,
+      "incident_type": "OT",
+      "status": "C",
+      "severity": "L",
+      "impact": "L",
+      "title": "LIVE-SMOKE-e47f3da3-6f58-4deb-b46e-bd42c548dccc",
+      "description": null,
+      "reported_by": null,
+      "assigned_to": null,
+      "affected_treatment": null,
+      "dpo_contact_name": null,
+      "dpo_contact_email": null,
+      "dpo_contact_phone": null,
+      "affected_data_types": [],
+      "num_affected_subjects": null,
+      "compromised_system": null,
+      "affected_url": null,
+      "evidence_refs": null,
+      "measure_updated_registry": null,
+      "measure_new_security": null,
+      "measure_improved_policies": null,
+      "measure_considered_resolved": "Y",
+      "measure_reported_authorities": null,
+      "security_measures_adopted": [],
+      "resolved_date": "2026-11-05",
+      "affected_cid": [
+        "C"
+      ],
+      "actions": [
+        {
+          "action_type": "C",
+          "responsible": "ANON_RESPONSIBLE",
+          "action_date": "2026-11-05",
+          "description": "Live smoke containment action.",
+          "evidence": null,
+          "position": 0
+        }
+      ],
+      "attachments": [
+        {
+          "id": 10,
+          "file": "https://example.com/media/tenants/example/incidents/bundle_tVxdutt.json.txt",
+          "file_name": "bundle.json.txt",
+          "uploaded_at": "2026-11-05T20:16:45.026030Z",
+          "uploaded_by": 14,
+          "uploaded_by_name": "anon-uploader"
+        }
+      ],
+      "history": [
+        {
+          "id": 193,
+          "event_type": "updated",
+          "event_type_label": "Actualizado",
+          "changed_at": "2026-11-05T20:16:45.521385Z",
+          "actor": "anon-actor",
+          "changed_by": 14,
+          "changed_by_name": "anon-actor",
+          "description": "Incidente actualizado",
+          "recipients_snapshot": null
+        },
+        {
+          "id": 192,
+          "event_type": "updated",
+          "event_type_label": "Actualizado",
+          "changed_at": "2026-11-05T20:16:45.350328Z",
+          "actor": "anon-actor",
+          "changed_by": 14,
+          "changed_by_name": "anon-actor",
+          "description": "Incidente actualizado",
+          "recipients_snapshot": null
+        },
+        {
+          "id": 191,
+          "event_type": "updated",
+          "event_type_label": "Actualizado",
+          "changed_at": "2026-11-05T20:16:44.877215Z",
+          "actor": "anon-actor",
+          "changed_by": 14,
+          "changed_by_name": "anon-actor",
+          "description": "Incidente actualizado",
+          "recipients_snapshot": null
+        }
+      ],
+      "attachments_count": 1,
+      "actions_count": 1,
+      "created_at": "2026-11-05T20:16:43.949213Z",
+      "created_by": 14,
+      "updated_at": "2026-11-05T20:16:45.515703Z",
+      "updated_by": 14
+    },
+    {
+      "id": 11,
+      "incident_code": "INC-011",
+      "rep_document_number": "00000000",
+      "rep_document_expiry": "2026-11-05",
+      "rep_first_name": "ANON_REP",
+      "rep_last_name_p": "ANON_LAST",
+      "rep_last_name_m": "ANON_LAST",
+      "rep_position": "Jefa de Seguridad de la Información",
+      "rep_phone": "+51 900 000 000",
+      "rep_email": "anon-rep@example.com",
+      "entity_type": "U",
+      "entity_ruc": "20000000001",
+      "entity_name": "Universidad de Ejemplo",
+      "entity_phone": null,
+      "entity_extension": null,
+      "entity_department": "Arequipa",
+      "entity_province": "Arequipa",
+      "entity_district": "Arequipa",
+      "involves_personal_data": true,
+      "incident_date": "2026-10-30",
+      "incident_time": "09:15:00",
+      "detection_date": "2026-11-02",
+      "detection_time": "14:30:00",
+      "incident_type": "PH",
+      "status": "P",
+      "severity": "H",
+      "impact": "H",
+      "title": "ANON_USER_1, Jefa de Seguridad de la Información de la Universidad de Ejemplo",
+      "description": "Un ataque de phishing suplantó el dominio matricula.example.edu y redirigió a un formulario falso en http://matricula-soporte.example.net/login.. Un docente ingresó sus credenciales, accediendo al módulo de matrícula del ERP académico (ERP-ACADEMICO) en https://matricula.example.edu/login.. El acceso fue detectado anómalo el 2 de noviembre de 2026 a las 14:30 mediante alertas del SIEM. Se expusieron nombres, apellidos, DNI, correos, teléfonos y direcciones de 350 estudiantes. Se aplicaron medidas como cambio de contraseñas, activación de MFA, segmentación de red y capacitación al personal.",
+      "reported_by": "ANON_REPORTER",
+      "assigned_to": null,
+      "affected_treatment": "matrícula de estudiantes 2026-II",
+      "dpo_contact_name": "ANON_DPO",
+      "dpo_contact_email": "anon-dpo@example.com",
+      "dpo_contact_phone": "+51 900 000 000",
+      "affected_data_types": [
+        "names",
+        "id_doc",
+        "address",
+        "phone",
+        "email"
+      ],
+      "num_affected_subjects": 350,
+      "compromised_system": "https://matricula.example.edu/login. (ERP-ACADEMICO)",
+      "affected_url": "http://matricula-soporte.example.net/login.",
+      "evidence_refs": "UNASSIGNED:INC-011;DEADLINE_MISSED_72H;AUDIT_LINK:3:29:0;PERU_ADVISORY_TIMER_ELAPSED;AUDIT_LINK:3:30:1;CLOSE_APPROVED:f27cc580-7bb2-4f45-b99f-35d01fbea229;PACK_UNAPPROVED:authority:draft;PACK_UNAPPROVED:subject:draft;CLOSE_APPROVED:24ec900b-9c06-4c7b-b198-1b8ae46b09c5;SUBJECT_NOTIFIED:1:email;PHASE_DUE:2",
+      "measure_updated_registry": "Y",
+      "measure_new_security": "Y",
+      "measure_improved_policies": "Y",
+      "measure_considered_resolved": "Y",
+      "measure_reported_authorities": "Y",
+      "security_measures_adopted": [
+        "encrypt_transit",
+        "mfa",
+        "network_seg",
+        "training",
+        "patching",
+        "backups",
+        "siem",
+        "rbac",
+        "dlp"
+      ],
+      "resolved_date": "2026-11-07",
+      "affected_cid": [
+        "C",
+        "I"
+      ],
+      "actions": [
+        {
+          "action_type": "C",
+          "responsible": "Equipo de Soporte de TI - Universidad Nacional de San Agustín",
+          "action_date": "2026-11-05",
+          "description": "Revoke all active credentials for the compromised system [SISTEMA] (ERP-ACADEMICO) and revoke temporary credentials issued post-incident.",
+          "evidence": "Logs de autenticación del SIEM (INC-011_02NOV2026_1430_SIEM_alerts)",
+          "position": 0
+        },
+        {
+          "action_type": "C",
+          "responsible": "Equipo de Ciberseguridad - Universidad Nacional de San Agustín",
+          "action_date": "2026-11-05",
+          "description": "Block the malicious URL [SISTEMA] and all associated IP addresses used in the phishing campaign.",
+          "evidence": "Registros de DNS y logs del firewall (INC-011_02NOV2026_phishing_URL_IP)",
+          "position": 1
+        },
+        {
+          "action_type": "C",
+          "responsible": "Equipo de Forense Digital - Universidad Nacional de San Agustín",
+          "action_date": "2026-11-05",
+          "description": "Preserve and isolate logs from the compromised system [SISTEMA] (ERP-ACADEMICO) related to the anomalous access detected on 2 de noviembre de 2026.",
+          "evidence": "Logs del sistema ERP-ACADEMICO (INC-011_02NOV2026_1430_SIGA_access_logs)",
+          "position": 2
+        },
+        {
+          "action_type": "C",
+          "responsible": "Equipo de Correo Electrónico - Universidad Nacional de San Agustín",
+          "action_date": "2026-11-05",
+          "description": "Block all email domains and IP addresses associated with the phishing campaign to prevent further redirecciones.",
+          "evidence": "Registros de correo electrónico filtrados (INC-011_phishing_email_logs)",
+          "position": 3
+        },
+        {
+          "action_type": "C",
+          "responsible": "Equipo de Gestión de Identidades y Accesos (IAM)",
+          "action_date": "2026-11-05",
+          "description": "Revise and revoke access permissions for the compromised accounts in [SISTEMA] (ERP-ACADEMICO) and implement multi-factor authentication (MFA) for all users with access to módulo de matrícula.",
+          "evidence": "Registros de permisos del sistema ERP-ACADEMICO (INC-011_SIGA_permissions_logs)",
+          "position": 4
+        },
+        {
+          "action_type": "C",
+          "responsible": "Equipo de Forense Digital - Universidad Nacional de San Agustín",
+          "action_date": "2026-11-05",
+          "description": "Preserve all student data exposed (nombres, apellidos, DNI, correos, teléfonos y direcciones) in a secure, isolated environment for forensic analysis.",
+          "evidence": "Datos de estudiantes expuestos (INC-011_student_data_exposure_02NOV2026)",
+          "position": 5
+        },
+        {
+          "action_type": "C",
+          "responsible": "Equipo de Seguridad de la Información - Universidad Nacional de San Agustín",
+          "action_date": "2026-11-05",
+          "description": "Audit and revoke any temporary or shared credentials used in the affected systems, ensuring strict adherence to the principle of least privilege.",
+          "evidence": "Logs de auditoría de credenciales (INC-011_credential_audit_logs)",
+          "position": 6
+        },
+        {
+          "action_type": "A",
+          "responsible": "investigator",
+          "action_date": "2026-11-05",
+          "description": "Breach review assessment: breach requiring response: yes — El incidente descrito es un **brecha de datos con exposición de información personal sensible** (nombres, apellidos, DNI, correos, teléfonos y direcciones de 350 estudiantes), lo que configura un **personal data breach** bajo el GDPR (Reglamento General de Protección de Datos). Según los artículos citados (33, 34 y 42 del GDPR), la exposición de datos de **alto riesgo** (p. ej., discriminación, fraude, pérdida de control sobre datos, daño reputacional) exige una **notificación inmediata** a la autoridad supervisora (Art. 33.1) y, en su caso, a los afectados (Art. 34.1). Las medidas aplicadas (cambio de contraseñas, segmentación de red, capacitación) son **provisorias** y no mitigan el riesgo residual de reutilización o filtración adicional. La brecha no cumple con la condición de exclusión (Art. 33.3) por falta de medidas técnicas robustas (encriptación) o justificación de esfuerzo desproporcionado.",
+          "evidence": "gdpr-full:gdpr-full:0127:2173-2203 gdpr-full:gdpr-full:0049:[CONTACTO] gdpr-full:gdpr-full:0128:2209-2235 gdpr-full:gdpr-full:0043:[CONTACTO]",
+          "position": 7
+        },
+        {
+          "action_type": "A",
+          "responsible": "investigator",
+          "action_date": "2026-11-05",
+          "description": "Root cause (fault-tree): Falta de **validación técnica y educativa robusta en la autenticación y detección temprana de phishing**, combinada con **incumplimiento de controles de seguridad en la gestión de credenciales y transferencia de datos sensibles** (ej. falta de encriptación en tránsito y MFA obligatoria en módulos críticos como el de matrícula).",
+          "evidence": "INC-011_02NOV2026_1430_SIEM_alerts INC-011_02NOV2026_phishing_URL_IP INC-011_02NOV2026_1430_SIGA_access_logs Registros de permisos del sistema ERP-ACADEMICO ([SISTEMA]) INC-011_student_data_exposure_02NOV2026 gdpr-full:gdpr-full:0127:2173-2203 gdpr-full:gdpr-full:0049:[CONTACTO]",
+          "position": 8
+        },
+        {
+          "action_type": "R",
+          "responsible": "UNASSIGNED",
+          "action_date": "2026-11-06",
+          "description": "Un ataque de phishing suplantó el dominio oficial de la universidad y dirigió a un formulario falso. Un docente ingresó sus credenciales en el sistema de matrícula, permitiendo acceso anómalo. La alerta del SIEM detectó la intrusión horas después, exponiendo datos sensibles de trescientos cincuenta estudiantes. Se contuvo el acceso restringiendo la red afectada y aislando cuentas comprometidas.\nSe implementó cambio inmediato de credenciales para todos los usuarios vinculados. Se activó el sistema de detección y prevención de intrusiones y se segmentó la red para limitar propagación. Se capacitó al personal en reconocimiento de phishing y se reforzó la autenticación multifactor. Se restauraron copias de seguridad limpias y se aplicaron parches críticos. Se revisó el acceso mediante RBAC y se activó DLP para evitar filtraciones futuras.",
+          "evidence": null,
+          "position": 9
+        }
+      ],
+      "attachments": [],
+      "history": [
+        {
+          "id": 212,
+          "event_type": "updated",
+          "event_type_label": "Actualizado",
+          "changed_at": "2026-11-07T08:22:48.633106Z",
+          "actor": "anon-actor",
+          "changed_by": 14,
+          "changed_by_name": "anon-actor",
+          "description": "Incidente actualizado",
+          "recipients_snapshot": null
+        },
+        {
+          "id": 211,
+          "event_type": "updated",
+          "event_type_label": "Actualizado",
+          "changed_at": "2026-11-07T08:22:47.536942Z",
+          "actor": "anon-actor",
+          "changed_by": 14,
+          "changed_by_name": "anon-actor",
+          "description": "Incidente actualizado",
+          "recipients_snapshot": null
+        },
+        {
+          "id": 210,
+          "event_type": "updated",
+          "event_type_label": "Actualizado",
+          "changed_at": "2026-11-06T10:56:31.818289Z",
+          "actor": "anon-actor",
+          "changed_by": 14,
+          "changed_by_name": "anon-actor",
+          "description": "Incidente actualizado",
+          "recipients_snapshot": null
+        }
+      ],
+      "attachments_count": 0,
+      "actions_count": 10,
+      "created_at": "2026-11-05T19:28:44.090459Z",
+      "created_by": 14,
+      "updated_at": "2026-11-07T08:22:48.626591Z",
+      "updated_by": 14
+    },
+    {
+      "id": 1,
+      "incident_code": "INC-001",
+      "rep_document_number": "00000000",
+      "rep_document_expiry": "2026-11-07",
+      "rep_first_name": "ANON_REP",
+      "rep_last_name_p": "ANON_LAST",
+      "rep_last_name_m": "ANON_LAST",
+      "rep_position": "Estudiante",
+      "rep_phone": "+51 900 000 000",
+      "rep_email": "anon-rep@example.com",
+      "entity_type": "U",
+      "entity_ruc": "20000000001",
+      "entity_name": "Universidad de Ejemplo",
+      "entity_phone": "054-000000",
+      "entity_extension": "100",
+      "entity_department": "Arequipa",
+      "entity_province": "Arequipa",
+      "entity_district": "Cercado",
+      "involves_personal_data": true,
+      "incident_date": "2026-10-26",
+      "incident_time": "12:11:00",
+      "detection_date": "2026-10-26",
+      "detection_time": "13:37:00",
+      "incident_type": "UA",
+      "status": "C",
+      "severity": "H",
+      "impact": "H",
+      "title": "Posible acceso no autorizado observado por una estudiante en laboratorio",
+      "description": "ANON_USER_2, estudiante de la universidad (datos ficticios), reportó haber observado a otro estudiante intentando acceder a una cuenta institucional que aparentemente no le pertenecía, desde un equipo del laboratorio de cómputo. La reportante confirma que el acceso fue exitoso.",
+      "reported_by": "ANON_REPORTER",
+      "assigned_to": "ANON_ASSIGNEE",
+      "affected_treatment": "Gestión de cuentas institucionales",
+      "dpo_contact_name": "ANON_DPO",
+      "dpo_contact_email": "anon-dpo@example.com",
+      "dpo_contact_phone": "+51 900 000 000",
+      "affected_data_types": [
+        "names",
+        "email",
+        "credentials"
+      ],
+      "num_affected_subjects": 1,
+      "compromised_system": "Equipo de laboratorio de cómputo",
+      "affected_url": null,
+      "evidence_refs": "Reporte directo de Ana, sin evidencias;DEADLINE_MISSED_72H;CLOSE_APPROVED:64c07c5a-6119-4e9d-bbc0-b49cb1c5d815;SUBJECT_NOTIFIED:1:email;PHASE_DUE:2;AUDIT_LINK:2:0:0;BUNDLE_SEALED:0b5c67eb9af501d4b7c0ea130e11bc5c58daac55bd2bf873e5f90684281b3e64",
+      "measure_updated_registry": "N",
+      "measure_new_security": "Y",
+      "measure_improved_policies": "Y",
+      "measure_considered_resolved": "Y",
+      "measure_reported_authorities": "Y",
+      "security_measures_adopted": [],
+      "resolved_date": "2026-11-02",
+      "affected_cid": [
+        "C",
+        "I"
+      ],
+      "actions": [
+        {
+          "action_type": "C",
+          "responsible": "anon-group",
+          "action_date": "2026-11-03",
+          "description": "Contencion inicial: aislamiento de la cuenta afectada y rotacion de credenciales.",
+          "evidence": null,
+          "position": 0
+        },
+        {
+          "action_type": "C",
+          "responsible": "Equipo de Soporte Técnico de Laboratorios",
+          "action_date": "2026-11-03",
+          "description": "Isolar inmediatamente el equipo de laboratorio de cómputo donde se detectó el acceso no autorizado y desconectarlo de la red institucional para evitar propagación.",
+          "evidence": "Registro de acceso exitoso en el sistema de autenticación institucional (CID-C)",
+          "position": 1
+        },
+        {
+          "action_type": "C",
+          "responsible": "Equipo de Seguridad de la Información",
+          "action_date": "2026-11-03",
+          "description": "Revisar y revocar todas las credenciales de acceso institucional asociadas a la cuenta sospechosa, incluyendo contraseñas y tokens de autenticación multifactor.",
+          "evidence": "Logs de autenticación del sistema de gestión de identidades (CID-I)",
+          "position": 2
+        },
+        {
+          "action_type": "C",
+          "responsible": "Equipo de Redes y Telecomunicaciones",
+          "action_date": "2026-11-03",
+          "description": "Bloquear temporalmente la IP pública y las direcciones MAC asociadas al equipo del laboratorio de cómputo en los firewalls y switches de la red institucional.",
+          "evidence": "Logs de tráfico de red del switch asociado al laboratorio (CID-C)",
+          "position": 3
+        },
+        {
+          "action_type": "C",
+          "responsible": "Equipo de Forense Digital",
+          "action_date": "2026-11-03",
+          "description": "Preservar y etiquetar como evidencia todos los logs de autenticación, acceso y actividad del sistema del equipo comprometido, así como los logs de red asociados.",
+          "evidence": "Almacenamiento seguro de logs en el sistema de gestión de incidentes (CID-C y CID-I)",
+          "position": 4
+        },
+        {
+          "action_type": "C",
+          "responsible": "Coordinador Académico del Laboratorio",
+          "action_date": "2026-11-03",
+          "description": "Notificar a la estudiante reportante (ANON_USER_2) para que no utilice el equipo comprometido y evitar cualquier interacción adicional con el sistema.",
+          "evidence": "Registro de notificación enviada por correo institucional (CID-C)",
+          "position": 5
+        },
+        {
+          "action_type": "C",
+          "responsible": "Equipo de Forense Digital",
+          "action_date": "2026-11-03",
+          "description": "Realizar un escaneo forense del equipo comprometido para identificar posibles malware, backdoors o actividad maliciosa residual antes de su desinfección o reemplazo.",
+          "evidence": "Informe técnico de escaneo forense (CID-C)",
+          "position": 6
+        },
+        {
+          "action_type": "C",
+          "responsible": "Comité de Seguridad Institucional",
+          "action_date": "2026-11-03",
+          "description": "Revisar y actualizar las políticas de acceso al laboratorio de cómputo, incluyendo supervisión de usuarios y registro de sesiones en tiempo real.",
+          "evidence": "Acta de reunión con actualización de políticas (CID-I)",
+          "position": 7
+        },
+        {
+          "action_type": "A",
+          "responsible": "investigator",
+          "action_date": "2026-11-03",
+          "description": "Breach review assessment: breach requiring response: yes — The incident involves unauthorized access to a **personal-data record** (credentials, names, and email) of an affected individual (CID: **C** or **I**), which constitutes a **personal-data breach** under **ISO/IEC 27701:2019** (aligned with **GDPR Article 4(12)**). The successful unauthorized access to credentials—especially in a shared laboratory environment—poses a **high risk** to the rights and freedoms of the affected data subject, including potential identity theft, fraud, or unauthorized access to sensitive institutional data. The **72-hour notification requirement (GDPR Article 33)** and **data-subject communication obligation (GDPR Article 34)** apply, as the breach is **not mitigated by technical safeguards** (e.g., encryption) and involves **high-risk personal data** (credentials + identifiers). The **unauthorized access itself** is a breach of **confidentiality (ISO/IEC 27002:2022 A.9.1.1)** and **accountability (ISO/IEC 27701:2019 7.1.2)**. The controller must assess further risks (e.g., scope of exposed data, potential misuse) and initiate **mandatory reporting** to the supervisory authority and affected individuals.",
+          "evidence": "gdpr-full:gdpr-full:0127:2173-2203 gdpr-full:gdpr-full:0128:2209-2235 gdpr-full:gdpr-full:0049:454-460 gdpr-full:gdpr-full:0130:2280-2298",
+          "position": 8
+        },
+        {
+          "action_type": "A",
+          "responsible": "investigator",
+          "action_date": "2026-11-03",
+          "description": "Root cause (5-whys): Falta de supervisión y control de acceso en tiempo real en el laboratorio de cómputo, combinada con la ausencia de políticas estrictas de gestión de identidades y autenticación multifactor obligatoria para todos los usuarios.",
+          "evidence": "Logs de autenticación del sistema de gestión de identidades (CID-I) - Acceso exitoso sin autenticación multifactor Registro de acceso exitoso en el sistema de autenticación institucional (CID-C) Logs de tráfico de red del switch asociado al laboratorio (CID-C) - Sin restricciones de acceso en tiempo real Acta de reunión con actualización de políticas (CID-I) - Falta de implementación previa de políticas de supervisión de usuarios y registro de sesiones gdpr-full:gdpr-full:0127:2173-2203 - Brecha en la autenticación segura (A.8.5) gdpr-full:gdpr-full:0130:2280-2298 - Falta de cumplimiento de derechos de acceso (A.8.18)",
+          "position": 9
+        },
+        {
+          "action_type": "R",
+          "responsible": "Responsable de Soporte Informático",
+          "action_date": "2026-11-03",
+          "description": "Estudiante observó intento de acceso no autorizado a cuenta institucional desde laboratorio. El acceso fue exitoso. Se contuvo el incidente aislando el equipo afectado y revisando logs de sesión. Se notificó al área de TI para análisis adicional y se restringió acceso temporalmente al laboratorio.\nSe reinstaló sistema operativo en equipo afectado y se aplicaron parches de seguridad. Se capacitó al personal sobre buenas prácticas de manejo de credenciales. Se implementó autenticación multifactor para cuentas institucionales. Se actualizó política de uso de laboratorios según estándares de seguridad. Se documentó incidente para cumplimiento normativo y se notificó al titular afectado sobre medidas tomadas.",
+          "evidence": null,
+          "position": 10
+        }
+      ],
+      "attachments": [
+        {
+          "id": 8,
+          "file": "https://example.com/media/tenants/example/incidents/bundle_u8e6LxE.json.txt",
+          "file_name": "bundle.json.txt",
+          "uploaded_at": "2026-11-03T02:20:16.467278Z",
+          "uploaded_by": 14,
+          "uploaded_by_name": "anon-uploader"
+        },
+        {
+          "id": 1,
+          "file": "https://example.com/media/tenants/example/incidents/8df061a4-59b8-40e7-ac2d-0e9b3e6f6b3c.png",
+          "file_name": "8df061a4-59b8-40e7-ac2d-0e9b3e6f6b3c.png",
+          "uploaded_at": "2026-10-26T18:43:56.283732Z",
+          "uploaded_by": 22,
+          "uploaded_by_name": "anon-uploader"
+        }
+      ],
+      "history": [
+        {
+          "id": 134,
+          "event_type": "updated",
+          "event_type_label": "Actualizado",
+          "changed_at": "2026-11-03T02:22:27.838152Z",
+          "actor": "anon-actor",
+          "changed_by": 14,
+          "changed_by_name": "anon-actor",
+          "description": "Incidente actualizado",
+          "recipients_snapshot": null
+        },
+        {
+          "id": 133,
+          "event_type": "updated",
+          "event_type_label": "Actualizado",
+          "changed_at": "2026-11-03T02:22:25.189199Z",
+          "actor": "anon-actor",
+          "changed_by": 14,
+          "changed_by_name": "anon-actor",
+          "description": "Incidente actualizado",
+          "recipients_snapshot": null
+        },
+        {
+          "id": 132,
+          "event_type": "updated",
+          "event_type_label": "Actualizado",
+          "changed_at": "2026-11-03T02:21:22.739179Z",
+          "actor": "anon-actor",
+          "changed_by": 14,
+          "changed_by_name": "anon-actor",
+          "description": "Incidente actualizado",
+          "recipients_snapshot": null
+        }
+      ],
+      "attachments_count": 2,
+      "actions_count": 11,
+      "created_at": "2026-10-26T18:31:32.522798Z",
+      "created_by": 22,
+      "updated_at": "2026-11-03T02:22:27.828201Z",
+      "updated_by": 14
+    }
+  ],
   "detail": {
-    "id": 502,
-    "code": "G4-INC-2026-002",
-    "title": "Acceso no autorizado a registros de prueba de estudiantes",
-    "description": "Intento de acceso masivo a endpoint no anonimizado durante simulacro de auditoría.",
-    "severity": "high",
-    "status": "open",
-    "incident_type": "privacy_breach",
-    "incident_date": "2026-11-12T16:00:00Z",
-    "responsible": "Grupo 4 - Turno B",
+    "id": 1,
+    "incident_code": "INC-001",
+    "rep_document_number": "00000000",
+    "rep_document_expiry": "2026-11-07",
+    "rep_first_name": "ANON_REP",
+    "rep_last_name_p": "ANON_LAST",
+    "rep_last_name_m": "ANON_LAST",
+    "rep_position": "Estudiante",
+    "rep_phone": "+51 900 000 000",
+    "rep_email": "anon-rep@example.com",
+    "entity_type": "U",
+    "entity_ruc": "20000000001",
+    "entity_name": "Universidad de Ejemplo",
+    "entity_phone": "054-000000",
+    "entity_extension": "100",
+    "entity_department": "Arequipa",
+    "entity_province": "Arequipa",
+    "entity_district": "Cercado",
     "involves_personal_data": true,
+    "incident_date": "2026-10-26",
+    "incident_time": "12:11:00",
+    "detection_date": "2026-10-26",
+    "detection_time": "13:37:00",
+    "incident_type": "UA",
+    "status": "C",
+    "severity": "H",
+    "impact": "H",
+    "title": "Posible acceso no autorizado observado por una estudiante en laboratorio",
+    "description": "ANON_USER_2, estudiante de la universidad (datos ficticios), reportó haber observado a otro estudiante intentando acceder a una cuenta institucional que aparentemente no le pertenecía, desde un equipo del laboratorio de cómputo. La reportante confirma que el acceso fue exitoso.",
+    "reported_by": "ANON_REPORTER",
+    "assigned_to": "ANON_ASSIGNEE",
+    "affected_treatment": "Gestión de cuentas institucionales",
+    "dpo_contact_name": "ANON_DPO",
+    "dpo_contact_email": "anon-dpo@example.com",
+    "dpo_contact_phone": "+51 900 000 000",
+    "affected_data_types": [
+      "names",
+      "email",
+      "credentials"
+    ],
+    "num_affected_subjects": 1,
+    "compromised_system": "Equipo de laboratorio de cómputo",
+    "affected_url": null,
+    "evidence_refs": "Reporte directo de Ana, sin evidencias;DEADLINE_MISSED_72H;CLOSE_APPROVED:64c07c5a-6119-4e9d-bbc0-b49cb1c5d815;SUBJECT_NOTIFIED:1:email;PHASE_DUE:2;AUDIT_LINK:2:0:0;BUNDLE_SEALED:0b5c67eb9af501d4b7c0ea130e11bc5c58daac55bd2bf873e5f90684281b3e64",
+    "measure_updated_registry": "N",
+    "measure_new_security": "Y",
+    "measure_improved_policies": "Y",
+    "measure_considered_resolved": "Y",
+    "measure_reported_authorities": "Y",
+    "security_measures_adopted": [],
+    "resolved_date": "2026-11-02",
+    "affected_cid": [
+      "C",
+      "I"
+    ],
     "actions": [
       {
-        "id": 2,
-        "action_description": "Bloqueo de IP de origen y activación de protocolo de notificación a afectados",
-        "due_date": "2026-11-14T16:00:00Z",
-        "responsible": "Grupo 4 - Turno B",
-        "status": "in_progress"
+        "action_type": "C",
+        "responsible": "anon-group",
+        "action_date": "2026-11-03",
+        "description": "Contencion inicial: aislamiento de la cuenta afectada y rotacion de credenciales.",
+        "evidence": null,
+        "position": 0
+      },
+      {
+        "action_type": "C",
+        "responsible": "Equipo de Soporte Técnico de Laboratorios",
+        "action_date": "2026-11-03",
+        "description": "Isolar inmediatamente el equipo de laboratorio de cómputo donde se detectó el acceso no autorizado y desconectarlo de la red institucional para evitar propagación.",
+        "evidence": "Registro de acceso exitoso en el sistema de autenticación institucional (CID-C)",
+        "position": 1
+      },
+      {
+        "action_type": "C",
+        "responsible": "Equipo de Seguridad de la Información",
+        "action_date": "2026-11-03",
+        "description": "Revisar y revocar todas las credenciales de acceso institucional asociadas a la cuenta sospechosa, incluyendo contraseñas y tokens de autenticación multifactor.",
+        "evidence": "Logs de autenticación del sistema de gestión de identidades (CID-I)",
+        "position": 2
+      },
+      {
+        "action_type": "C",
+        "responsible": "Equipo de Redes y Telecomunicaciones",
+        "action_date": "2026-11-03",
+        "description": "Bloquear temporalmente la IP pública y las direcciones MAC asociadas al equipo del laboratorio de cómputo en los firewalls y switches de la red institucional.",
+        "evidence": "Logs de tráfico de red del switch asociado al laboratorio (CID-C)",
+        "position": 3
+      },
+      {
+        "action_type": "C",
+        "responsible": "Equipo de Forense Digital",
+        "action_date": "2026-11-03",
+        "description": "Preservar y etiquetar como evidencia todos los logs de autenticación, acceso y actividad del sistema del equipo comprometido, así como los logs de red asociados.",
+        "evidence": "Almacenamiento seguro de logs en el sistema de gestión de incidentes (CID-C y CID-I)",
+        "position": 4
+      },
+      {
+        "action_type": "C",
+        "responsible": "Coordinador Académico del Laboratorio",
+        "action_date": "2026-11-03",
+        "description": "Notificar a la estudiante reportante (ANON_USER_2) para que no utilice el equipo comprometido y evitar cualquier interacción adicional con el sistema.",
+        "evidence": "Registro de notificación enviada por correo institucional (CID-C)",
+        "position": 5
+      },
+      {
+        "action_type": "C",
+        "responsible": "Equipo de Forense Digital",
+        "action_date": "2026-11-03",
+        "description": "Realizar un escaneo forense del equipo comprometido para identificar posibles malware, backdoors o actividad maliciosa residual antes de su desinfección o reemplazo.",
+        "evidence": "Informe técnico de escaneo forense (CID-C)",
+        "position": 6
+      },
+      {
+        "action_type": "C",
+        "responsible": "Comité de Seguridad Institucional",
+        "action_date": "2026-11-03",
+        "description": "Revisar y actualizar las políticas de acceso al laboratorio de cómputo, incluyendo supervisión de usuarios y registro de sesiones en tiempo real.",
+        "evidence": "Acta de reunión con actualización de políticas (CID-I)",
+        "position": 7
+      },
+      {
+        "action_type": "A",
+        "responsible": "investigator",
+        "action_date": "2026-11-03",
+        "description": "Breach review assessment: breach requiring response: yes — The incident involves unauthorized access to a **personal-data record** (credentials, names, and email) of an affected individual (CID: **C** or **I**), which constitutes a **personal-data breach** under **ISO/IEC 27701:2019** (aligned with **GDPR Article 4(12)**). The successful unauthorized access to credentials—especially in a shared laboratory environment—poses a **high risk** to the rights and freedoms of the affected data subject, including potential identity theft, fraud, or unauthorized access to sensitive institutional data. The **72-hour notification requirement (GDPR Article 33)** and **data-subject communication obligation (GDPR Article 34)** apply, as the breach is **not mitigated by technical safeguards** (e.g., encryption) and involves **high-risk personal data** (credentials + identifiers). The **unauthorized access itself** is a breach of **confidentiality (ISO/IEC 27002:2022 A.9.1.1)** and **accountability (ISO/IEC 27701:2019 7.1.2)**. The controller must assess further risks (e.g., scope of exposed data, potential misuse) and initiate **mandatory reporting** to the supervisory authority and affected individuals.",
+        "evidence": "gdpr-full:gdpr-full:0127:2173-2203 gdpr-full:gdpr-full:0128:2209-2235 gdpr-full:gdpr-full:0049:454-460 gdpr-full:gdpr-full:0130:2280-2298",
+        "position": 8
+      },
+      {
+        "action_type": "A",
+        "responsible": "investigator",
+        "action_date": "2026-11-03",
+        "description": "Root cause (5-whys): Falta de supervisión y control de acceso en tiempo real en el laboratorio de cómputo, combinada con la ausencia de políticas estrictas de gestión de identidades y autenticación multifactor obligatoria para todos los usuarios.",
+        "evidence": "Logs de autenticación del sistema de gestión de identidades (CID-I) - Acceso exitoso sin autenticación multifactor Registro de acceso exitoso en el sistema de autenticación institucional (CID-C) Logs de tráfico de red del switch asociado al laboratorio (CID-C) - Sin restricciones de acceso en tiempo real Acta de reunión con actualización de políticas (CID-I) - Falta de implementación previa de políticas de supervisión de usuarios y registro de sesiones gdpr-full:gdpr-full:0127:2173-2203 - Brecha en la autenticación segura (A.8.5) gdpr-full:gdpr-full:0130:2280-2298 - Falta de cumplimiento de derechos de acceso (A.8.18)",
+        "position": 9
+      },
+      {
+        "action_type": "R",
+        "responsible": "Responsable de Soporte Informático",
+        "action_date": "2026-11-03",
+        "description": "Estudiante observó intento de acceso no autorizado a cuenta institucional desde laboratorio. El acceso fue exitoso. Se contuvo el incidente aislando el equipo afectado y revisando logs de sesión. Se notificó al área de TI para análisis adicional y se restringió acceso temporalmente al laboratorio.\nSe reinstaló sistema operativo en equipo afectado y se aplicaron parches de seguridad. Se capacitó al personal sobre buenas prácticas de manejo de credenciales. Se implementó autenticación multifactor para cuentas institucionales. Se actualizó política de uso de laboratorios según estándares de seguridad. Se documentó incidente para cumplimiento normativo y se notificó al titular afectado sobre medidas tomadas.",
+        "evidence": null,
+        "position": 10
       }
     ],
-    "created_at": "2026-11-12T16:10:00Z",
-    "updated_at": "2026-11-13T09:00:00Z"
+    "attachments": [
+      {
+        "id": 8,
+        "file": "https://example.com/media/tenants/example/incidents/bundle_u8e6LxE.json.txt",
+        "file_name": "bundle.json.txt",
+        "uploaded_at": "2026-11-03T02:20:16.467278Z",
+        "uploaded_by": 14,
+        "uploaded_by_name": "anon-uploader"
+      },
+      {
+        "id": 1,
+        "file": "https://example.com/media/tenants/example/incidents/8df061a4-59b8-40e7-ac2d-0e9b3e6f6b3c.png",
+        "file_name": "8df061a4-59b8-40e7-ac2d-0e9b3e6f6b3c.png",
+        "uploaded_at": "2026-10-26T18:43:56.283732Z",
+        "uploaded_by": 22,
+        "uploaded_by_name": "anon-uploader"
+      }
+    ],
+    "history": [
+      {
+        "id": 134,
+        "event_type": "updated",
+        "event_type_label": "Actualizado",
+        "changed_at": "2026-11-03T02:22:27.838152Z",
+        "actor": "anon-actor",
+        "changed_by": 14,
+        "changed_by_name": "anon-actor",
+        "description": "Incidente actualizado",
+        "recipients_snapshot": null
+      },
+      {
+        "id": 133,
+        "event_type": "updated",
+        "event_type_label": "Actualizado",
+        "changed_at": "2026-11-03T02:22:25.189199Z",
+        "actor": "anon-actor",
+        "changed_by": 14,
+        "changed_by_name": "anon-actor",
+        "description": "Incidente actualizado",
+        "recipients_snapshot": null
+      },
+      {
+        "id": 132,
+        "event_type": "updated",
+        "event_type_label": "Actualizado",
+        "changed_at": "2026-11-03T02:21:22.739179Z",
+        "actor": "anon-actor",
+        "changed_by": 14,
+        "changed_by_name": "anon-actor",
+        "description": "Incidente actualizado",
+        "recipients_snapshot": null
+      }
+    ],
+    "attachments_count": 2,
+    "actions_count": 11,
+    "created_at": "2026-10-26T18:31:32.522798Z",
+    "created_by": 22,
+    "updated_at": "2026-11-03T02:22:27.828201Z",
+    "updated_by": 14
   },
   "history": [
     {
-      "id": 801,
-      "incident_id": 502,
-      "action": "INCIDENT_CREATED",
-      "details": "Incidente registrado por alerta de monitor de tráfico",
-      "timestamp": "2026-11-12T16:10:00Z",
-      "performed_by": "Sensor de Anomalías G4"
+      "id": 193,
+      "event_type": "updated",
+      "event_type_label": "Actualizado",
+      "changed_at": "2026-11-05T20:16:45.521385Z",
+      "actor": "anon-actor",
+      "changed_by": 14,
+      "changed_by_name": "anon-actor",
+      "description": "Incidente actualizado",
+      "recipients_snapshot": null
     },
     {
-      "id": 802,
-      "incident_id": 502,
-      "action": "STATUS_CHANGED",
-      "details": "Estado cambiado a investigating tras confirmación de IP externa",
-      "timestamp": "2026-11-12T16:30:00Z",
-      "performed_by": "Responsable de Seguridad G4"
+      "id": 115,
+      "event_type": "notified",
+      "event_type_label": "Notificación enviada",
+      "changed_at": "2026-11-03T02:11:28.965649Z",
+      "actor": "anon-actor",
+      "changed_by": 14,
+      "changed_by_name": "anon-actor",
+      "description": "Notificación enviada a 1 destinatario(s).",
+      "recipients_snapshot": "anon-group@example.com"
     }
   ],
   "attachments": [
     {
-      "id": 901,
-      "incident_id": 502,
-      "file": "/media/incidents/attachments/evidence_access_log.txt",
-      "filename": "evidence_access_log.txt",
-      "file_size_bytes": 14520,
-      "uploaded_at": "2026-11-12T16:25:00Z",
-      "uploaded_by": "Responsable de Seguridad G4"
+      "id": 10,
+      "file": "https://example.com/media/tenants/example/incidents/bundle_tVxdutt.json.txt",
+      "file_name": "bundle.json.txt",
+      "uploaded_at": "2026-11-05T20:16:45.026030Z",
+      "uploaded_by": 14,
+      "uploaded_by_name": "anon-uploader"
     },
     {
-      "id": 902,
-      "incident_id": 502,
-      "file": "/media/incidents/attachments/network_trace_capture.png",
-      "filename": "network_trace_capture.png",
-      "file_size_bytes": 524288,
-      "uploaded_at": "2026-11-12T16:35:00Z",
-      "uploaded_by": "Responsable de Seguridad G4"
+      "id": 1,
+      "file": "https://example.com/media/tenants/example/incidents/8df061a4-59b8-40e7-ac2d-0e9b3e6f6b3c.png",
+      "file_name": "8df061a4-59b8-40e7-ac2d-0e9b3e6f6b3c.png",
+      "uploaded_at": "2026-10-26T18:43:56.283732Z",
+      "uploaded_by": 22,
+      "uploaded_by_name": "anon-uploader"
     }
   ]
 }
