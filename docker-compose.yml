@@ -40,7 +40,11 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: pimsai-agent
-    restart: unless-stopped
+    # Staging-copy topology (P3.8): compose runs with cwd=<staging>/ (see scripts/deploy-sync.sh),
+    # so `.:/app` binds the disposable staging copy, never the pristine repo. Secrets come
+    # from the host-level .env OUTSIDE both dirs (PIMSAI_ENV_FILE), never bind-mounted.
+    env_file:
+      - ${PIMSAI_ENV_FILE:-.env}
     command:
       - bash
       - -lc
@@ -59,7 +63,14 @@ services:
           printf '\ndefault_mode "locked"\n' >> /home/agent/.config/zellij/config.kdl
         fi
         rm -f /home/agent/.config/zellij/layouts/default.kdl
-        (bun run /app/scripts/sync-pims-truth.ts --loop --interval 300 || echo "[sync-loop] loop exited") &
+        MEMDIR=/home/agent/.omp/agent/memories/--app--
+        if [ -f /app/.omp/memory-seed/memory_summary.md ]; then
+          mkdir -p "$${MEMDIR}"
+          if [ ! -f "$${MEMDIR}/memory_summary.md" ] || grep -qE "filtro G4-|filtrar solo G4-|filtrar/escribir solo G4-" "$${MEMDIR}/memory_summary.md" 2>/dev/null; then
+            cp /app/.omp/memory-seed/memory_summary.md "$${MEMDIR}/memory_summary.md"
+            echo "[memory-seed] seeded current memory_summary.md"
+          fi
+        fi
         zellij web --ip 127.0.0.1 --port 8083 -d
         if [ -n "$${AGENT_MODEL:-}" ]; then
           zellij attach -b pimsai -- omp --model "$${AGENT_MODEL}" || true
@@ -112,6 +123,8 @@ services:
       - SMTP_USERNAME=${SMTP_USERNAME:-}
       - SMTP_PASSWORD=${SMTP_PASSWORD:-}
       - SMTP_FROM=${SMTP_FROM:-}
+      # Mail drafts store on the persistent agent_data volume (survives restarts)
+      - MAIL_DRAFTS_PATH=${MAIL_DRAFTS_PATH:-/home/agent/.pims-mail-drafts.json}
 
       # Domain root & runtime flags
       - DOMAIN_ROOT=${DOMAIN_ROOT:-pimsai.mistercricro8.top}

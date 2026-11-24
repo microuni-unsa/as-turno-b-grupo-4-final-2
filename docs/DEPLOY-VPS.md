@@ -31,23 +31,29 @@ Before deploying the container stack, verify that the target host satisfies the 
 
 ## 2. Step-by-Step Deployment Runbook
 
-### Step 1: Clone Repository on Target Box
+### Step 1: Host Layout (Staging-Copy Topology)
+The deploy host keeps THREE separate paths under `PIMSAI_HOME` (e.g. `~/server-data/pimsai`):
 ```bash
-cd /opt
-git clone https://github.com/microuni-unsa/as-turno-b-grupo-4-final-2.git pimsai
-cd pimsai
+mkdir -p ~/server-data/pimsai/repo
+cd ~/server-data/pimsai/repo
+git clone https://github.com/microuni-unsa/as-turno-b-grupo-4-final-2.git .
+# or: rsync the working tree from a workstation (see Step 3)
 ```
+- `repo/` — pristine checkout, rsync target, NEVER mounted into containers.
+- `app/` — disposable staging copy (created by `deploy-sync.sh`), compose cwd + `.:/app` bind.
+- `.env` — host-level secrets at `PIMSAI_HOME/.env` (Step 2), passed via `PIMSAI_ENV_FILE`, never bind-mounted.
 
 ### Step 2: Environment Configuration (Plain `.env` or SOPS `.enc.env`)
+Create the host-level env file at `PIMSAI_HOME/.env` (NOT inside `repo/` or `app/`):
 Option A — Decrypt SOPS `.enc.env` using an authorized `age` key (SOPS auto-detects dotenv on `.enc.env`):
 ```bash
 umask 077
-sops decrypt .enc.env > .env
+sops decrypt repo/.enc.env > .env
 chmod 600 .env
 ```
 Option B — Copy `.env.example` to `.env` and populate authorized credentials:
 ```bash
-cp .env.example .env
+cp repo/.env.example .env
 chmod 600 .env
 nano .env
 ```
@@ -63,8 +69,8 @@ Ensure the following variables are configured:
 
 > **Warning**: Never commit `.env` into Git or share it across insecure channels.
 
-### Step 3: Safe Sync (`rsync --delete`) for In-Place VPS Updates
-When syncing code changes from a workstation to an existing `/opt/pimsai` deploy on `cricro-vm`, preserve live runtime state, secrets, and dev-only directories by excluding them explicitly:
+### Step 3: Sync & Deploy (`scripts/deploy-sync.sh`)
+From the workstation, sync the working tree to the PRISTINE repo dir (no runtime state lives there, so plain `--delete` is safe):
 ```bash
 rsync -avz --delete \
   --exclude='.env' \
@@ -79,12 +85,25 @@ rsync -avz --delete \
   --exclude='docs/' \
   --exclude='corpus_g4_src/' \
   --exclude='CHECK.md' \
+  --exclude='CHECK*' \
   --exclude='FIXUP_PLAN.md' \
   --exclude='.git/' \
   --exclude='flake.*' \
   --exclude='node_modules/' \
-  ./ <user>@<vps>:/opt/pimsai/
+  --exclude='.direnv/' \
+  ./ <user>@<vps>:~/server-data/pimsai/repo/
 ```
+Then on the host, sync repo→staging and (re)start the stack:
+```bash
+PIMSAI_HOME=~/server-data/pimsai repo/scripts/deploy-sync.sh --wipe --build
+```
+`--wipe` removes `app/` entirely before re-sync (recommended: staging holds no state worth keeping — volumes hold all state). Omit `--wipe` for incremental sync. `--no-up` syncs without restarting.
+Live-built connectors in staging are DEMO-LOCAL; promote deliberately with `scripts/backport-connector.sh <name>`.
+
+> **Operate only via the wrapper**: all `docker compose` commands on the host must go through
+> `PIMSAI_HOME=~/server-data/pimsai repo/scripts/compose.sh <args>` (it sources the host `.env`
+> for `${VAR}` interpolation and runs with cwd=`app/`). Bare `docker compose` inside `app/`
+> fails interpolation — that is by design (no secrets in staging).
 
 ### Step 4: Build the Container Images
 Build the 3 customized container images:
@@ -99,11 +118,21 @@ This builds:
 ### Step 5: Clean-Reset & Start Services
 When resetting state before a clean evaluation run:
 ```bash
-# Clear runtime mirror & stale omp memories inside agent volume, and truncate pgvector tables
-docker compose exec agent rm -rf /var/lib/pimsai/corpus_mirror/* /home/agent/.omp/agent/memories/*
+# Clear runtime mirror, prune stale omp sessions/memories (re-seeded on start),
+# and truncate pgvector tables
+docker compose exec agent rm -rf /var/lib/pimsai/corpus_mirror/*
+docker compose exec agent bun scripts/prune-omp-state.ts --days 7 --apply
 docker compose exec db psql -U "${POSTGRES_USER:-agent}" -d "${POSTGRES_DB:-pims_agent}" -c "TRUNCATE pims_registry, chunks RESTART IDENTITY CASCADE;"
 docker compose up -d --build
 ```
+Notes:
+- `prune-omp-state.ts` deletes `sessions/--app--/*` older than `--days` (pin live
+  threads with repeatable `--keep <id-prefix>`), wipes `memories/--app--`, and
+  asserts no stale markers (`filtro G4-`, …) remain. Dry-run without `--apply`.
+- On container start the entrypoint copies `.omp/memory-seed/memory_summary.md`
+  into `memories/--app--/` when missing or stale-marked, so the first
+  `memory://root` read always returns current rules. Keep the seed in sync with
+  AGENTS.md §4 (uniform reads, gates, publish flow).
 Verify initial sync populates `/var/lib/pimsai/corpus_mirror/<doc.code>/` (`v<n>.pdf` + `v<n>.txt` + `manifest.json`) keyed by `doc.code`:
 ```bash
 docker compose ps
