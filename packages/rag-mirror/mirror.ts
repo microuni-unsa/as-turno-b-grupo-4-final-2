@@ -34,6 +34,33 @@ export interface ReadMirrorResult {
 }
 
 /**
+ * Normalizes a user-supplied document version to canonical `MAJOR.MINOR` form.
+ * Accepts `1`, `v3`, `3.0`, `3.00` → `1.00`, `3.00`. Throws on non-numeric input.
+ * Single rule for every `--ver` / `--from` / `--to` / `--version` flag.
+ */
+export function normalizeDocumentVersion(raw: string): string {
+  const cleaned = raw.trim().replace(/^v/i, "");
+  const num = Number(cleaned);
+  if (!Number.isFinite(num) || cleaned === "") {
+    throw new Error(`Invalid document version '${raw}': expected numeric like 1, 3.0, 3.00`);
+  }
+  return num.toFixed(2);
+}
+
+/**
+ * Loose version equality: canonicalizes both sides before comparing.
+ * Invalid inputs fall back to exact string equality (never throw on match).
+ */
+export function matchDocumentVersion(a: string, b: string): boolean {
+  if (a === b) return true;
+  try {
+    return normalizeDocumentVersion(a) === normalizeDocumentVersion(b);
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Resolves mirror directory path strictly relative to project root.
  */
 export function getDocMirrorDir(docId: string, mirrorDir: string = RAG_CONFIG.CORPUS_MIRROR_DIR): string {
@@ -192,10 +219,11 @@ export function readFromCorpusMirror(
     throw new Error(`Corpus mirror manifest not found for document '${docId}' in '${mirrorDir}'`);
   }
 
-  const versionEntry = manifest.versions.find((v) => v.pims_version === version);
+  const versionEntry = manifest.versions.find((v) => matchDocumentVersion(v.pims_version, version));
   if (versionEntry === undefined) {
+    const available = manifest.versions.map((v) => v.pims_version).join(", ");
     throw new Error(
-      `Version '${version}' not found in corpus mirror manifest for document '${docId}'`
+      `Version '${version}' not found in corpus mirror manifest for document '${docId}' (available: ${available})`
     );
   }
 
@@ -214,7 +242,7 @@ export function readFromCorpusMirror(
   return {
     pims_doc_id: docId,
     code: manifest.code,
-    pims_version: version,
+    pims_version: versionEntry.pims_version,
     filePath: versionEntry.file_path,
     textPath: existsSync(candidateTxtPath) ? candidateTxtPath : versionEntry.file_path,
     content,

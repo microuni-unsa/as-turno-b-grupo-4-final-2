@@ -14,6 +14,7 @@
 import { RAG_CONFIG } from "../packages/rag-mirror/config.ts";
 import { createOpenAICompatibleEmbedder } from "../packages/rag-mirror/embedder.ts";
 import {
+  normalizeDocumentVersion,
   readCorpusManifest,
   readFromCorpusMirror,
 } from "../packages/rag-mirror/mirror.ts";
@@ -158,7 +159,7 @@ async function dumpFullDocument(docId: string, requestedVersion: string | undefi
 
   const db = createBunPgClient();
   try {
-    let targetVersion = requestedVersion;
+    let targetVersion = requestedVersion === undefined ? undefined : normalizeDocumentVersion(requestedVersion);
     if (targetVersion === undefined) {
       const reg = await db.query<{ pims_version: string }>(
         `SELECT pims_version
@@ -255,7 +256,9 @@ async function main(): Promise<void> {
 
   const filter: QueryFilter = {
     ...(cliArgs.doc !== undefined ? { pims_doc_id: cliArgs.doc } : {}),
-    ...(cliArgs.version !== undefined ? { pims_version: cliArgs.version } : {}),
+    ...(cliArgs.version !== undefined
+      ? { pims_version: normalizeDocumentVersion(cliArgs.version) }
+      : {}),
     ...(cliArgs.status !== undefined ? { status: cliArgs.status } : {}),
   };
 
