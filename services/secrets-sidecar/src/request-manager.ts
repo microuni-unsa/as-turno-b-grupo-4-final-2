@@ -11,6 +11,7 @@ import { SecretsStoreManager } from './store.js';
 
 export class SecretRequestManager {
   private requestsByHash = new Map<string, SecretRequestRecord>();
+  private requestsByHandle = new Map<string, SecretRequestRecord>();
   private storeManager: SecretsStoreManager;
 
   constructor(storeManager: SecretsStoreManager) {
@@ -129,6 +130,7 @@ export class SecretRequestManager {
     record.status = 'submitted';
     record.handle = handle;
     record.token = ''; // Clear token from memory
+    this.requestsByHandle.set(handle, record);
 
     logAudit({
       event: 'secret_token_consumed',
@@ -152,6 +154,11 @@ export class SecretRequestManager {
     if (!record) {
       const tokenHash = crypto.createHash('sha256').update(pollHandleOrToken, 'utf8').digest('hex');
       record = this.requestsByHash.get(tokenHash);
+    }
+
+    // If caller passed an opaque handle (secret:<name>@<v>), resolve post-submit record
+    if (!record) {
+      record = this.requestsByHandle.get(pollHandleOrToken);
     }
 
     if (!record) {
