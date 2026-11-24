@@ -54,6 +54,7 @@ export interface DraftSummonsRecord {
   recipientEmail: string;
   deadlineDate: string;
   evidenceCitation: string;
+  correctiveActionSummary: string;
   subject: string;
   body: string;
   status: "draft" | "dispatched" | "cancelled";
@@ -131,6 +132,24 @@ export class MailDeliveryError extends MailConnectorError {
 }
 
 // ============================================================================
+// Env Resolution Helpers
+// ============================================================================
+
+/**
+ * First defined, non-blank candidate (trimmed). `??` alone keeps `""`
+ * (docker-compose `:-` defaults inject empty strings), which wrongly
+ * shadows fallbacks like SMTP_USERNAME. Empty config strings count as unset.
+ */
+function firstNonEmpty(...candidates: Array<string | undefined>): string | undefined {
+  for (const c of candidates) {
+    if (c !== undefined && c.trim() !== "") {
+      return c.trim();
+    }
+  }
+  return undefined;
+}
+
+// ============================================================================
 // Mail Connector Implementation
 // ============================================================================
 
@@ -145,45 +164,44 @@ export class MailConnectorClient {
   private readonly secretsStore: SecretsStore;
 
   constructor(config: MailConnectorConfig = {}) {
-    const rawHost = config.smtpHost ?? process.env.SMTP_HOST ?? DEFAULT_SMTP_HOST;
-    if (!rawHost.trim()) {
-      throw new MailConfigError("SMTP_HOST must be non-empty");
-    }
+    const rawHost = firstNonEmpty(config.smtpHost, process.env.SMTP_HOST) ?? DEFAULT_SMTP_HOST;
+    this.smtpHost = rawHost;
 
-    const rawPort =
-      config.smtpPort ??
-      (process.env.SMTP_PORT !== undefined && process.env.SMTP_PORT.trim() !== ""
-        ? Number(process.env.SMTP_PORT)
-        : DEFAULT_SMTP_PORT);
+    const rawPortStr = firstNonEmpty(
+      config.smtpPort !== undefined ? String(config.smtpPort) : undefined,
+      process.env.SMTP_PORT,
+    );
+    const rawPort = rawPortStr !== undefined ? Number(rawPortStr) : DEFAULT_SMTP_PORT;
     if (!Number.isInteger(rawPort) || rawPort <= 0 || rawPort > 65535) {
-      throw new MailConfigError(`Invalid SMTP_PORT: ${String(rawPort)}`);
+      throw new MailConfigError(`Invalid SMTP_PORT: ${String(rawPortStr)}`);
     }
+    this.smtpPort = rawPort;
 
-    const rawSecure =
-      config.smtpSecure ??
-      (process.env.SMTP_SECURE !== undefined
-        ? process.env.SMTP_SECURE.trim().toLowerCase() === "true"
-        : rawPort === 465);
+    const rawSecureStr = firstNonEmpty(
+      config.smtpSecure !== undefined ? String(config.smtpSecure) : undefined,
+      process.env.SMTP_SECURE,
+    );
+    this.smtpSecure =
+      rawSecureStr !== undefined ? rawSecureStr.toLowerCase() === "true" : rawPort === 465;
 
     const resolvedFrom =
-      config.fromAddress ?? process.env.SMTP_FROM ?? process.env.SMTP_USERNAME ?? "";
-    if (!resolvedFrom || !resolvedFrom.includes("@")) {
+      firstNonEmpty(config.fromAddress, process.env.SMTP_FROM, process.env.SMTP_USERNAME) ?? "";
+    if (!resolvedFrom.includes("@")) {
       throw new MailConfigError(
         "Valid sender address is required (set fromAddress config, SMTP_FROM, or SMTP_USERNAME).",
       );
     }
+    this.fromAddress = resolvedFrom;
 
-    if (config.authHandle !== undefined && !config.authHandle.startsWith("secret:")) {
+    const rawAuthHandle = firstNonEmpty(config.authHandle);
+    if (rawAuthHandle !== undefined && !rawAuthHandle.startsWith("secret:")) {
       throw new MailConfigError("authHandle must be formatted as secret:<name>@<v>");
     }
+    this.authHandle = rawAuthHandle;
 
-    this.smtpHost = rawHost.trim();
-    this.smtpPort = rawPort;
-    this.smtpSecure = rawSecure;
-    this.fromAddress = resolvedFrom.trim();
-    this.authHandle = config.authHandle;
     this.draftsFilePath =
-      config.draftsFilePath ?? process.env.MAIL_DRAFTS_PATH ?? DEFAULT_MAIL_DRAFTS_PATH;
+      firstNonEmpty(config.draftsFilePath, process.env.MAIL_DRAFTS_PATH) ??
+      DEFAULT_MAIL_DRAFTS_PATH;
     this.timeoutMs = config.timeoutMs ?? 15000;
     this.secretsStore = SecretsStore.getInstance();
   }
@@ -379,6 +397,7 @@ export class MailConnectorClient {
       recipientEmail: input.recipientEmail,
       deadlineDate: input.deadlineDate,
       evidenceCitation: input.evidenceCitation,
+      correctiveActionSummary: input.correctiveActionSummary,
       subject,
       body,
       status: "draft",
@@ -410,6 +429,51 @@ export class MailConnectorClient {
    */
   public listDrafts(): DraftSummonsRecord[] {
     return Object.values(this.loadDrafts());
+  }
+
+  /**
+   * Redirects a DRAFT (never dispatched/cancelled) to a new recipient.
+   * Re-renders subject/body via formatSummonsContent so the greeting matches.
+   */
+  public updateDraftRecipient(
+    draftId: string,
+    recipientEmail: string,
+    recipientName?: string,
+  ): DraftSummonsRecord {
+    const drafts = this.loadDrafts();
+    const draft = drafts[draftId];
+    if (!draft) {
+      throw new MailDraftNotFoundError(draftId);
+    }
+    if (draft.status !== "draft") {
+      throw new MailDeliveryError(
+        draft.recipientEmail,
+        `Draft '${draftId}' is '${draft.status}'; only drafts can be redirected.`,
+      );
+    }
+    if (!recipientEmail || !recipientEmail.includes("@")) {
+      throw new MailValidationError("recipientEmail must be a valid email");
+    }
+    const updated: DraftSummonsRecord = {
+      ...draft,
+      recipientEmail,
+      recipientName: recipientName ?? draft.recipientName,
+    };
+    const { subject, body } = this.formatSummonsContent({
+      findingId: updated.findingId,
+      nonConformityTitle: updated.nonConformityTitle,
+      severity: updated.severity,
+      recipientName: updated.recipientName,
+      recipientEmail: updated.recipientEmail,
+      deadlineDate: updated.deadlineDate,
+      evidenceCitation: updated.evidenceCitation,
+      correctiveActionSummary: updated.correctiveActionSummary ?? "",
+    });
+    updated.subject = subject;
+    updated.body = body;
+    drafts[draftId] = updated;
+    this.saveDrafts(drafts);
+    return updated;
   }
 
   /**

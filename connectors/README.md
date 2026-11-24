@@ -22,21 +22,19 @@ connectors/
 │   ├── client.ts             # Typed wrapper skeleton (REST + Webhook)
 │   ├── SKILL-FRAG.md         # Endpoint map, auth requirements, limits, failure modes
 │   └── README.md             # Subagent live-build playbook
-├── pims-documents/           # Full implementation: GESTITEL Documents API (SPEC 3.1)
-│   ├── client.ts             # PDF multipart create, versions, approve, G4- isolation
-│   ├── types.ts              # Extended adapter types and status enum definitions
-│   └── SKILL-FRAG.md         # Documents endpoints and tenant constraints
 └── mail/                     # Full implementation: Summons Dispatch (SPEC 9 item 2)
     ├── client.ts             # Two-phase summons: draft -> explicit "envíalo" -> send
     └── SKILL-FRAG.md         # Summons protocol, RAG severities, citation format
 ```
 
+> Note: PIMS access = bun scripts/pims.ts + packages/pims-adapter (no connector)
+
 ---
 
 ## 2. Naming Conventions
 
-- **Connector Folder:** Lowercase kebab-case matching the integrated service (e.g., `pims-documents`, `mail`, `evolution-whatsapp`, `jira`).
-- **Client Class:** UpperCamelCase ending in `Client` (e.g., `PimsDocumentsClient`, `MailConnectorClient`, `EvolutionWhatsAppClient`).
+- **Connector Folder:** Lowercase kebab-case matching the integrated service (e.g., `mail`, `evolution-whatsapp`, `jira`).
+- **Client Class:** UpperCamelCase ending in `Client` (e.g., `MailConnectorClient`, `EvolutionWhatsAppClient`).
 - **Skill Fragment:** Always named `SKILL-FRAG.md` in the connector root folder.
 - **Skill Registration Target:** Appended to `.omp/skills/connectors/SKILL.md` (or path configured in runtime).
 
@@ -69,13 +67,13 @@ Examples: `secret:gestitel_jwt@v1`, `secret:smtp_creds@v1`, `secret:evolution_to
 
 ## 4. Connector Registration Lifecycle
 
-Registration integrates a connector's capabilities into the agent's active reasoning context:
+Registration integrates a connector's capabilities (e.g., `connectors/mail`) into the agent's active reasoning context:
 
 ```typescript
 import { registerConnector } from "./runtime";
 
 const result = await registerConnector({
-  connectorDir: "connectors/pims-documents",
+  connectorDir: "connectors/mail",
   skillPath: ".omp/skills/connectors/SKILL.md",
 });
 ```
