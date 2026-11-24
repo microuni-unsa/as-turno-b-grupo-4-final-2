@@ -1,5 +1,7 @@
 # Hechos de Expansión Territorial — Filiales Camaná y El Pedregal (2025)
 
+> **Nombres canónicos (usar SIEMPRE en documentos generados)**: `Filial Camaná` y `Filial El Pedregal`. `Majes` es el distrito/provincia (Calle 4 s/n, Distrito de Majes, Caylloma) — válido solo como aclaración geográfica entre paréntesis (`Filial El Pedregal (Majes)`), NUNCA como nombre suelto de la filial.
+
 ## 1. Contexto Histórico y Base Legal
 - **Resolución Rectoral N° 0142-2025-UNSA** [synthetic-assumed: formalización institucional]: Creación e integración operativa de la Sede Descentralizada de Camaná.
 - **Resolución Rectoral N° 0143-2025-UNSA** [synthetic-assumed: formalización institucional]: Creación e integración operativa de la Sede Descentralizada de El Pedregal - Majes.

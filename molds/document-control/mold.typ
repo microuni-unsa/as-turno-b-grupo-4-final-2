@@ -2,6 +2,10 @@
 // Cumple con ISO/IEC 27701:2025 Cláusula 7.5 (7.5.1, 7.5.2, 7.5.3), Controles A.3.14, A.1.4.8, A.1.4.9,
 // y replica la estructura exacta del formato del instructor "Procedimiento para control de documentos y registros".
 // CERO datos de instancia institucional en este archivo.
+// Example caller (staging):
+//   #import "mold.typ": mold
+//   #mold(metadata: (title: "...", code: "G4-PRC-DOC-01", version: "4.0", ...), references: (...), scope-text: [...], users-text: [...], taxonomy-data: (...), anatomy-items: (...), records-table-data: (...))
+// NOTE: all params NAMED; `metadata:` carries title/code/version/date/history/author/reviewer/approver.
 
 #import "../common/template.typ": doc-template
 

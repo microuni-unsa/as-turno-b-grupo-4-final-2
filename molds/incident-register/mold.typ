@@ -3,6 +3,11 @@
 // Norma de referencia: ISO/IEC 27701:2025 Cláusula 8.1, Control A.3.12 y Guía B.3.12 (9 campos obligatorios)
 // Gramática del instructor: Objetivo/alcance/usuarios -> Documentos de referencia -> Secciones sustantivas -> Gestión de registros -> Validez y gestión -> Bloque de firma
 // ZERO datos de instancia en este archivo. Typst shell que apunta al libro de registros XLSX oficial.
+// Example caller (staging):
+//   #import "mold.typ": mold
+//   #mold((title: "...", code: "G4-REG-INC-01", version: "1.0", era-name: "...", ...))
+// NOTE: `data` is POSITIONAL here — `#mold(data: (...))` fails on this mold.
+// NOTE: Typst shell points at the official XLSX record book; instance rows live in XLSX, not here.
 
 #import "../common/template.typ": doc-template, signature-block
 

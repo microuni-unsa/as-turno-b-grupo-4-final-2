@@ -3,6 +3,10 @@
 // y replica la estructura exacta del formato oficial del instructor "Plan de capacitación y concienciación"
 // (tabla de competencias de 6 columnas, calendario anual de 13 columnas, bloque de 4 responsabilidades y retención).
 // CERO datos de instancia institucional en este archivo.
+// Example caller (staging):
+//   #import "mold-cap.typ": mold-cap
+//   #mold-cap(metadata: (title: "...", code: "G4-CAP-INC-01", version: "4.0", ...), references: (...), competence-rows: (...), calendar-data: (...), responsibilities: (...))
+// NOTE: all params NAMED; `metadata:` carries title/code/version/date/history/author/reviewer/approver.
 
 #import "../common/template.typ": doc-template
 

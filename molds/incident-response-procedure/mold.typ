@@ -3,6 +3,10 @@
 // Norma de referencia: ISO/IEC 27701:2025 Cláusula 8.1, Controles A.3.11, A.3.12 y Guías B.3.11, B.3.12
 // Gramática del instructor: Objetivo/alcance/usuarios -> Documentos de referencia -> Secciones sustantivas -> Gestión de registros -> Validez y gestión -> Bloque de firma
 // ZERO datos de instancia en este archivo. Mantiene la profundidad técnica requerida (fases, roles, severidad, categorías, criterios de notificación organizacionales, sin reloj de 72h).
+// Example caller (staging):
+//   #import "mold.typ": mold
+//   #mold(data: (title: "...", code: "G4-XXX-01", version: "4.0", date: "...", history: (...), ...))
+// NOTE: `data:` is a NAMED argument — positional `#mold((...))` fails to compile.
 
 #import "../common/template.typ": doc-template
 

@@ -3,6 +3,11 @@
 // Sistema de Gestión de Privacidad de la Información (SGPI) — ISO/IEC 27701:2025
 // Cumple con el Contrato de Anatomía Documental de 15 Elementos y fidelidad estricta al instructor
 // ZERO datos de instancia hardcodeados en este archivo
+// Example caller (staging):
+//   #import "mold.typ": mold
+//   #mold((title: "...", code: "G4-RSK-INC-01", version: "3.0", period-name: "...", ...))
+// NOTE: `data` is POSITIONAL here — `#mold(data: (...))` fails on this mold.
+// NOTE: `code:` dispatches the sub-mold (G4-MET-RSK-01 / G4-RSK-INC-01 / G4-PLN-RSK-01); era/period text via period-name:.
 
 #import "../common/template.typ": doc-template, signature-block
 

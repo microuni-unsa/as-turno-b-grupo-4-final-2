@@ -1,6 +1,10 @@
 // mold-reg-cap.typ — Molde parametrizado para Registro de Asistencia y Evaluación de Competencias
 // Cumple con ISO/IEC 27701:2025 Cláusula 7.2 (Competencia), Control A.3.17 y Guía B.3.17.
 // CERO datos de instancia institucional en este archivo.
+// Example caller (staging):
+//   #import "mold-reg-cap.typ": mold-reg-cap
+//   #mold-reg-cap(metadata: (title: "...", code: "G4-REG-CAP-01", version: "4.0", ...), references: (...), course-info: (...), attendees: (...), statistics: (...))
+// NOTE: all params NAMED; `metadata:` carries title/code/version/date/history/author/reviewer/approver.
 
 #import "../common/template.typ": doc-template
 

@@ -2,6 +2,10 @@
 // Cumple con ISO/IEC 27701:2025 Cláusula 10.2 (No conformidad y acción correctiva), Control A.3.16,
 // y replica la estructura exacta del formato oficial del instructor "Procedimiento para medidas correctivas".
 // CERO datos de instancia institucional en este archivo.
+// Example caller (staging):
+//   #import "mold-prc-capa.typ": mold-prc-capa
+//   #mold-prc-capa(metadata: (title: "...", code: "G4-PRC-CAPA-01", version: "4.0", ...), references: (...), scope-text: [...], users-text: [...], steps-table-data: (...), records-table-data: (...))
+// NOTE: all params NAMED; `metadata:` carries title/code/version/date/history/author/reviewer/approver.
 
 #import "../common/template.typ": doc-template
 

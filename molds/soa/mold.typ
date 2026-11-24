@@ -2,8 +2,23 @@
 // Artefacto: G4-SOA-01 (v1, v2, v3)
 // Sistema de Gestión de Privacidad de la Información (SGPI) — ISO/IEC 27701:2025
 // Cumple con el Contrato de Anatomía Documental de 15 Elementos y Cláusula 6.1.3.e
+// Example caller (staging):
+//   #import "mold.typ": mold
+//   #mold((title: "...", code: "G4-SOA-01", version: "4.0", era: "v3", ...))
+// NOTE: `data` is POSITIONAL here — `#mold(data: (...))` fails on this mold.
+// NOTE: `era: "v1" | "v2" | "v3"` selects the era text variant.
 
 #import "../common/template.typ": doc-template, signature-block
+
+// `deep_overrides` lets callers replace era-selected paragraphs without editing this mold:
+//   #mold((..., era: "v3", deep_overrides: (a129: [...], "a1-A.1.2.9": "…")))
+// Keys: a311, a312, a129, a137, a1310 (vertical-analysis paragraphs),
+// plus "a1-<CONTROL>" / "a3-<CONTROL>" (table justification cells).
+// Absent/empty dict renders byte-identical output to era-only selection.
+#let deep-pick(overrides, key, fallback) = {
+  let hit = overrides.at(key, default: none)
+  if hit == none { fallback } else { hit }
+}
 
 #let get-deep-a311(era) = {
   if era == "v1" [
@@ -225,6 +240,7 @@
   let doc-refs = data.at("references", default: ())
   let doc-owner = data.at("owner-role", default: "Oficial de Seguridad de la Información (OSI / DPO)")
   let era = data.at("era", default: "v3")
+  let deep-overrides = data.at("deep_overrides", default: (:))
   let org-name = data.at("organization-name", default: "la Universidad Nacional de San Agustín de Arequipa (UNSA)")
   let purpose-desc = data.at("purpose-desc", default: "documenta formalmente los controles de seguridad y privacidad necesarios para el Sistema de Gestión de Privacidad de la Información (SGPI) institucional")
   let role-desc = data.at("role-desc", default: "actúa de manera privativa y unívoca como Responsable del Tratamiento de Datos Personales (PII Controller), determinando de forma autónoma los fines y medios del tratamiento en los procesos misionales de Admisión y de soporte de Planillas de Remuneraciones")
@@ -280,15 +296,15 @@
 
       === Controles con análisis de profundidad vertical (Incidentes y Derechos de Titulares)
       - *Control A.3.11 — Planificación y preparación de incidentes de seguridad (PII):*
-        #get-deep-a311(era)
+        #deep-pick(deep-overrides, "a311", get-deep-a311(era))
       - *Control A.3.12 — Respuesta a incidentes de seguridad de la información:*
-        #get-deep-a312(era)
+        #deep-pick(deep-overrides, "a312", get-deep-a312(era))
       - *Control A.1.2.9 — Registros relacionados con el tratamiento de PII (ROPA / RAT):*
-        #get-deep-a129(era)
+        #deep-pick(deep-overrides, "a129", get-deep-a129(era))
       - *Control A.1.3.7 — Acceso, rectificación o supresión de PII (ARCO / DSR):*
-        #get-deep-a137(era)
+        #deep-pick(deep-overrides, "a137", get-deep-a137(era))
       - *Control A.1.3.10 — Tramitación y respuesta a solicitudes de titulares:*
-        #get-deep-a1310(era)
+        #deep-pick(deep-overrides, "a1310", get-deep-a1310(era))
 
       == Tabla A.1 — Controles para Responsables del Tratamiento (PII Controllers) [31 Controles]
       #v(0.2cm)
@@ -302,7 +318,7 @@
           [*#row.at(0)*],
           [#row.at(1)],
           [*IMPLEMENTADO*],
-          [#row.at(2)]
+          [#deep-pick(deep-overrides, "a1-" + row.at(0), row.at(2))]
         )).flatten()
       )
       #v(0.3cm)
@@ -336,7 +352,7 @@
           [*#row.at(0)*],
           [#row.at(1)],
           [*IMPLEMENTADO*],
-          [#row.at(2)]
+          [#deep-pick(deep-overrides, "a3-" + row.at(0), row.at(2))]
         )).flatten()
       )
       #v(0.3cm)

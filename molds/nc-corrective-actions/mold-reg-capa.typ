@@ -2,6 +2,10 @@
 // Cumple con ISO/IEC 27701:2025 Cláusula 10.2, Control A.3.16, y replica rigurosamente las 12 filas del
 // formato oficial del instructor "Apéndice Formulario para medidas correctivas".
 // CERO datos de instancia institucional en este archivo.
+// Example caller (staging):
+//   #import "mold-reg-capa.typ": mold-reg-capa
+//   #mold-reg-capa(metadata: (title: "...", code: "G4-REG-CAPA-01", version: "4.0", ...), references: (...), records: (...))
+// NOTE: all params NAMED; `metadata:` carries title/code/version/date/history/author/reviewer/approver.
 
 #import "../common/template.typ": doc-template
 

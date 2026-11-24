@@ -3,6 +3,10 @@
 // Norma de referencia: ISO/IEC 27701:2025 Cláusula 6.2 (Objetivos de privacidad de la información y planificación para alcanzarlos)
 // Gramática del instructor: Objetivo/alcance/usuarios -> Documentos de referencia -> Secciones sustantivas -> Gestión de registros -> Validez y gestión -> Bloque de firma
 // ZERO datos de instancia en este archivo.
+// Example caller (staging):
+//   #import "mold.typ": mold
+//   #mold(data: (title: "...", code: "G4-XXX-01", version: "4.0", date: "...", history: (...), ...))
+// NOTE: `data:` is a NAMED argument — positional `#mold((...))` fails to compile.
 
 #import "../common/template.typ": doc-template
 
