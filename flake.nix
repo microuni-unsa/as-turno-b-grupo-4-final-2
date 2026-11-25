@@ -34,6 +34,7 @@
             (with pkgs; [
               bun
               uv
+              sops
             ])
             (with unstable; [
               typst

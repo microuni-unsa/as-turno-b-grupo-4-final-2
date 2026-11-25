@@ -1,6 +1,6 @@
 # PIMS Unified TypeScript SDK & Companion CLI (`scripts/pims.ts`) Specification
 
-> **Document Status**: Approved Architecture & Implementation Specification (Target Pass: Post-Fixup SDK Consolidation).  
+> **Document Status**: Approved Architecture & Implementation Specification
 > **Ground Truth Verification**: All endpoint paths, HTTP methods, response shapes, and enum codes below were verified read-only against the live production GESTITEL PIMS API (`https://unsa.27k.pe`, schema `unsa`).
 
 ---
