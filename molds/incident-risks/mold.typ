@@ -9,7 +9,7 @@
 // NOTE: `data` is POSITIONAL here — `#mold(data: (...))` fails on this mold.
 // NOTE: `code:` dispatches the sub-mold (G4-MET-RSK-01 / G4-RSK-INC-01 / G4-PLN-RSK-01); era/period text via period-name:.
 
-#import "../common/template.typ": doc-template, signature-block
+#import "../common/template.typ": doc-template, signature-block, default-confidentiality
 
 // -------------------------------------------------------------------------
 // 1. SUB-MOLDE: G4-MET-RSK-01 — Metodología de Evaluación y Tratamiento
@@ -21,7 +21,7 @@
   let doc-code = data.at("code", default: "G4-MET-RSK-01")
   let doc-ver = data.at("version", default: "3.0")
   let doc-date = data.at("date", default: "2025-10-28")
-  let doc-conf = data.at("confidentiality", default: "CONFIDENCIAL - USO INTERNO UNSA")
+  let doc-conf = data.at("confidentiality", default: default-confidentiality)
   let doc-author = data.at("author", default: (:))
   let doc-reviewer = data.at("reviewer", default: (:))
   let doc-approver = data.at("approver", default: (:))
@@ -74,7 +74,7 @@
       retention: "Las versiones no vigentes de la DdA son almacenadas por un plazo de 5 años"
     ),
     (
-      name: "Plan de tratamiento de riesgos (formulario electrónico, documento de Word / Typst)",
+      name: "Plan de tratamiento de riesgos (formulario electrónico, formato documental PDF oficial)",
       location: "Repositorio PIMS / Sisgedo",
       responsible: doc-owner,
       controls: "Solamente el " + doc-owner + " tiene derecho a crear entradas y a realizar modificaciones en el Plan de tratamiento de riesgos",
@@ -253,7 +253,7 @@
   let doc-code = data.at("code", default: "G4-RSK-INC-01")
   let doc-ver = data.at("version", default: "3.0")
   let doc-date = data.at("date", default: "2025-10-28")
-  let doc-conf = data.at("confidentiality", default: "CONFIDENCIAL - USO INTERNO UNSA")
+  let doc-conf = data.at("confidentiality", default: default-confidentiality)
   let doc-author = data.at("author", default: (:))
   let doc-reviewer = data.at("reviewer", default: (:))
   let doc-approver = data.at("approver", default: (:))
@@ -465,7 +465,7 @@
   let doc-code = data.at("code", default: "G4-PLN-RSK-01")
   let doc-ver = data.at("version", default: "3.0")
   let doc-date = data.at("date", default: "2025-10-28")
-  let doc-conf = data.at("confidentiality", default: "CONFIDENCIAL - USO INTERNO UNSA")
+  let doc-conf = data.at("confidentiality", default: default-confidentiality)
   let doc-author = data.at("author", default: (:))
   let doc-reviewer = data.at("reviewer", default: (:))
   let doc-approver = data.at("approver", default: (:))

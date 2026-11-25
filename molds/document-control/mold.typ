@@ -7,7 +7,7 @@
 //   #mold(metadata: (title: "...", code: "G4-PRC-DOC-01", version: "4.0", ...), references: (...), scope-text: [...], users-text: [...], taxonomy-data: (...), anatomy-items: (...), records-table-data: (...))
 // NOTE: all params NAMED; `metadata:` carries title/code/version/date/history/author/reviewer/approver.
 
-#import "../common/template.typ": doc-template
+#import "../common/template.typ": doc-template, default-confidentiality
 
 #let mold(
   metadata: (:),
@@ -25,7 +25,7 @@
     code: metadata.at("code", default: "G4-PRC-DOC-01"),
     version: metadata.at("version", default: "3.0"),
     date: metadata.at("date", default: "2025-10-28"),
-    confidentiality: metadata.at("confidentiality", default: "CONFIDENCIAL - USO INTERNO UNSA"),
+    confidentiality: metadata.at("confidentiality", default: default-confidentiality),
     author: metadata.at("author", default: (name: "", role: "", date: "")),
     reviewer: metadata.at("reviewer", default: (name: "", role: "", date: "")),
     approver: metadata.at("approver", default: (name: "", role: "", date: "")),
@@ -69,7 +69,7 @@
     Los documentos internos son todos documentos creados dentro de la organización.
 
     == Formato de los documentos
-    El texto del documento se escribe utilizando fuente Liberation Sans (sustituto métrico idéntico y estándar libre de Calibri en entornos Linux y Typst 0.15), tamaño 11. Los títulos de capítulo se escriben con tamaño de fuente 14 y en negrita; mientras que para los títulos de capítulo nivel 2 se utiliza el tamaño de fuente 12 en negrita. Los títulos de capítulo nivel 3 se escriben con tamaño de fuente 11, en negrita y cursiva.
+    El texto del documento se escribe utilizando fuente Carlito (sustituto métrico idéntico y estándar libre de Calibri), tamaño 11. Los títulos de capítulo se escriben con tamaño de fuente 14 y en negrita; mientras que para los títulos de capítulo nivel 2 se utiliza el tamaño de fuente 12 en negrita. Los títulos de capítulo nivel 3 se escriben con tamaño de fuente 11, en negrita y cursiva.
 
     El encabezado del documento incluye el nombre de la organización y el nivel de confidencialidad. El pie de página incluye el nombre del documento, la versión actual, la fecha del documento y la cantidad de páginas.
 

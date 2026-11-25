@@ -8,7 +8,7 @@
 // NOTE: `data` is POSITIONAL here — `#mold(data: (...))` fails on this mold.
 // NOTE: `era: "v1" | "v2" | "v3"` selects the era text variant.
 
-#import "../common/template.typ": doc-template, signature-block
+#import "../common/template.typ": doc-template, signature-block, default-confidentiality
 
 // `deep_overrides` lets callers replace era-selected paragraphs without editing this mold:
 //   #mold((..., era: "v3", deep_overrides: (a129: [...], "a1-A.1.2.9": "…")))
@@ -36,7 +36,7 @@
   ] else if era == "v2" [
     La respuesta técnica se ejecuta de manera automatizada y estandarizada ante incidentes en plataformas web o accesos remotos. Ante la confirmación de una brecha que involucre datos personales (PII breach conforme a B.3.12 Nota 1), se aplican contenciones inmediatas: bloqueo de direcciones IP en el WAF, invalidación masiva de tokens JWT efímeros, reseteo forzoso de contraseñas de cuentas administrativas y preservación forense de registros del servidor web (Nginx) y de base de datos bajo estricta cadena de custodia digital sin reinicio de servicios. Cada incidente se asienta obligatoriamente en el Libro de Incidentes `G4-REG-INC-01` y desencadena la apertura de una Solicitud de Acción Correctiva en `G4-REG-CAPA-01` (Cláusula 10.2).
   ] else [
-    El protocolo de respuesta técnica incluye procedimientos específicos para escenarios multisede: aislamiento preventivo de túneles VPN IPSec entre filiales y el centro de datos ante detección de tráfico anómalo, borrado seguro remoto inmediato de equipos móviles sustraídos en filiales y validación de hash SHA-256 en bases de datos descentralizadas. La totalidad de los incidentes se asienta en el Libro de Incidentes `G4-REG-INC-01` (y su generador scriptado Bun `generate.ts`) conservando los campos obligatorios de la Guía B.3.12 (descripción, período de tiempo, nombre del reportero, persona reportada, medidas de resolución y datos recuperados). Todo incidente categorizado como medio, alto o crítico alimenta automáticamente la apertura de acciones correctivas en el registro `G4-REG-CAPA-01` bajo la Cláusula 10.2.
+    El protocolo de respuesta técnica incluye procedimientos específicos para escenarios multisede: aislamiento preventivo de túneles VPN IPSec entre filiales y el centro de datos ante detección de tráfico anómalo, borrado seguro remoto inmediato de equipos móviles sustraídos en filiales y validación de hash SHA-256 en bases de datos descentralizadas. La totalidad de los incidentes se asienta en el Libro de Incidentes `G4-REG-INC-01` (y su hoja de cálculo institucional XLSX) conservando los campos obligatorios de la Guía B.3.12 (descripción, período de tiempo, nombre del reportero, persona reportada, medidas de resolución y datos recuperados). Todo incidente categorizado como medio, alto o crítico alimenta automáticamente la apertura de acciones correctivas en el registro `G4-REG-CAPA-01` bajo la Cláusula 10.2.
   ]
 }
 
@@ -231,7 +231,7 @@
   let doc-code = data.at("code", default: "G4-SOA-01")
   let doc-ver = data.at("version", default: "3.0")
   let doc-date = data.at("date", default: "2025-10-28")
-  let doc-conf = data.at("confidentiality", default: "CONFIDENCIAL - USO INTERNO UNSA")
+  let doc-conf = data.at("confidentiality", default: default-confidentiality)
   let doc-author = data.at("author", default: (:))
   let doc-reviewer = data.at("reviewer", default: (:))
   let doc-approver = data.at("approver", default: (:))
@@ -372,7 +372,7 @@
         stroke: 0.5pt + luma(190),
         align: (left, left, left, left, center),
         table.header([*Nombre del registro*], [*Ubicación de archivo*], [*Persona responsable del archivo*], [*Controles para la protección del registro*], [*Tiempo de retención*]),
-        [Declaración de aplicabilidad (formulario electrónico, documento en PDF / Typst)], [Repositorio PIMS / Sisgedo], [#doc-owner], [Control de acceso por roles (RBAC) e integridad SHA-256], [Permanente],
+        [Declaración de aplicabilidad (formulario electrónico, formato documental PDF oficial)], [Repositorio PIMS / Sisgedo], [#doc-owner], [Control de acceso por roles (RBAC) e integridad SHA-256], [Permanente],
         [Evaluaciones y evidencias de aplicabilidad de controles], [Repositorio PIMS / Servidor DUTIC], [#doc-owner], [Control de acceso por roles (RBAC) y respaldo semanal], [5 años]
       )
       #v(0.2cm)

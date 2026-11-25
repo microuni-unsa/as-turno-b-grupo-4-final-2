@@ -7,7 +7,7 @@
 //   #mold-prc-capa(metadata: (title: "...", code: "G4-PRC-CAPA-01", version: "4.0", ...), references: (...), scope-text: [...], users-text: [...], steps-table-data: (...), records-table-data: (...))
 // NOTE: all params NAMED; `metadata:` carries title/code/version/date/history/author/reviewer/approver.
 
-#import "../common/template.typ": doc-template
+#import "../common/template.typ": doc-template, default-confidentiality
 
 #let mold-prc-capa(
   metadata: (:),
@@ -24,7 +24,7 @@
     code: metadata.at("code", default: "G4-PRC-CAPA-01"),
     version: metadata.at("version", default: "3.0"),
     date: metadata.at("date", default: "2025-10-28"),
-    confidentiality: metadata.at("confidentiality", default: "CONFIDENCIAL - USO INTERNO UNSA"),
+    confidentiality: metadata.at("confidentiality", default: default-confidentiality),
     author: metadata.at("author", default: (name: "", role: "", date: "")),
     reviewer: metadata.at("reviewer", default: (name: "", role: "", date: "")),
     approver: metadata.at("approver", default: (name: "", role: "", date: "")),

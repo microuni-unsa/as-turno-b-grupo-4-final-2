@@ -15,11 +15,12 @@ Todo documento generado a partir de estos moldes DEBE cumplir estrictamente con 
 3. **Fecha de vigencia / aprobación**: Formato ISO `YYYY-MM-DD` indicando la fecha de emisión formal.
 4. **Paginación dinámica y Pie de página institucional (Páginas 2+)**: Suprimido en página 1 (carátula). A partir de la página 2, pie de página estructurado en 3 celdas con anchos fijos `columns: (1fr, 150pt, 100pt)` a 11pt: nombre del documento a la izquierda en `#box(width: 100%, clip: true)[#doc-display-name]` (evita colapso horizontal mediante `short-title`), `ver. <version> del <date>` al centro (150pt), y `Página X de Y` a la derecha (100pt) mediante `#context counter(page).display("1 de 1", both: true)`. Se elimina el antiguo tagline inferior.
 5. **Nivel de clasificación de seguridad**: Rotulado explícito en encabezado superior derecho a partir de página 2 (`Confidencial` por defecto para todo el SGPI). Suprimido en página 1. Encabezado a 11pt simétrico con el pie.
-6. **Tabla de control documental en carátula (`document-control table`)**: Tabla estructurada de exactamente 6 filas ubicada en la página 1 (carátula exclusiva bajo logo UNSA centrado de ~3.5cm, nombre de la entidad y título del documento):
+6. **Tabla de control documental en carátula (`document-control table`)**: Tabla estructurada de 6 filas base (7 filas cuando `reviewer` es no vacío) ubicada en la página 1 (carátula exclusiva bajo logo UNSA centrado de ~3.5cm, nombre de la entidad y título del documento):
    - *Código:* Código unívoco del documento (`G4-XXX-NN`).
    - *Versión:* Versión semántica (`X.Y`).
    - *Fecha de la versión:* Fecha formal de emisión (`YYYY-MM-DD`).
    - *Creado por:* Nombre y cargo del autor técnico (DPO / OSI).
+   - *Revisado por:* *(Condicional)* Nombre y cargo del revisor técnico (se renderiza automáticamente entre *Creado por* y *Aprobado por* cuando `reviewer` contiene `name`, `role` o cadena no vacía).
    - *Aprobado por:* Nombre y cargo de la máxima autoridad de aprobación (Rector UNSA).
    - *Nivel de confidencialidad:* Clasificación (`Confidencial`).
    Todos los textos y celdas heredan Carlito 11pt.
@@ -117,6 +118,21 @@ Para garantizar coherencia y trazabilidad de auditoría entre todas las carpetas
 | **DPO / OSI Institucional** | Ing. Carlos M. Benítez | Ing. Carlos M. Benítez | Ing. Carlos M. Benítez |
 | **Directora DUTIC** | Mg. Lucía Valdivia Paredes | Mg. Lucía Valdivia Paredes | Mg. Lucía Valdivia Paredes |
 
+### 2.5. Molde Universal Cross-Team (`molds/generic/mold.typ`)
+
+Para digerir y emitir nuevas versiones `G4-` a partir de **cualquier PDF del PIMS** (incluidos documentos de otros equipos creados en Word, Google Docs, LaTeX o cargas externas) cuya estructura de secciones o tablas no corresponda a ninguno de los 13 moldes especializados, se dispone del molde universal `molds/generic/mold.typ`:
+
+- **Firma parametrizada**: `#let mold(data: (:), ..args)` (acepta `data: (...)` y opcionalmente un bloque de contenido `[...]` posicional o `body: [...]` nombrado) sin datos de instancia UNSA hardcodeados.
+- **Claves soportadas en `data`**: `title`, `short-title` (o `short_title`), `code`, `version`, `date`, `confidentiality` (por defecto `"Confidencial"`), `author`, `reviewer`, `approver`, `history`, `references`, `validity`, `owner-role` (o `owner_role`), `show-signature` (por defecto `true`) y el arreglo estructurado opcional `sections`.
+- **Estructura de `sections`**: Arreglo de diccionarios `((heading: "...", content: [...], landscape: false, subsections: ((heading: "...", content: [...]), ...)), ...)` que se renderizan jerárquicamente antes del `body` directo (pudiendo usarse `sections`, bloque de cuerpo `[...]` al final de `#mold(data: (...))[...]`, o ambos).
+- **Anatomía automática**: Delega todos los metadatos a `doc-template(...)`, garantizando carátula (con `Creado por`, `Revisado por` condicional y `Aprobado por`), historial y ToC en página 2, `Documentos de referencia`, tablas verticales u horizontales (`#page(flipped: true)[...]`), `Validez y gestión de documentos` y bloque de firma institucional coherente.
+
+### 2.6. Reglas de Escape en Bloques de Contenido Typst (`[...]`)
+
+Dentro de bloques de contenido/markup `[...]` en Typst (tanto en `body` como en campos `content: [...]` o `sections`), el carácter `@` inicia una referencia o cita a etiqueta (`@etiqueta`). Por ello:
+- Todo carácter `@` literal en direcciones de correo electrónico, usuarios o prosa dentro de `[...]` **DEBE escaparse como `\@`** (por ejemplo: `csirt\@unsa.edu.pe`), evitando errores de compilación `label does not exist in the document`.
+- Dentro de literales de cadena entre comillas (`"csirt@unsa.edu.pe"`) o código inline (`` `csirt@unsa.edu.pe` ``) no se requiere barra invertida.
+
 ---
 
 ## 3. Regla de Versionado y Ciclo de Vida (1.x vs 2.x/3.x)
@@ -185,7 +201,8 @@ molds/
 ├── audit-programme/                   # mold-prg.typ, mold-rep.typ, RAFA.md
 ├── management-review/                 # mold.typ, RAFA.md
 ├── nc-corrective-actions/             # mold-prc-capa.typ, mold-reg-capa.typ, RAFA.md
-└── document-index/                    # mold.typ, RAFA.md
+├── document-index/                    # mold.typ, RAFA.md
+└── generic/                           # mold.typ (molde universal para documentos arbitrarios/multi-equipo)
 ```
 
 ### 6.2. `corpus_g4_src/` — Fuentes Rellenadas (Filled Typst Sources)

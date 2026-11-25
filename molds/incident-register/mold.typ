@@ -9,7 +9,7 @@
 // NOTE: `data` is POSITIONAL here — `#mold(data: (...))` fails on this mold.
 // NOTE: Typst shell points at the official XLSX record book; instance rows live in XLSX, not here.
 
-#import "../common/template.typ": doc-template, signature-block
+#import "../common/template.typ": doc-template, signature-block, default-confidentiality
 
 #let mold(data, body: none) = {
   let doc-title = data.at("title", default: "Registro Oficial de Incidentes de Privacidad (SGPI)")
@@ -17,7 +17,7 @@
   let doc-code = data.at("code", default: "G4-REG-INC-01")
   let doc-ver = data.at("version", default: "1.0")
   let doc-date = data.at("date", default: "")
-  let doc-conf = data.at("confidentiality", default: "CONFIDENCIAL - USO INTERNO UNSA")
+  let doc-conf = data.at("confidentiality", default: default-confidentiality)
   let doc-author = data.at("author", default: (:))
   let doc-reviewer = data.at("reviewer", default: (:))
   let doc-approver = data.at("approver", default: (:))
@@ -184,14 +184,14 @@
           #text(font: "Liberation Mono", weight: "bold", fill: rgb("#0284c7"))[G4-REG-INC-01-registros.xlsx]\
           #v(2pt)
           #text(fill: luma(80))[
-            Generado y sincronizado por el generador institucional scriptado (`generate.ts`)\
+            Sincronizado con la hoja de cálculo institucional oficial en formato XLSX\
             Almacenamiento seguro bajo control de acceso RBAC del DPO | Integridad SHA-256 verificada
           ]
         ]
       )
     ]
 
-    Este documento Typst constituye la representación formal institucional para revisión por la dirección y auditorías de certificación de Fase 1 y Fase 2, garantizando la perfecta sincronía entre la gobernanza documental y el dataset técnico de incidentes.
+    Este formato documental PDF oficial constituye la representación formal institucional para revisión por la dirección y auditorías de certificación de Fase 1 y Fase 2, garantizando la perfecta sincronía entre la gobernanza documental y el dataset técnico de incidentes.
 
     = Gestión de registros guardados en base a este documento
     #table(

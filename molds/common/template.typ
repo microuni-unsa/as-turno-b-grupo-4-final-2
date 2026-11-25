@@ -2,12 +2,21 @@
 // Cumple con el contrato de 15 elementos, ISO/IEC 27701:2025 y el formato del instructor
 // Actualizado con las 6 correcciones de estandarización visual y tipografía Carlito 11pt (Word 1.15)
 
+#let default-confidentiality = "Confidencial"
+#let default-approver-role = "Rector - Presidente del Comité SGPI"
+#let default-approver-name = "Dr. Hugo José Sánchez"
+#let default-owner-role = "Oficial de Seguridad de la Información (OSI / DPO)"
+
+#let non-empty-str(val) = val != none and val != "" and val != []
+
 #let format-person(p) = {
   if type(p) == dictionary {
     let n = p.at("name", default: "")
     let r = p.at("role", default: "")
-    if n != "" and r != "" [ #n (#r) ] else if n != "" [ #n ] else if r != "" [ #r ] else []
-  } else if p != none {
+    let has-n = non-empty-str(n)
+    let has-r = non-empty-str(r)
+    if has-n and has-r [ #n (#r) ] else if has-n [ #n ] else if has-r [ #r ] else []
+  } else if non-empty-str(p) {
     [#p]
   } else {
     []
@@ -24,8 +33,8 @@
 }
 
 #let signature-block(role: none, name: none) = {
-  let display-role = if role != none { role } else { "Rector - Presidente del Comité SGPI" }
-  let display-name = if name != none { name } else { "Dr. Hugo José Sánchez" }
+  let display-role = if non-empty-str(role) { role } else { default-approver-role }
+  let display-name = if non-empty-str(name) { name } else { default-approver-name }
   block(width: 220pt, breakable: false)[
     #text(weight: "bold")[#display-role]\
     #v(2pt)
@@ -41,7 +50,7 @@
   code: "",
   version: "",
   date: "",
-  confidentiality: "Confidencial",
+  confidentiality: default-confidentiality,
   author: (:),
   reviewer: (:),
   approver: (:),
@@ -112,6 +121,11 @@
     #v(1.0cm)
   ]
 
+  let has-reviewer = (
+    type(reviewer) == dictionary
+      and (non-empty-str(reviewer.at("name", default: "")) or non-empty-str(reviewer.at("role", default: "")))
+  ) or (type(reviewer) == str and reviewer != "") or (type(reviewer) == content and reviewer != [])
+
   table(
     columns: (135pt, 1fr),
     stroke: 0.5pt + luma(180),
@@ -122,6 +136,7 @@
     [*Versión:*], [#version],
     [*Fecha de la versión:*], [#date],
     [*Creado por:*], [#format-person(author)],
+    ..if has-reviewer { ([*Revisado por:*], [#format-person(reviewer)]) } else { () },
     [*Aprobado por:*], [#format-person(approver)],
     [*Nivel de confidencialidad:*], [#confidentiality],
   )
@@ -172,12 +187,12 @@
   if validity != none or owner-role != none {
     heading(level: 1)[Validez y gestión de documentos]
     let val-date = if validity != none and validity != "" { validity } else { date }
-    let val-owner = if owner-role != none and owner-role != "" {
+    let val-owner = if non-empty-str(owner-role) {
       owner-role
-    } else if type(author) == dictionary and author.at("role", default: "") != "" {
+    } else if type(author) == dictionary and non-empty-str(author.at("role", default: "")) {
       author.role
     } else {
-      "Oficial de Seguridad de la Información (OSI / DPO)"
+      default-owner-role
     }
 
     [
@@ -197,33 +212,30 @@
   // ==========================================
   if show-signature {
     v(0.6cm)
-    let has-approver = type(approver) == dictionary and approver.at("name", default: "") != ""
-    let has-author = type(author) == dictionary and author.at("name", default: "") != ""
-    let sig-role = if has-approver and approver.at("role", default: "") != "" {
-      approver.role
-    } else if has-author and author.at("role", default: "") != "" {
-      author.role
-    } else if owner-role != none and owner-role != "" {
-      owner-role
-    } else {
-      "Rector - Presidente del Comité SGPI"
-    }
-    let sig-name = if has-approver {
-      approver.name
+    let has-approver = type(approver) == dictionary and non-empty-str(approver.at("name", default: ""))
+    let has-author = type(author) == dictionary and non-empty-str(author.at("name", default: ""))
+    let (sig-role, sig-name) = if has-approver {
+      let r = if non-empty-str(approver.at("role", default: "")) {
+        approver.role
+      } else {
+        default-approver-role
+      }
+      (r, approver.name)
     } else if has-author {
-      author.name
+      let r = if non-empty-str(author.at("role", default: "")) {
+        author.role
+      } else if non-empty-str(owner-role) {
+        owner-role
+      } else {
+        default-owner-role
+      }
+      (r, author.name)
     } else {
-      "Dr. Hugo José Sánchez"
+      (default-approver-role, default-approver-name)
     }
 
     align(left)[
-      #block(width: 220pt, breakable: false)[
-        #text(weight: "bold")[#sig-role]\
-        #v(2pt)
-        #text()[#sig-name]\
-        #v(1.4cm)
-        #line(length: 100%, stroke: 0.5pt + luma(120))
-      ]
+      #signature-block(role: sig-role, name: sig-name)
     ]
   }
 }

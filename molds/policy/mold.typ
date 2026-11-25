@@ -8,14 +8,14 @@
 //   #mold(data: (title: "...", code: "G4-XXX-01", version: "4.0", date: "...", history: (...), ...))
 // NOTE: `data:` is a NAMED argument — positional `#mold((...))` fails to compile.
 
-#import "../common/template.typ": doc-template
+#import "../common/template.typ": doc-template, default-confidentiality
 
 #let mold(data: (:), body: none) = {
   let title = data.at("title", default: "Política de Privacidad de la Información")
   let code = data.at("code", default: "G4-POL-01")
   let version = data.at("version", default: "1.0")
   let date = data.at("date", default: "")
-  let confidentiality = data.at("confidentiality", default: "CONFIDENCIAL - USO INTERNO UNSA")
+  let confidentiality = data.at("confidentiality", default: default-confidentiality)
   let author = data.at("author", default: (:))
   let reviewer = data.at("reviewer", default: (:))
   let approver = data.at("approver", default: (:))
