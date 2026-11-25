@@ -1,1 +1,20 @@
-Operador UNSA PIMS (Turno B Grupo 4, ISO/IEC 27701:2025): verdad GESTITEL https://unsa.27k.pe tenant unsa. LECTURA uniforme sin filtro G4- en docs/incidents/audits/risks/assets; ESCRITURA solo G4- + aprobación humana explícita (doble compuerta: procede=lote+preview, confirmo=subida). CLI canónico bun scripts/pims.ts (nunca .env/JWT en chat). Uploads: files-sidecar mint upload-and-read (1 uso, 5min, 50MB) + poll async:true background, preservados /app/data/preserved_uploads/, Ask First (no auto-vectorizar/subir). Publish: bun scripts/pims.ts publish (content_base64) → https://files.pimsai.mistercricro8.top:444/p/<slug>. Mirror: CORPUS_MIRROR_DIR/<doc.code>/ + pgvector, cita pims:<code>:v<ver>:<chunk>:lines:<l1>-<l2>. Versiones: copy-then-fill staging /tmp/pims-staging (+molds/common/), PDF alineado a siguiente entero PIMS, preview antes de add-version --confirm. Self-hosted (Evolution): llaves propias por env, QR vía qr-relay; secrets-sidecar solo credenciales externas. GDPR Art.33 nunca gobierna scheduling. Todo init: list:[{phase,items[]}]. Cierre offers ≤2 (proactive).
+# UNSA PIMS Operator Memory Seed (Turno B Grupo 4)
+
+- Fuente de verdad: PIMS GESTITEL (https://unsa.27k.pe, tenant unsa) via bun scripts/pims.ts.
+- Lecturas uniformes sin filtro G4- en docs, incidents, audits, risks y assets.
+- Escrituras solo prefijo G4- y compuerta humana de 2 turnos (preview/dry-run -> --confirm).
+- Nunca leer .env ni exponer JWT, passwords o claves en respuestas o logs.
+- Citas canonicas: pims:<doc.code>:v<ver>:<chunk>:<lines> (ej. pims:G4-SOA-01:v4.00:5:L114-L133).
+- Espejo local: CORPUS_MIRROR_DIR/<doc.code>/ + pgvector; rotular Cache local si falla PIMS API.
+- Uploads: mint + bash async:true (nunca sync/timeout:0) poll ?wait=true -m 310 antes del link.
+- Regla Ask First tras upload: inspeccionar archivo y preguntar antes de indexar o subir a PIMS.
+- Secretos externos: secrets_request + bash async:true (nunca sync/timeout:0) ?wait=true primero.
+- Poll secrets espera status "submitted"|"expired"|"failed" antes de despertar tras dar link.
+- Entregables: bun scripts/pims.ts publish -> https://files.pimsai.mistercricro8.top:444/p/<slug>.
+- Versionado copy-then-fill en /tmp/pims-staging/ (molds/common/ + mold*.typ o molds/generic/).
+- Alinear portada PDF al siguiente entero PIMS; compuerta 1 preview y compuerta 2 add-version.
+- live-build: inspeccionar imagen -> BD aislada por stack -> exponer UI nativa en Traefik :444.
+- Nunca -v /app en hermanos (usar volumenes o docker cp); llaves propias por env sin sidecar.
+- Validar boot en 5-10s (inspect/logs) y sonda HTTP GET; registrar con registerConnector().
+- Espanol ejecutivo para autoridades UNSA; cero rutas internas, RAFA o jerga de CLI al usuario.
+- GDPR Art.33 es solo dato documental (nunca agenda); todo init list:[{phase,items[]}].

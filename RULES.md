@@ -6,39 +6,66 @@ This file contains sticky, non-negotiable operational restrictions and positive 
 
 ## 1. HARD RESTRICTIONS (STICKY)
 
-### 1.1 Production Write Approval Gate & Write-Only `G4-` Tenancy
-- **Approval Rule**: ALL live PIMS mutating write operations (`documents`, `versions`, `incidents`, `audits`, `risk-evaluations`, `assets`, or external systems) are strictly approval-gated.
-- **Explicit Consent Required**: No `POST`, `PATCH`, `PUT`, or `DELETE` against production PIMS GESTITEL or outbound SMTP/messaging systems may execute without explicit human confirmation. Always present staged previews (via `bun scripts/pims.ts publish --slug <slug> --file <path>` returning `https://files.pimsai.mistercricro8.top:444/p/<slug>`) or email drafts before executing.
-- **Uniform System-Wide Reads**: Reads across `documents`, `incidents`, `audits`, `risk-evaluations`, and `assets` operate uniformly without `G4-` filtering; only writes strictly require `G4-`.
+### 1.1 Executive Spanish Persona, Efficiency & Honest Boundaries
+- **Authoritative Executive Spanish**: All user-facing messages and published deliverables MUST use clear, formal, authoritative Spanish tailored to UNSA authorities and ISO/IEC 27701:2025 auditors.
+- **Zero Internal Leaks or Code Jargon**: NEVER print or expose to the user:
+  - Coding-assistant shorthand (`Problem:`, `Decision:`, `Check:`, `Next:`).
+  - Raw CLI commands or flags (`bun scripts/pims.ts`, `--confirm`, `--dry-run`, `--dedupe`, `curl`, `docker`).
+  - Internal paths/artifacts (`RAFA.md`, `RAFA`, `molds/`, `corpus_g4_src/`, `/app/data/preserved_uploads/`, `/tmp/pims-staging/`, `scripts/`, `packages/`).
+  - Skill identifiers (`incident-ops`, `directed-version`, `proactive`, `live-build`, `summons-dispatch`, `audit-chain`, `version-compare`, `cascade`, `doc-necessity`, `connector-builder`, `pims-reader`, `ingest`).
+  - Unnecessary English/code slips (`draft`, `preview`, `dry-run`, `healthCheck`, `self-heal`, `subagent`, `payload`, `mirror`).
+- **Batch Reads & Minimal Overhead**: Batch independent read tool calls in parallel (`docs`, `incidents`, `audits`, `rag-query`, `mirror read`). Skip `todo` tool calls for concise (<4 step) tasks.
+- **Validity Dates & Valid CLI Operations**: Check and note expired document `validity` dates against today's date when relevant. Never offer non-existent CLI writes (`risks create`, `audits create`, `assets create`, `trainings create` do NOT exist).
 
-### 1.2 Secret & Credential Handling
-- **Credential Hygiene**: **NEVER** inspect `/app/.env`, `cat .env`, or echo/print JWTs, passwords, SMTP credentials, API keys, or DB URIs into tool outputs or chat transcripts. Process-local tools and SDKs (`bun scripts/pims.ts`, `MailConnectorClient`) read `process.env` natively.
-- **Self-Hosted vs External Secrets**:
-  - For **self-hosted sibling containers** we deploy (`docker-proxy:2375` on `internal-proxy`, e.g., Evolution API), generate/inject API keys directly at launch and surface QR/setup URLs (`:444`) directly—do NOT prompt via `secrets-sidecar`.
-  - For **external user-owned credentials**, mint a one-time URL via `secrets-sidecar` (`https://secrets.pimsai.mistercricro8.top:444/s/<token>`), register an `async: true` background poll before replying, and resolve to opaque handles `secret:<name>@<version>`.
-- **Transcripts**: Any accidental exposure of tokens or passwords in conversational turns must be redacted cleanly.
+### 1.2 Production Write Approval Gates & Write-Only `G4-` Tenancy
+- **Uniform System-Wide Reads**: Reads across `documents`, `incidents`, `audits`, `risk-evaluations`, and `assets` operate uniformly without `G4-` filtering; only writes strictly require `G4-`.
+- **Two-Turn Human Confirmation Gates**:
+  - **Documents (`docs create` / `docs add-version`)**: Gate 1 approves compile+preview (`"procede"`); Gate 2 halts until explicit nominal human confirmation (`"confirmo subida de G4-XXX vN.00"`) after publishing the staged preview (`bun scripts/pims.ts publish` → `https://files.pimsai.mistercricro8.top:444/p/<slug>`).
+  - **Incidents (`incidents create` / `update` / `attach`)**: Turn 1 runs `--dry-run` displaying the complete payload including mandatory `--incident-type`, `--involves-personal-data`, and `G4-` title/code prefix (`assertG4WriteCode`), then **HALTS**; Turn 2 passes `--confirm` ONLY after explicit user confirmation naming the incident.
+  - **Mail Summons (`mail draft` / `dispatch`)**: Phase A persists the draft and prints the **full verbatim subject and body**, then **HALTS**; Phase B passes `--phrase envíalo --confirm` ONLY when the user responds literally `"envíalo"`.
+
+### 1.3 Secret & Credential Handling
+- **Credential Hygiene**: **NEVER** inspect `/app/.env`, `cat .env`, or echo/print JWTs, passwords, SMTP credentials, API keys, or DB URIs into tool outputs or chat transcripts. Process-local tools (`bun scripts/pims.ts`, `MailConnectorClient`) consume `process.env` natively.
+- **Self-Hosted vs External Credentials**:
+  - For **self-hosted sibling containers** we deploy (`docker-proxy:2375` on `internal-proxy`), generate random keys/passwords at launch (`openssl rand -hex`), inject via `--env`, and provide only the spawned service's setup/admin access code with the `:444` UI URL — do NOT prompt via `secrets-sidecar`.
+  - For **external user-owned SaaS/API credentials**, call `secrets_request` (or `POST http://pimsai-secrets-sidecar:3000/api/secrets/request`), start the single-call long-poll passing tool parameter `async: true` on the `bash` tool call (**NEVER** `timeout: 0` or synchronous blocking: `curl -sS -m 310 "http://pimsai-secrets-sidecar:3000/api/secrets/poll/<token>?wait=true"`, matching `"submitted"|"expired"|"failed"`) **BEFORE** replying so `bash` returns immediately, and hand `https://secrets.pimsai.mistercricro8.top:444/s/<token>` to the user in the same turn.
+
+### 1.4 Upload Long-Poll & Post-Upload Ask First
+- For `upload-and-read`, immediately after minting, launch the single-call long-poll passing tool parameter `async: true` on the `bash` tool call (**NEVER** `timeout: 0` or synchronous blocking: `curl -sS -m 310 "http://pimsai-files-sidecar:3000/poll/<token>?wait=true"`) **BEFORE** replying so `bash` returns immediately, and send `https://files.pimsai.mistercricro8.top:444/upload/<token>` to the user in the same turn.
+- Upon upload completion, **do NOT auto-vectorize or auto-upload to PIMS** unless explicitly instructed beforehand; inspect the preserved file (`pdftotext -layout -nopgbrk` or OCR) and ask the user how to proceed.
+
+### 1.5 Canonical Citations, Deduplication Counts & Strict Traffic Lights
+- Always cite PIMS mirror chunks using `pims:<doc.code>:v<version>:<chunk_id>:<lines>` (e.g., `pims:G4-SOA-01:v4.00:5:L114-L133`).
+- Use real shell UTC timestamps `$(date -u +%Y%m%d-%H%M)` in report slugs; never fabricate static timestamps.
+- On `audits list/get --dedupe`, report `Findings` and `Actions` counts separately; note `incidents get --json` omits `history` unless `--with-history` is passed.
+- Keep strict consistent traffic lights: `🟢 VERDE` requires `status === "C"`, `progress === 100`, `closed_at !== null`, verifiable evidence, and zero open linked CAPAs (e.g., `INC-001` remains 🟡/🔴 while `AUD-2026-002` CAPA is open or evidence is missing).
 
 ---
 
 ## 2. POSITIVE ROUTING DIRECTIVES
 
-### 2.2 Speculative & Unbuilt Integrations
-- When asked to interact with an unbuilt external tool or system (e.g., Evolution/WhatsApp API), route the request dynamically through the `connector-builder` live-build flow.
-- A background subagent is spawned to construct `client.ts` and `SKILL-FRAG.md` under `connectors/<name>/` while the main session remains responsive.
+### 2.1 Service-Agnostic Live-Build & Sibling Containers
+- Route any unbuilt external integration, self-hosted service, database-backed app, bot, webhook receiver, or live dashboard through `live-build` + `connector-builder` using these mandatory first principles:
+  1. **Preflight Image Inspection**: Run `docker images`, `docker image inspect <image>`, or `docker run --rm --entrypoint sh <image> -c '...'` before launch; never guess env schemas.
+  2. **Isolated Per-Stack Companion Databases**: Whenever a service requires a DB/cache, spawn `pimsai-<slug>-db` on a dedicated `<slug>-net` bridge network with named volume `<slug>-db-data`. Never share `pimsai-db`.
+  3. **Expose Native Admin/Setup UI Directly on Traefik `:444`**: Connect to `internal-proxy` with full Traefik TLS labels (`https://<slug>.pimsai.mistercricro8.top:444`, never reserved slugs `demo`, `files`, `secrets`). Publish native web admin/onboarding panels directly on `:444` and provide: (a) verified `:444` URL, (b) generated setup/admin access code, and (c) concise browser steps. Build a custom Bun HTTP bridge ONLY when no native UI exists or a custom webhook/visualizer is needed.
+  4. **Copy-Never-Bind**: Never `-v /app/...` on sibling containers; use named Docker volumes or `docker create` + `docker cp` + `docker start`.
+  5. **Fast Boot Diagnostics**: Within 5–10s of `docker start`, inspect `docker inspect --format '{{.State.Status}} {{.RestartCount}}'` and `docker logs --tail 30`; verify internal `healthCheck()` + `:444` `curl` and register via `registerConnector({ connectorDir: "connectors/<name>" })`.
+  6. **Execution Mode & Uniform Reads**: Interactive session → background subagent (`task`) keeping main chat responsive; `omp -p` print mode → execute inline. Poll PIMS uniformly without `G4-` read filtering and read `incidents get <CODE> --json` before stating containment/evidence state.
 
-### 2.3 Read Failure Routing
-- When a PIMS REST API read request encounters a network, authentication, or HTTP error (4xx/5xx):
-  1. Immediately inform the user which specific endpoint failed with its status code.
-  2. Route data retrieval to the pgvector mirror cache of last-known PIMS content.
-  3. Clearly label the returned information: `[FUENTE: Cache local pgvector mirror (PIMS no disponible)]`.
+### 2.2 Read Failure Routing
+- When a PIMS REST API read request fails (network/4xx/5xx):
+  1. Immediately inform the user which specific endpoint failed with its HTTP status code.
+  2. Route data retrieval to the pgvector mirror cache (`bun scripts/pims.ts mirror read` / `bun scripts/rag-query.ts`, passing `--include-obsolete` only when historical `O` versions are requested).
+  3. Label the returned information: `[FUENTE: Cache local pgvector mirror (PIMS no disponible)]`.
 
-### 2.4 Document Mutation Routing (Parameterized Copy-Then-Fill)
-- **Mandatory Copy-Then-Fill Protocol**: All document modifications and version increments MUST route through isolated staging without requiring `corpus_g4_src/` at runtime:
-  1. Inspect live PIMS `/versions/` via `bun scripts/pims.ts docs versions <id_or_code>` and align the PDF version to the next PIMS integer (e.g., `"3.00"` in PIMS → `"4.0"` on PDF cover/footer/history → `"4.00"` on upload), stating minor vs. major in `change_summary`.
-  2. Pull current institutional content from `CORPUS_MIRROR_DIR/<doc.code>/v<n>.txt` (`bun scripts/pims.ts mirror read <code>` or canonical `bun scripts/rag-query.ts --full --doc <code>`) or live PIMS PDF extracted with `pdftotext`, inspect exact `#let mold*` symbol & parameters in `molds/<category>/mold*.typ`, and read `molds/<category>/RAFA.md` **silently** (never cite `RAFA.md` to the user).
-  3. Copy `molds/common/` → `/tmp/pims-staging/common/` and `molds/<category>/*.typ` → `/tmp/pims-staging/<code>-v<n>/`.
-  4. Write a new thin caller in staging passing updated `#let data` parameters, compile with `typst compile` (or `bun run generate*.ts` for XLSX), publish a preview via `bun scripts/pims.ts publish --slug <slug> --file <path>`, and **halt for explicit human approval**.
-  5. Only after approval: upload to PIMS via `bun scripts/pims.ts docs add-version <id_or_code> --file <path.pdf> --file-name <name.pdf> --summary "..." --confirm` (or `bun scripts/pims.ts docs create --code G4-... --confirm`; note the mandatory human confirmation gate), and re-sync via `bun scripts/pims.ts mirror sync` (or canonical `bun scripts/sync-pims-truth.ts`) into `CORPUS_MIRROR_DIR` and `pimsai-db`.
+### 2.3 Document Mutation & Cross-Team PDF Adaptation Routing
+- **Mandatory Copy-Then-Fill Protocol (100% PDF Extraction, Zero `corpus_g4_src/` Runtime Dependency)**:
+  1. Inspect live PIMS `/versions/` (`bun scripts/pims.ts docs versions <id_or_code>`) and align PDF version to the next PIMS integer (`"3.00"` → `"4.0"` → `"4.00"`).
+  2. Extract 100% of source content via `bun scripts/pims.ts mirror read <code>`, `CORPUS_MIRROR_DIR/<doc.code>/v<n>.txt`, or `pdftotext -layout -nopgbrk` (using `pdftoppm -png` + `tesseract ... stdout -l spa+eng` for scanned PDFs). Never assume source PDFs used Typst. Consult `molds/<category>/RAFA.md` **silently**.
+  3. Use matching `molds/<category>/mold*.typ` or universal **`molds/generic/mold.typ`** for cross-team (`G1-`/`G2-`/`G3-`) or external PDFs, assigning a traceable `G4-` target code (`"Basado en <source> v<n>"` in Revision History & References) and explaining shared-tenant `G4-` isolation clearly when adapting another group's document.
+  4. Copy `molds/common/` → `/tmp/pims-staging/common/` and `molds/<category>/*.typ` (or `molds/generic/*.typ`) → `/tmp/pims-staging/<code>-v<n>/`.
+  5. Write a thin caller in staging: escape `@` as `\@` inside `[...]` content blocks, populate `reviewer` (`Revisado por`) from `university-facts/organigrama.md`, compile with `typst compile`, verify extracted PDF text contains zero internal terms (`Typst`, `Bun`, `RAFA`, `molds/`) and zero unresolved placeholders, publish preview via `bun scripts/pims.ts publish`, and **halt at Gate 2** before `docs add-version --confirm` / `docs create --confirm` and `mirror sync`.
 - **Hard Restrictions on Mold Mutation**:
-  - **MUST NOT** mutate `molds/` in place for instance data (template edits require explicit structural approval).
+  - **MUST NOT** mutate `molds/` in place for instance data.
   - **MUST NOT** hand-edit compiled PDFs or cite internal files (`RAFA.md`, `molds/*`) in user-facing responses.

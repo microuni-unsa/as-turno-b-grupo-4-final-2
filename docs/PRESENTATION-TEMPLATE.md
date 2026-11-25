@@ -10,12 +10,12 @@
 
 | Parameter | Specification | Evaluator Access Value |
 |---|---|---|
-| **Zellij Web URL** | Dedicated interactive TUI session | `https://demo.pimsai.mistercricro8.top/[SESSION_NAME]` |
-| **Direct Diagnostics Fallback** | Cloudflare 443→444 bypass endpoint | `https://demo.pimsai.mistercricro8.top:444/[SESSION_NAME]` |
+| **Zellij Web URL (`:444`)** | Dedicated interactive TUI session (primary) | `https://demo.pimsai.mistercricro8.top:444/[SESSION_NAME]` |
+| **Optional `:443` Edge URL** | Cloudflare 443→444 proxy (optional / pending rule) | `https://demo.pimsai.mistercricro8.top/[SESSION_NAME]` |
 | **Instructor Access Token** | Full read-write session token (`--create-token`) | `CHANGEME_INSTRUCTOR_READ_WRITE_TOKEN` |
 | **Observer Access Token** | Read-only session inspection (`--create-read-only-token`) | `CHANGEME_OBSERVER_READ_ONLY_TOKEN` |
-| **Upload Sidecar URL** | One-time tokenized document ingestion portal | `https://files.pimsai.mistercricro8.top` |
-| **Secrets Sidecar URL** | Age-encrypted credential injection portal | `https://secrets.pimsai.mistercricro8.top` |
+| **Upload Sidecar URL** | One-time tokenized document ingestion portal | `https://files.pimsai.mistercricro8.top:444` |
+| **Secrets Sidecar URL** | Age-encrypted credential injection portal | `https://secrets.pimsai.mistercricro8.top:444` |
 | **Access Token Expiry** | Session validity window | `YYYY-MM-DD HH:MM UTC` (CHANGEME) |
 
 ---
@@ -69,5 +69,5 @@ To ensure optimal performance and budget preservation:
 ## 5. Security, Expiry & Rotation Notice
 
 - **Zero Plaintext Credentials**: All credentials submitted via the secrets sidecar are age-encrypted on the persistent agent volume. No passwords or private tokens exist in conversation history or source files.
-- **Single-Use Upload & Secret Links**: Public links minted by `files.pimsai.mistercricro8.top` and `secrets.pimsai.mistercricro8.top` expire strictly after **5 minutes** (300 seconds).
+- **Single-Use Upload & Secret Links**: Public links minted by `files.pimsai.mistercricro8.top:444` and `secrets.pimsai.mistercricro8.top:444` expire strictly after **5 minutes** (300 seconds).
 - **Session Expiry**: Access tokens issued for this presentation template expire on `CHANGEME_EXPIRATION_TIMESTAMP`. Following expiry, container access tokens and sidecar handles are automatically rotated and invalidated.

@@ -54,7 +54,7 @@ flowchart TD
   docker compose build
   ```
 - [ ] Verify clean compilation of:
-  - `pimsai-agent` (from [Dockerfile](Dockerfile): Debian Bookworm, Bun 1.2.4, Node 22, Chromium + `/node_modules` `@playwright/mcp` & `nodemailer`, Typst 0.15, Zellij 0.45, omp 18.18.1, `/var/lib/pimsai/corpus_mirror`)
+  - `pimsai-agent` (from [Dockerfile](Dockerfile): Debian Bookworm, Bun 1.2.4, Node 22, Chromium + `/node_modules` `@playwright/mcp` & `nodemailer`, Typst 0.15, Zellij 0.45, omp 18.18.1, `age`, `poppler-utils`, `tesseract-ocr`, `/var/lib/pimsai/corpus_mirror`)
   - `pimsai-files-sidecar` (from [services/files-sidecar/Dockerfile](services/files-sidecar/Dockerfile): Node 22 native TS)
   - `pimsai-secrets-sidecar` (from [services/secrets-sidecar/Dockerfile](services/secrets-sidecar/Dockerfile): Node 20, Age CLI)
 
@@ -68,23 +68,23 @@ flowchart TD
   docker compose ps
   ```
   - `pimsai-db`: `healthy` (PostgreSQL 16 + pgvector listening on 5432)
-  - `pimsai-agent`: `running` (Zellij Web listening on 8082)
+  - `pimsai-agent`: `running` (`init: true`, Zellij Web listening on 8082, background `mirror sync --loop --interval 300` logging to `/tmp/pims-mirror-sync.log`)
   - `pimsai-files-sidecar`: `running` (Upload service listening on 3000)
   - `pimsai-secrets-sidecar`: `running` (Secrets service listening on 3000)
 
 ### Task 1.5: Reverse Proxy Edge & Port 444 Verification
-- [ ] Verify Traefik routing and Cloudflare port mapping:
+- [ ] Verify Traefik `:444` public endpoints (primary) and optional Cloudflare `:443` edge rule:
   ```bash
-  # Check direct origin port 444 (bypassing Cloudflare transform)
+  # Primary verified public endpoints on port 444
   curl -vk https://demo.pimsai.mistercricro8.top:444/
   curl -vk https://files.pimsai.mistercricro8.top:444/health
   curl -vk https://secrets.pimsai.mistercricro8.top:444/healthz
 
-  # Check public port 443 (via Cloudflare edge)
-  curl -f https://files.pimsai.mistercricro8.top/health
-  curl -f https://secrets.pimsai.mistercricro8.top/healthz
+  # Optional / Pending Cloudflare 443->444 edge rule
+  curl -f https://files.pimsai.mistercricro8.top/health || echo "Optional :443 edge pending"
+  curl -f https://secrets.pimsai.mistercricro8.top/healthz || echo "Optional :443 edge pending"
   ```
-- [ ] Verify that HTTP status 200 is returned.
+- [ ] Verify that HTTP status 200 is returned on `:444`.
 
 ### Task 1.6: Zellij Web Session & Token Generation
 - [ ] Generate authentication tokens for the instructor session:
@@ -96,7 +96,7 @@ flowchart TD
   docker compose exec agent zellij web --create-read-only-token
   ```
 - [ ] Access `https://demo.pimsai.mistercricro8.top:444` in a browser.
-- [ ] Enter the Read-Write token and verify that the `omp` interactive terminal attaches with clean locked mode.
+- [ ] Enter the Read-Write token and verify that the `omp` interactive terminal attaches cleanly in locked mode using the single full-bleed `pimsai` layout (no Release Notes modal, no extra tab/status bar).
 
 ### Task 1.7: Headless Browser / Playwright MCP Verification
 - [ ] Inside `pimsai-agent`, confirm Chromium and `@playwright/mcp` resolve cleanly:
@@ -104,7 +104,7 @@ flowchart TD
   docker compose exec agent which chromium node
   docker compose exec agent node /node_modules/@playwright/mcp/cli.js --version
   ```
-- [ ] Verify [.omp/mcp.json](.omp/mcp.json) configures stdio `"playwright"` (`--headless --browser chrome --executable-path /usr/bin/chromium --no-sandbox --output-dir /tmp/playwright-mcp`) and loads in `omp`.
+- [ ] Verify [.mcp.json](.mcp.json) configures stdio `"playwright"` (`--headless --browser chrome --executable-path /usr/bin/chromium --no-sandbox --output-dir /tmp/playwright-mcp`) and loads in `omp`.
 
 ---
 
@@ -135,6 +135,11 @@ flowchart TD
     -F "file=@/tmp/test-upload.txt;filename=test-upload.txt"
   ```
   Verify: Response status 200/completed and file saved to `/app/data/preserved_uploads/<token>_test-upload.txt`.
+- [ ] **Upload Polling (Immediate & Long-Poll `?wait=true`)**:
+  ```bash
+  curl -s "http://localhost:3000/poll/$TOKEN?wait=true"
+  ```
+  Verify: Returns `{"status":"completed","preserved_file_path":"/app/data/preserved_uploads/..."}` immediately upon completion (while bare `/poll/$TOKEN` remains non-blocking for status probes).
 - [ ] **Single-Use Enforcement**:
   Attempt to upload again using the same `$TOKEN`.
   Verify: HTTP 409 Conflict (`TOKEN_ALREADY_USED`).
@@ -188,11 +193,11 @@ flowchart TD
   ```sql
   SELECT * FROM secrets_registry WHERE name = 'jira_api_token';
   ```
-- [ ] **Secret Polling**:
+- [ ] **Secret Polling (Immediate & Long-Poll `?wait=true`)**:
   ```bash
-  curl -s http://localhost:3000/api/secrets/poll/$HANDLE
+  curl -s "http://localhost:3000/api/secrets/poll/$SEC_TOKEN?wait=true"
   ```
-  Verify: Response returns `{"status":"completed","handle":"secret:jira_api_token@v1",...}` with **zero** plaintext secret value.
+  Verify: Response returns `{"status":"submitted","handle":"secret:jira_api_token@v1",...}` (or `"completed"`) with **zero** plaintext secret value.
 - [ ] **Zero-Leak Guarantee**:
   Confirm that the plaintext `"super-secret-key-12345"` does not appear in terminal logs, database rows, or JSON responses.
 
@@ -261,15 +266,15 @@ flowchart TD
   bun scripts/rag-query.ts "procedimiento de respuesta ante incidentes" --limit 3
   ```
   Verify:
-  - Returns verbatim quotes from `chunks`.
-  - Citation follows exact standard: `pims:<doc_id>:v<version>:chunk:<id>:lines:<start>-<end>`.
+  - Returns verbatim quotes from active/non-obsolete `chunks` by default (pass `--include-obsolete` to include historical `O` versions).
+  - Citation follows exact canonical format: `pims:<doc.code>:v<version>:<chunk_id>:<lines>` (e.g., `pims:G4-SOA-01:v4.00:5:L114-L133`).
   - Check distance metric is cosine distance (`<=>`).
 - [ ] **Test Full-Document Read & Extracted PDF Diff (`scripts/pims.ts mirror read`, `scripts/pims.ts diff`)**:
   ```bash
   bun scripts/pims.ts mirror read G4-PRC-INC-01 | head -n 40
   bun scripts/pims.ts diff G4-PRC-INC-01 --from 1.00 --to 3.00
   ```
-  Verify: `mirror read` (delegating to canonical `scripts/rag-query.ts --full`) dumps clean normalized UTF-8 text from `CORPUS_MIRROR_DIR/<doc.code>/v<n>.txt` (or ordered `chunks`), and `diff` diffs extracted PDF text cleanly via `pdftotext` (never `%PDF-` binary bytes).
+  Verify: `mirror read` (delegating to canonical `scripts/rag-query.ts --full`) dumps clean normalized UTF-8 text from `CORPUS_MIRROR_DIR/<doc.code>/v<n>.txt` (extracted with `pdftotext -layout -nopgbrk`, or OCR via `tesseract` for scanned PDFs), and `diff` diffs extracted PDF text cleanly via `pdftotext` (never `%PDF-` binary bytes).
 
 ### Task 3.4: PIMS Truth Synchronization (`scripts/pims.ts mirror sync`, `scripts/sync-pims-truth.ts`)
 - [ ] **One-Shot Sync Pass (`doc.code` Keying)**:
@@ -297,7 +302,7 @@ flowchart TD
   - Plans 72 POST operations (18 creates, 36 version additions, 18 approvals).
   - Exits with status 0.
 - [ ] **Live Upload Evidence Inspection**:
-  Verify [docs/PIMS-UPLOAD-EVIDENCE.md](file:///home/cricro/tiny-projects/documents/2026-B/as-turno-b-grupo-4-final-2/docs/PIMS-UPLOAD-EVIDENCE.md) confirms all 54 versions reside on `unsa.27k.pe` with IDs 1 to 18.
+  Verify [docs/PIMS-UPLOAD-EVIDENCE.md](docs/PIMS-UPLOAD-EVIDENCE.md) confirms all 54 versions reside on `unsa.27k.pe` with IDs 1 to 18.
 
 ---
 
@@ -333,7 +338,7 @@ flowchart TD
     recipientName: "Responsable SGPI",
     recipientEmail: "dpo@unsa.edu.pe",
     deadlineDate: "2026-11-30",
-    evidenceCitation: "pims:G4-PRC-INC-01:v3.00:chunk-1:lines:1-24",
+    evidenceCitation: "pims:G4-PRC-INC-01:v3.00:1:L1-L24",
     correctiveActionSummary: "Implementar autenticación de doble factor en portal de admisión",
   });
   ```
@@ -351,7 +356,7 @@ flowchart TD
   ```bash
   omp
   ```
-- [ ] Verify that the first visible message is the standardized intro banner from [.omp/extensions/intro.ts](file:///home/cricro/tiny-projects/documents/2026-B/as-turno-b-grupo-4-final-2/.omp/extensions/intro.ts):
+- [ ] Verify that the first visible message is the standardized intro banner from [.omp/extensions/intro.ts](.omp/extensions/intro.ts):
   ```
   UNSA PIMS — OPERADOR AGÉNTICO DEL SGPI (GRUPO 4)
   ISO/IEC 27701:2025 — Universidad Nacional de San Agustín
@@ -364,7 +369,7 @@ flowchart TD
 
 ### Task 5.2: Interactive Command `mas ayuda`
 - [ ] In chat prompt, send: `mas ayuda`.
-- [ ] Verify: Operator intercepts input and outputs the complete operational manual from [.omp/USAGE.md](file:///home/cricro/tiny-projects/documents/2026-B/as-turno-b-grupo-4-final-2/.omp/USAGE.md) without consuming model LLM generation tokens.
+- [ ] Verify: Operator intercepts input and outputs the complete operational manual from [.omp/USAGE.md](.omp/USAGE.md) without consuming model LLM generation tokens.
 
 ### Task 5.3: Session Reset (`/new`) & Session History (`/resume`)
 - [ ] Send `/new`.
@@ -378,7 +383,7 @@ flowchart TD
 - [ ] Verify: Redaction replaces raw values with `[REDACTED_JWT_TOKEN]`, `[REDACTED_TOKEN]`, or `[REDACTED_SECRET]`.
 
 ### Task 5.5: Token Budget & Degraded-at-Cap Policy
-- [ ] Inspect [.omp/config.yml](file:///home/cricro/tiny-projects/documents/2026-B/as-turno-b-grupo-4-final-2/.omp/config.yml):
+- [ ] Inspect [.omp/config.yml](.omp/config.yml):
   - Confirm `task.softRequestBudget: 150`.
   - Confirm `task.softRequestBudgetNotice: true`.
 - [ ] Verify degraded-at-cap behavior:
@@ -409,26 +414,28 @@ Verify all 12 `.omp/skills/*/SKILL.md` skills carry valid YAML frontmatter (`nam
   - Also test general normative question (`"¿La ISO 27701 exige un procedimiento de gestión de incidentes?"`) and verify direct normative citation from `reference/iso-27701-2025.md`.
 
 ### Skill 3: `version-compare`
-- [ ] **Prompt**: `"Compara la versión 1 y la versión 3 de la política de privacidad G4-POL-01 y explica el racional del cambio."`
+- [ ] **Prompt**: `"Compara la versión 1 y la versión 3 de la política de privacidad G4-POL-01 y explica el racional del cambio."` (Also test a multi-version evolution query: `"Resume la evolución completa de G4-ALC-01 desde v1 hasta v3."`)
 - [ ] **Expected Output**:
-  - Diffs **live PIMS PDFs** via extracted text (`bun scripts/pims.ts diff G4-POL-01 --from 1.00 --to 3.00` or `packages/rag-mirror/diff.ts` / `v<n>.txt`) without relying on `corpus_g4_src/`.
-  - Extracts `change_summary` and PDF revision history table; uses internal template rationale **silently (never mentions `RAFA.md` or `RAFA`)**.
-  - Publishes via `bun scripts/pims.ts publish` and returns `https://files.pimsai.mistercricro8.top:444/p/<slug>`.
+  - Diffs **live PIMS PDFs** via extracted text (`pdftotext -layout`, `bun scripts/pims.ts diff G4-POL-01 --from 1.00 --to 3.00`, or `v<n>.txt`) without relying on `corpus_g4_src/`.
+  - Extracts `change_summary` and PDF revision history table; uses internal template rationale **silently (never mentions `RAFA.md` or `RAFA`)** and flags expired `validity` dates if applicable.
+  - Publishes via `bun scripts/pims.ts publish` with a **real shell UTC timestamp slug** (`version-compare-...-$(date -u +%Y%m%d-%H%M)`) for BOTH two-version diffs and multi-version evolution queries, returning `https://files.pimsai.mistercricro8.top:444/p/<slug>`.
 
 ### Skill 4: `incident-ops`
 - [ ] **Prompt**: `"Muestra el tablero semafórico de acciones correctivas de incidentes."`
 - [ ] **Expected Output**:
-  - Reads **all** system incidents (`INC-001`..`INC-012`) and audits (`AUD-2026-001`..`003`) uniformly; deduplicates cloned findings on `AUD-2026-003`.
-  - Strict green verification: `🟢 VERDE` ONLY when `status === "C"`, `progress === 100`, `closed_at !== null`, and evidence exists (open `progress: 0` items are never green).
-  - Proactively offers to prepare summons via `summons-dispatch`.
-  - Publishes deliverable via `https://files.pimsai.mistercricro8.top:444/p/<slug>`.
+  - Reads **all** system incidents (`INC-001`..`INC-012`) and audits (`AUD-2026-001`..`003`) uniformly; deduplicates cloned rows on `AUD-2026-003` and reports separate **`Findings`** vs **`Actions`** counts (`incidents get --json` uses `--with-history` when full history is needed).
+  - Strict green verification: `🟢 VERDE` ONLY when `status === "C"`, `progress === 100`, `closed_at !== null`, and verifiable evidence exists (e.g., `INC-001` remains 🟡/🔴 while `AUD-2026-002` CAPA is open or evidence is missing).
+  - Proactively offers to prepare summons in executive Spanish (no internal skill/CLI leaks).
+  - Publishes deliverable via `https://files.pimsai.mistercricro8.top:444/p/<slug>` using real UTC timestamp slug.
+- [ ] **Two-Turn Incident Write Check**:
+  - Prompt to register or update a `G4-INC-...` incident -> Turn 1 runs `--dry-run`, prints full payload (including `--incident-type`, `--involves-personal-data`, and `G4-` title/code), and **HALTS**; Turn 2 passes `--confirm` ONLY after explicit user confirmation naming the incident.
 
 ### Skill 5: `summons-dispatch`
 - [ ] **Prompt**: `"Prepara las citaciones para los responsables con acciones en rojo y ámbar."`
 - [ ] **Expected Output (Phase A)**:
   - Resolves real recipient emails (`dpo_contact_email`, `rep_email`, or asks user when missing on audit records).
   - Persists drafts on disk via `MailConnectorClient` (`connectors/mail/client.ts`); sends ZERO emails.
-  - Displays warning: `Compuerta de Despacho Activa: Escribe 'envíalo' para autorizar el envío`.
+  - Displays the **full verbatim email subject + body** before halting on `"envíalo"`.
 - [ ] **Prompt**: `"envíalo"`
 - [ ] **Expected Output (Phase B)**:
   - Dispatches real email via Gmail SMTP (`nodemailer`) using `SMTP_*` env without printing credentials.
@@ -437,58 +444,67 @@ Verify all 12 `.omp/skills/*/SKILL.md` skills carry valid YAML frontmatter (`nam
 ### Skill 6: `audit-chain`
 - [ ] **Prompt**: `"Rastrea la cadena de auditoría del hallazgo o incidente pendiente y muestra su evidencia exacta en PIMS."`
 - [ ] **Expected Output**:
-  - Reads audits & incidents uniformly (no `G4-` read gate).
-  - Traces Finding/Incident → NC → Corrective Action → Owner/Deadline → verbatim RAG chunk citation `pims:<doc.code>:v<version>:<chunk_id>:lines:<l1>-<l2>` (`--full` when needed).
-  - Publishes via `files-sidecar` at `https://files.pimsai.mistercricro8.top:444/p/<slug>`.
+  - Reads audits & incidents uniformly (no `G4-` read gate); reports separate `Findings` vs `Actions` counts when using `--dedupe`.
+  - Maintains strict consistent traffic lights (`INC-001` = 🟡/🔴 while `AUD-2026-002` CAPA is open or evidence is missing).
+  - Traces Finding/Incident → NC → Corrective Action → Owner/Deadline → verbatim RAG chunk citation `pims:<doc.code>:v<version>:<chunk_id>:<lines>` (`--full` when needed).
+  - Publishes via `files-sidecar` at `https://files.pimsai.mistercricro8.top:444/p/<slug>` using real UTC timestamp slug (`$(date -u +%Y%m%d-%H%M)`).
 
 ### Skill 7: `directed-version`
-- [ ] **Prompt**: `"Actualiza el procedimiento de incidentes G4-PRC-INC-01 para formalizar el canal de reporte en la filial Camaná."`
+- [ ] **Prompt (Existing `G4-` Document)**: `"Actualiza el procedimiento de incidentes G4-PRC-INC-01 para formalizar el canal de reporte en la filial Camaná."`
 - [ ] **Expected Output**:
   - Enforces `G4-` write prefix.
   - Inspects live PIMS `/versions/` (via `bun scripts/pims.ts docs versions G4-PRC-INC-01`), aligns PDF cover/footer/history with next PIMS integer (`"4.0"` matching PIMS `"4.00"`), and notes minor vs. major in `change_summary`.
-  - Executes copy-then-fill staging (`/tmp/pims-staging/...`) copying `molds/common/` and `molds/<category>/mold*.typ`, reconstructing current data from `CORPUS_MIRROR_DIR` `v<n>.txt` (without `corpus_g4_src/`), and reading `RAFA.md` **silently**.
-  - Compiles PDF via Typst, publishes preview via `bun scripts/pims.ts publish`, and **HALTS for explicit human approval** before calling `bun scripts/pims.ts docs add-version ... --confirm` (with explicit `.pdf` `fileName`) or syncing `pgvector`.
+  - Executes copy-then-fill staging (`/tmp/pims-staging/...`) copying `molds/common/` and `molds/<category>/mold*.typ`, extracting current data via `pdftotext -layout` / `CORPUS_MIRROR_DIR` `v<n>.txt` (or OCR if scanned, without `corpus_g4_src/`), reading `RAFA.md` **silently**, escaping `@` as `\@` inside `[...]`, populating `reviewer` from `university-facts/organigrama.md`, and verifying zero internal terms (`Typst`, `Bun`, `RAFA`, `molds/`) in compiled PDF.
+  - Compiles PDF via Typst, publishes preview via `bun scripts/pims.ts publish`, and **HALTS for explicit nominal human approval** before calling `bun scripts/pims.ts docs add-version ... --confirm` (with explicit `.pdf` `fileName`) or syncing `pgvector`.
+- [ ] **Prompt (Cross-Team / Arbitrary Non-Typst PDF Adaptation)**: `"Toma el documento G2-POL-01 (o un PDF externo subido) y genera una versión actualizada para Grupo 4."`
+- [ ] **Expected Output**:
+  - Extracts 100% of source PDF content via `pdftotext -layout` (or `pdftoppm -png` + `tesseract` OCR for scanned PDFs) without assuming source PDF used Typst.
+  - Maps to matching `molds/<category>/mold*.typ` or universal `molds/generic/mold.typ`.
+  - Assigns a traceable `G4-` target code (`docs add-version` on `G4-` counterpart or `docs create --code G4-...`), records `"Basado en <source> v<n>"` in Revision History & References, explains shared-tenant `G4-` isolation clearly in Spanish, publishes preview, and **HALTS at Gate 2** before any PIMS write.
 
 ### Skill 8: `cascade`
-- [ ] **Prompt**: `"La UNSA aprobó la Resolución Rectoral N° 0143-2025 formalizando la Filial Pedregal. Aplica el cambio en cascada sobre los documentos del PIMS."`
+- [ ] **Prompt**: `"La UNSA aprobó la Resolución Rectoral N° 0215-2026 formalizando la Filial Mollendo. Aplica el cambio en cascada sobre los documentos del PIMS."`
 - [ ] **Expected Output (Phase A)**:
-  - Records institutional fact in `university-facts/`.
-  - Scans all documents uniformly across PIMS + `CORPUS_MIRROR_DIR` (`--full` + RAG query).
-  - Presents proposed remake batch (with aligned next PIMS integer versions) vs unaffected documents and halts at approval gate.
+  - Checks `university-facts/facts.json` first (skips redundant `university-facts/<slug>.json` if fact is already incorporated; records new file only for genuinely new facts).
+  - Scans all documents uniformly across PIMS + `CORPUS_MIRROR_DIR` (`--full` + RAG query), explicitly including **`G4-RSK-INC-01`** alongside **`G4-PLN-RSK-01`** when new physical sites/assets enter scope.
+  - Presents proposed remake batch (with aligned next PIMS integer versions) vs unaffected documents and halts at Gate 1 (`"procede"`).
 - [ ] **Prompt**: `"aprobado, procede con la cascada"`
 - [ ] **Expected Output (Phase B — compile+preview, then STOPS)**:
-  - Compiles approved documents via copy-then-fill staging, publishes previews via `bun scripts/pims.ts publish`, and **HALTS at the second gate** (preview gate is SEPARATE from upload gate).
+  - Compiles approved documents via copy-then-fill staging (checking `\@`, `reviewer`, zero internal terms), publishes previews via `bun scripts/pims.ts publish`, and **HALTS at Gate 2** (preview gate is SEPARATE from upload gate).
 - [ ] **Prompt**: `"confirmo subida de <doc> v<ver>"` (names doc+version explicitly)
 - [ ] **Expected Output (Phase C — upload)**:
   - Uploads new versions with `change_summary` via `bun scripts/pims.ts docs add-version ... --confirm`, runs `bun scripts/pims.ts mirror sync` (or canonical `sync-pims-truth.ts`), and publishes report at `https://files.pimsai.mistercricro8.top:444/p/<slug>`.
 
 ### Skill 9: `live-build`
-- [ ] **Prompt**: `"Conecta el sistema de incidentes con WhatsApp usando Evolution API."`
+- [ ] **Prompt**: `"Despliega un servicio interactivo o portal de alertas en vivo (con su base de datos si la requiere) e intégralo con los incidentes del SGPI."`
 - [ ] **Expected Output**:
-  - Restates target immediately and keeps main chat responsive.
-  - Spawns background subagent building `connectors/evolution/...` (`fetch()` real HTTP, no `G4-` read filtering on incident watchers, registered via `registerConnector()`).
-  - Deploys self-hosted container via `docker-proxy:2375` on `internal-proxy` with Traefik `:444`, injects self-generated API key directly at launch (NOT prompting via `secrets-sidecar`), creates instance, and returns live WhatsApp QR code / `:444` setup URL cleanly. (Reserve `secrets-sidecar` + `async: true` poll strictly for external user-owned credentials.)
+  - Interactive session: confirms target immediately and dispatches background subagent (`task`) while main chat remains responsive to PIMS queries (`omp -p` non-interactive mode runs inline).
+  - Performs **preflight image inspection** (`docker image inspect`, `docker run --rm --entrypoint sh <image> -c '...'`) before launching via `docker-proxy:2375`.
+  - If the service needs a database or cache, spawns an **isolated per-stack companion DB** (`pimsai-<slug>-db` on `<slug>-net` with named volume `<slug>-db-data`, never sharing `pimsai-db`).
+  - Exposes any **native web admin/setup UI directly on Traefik `:444`** (`internal-proxy`, full TLS labels, never claiming `demo`/`files`/`secrets`), handing the user the verified `:444` URL, generated setup/admin access code, and concise browser steps (building custom Bun HTTP server ONLY if no native UI exists).
+  - Enforces **copy-never-bind** (no `-v /app/...`), runs **fast 5–10s boot diagnostics** (`docker inspect` + `docker logs --tail 30`), verifies internal `healthCheck()` + public `:444` `curl`, registers via `registerConnector({ connectorDir: "connectors/<name>" })`, reads PIMS incidents uniformly (including `incidents get <CODE> --json`), and uses generated random keys for self-hosted services vs `secrets_request` + `async: true` `?wait=true` poll for external user credentials.
 
 ### Skill 10: `ingest`
 - [ ] **Prompt**: `"Sincroniza y re-ingesta el documento G4-SOA-01 en la base de datos vectorial."`
 - [ ] **Expected Output**:
-  - Downloads PDF from PIMS, saves under `CORPUS_MIRROR_DIR/G4-SOA-01/` (`v<n>.pdf` + extracted `v<n>.txt` + `manifest.json`) keyed strictly by `doc.code`.
+  - Downloads PDF from PIMS, saves under `CORPUS_MIRROR_DIR/G4-SOA-01/` (`v<n>.pdf` + `v<n>.txt` extracted via `pdftotext -layout -nopgbrk`, or `pdftoppm` + `tesseract` OCR for scanned PDFs + `manifest.json`) keyed strictly by `doc.code`.
   - Computes per-chunk SHA-256 digests + 1024-dim `mistral-embed` vectors and upserts `pims_registry` + `chunks`.
+  - `rag-query.ts` defaults to active/non-obsolete versions (`--include-obsolete` opt-in) and cites `pims:<doc.code>:v<version>:<chunk_id>:<lines>`.
 
 ### Skill 11: `connector-builder`
 - [ ] **Prompt**: Simulate a connector schema breakage or test connector scaffolding.
 - [ ] **Expected Output**:
   - Reports exact failure signature.
   - Executes read-only probes first.
-  - Patches `client.ts` and updates `SKILL-FRAG.md`.
+  - Patches `client.ts` and updates `SKILL-FRAG.md` + `registerConnector()`.
   - Answers from pgvector mirror throughout the repair.
 
 ### Skill 12: `proactive`
 - [ ] **Prompt**: Ask any standard operational question (e.g. `"¿Cuál es el alcance actual del SGPI?"`).
 - [ ] **Expected Output**:
-  - Answers the direct question accurately.
-  - Proactively offers contextually adjacent information (*"¿Deseas examinar también la Declaración de Aplicabilidad (SoA) que deriva de este alcance?"*).
-  - Routes speculative requests gracefully to `live-build`.
+  - Answers the direct question accurately in executive Spanish (no internal paths, skill names, or CLI flags).
+  - Proactively offers ≤2 contextually adjacent verified items (*"¿Deseas examinar también la Declaración de Aplicabilidad (SoA) que deriva de este alcance?"*).
+  - Routes unanticipated integration requests gracefully to `live-build`.
 
 ---
 
@@ -498,9 +514,9 @@ Conduct this unbroken sequence simulating the course instructor's live evaluatio
 
 ```
 [Step 1: Welcome & Setup]
-  1. Access Zellij Web via instructor token.
-  2. Confirm session banner displays clean identity and commands.
-  3. Send: mas ayuda -> Confirm complete guide prints.
+  1. Access Zellij Web via instructor token on :444.
+  2. Confirm session banner displays clean identity and commands (no Release Notes modal).
+  3. Send: mas ayuda -> Confirm clean Spanish user guide prints (zero internal leaks).
   4. Send: /new -> Confirm session resets cleanly.
 
 [Step 2: Normative & State Queries]
@@ -511,23 +527,23 @@ Conduct this unbroken sequence simulating the course instructor's live evaluatio
 
 [Step 3: Incidents & Traffic Light Governance]
   7. Ask: "Muestra el estado de incidentes y no conformidades."
-     -> Verify: incident-ops Red/Amber/Green audit4 table across all system incidents/audits with deduplicated findings and strict green check.
+     -> Verify: incident-ops Red/Amber/Green table across all system incidents/audits with separate deduplicated Findings vs Actions counts and strict green check.
   8. Ask: "Prepara las citaciones para los responsables en rojo."
-     -> Verify: summons-dispatch persisted draft table using real PIMS emails; pauses at human gate.
+     -> Verify: summons-dispatch persisted draft showing full verbatim subject + body using real PIMS emails; pauses at human gate.
   9. Send: envíalo
      -> Verify: real Gmail SMTP dispatch executed and delivery log published at `:444/p/<slug>`.
 
 [Step 4: Evidence & Version Control]
   10. Ask: "Explica el hallazgo o incidente pendiente y muestra su evidencia auditable."
-      -> Verify: audit-chain trace with verbatim chunk quote and pims:... citation.
+      -> Verify: audit-chain trace with strict traffic light, verbatim quote, and canonical pims:<doc.code>:v<version>:<chunk_id>:<lines> citation.
   11. Ask: "¿Qué cambió entre la v1 y v3 del procedimiento de incidentes G4-PRC-INC-01?"
-      -> Verify: version-compare extracted-text structural diff and history rationale (no internal file citations).
+      -> Verify: version-compare extracted-text structural diff, history rationale (no internal leaks), and published :444/p/<slug> report with UTC timestamp.
 
 [Step 5: Live Mutation & Dynamic Build]
   12. Ask: "¿Cómo te subo un archivo de auditoría externo?"
-      -> Verify: files-sidecar minting link; async: true poll; "Ask First" inspection upon upload.
-  13. Ask: "Conecta las alertas de incidentes con Evolution API / WhatsApp."
-      -> Verify: live-build background dispatch; self-hosted key injected & QR code returned directly; uninterrupted main chat.
+      -> Verify: files-sidecar minting link; single-call async: true ?wait=true long-poll; "Ask First" inspection upon upload.
+  13. Ask: "Despliega un servicio de alertas o panel interactivo en vivo y conéctalo a los incidentes."
+      -> Verify: live-build background dispatch; preflight image inspection; isolated companion DB if needed; native UI exposed on :444 with access code & browser steps; uninterrupted main chat.
 ```
 
 ---

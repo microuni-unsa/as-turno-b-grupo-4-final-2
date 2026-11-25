@@ -1,18 +1,18 @@
 ---
 name: version-compare
-description: Structural comparison of live PIMS document versions using extracted PDF text (bun scripts/pims.ts diff) and PIMS version history, using RAFA.md silently without citing internal prompt files.
+description: Structural comparison and multi-version evolution analysis of live PIMS PDFs via extracted text diff (pdftotext -layout) and version history, silently informed by RAFA without citing internal files, always publishing a files-sidecar report with real UTC timestamps.
 ---
 
 # Skill: version-compare
 
-Comparación estructural y análisis evolutivo entre versiones reales de cualquier documento en el PIMS en vivo (`https://unsa.27k.pe`), leyendo todas las versiones disponibles de forma uniforme (sin filtro `G4-` en lectura).
+Comparación estructural y análisis evolutivo entre versiones reales de cualquier documento en el PIMS en vivo (`https://unsa.27k.pe`), leyendo todas las versiones disponibles de forma uniforme (sin filtro `G4-` en lectura) y publicando siempre el informe comparativo o de evolución en `files-sidecar`.
 
 ## 1. Trigger Patterns
 
 - "¿Qué cambió entre la v1 y la v3 de `G4-POL-01`?"
 - "Compara versiones del procedimiento de incidentes."
 - "¿Por qué se modificó `<sección>` en la última versión?"
-- "Muestra la evolución y diferencias de `<documento>`."
+- "Muestra la evolución histórica y diferencias de `<documento>`."
 
 ## 2. Step Protocol
 
@@ -23,22 +23,26 @@ Comparación estructural y análisis evolutivo entre versiones reales de cualqui
    - Para inspeccionar metadatos detallados del documento: `bun scripts/pims.ts docs get <id_or_code> [--compact|--json]`.
 
 2. **Comparación Estructural de Versiones (Texto Extraído de PDFs Reales)**:
-   - **Prohibición**: No asumir que `corpus_g4_src/` existe en el contenedor runtime ni decodificar binarios `.pdf` directamente como UTF-8.
+   - **Prohibición**: No asumir que `corpus_g4_src/` existe en el contenedor runtime ni que el PDF fue generado con Typst, y jamás decodificar binarios `.pdf` directamente como UTF-8.
    - Ejecutar la comparación directa mediante la herramienta canónica:
      `bun scripts/pims.ts diff <code_or_id> --from <v1> --to <v2>`
-   - La herramienta extrae automáticamente el texto de los PDFs con `pdftotext` (nunca binario PDF en crudo) y computa las diferencias exactas línea por línea y bloque por bloque entre versiones.
-   - Si se requiere descargar el PDF binario para inspección: `bun scripts/pims.ts docs download <id_or_code> [--ver <v>] [--out <path>]`.
+     (Para análisis evolutivo o línea de tiempo multiversión `v1 → v2 → v3 → ...`, ejecutar diffs consecutivos entre cada par de versiones y consolidar el texto extraído con `pdftotext -layout -nopgbrk` / `bun scripts/pims.ts mirror read <code_or_id> --ver <v>`).
+   - Si se requiere descargar el PDF binario para inspección o OCR (en PDFs escaneados): `bun scripts/pims.ts docs download <id_or_code> [--ver <v>] [--out <path>]`.
 
 3. **Síntesis de Racional con Historial Real + `RAFA.md` Silencioso**:
-   - Extraer `change_summary` de `bun scripts/pims.ts docs versions <id_or_code>` y la tabla interna de Control de Cambios extraída del propio PDF.
+   - Extraer `change_summary` de `bun scripts/pims.ts docs versions <id_or_code>`, la tabla interna de Control de Cambios extraída del propio PDF y la fecha de vigencia (`validity`); señalar explícitamente si la fecha de vigencia de la versión evaluada ya expiró frente a la fecha actual.
+   - Citar fragmentos con el formato canónico `pims:<doc.code>:v<version>:<chunk_id>:<lines>` cuando se respalde con texto del espejo.
    - Si existe `molds/<category>/RAFA.md`, **leerlo únicamente como guía interna silenciosa** para comprender la evolución normativa esperada del tipo de documento.
-   - **REGLA ESTRICTA DE SILENCIO**: **NUNCA mencionar `RAFA.md`, `RAFA`, nombres de archivos de moldes ni rutas internas (`molds/...`) en la respuesta al usuario o en el informe publicado.** Atribuir toda explicación exclusivamente al historial registrado en PIMS (`change_summary`), tabla de revisiones del documento y cláusulas ISO/IEC 27701:2025.
+   - **REGLA ESTRICTA DE SILENCIO**: **NUNCA mencionar `RAFA.md`, `RAFA`, nombres de archivos de moldes ni rutas internas (`molds/...`, `corpus_g4_src/`, `scripts/`) en la respuesta al usuario ni en el informe publicado.** Atribuir toda explicación exclusivamente al historial registrado en PIMS, tabla de revisiones del documento y cláusulas ISO/IEC 27701:2025.
    - **Nota de Evidencia de Capacitación**: `/api/trainings/` retorna HTTP 403 para `grupob4`; las evidencias de capacitación viven en documentos `G4-REG-CAP-*` / `G4-PRG-CAP-*`.
 
-4. **Publicación de Informe Visual (`files-sidecar`) — OBLIGATORIA**:
-   - Generar SIEMPRE el informe comparativo (HTML o Markdown preferido; PDF si el usuario lo pide) y publicarlo mediante `bun scripts/pims.ts publish --slug <slug> --file <path> [--filename <name>]`:
+4. **Publicación de Informe Visual (`files-sidecar`) — OBLIGATORIA (Diffs y Evoluciones Multiversión)**:
+   - Generar **SIEMPRE** el informe (HTML o Markdown en español ejecutivo limpio; PDF solo si el usuario lo pide) tanto para comparaciones puntuales (`vX` vs `vY`) como para **TODAS las consultas de evolución multiversión o línea de tiempo** (`v1 → v2 → v3...`), y publicarlo mediante `bun scripts/pims.ts publish --slug <slug> --file <path> [--filename <name>]`:
      `https://files.pimsai.mistercricro8.top:444/p/<slug>`
-   - Convención de slug: `version-compare-<code_slug>-<yyyymmdd-hhmm>` (ej. `version-compare-g4-pol-01-20261123-1430`). Responder inline un resumen + cerrar con la línea exacta: `resultado aquí: https://files.pimsai.mistercricro8.top:444/p/<slug>`.
+   - **Convención de slug con timestamp UTC real de shell (PROHIBIDO inventar horas fijas)**:
+     `SLUG="version-compare-<code_slug>-$(date -u +%Y%m%d-%H%M)"`
+     (Jamás usar timestamps ficticios como `1200`, `0555` o `1430`).
+   - Responder inline un resumen ejecutivo en español + cerrar con la línea exacta: `resultado aquí: https://files.pimsai.mistercricro8.top:444/p/<slug>`.
    - **Nunca** usar `https://<slug>.pimsai.mistercricro8.top:444` directamente para entregas de archivos estáticos; la ruta correcta de `files-sidecar` es siempre `https://files.pimsai.mistercricro8.top:444/p/<slug>`.
 
 ## 3. Failure Branches
