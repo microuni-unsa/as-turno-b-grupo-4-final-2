@@ -11,7 +11,7 @@ ARG TYPST_VERSION=0.15.0
 ARG ZELLIJ_VERSION=0.45.1
 ARG OMP_VERSION=18.18.1
 
-# Install baseline OS dependencies, Chromium, Python, PDF/OCR tools, postgresql-client, docker CLI, curl, git
+# Install baseline OS dependencies, Chromium, Python, PDF/OCR tools, age, postgresql-client, docker CLI, curl, git
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     chromium \
@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     postgresql-client \
     docker.io \
+    age \
     xz-utils \
     tar \
     unzip \

@@ -40,6 +40,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: pimsai-agent
+    init: true
     # Staging-copy topology (P3.8): compose runs with cwd=<staging>/ (see scripts/deploy-sync.sh),
     # so `.:/app` binds the disposable staging copy, never the pristine repo. Secrets come
     # from the host-level .env OUTSIDE both dirs (PIMSAI_ENV_FILE), never bind-mounted.
@@ -52,30 +53,34 @@ services:
         if [ -n "$${AGENT_ENV_VAR:-}" ] && [ -n "$${AGENT_API_KEY:-}" ]; then
           export "$${AGENT_ENV_VAR}=$${AGENT_API_KEY}"
         fi
-        mkdir -p /home/agent/.config/zellij
-        if [ ! -f /home/agent/.config/zellij/config.kdl ]; then
-          zellij setup --dump-config > /home/agent/.config/zellij/config.kdl
+        mkdir -p /home/agent/.config/zellij/layouts
+        ZCONF=/home/agent/.config/zellij/config.kdl
+        if [ ! -f "$${ZCONF}" ]; then
+          zellij setup --dump-config > "$${ZCONF}"
         fi
-        if ! grep -q '^web_sharing "on"' /home/agent/.config/zellij/config.kdl; then
-          printf '\nweb_sharing "on"\n' >> /home/agent/.config/zellij/config.kdl
-        fi
-        if ! grep -q '^default_mode "locked"' /home/agent/.config/zellij/config.kdl; then
-          printf '\ndefault_mode "locked"\n' >> /home/agent/.config/zellij/config.kdl
-        fi
+        sed -i -E '/^[[:space:]]*(\/\/)?[[:space:]]*(show_release_notes|show_startup_tips|pane_frames|web_sharing|default_mode|default_layout)[[:space:]]/d' "$${ZCONF}"
+        printf '\nshow_release_notes false\nshow_startup_tips false\npane_frames false\nweb_sharing "on"\ndefault_mode "locked"\ndefault_layout "pimsai"\n' >> "$${ZCONF}"
         rm -f /home/agent/.config/zellij/layouts/default.kdl
+        cat <<'EOF' > /home/agent/.config/zellij/layouts/pimsai.kdl
+        layout {
+          pane borderless=true
+        }
+        EOF
         MEMDIR=/home/agent/.omp/agent/memories/--app--
         if [ -f /app/.omp/memory-seed/memory_summary.md ]; then
           mkdir -p "$${MEMDIR}"
-          if [ ! -f "$${MEMDIR}/memory_summary.md" ] || grep -qE "filtro G4-|filtrar solo G4-|filtrar/escribir solo G4-" "$${MEMDIR}/memory_summary.md" 2>/dev/null; then
+          if ! cmp -s /app/.omp/memory-seed/memory_summary.md "$${MEMDIR}/memory_summary.md" 2>/dev/null; then
             cp /app/.omp/memory-seed/memory_summary.md "$${MEMDIR}/memory_summary.md"
             echo "[memory-seed] seeded current memory_summary.md"
           fi
         fi
+        bun scripts/pims.ts mirror sync --loop --interval 300 > /tmp/pims-mirror-sync.log 2>&1 &
         zellij web --ip 127.0.0.1 --port 8083 -d
+        zellij delete-session pimsai --force 2>/dev/null || true
         if [ -n "$${AGENT_MODEL:-}" ]; then
-          zellij attach -b pimsai -- omp --model "$${AGENT_MODEL}" || true
+          zellij --layout pimsai attach -b pimsai -- omp --model "$${AGENT_MODEL}" || true
         else
-          zellij attach -b pimsai -- omp || true
+          zellij --layout pimsai attach -b pimsai -- omp || true
         fi
         exec bun -e '
           import net from "node:net";
