@@ -1,20 +1,24 @@
 /**
  * Secrets handle resolution and sidecar workflow.
  * Strictly adheres to SPEC 4.3 and zero-exposure security rules:
- * - Handles follow format: secret:<name>@<v>
+ * - Canonical handles follow format: secret:<name>@v<version> (accepts secret:<name>@<version> on input).
+ * - Resolves via real `age` CLI decryption from SECRETS_STORE_PATH/secrets/<name>/v<version>.age.
  * - Resolves to env injection for docker run or Authorization headers inside connectors.
- * - Raw secret values are NEVER printed to stdout, stderr, logs, or transcripts.
+ * - Raw secret values are NEVER printed to stdout, stderr, logs, disk, or transcripts.
  * - Old secret versions remain readable until containers restart (rotation semantics).
  */
 
+import { existsSync, readFileSync, statSync } from "node:fs";
+import path from "node:path";
 import {
-  PIMSAI_PUBLIC_PORT,
+  DEFAULT_SECRETS_STORE_PATH,
   SECRETS_HANDLE_PREFIX,
   SECRETS_HANDLE_REGEX,
-  SECRETS_SIDECAR_DOMAIN,
-  SECRETS_TOKEN_TTL_MS,
+  SECRETS_POLL_MAX_TIMEOUT_SEC,
+  SECRETS_SIDECAR_INTERNAL_URL,
 } from "./constants";
 import {
+  ConnectorRuntimeError,
   SecretExpiredError,
   SecretHandleFormatError,
   SecretNotFoundError,
@@ -30,8 +34,41 @@ import type {
   SecretRequestStatus,
 } from "./types";
 
+const ENV_VAR_NAME_REGEX = /^[A-Za-z_][A-Za-z0-9_]*$/;
+const SECRET_NAME_REGEX = /^[a-zA-Z0-9_.-]+$/;
+
+export interface SecretsStoreConfig {
+  storePath?: string;
+  identityPath?: string;
+  identityKey?: string;
+  sidecarUrl?: string;
+  ageBinary?: string;
+}
+
+export interface PollSecretOptions {
+  wait?: boolean;
+  timeoutSeconds?: number;
+}
+
+export interface DockerEnvResolution extends DockerEnvInjection {
+  args: ["--env", string];
+}
+
+function validateSecretName(name: string, originalInput: string): string {
+  if (
+    !name ||
+    !SECRET_NAME_REGEX.test(name) ||
+    name === "." ||
+    name === ".." ||
+    name.includes("..")
+  ) {
+    throw new SecretHandleFormatError(originalInput);
+  }
+  return name;
+}
+
 /**
- * Parses a secret handle of form secret:<name>@<v>
+ * Parses a secret handle of form secret:<name>@v<n> or secret:<name>@<n>.
  */
 export function parseSecretHandle(handle: string): { name: string; version: number } {
   if (!handle || typeof handle !== "string" || !handle.startsWith(SECRETS_HANDLE_PREFIX)) {
@@ -43,15 +80,17 @@ export function parseSecretHandle(handle: string): { name: string; version: numb
     throw new SecretHandleFormatError(handle);
   }
 
-  const name = match[1];
+  const rawName = match[1];
   const versionStr = match[2];
 
-  if (!name || !versionStr) {
+  if (!rawName || !versionStr) {
     throw new SecretHandleFormatError(handle);
   }
 
-  const version = parseInt(versionStr, 10);
-  if (Number.isNaN(version) || version <= 0) {
+  const name = validateSecretName(rawName, handle);
+
+  const version = Number.parseInt(versionStr, 10);
+  if (!Number.isSafeInteger(version) || version <= 0) {
     throw new SecretHandleFormatError(handle);
   }
 
@@ -59,238 +98,509 @@ export function parseSecretHandle(handle: string): { name: string; version: numb
 }
 
 /**
- * Formats name and version into standard secret handle.
+ * Formats name and version into canonical secret handle `secret:<name>@v<version>`.
  */
 export function formatSecretHandle(name: string, version: number): SecretHandle {
-  const cleanName = name.trim();
-  if (!cleanName || version <= 0) {
-    throw new SecretHandleFormatError(`${cleanName}@${version}`);
+  const cleanName = typeof name === "string" ? name.trim() : "";
+  if (
+    !cleanName ||
+    !SECRET_NAME_REGEX.test(cleanName) ||
+    cleanName === "." ||
+    cleanName === ".." ||
+    cleanName.includes("..") ||
+    !Number.isInteger(version) ||
+    version <= 0
+  ) {
+    throw new SecretHandleFormatError(`${cleanName}@v${String(version)}`);
   }
   return `secret:${cleanName}@v${version}` as SecretHandle;
 }
 
-/**
- * Internal cipher envelope simulating age-encryption on agent volume.
- */
-function encryptSecret(rawValue: string): string {
-  // Uses authenticated base64 envelope representing age-encrypted ciphertext
-  const buffer = Buffer.from(rawValue, "utf-8");
-  return `age:v1:${buffer.toString("base64")}`;
-}
+function normalizeDockerEnvArgs(
+  arg1: string,
+  arg2: string,
+  preferHandleFirst: boolean
+): { handle: string; envVarName: string } {
+  const firstIsHandle = typeof arg1 === "string" && arg1.startsWith(SECRETS_HANDLE_PREFIX);
+  const secondIsHandle = typeof arg2 === "string" && arg2.startsWith(SECRETS_HANDLE_PREFIX);
 
-function decryptSecret(ciphertext: string): string {
-  if (!ciphertext.startsWith("age:v1:")) {
-    throw new SecretSecurityError("Unrecognized secret encryption envelope format");
+  if (firstIsHandle && !secondIsHandle) {
+    return { handle: arg1, envVarName: arg2 };
   }
-  const payload = ciphertext.slice(7);
-  return Buffer.from(payload, "base64").toString("utf-8");
+  if (secondIsHandle && !firstIsHandle) {
+    return { handle: arg2, envVarName: arg1 };
+  }
+  if (firstIsHandle && secondIsHandle) {
+    throw new SecretSecurityError(
+      "Ambiguous arguments to resolveToDockerEnv: both arguments begin with 'secret:'"
+    );
+  }
+
+  // Neither begins with 'secret:' — fail fast with SecretHandleFormatError on the handle candidate.
+  if (!preferHandleFirst && typeof arg1 === "string" && ENV_VAR_NAME_REGEX.test(arg1.trim())) {
+    parseSecretHandle(arg2);
+  }
+  parseSecretHandle(arg1);
+  throw new SecretHandleFormatError(String(arg1));
+}
+
+function validateEnvVarName(envVarName: string): string {
+  const clean = typeof envVarName === "string" ? envVarName.trim() : "";
+  if (!clean || !ENV_VAR_NAME_REGEX.test(clean)) {
+    throw new SecretSecurityError(
+      `Invalid Docker environment variable name: '${String(envVarName)}'`
+    );
+  }
+  return clean;
+}
+
+interface RawRegistryEntry {
+  name?: unknown;
+  version?: unknown;
+  created_at?: unknown;
+  createdAt?: unknown;
+  created_by?: unknown;
+  createdBy?: unknown;
+  scope?: unknown;
 }
 
 /**
- * Secrets store and sidecar registry.
+ * Age-backed Secrets Store and secrets-sidecar HTTP client.
  */
 export class SecretsStore {
   private static instance: SecretsStore | null = null;
 
-  // Key format: `${name}@${version}`
-  private readonly registry: Map<string, SecretRegistryEntry> = new Map();
+  private readonly explicitStorePath?: string;
+  private readonly explicitIdentityPath?: string;
+  private readonly explicitIdentityKey?: string;
+  private readonly explicitSidecarUrl?: string;
+  private readonly ageBinary: string;
 
-  // Active sidecar request sessions by token
-  private readonly sessions: Map<string, SecretRequestSession> = new Map();
+  constructor(config: SecretsStoreConfig = {}) {
+    if (config.storePath !== undefined && config.storePath.trim().length > 0) {
+      this.explicitStorePath = config.storePath.trim();
+    }
+    if (config.identityPath !== undefined && config.identityPath.trim().length > 0) {
+      this.explicitIdentityPath = config.identityPath.trim();
+    }
+    if (config.identityKey !== undefined && config.identityKey.trim().length > 0) {
+      this.explicitIdentityKey = config.identityKey.trim();
+    }
+    if (config.sidecarUrl !== undefined && config.sidecarUrl.trim().length > 0) {
+      this.explicitSidecarUrl = config.sidecarUrl.trim().replace(/\/+$/, "");
+    }
+    this.ageBinary =
+      config.ageBinary !== undefined && config.ageBinary.trim().length > 0
+        ? config.ageBinary.trim()
+        : "age";
+  }
 
-  // Track latest version per secret name
-  private readonly latestVersions: Map<string, number> = new Map();
-
-  public static getInstance(): SecretsStore {
-    if (!SecretsStore.instance) {
-      SecretsStore.instance = new SecretsStore();
+  public static getInstance(config?: SecretsStoreConfig): SecretsStore {
+    if (!SecretsStore.instance || config !== undefined) {
+      SecretsStore.instance = new SecretsStore(config);
     }
     return SecretsStore.instance;
   }
 
+  public static resetInstance(): void {
+    SecretsStore.instance = null;
+  }
+
   /**
-   * Resets the store (for testing or container restart).
+   * Resets singleton instance reference (for testing or container lifecycle resets).
    */
   public reset(): void {
-    this.registry.clear();
-    this.sessions.clear();
-    this.latestVersions.clear();
+    if (SecretsStore.instance === this) {
+      SecretsStore.instance = null;
+    }
+  }
+
+  public getStorePath(): string {
+    if (this.explicitStorePath !== undefined) {
+      return this.explicitStorePath;
+    }
+    const envStorePath = process.env.SECRETS_STORE_PATH;
+    if (envStorePath && envStorePath.trim().length > 0) {
+      return envStorePath.trim();
+    }
+    return DEFAULT_SECRETS_STORE_PATH;
+  }
+
+  public getSidecarUrl(): string {
+    if (this.explicitSidecarUrl !== undefined) {
+      return this.explicitSidecarUrl;
+    }
+    const envUrl = process.env.SECRETS_SIDECAR_URL;
+    if (envUrl && envUrl.trim().length > 0) {
+      return envUrl.trim().replace(/\/+$/, "");
+    }
+    return SECRETS_SIDECAR_INTERNAL_URL;
+  }
+
+  private resolveCiphertextLocation(handle: string): {
+    name: string;
+    version: number;
+    storePath: string;
+    ciphertextPath: string;
+  } {
+    const { name, version } = parseSecretHandle(handle);
+    const storePath = this.getStorePath();
+    const secretsBaseDir = path.resolve(storePath, "secrets");
+    const ciphertextPath = path.resolve(secretsBaseDir, name, `v${version}.age`);
+
+    if (!ciphertextPath.startsWith(secretsBaseDir + path.sep)) {
+      throw new SecretSecurityError(`Resolved secret path escapes store boundary for '${name}'`);
+    }
+
+    return { name, version, storePath, ciphertextPath };
+  }
+
+  private resolveIdentityInvocation(
+    storePath: string,
+    ciphertextPath: string
+  ): { args: string[]; stdin?: Uint8Array } {
+    if (this.explicitIdentityKey !== undefined) {
+      return {
+        args: ["-d", "-i", "-", ciphertextPath],
+        stdin: new TextEncoder().encode(`${this.explicitIdentityKey}\n`),
+      };
+    }
+
+    if (this.explicitIdentityPath !== undefined) {
+      if (!existsSync(this.explicitIdentityPath)) {
+        throw new SecretSecurityError(
+          `Age identity file not found at configured path '${this.explicitIdentityPath}'`
+        );
+      }
+      return {
+        args: ["-d", "-i", this.explicitIdentityPath, ciphertextPath],
+      };
+    }
+
+    const defaultIdentityPath = path.resolve(storePath, "keys", "identity.txt");
+    if (existsSync(defaultIdentityPath)) {
+      return {
+        args: ["-d", "-i", defaultIdentityPath, ciphertextPath],
+      };
+    }
+
+    const envIdentityKey = process.env.AGE_SECRET_KEY;
+    if (envIdentityKey && envIdentityKey.trim().length > 0) {
+      return {
+        args: ["-d", "-i", "-", ciphertextPath],
+        stdin: new TextEncoder().encode(`${envIdentityKey.trim()}\n`),
+      };
+    }
+
+    throw new SecretSecurityError(
+      `Age identity file not found at '${defaultIdentityPath}' and AGE_SECRET_KEY is not set.`
+    );
   }
 
   /**
-   * Stores a secret value under a name.
-   * Increments version on update, maintaining previous versions (rotation semantics).
-   */
-  public storeSecret(
-    name: string,
-    rawValue: string,
-    createdBy: string,
-    scope: string = "default"
-  ): { handle: SecretHandle; version: number } {
-    if (!name || typeof name !== "string") {
-      throw new SecretSecurityError("Secret name must be a non-empty string");
-    }
-    if (!rawValue || typeof rawValue !== "string") {
-      throw new SecretSecurityError("Secret value must be a non-empty string");
-    }
-
-    const currentLatest = this.latestVersions.get(name) ?? 0;
-    const newVersion = currentLatest + 1;
-    const key = `${name}@${newVersion}`;
-
-    const entry: SecretRegistryEntry = {
-      name,
-      version: newVersion,
-      createdAt: new Date().toISOString(),
-      createdBy,
-      scope,
-      ciphertext: encryptSecret(rawValue),
-    };
-
-    this.registry.set(key, entry);
-    this.latestVersions.set(name, newVersion);
-
-    const handle = formatSecretHandle(name, newVersion);
-    return { handle, version: newVersion };
-  }
-
-  /**
-   * Resolves raw secret value from handle.
-   * STRICTLY INTERNAL: Never expose return value in logs or public interfaces.
+   * Resolves raw secret value from handle using real `age` CLI decryption.
+   * STRICTLY INTERNAL: Never expose return value in logs, disk files, or public interfaces.
    */
   public getDecryptedValue(handle: string): string {
-    const { name, version } = parseSecretHandle(handle);
-    const key = `${name}@${version}`;
-    const entry = this.registry.get(key);
+    const { name, version, storePath, ciphertextPath } = this.resolveCiphertextLocation(handle);
 
-    if (!entry) {
+    if (!existsSync(ciphertextPath)) {
       throw new SecretNotFoundError(name, version);
     }
 
-    return decryptSecret(entry.ciphertext);
+    const invocation = this.resolveIdentityInvocation(storePath, ciphertextPath);
+
+    const ageExecutable = path.isAbsolute(this.ageBinary)
+      ? this.ageBinary
+      : (Bun.which(this.ageBinary, { PATH: process.env.PATH }) ?? this.ageBinary);
+
+    let proc: ReturnType<typeof Bun.spawnSync>;
+    try {
+      proc = Bun.spawnSync([ageExecutable, ...invocation.args], {
+        stdin: invocation.stdin,
+        stdout: "pipe",
+        stderr: "pipe",
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      throw new SecretSecurityError(
+        `Failed to execute age CLI ('${this.ageBinary}') for '${formatSecretHandle(name, version)}': ${message}`
+      );
+    }
+
+    if (proc.exitCode !== 0) {
+      const stderrText = proc.stderr ? Buffer.from(proc.stderr).toString("utf8").trim() : "";
+      throw new SecretSecurityError(
+        `age decryption failed for '${formatSecretHandle(name, version)}' (exit ${String(proc.exitCode)}): ${stderrText || "unknown error"}`
+      );
+    }
+
+    const plaintext = proc.stdout ? Buffer.from(proc.stdout).toString("utf8") : "";
+    if (plaintext.length === 0) {
+      throw new SecretSecurityError(
+        `Decrypted secret payload for '${formatSecretHandle(name, version)}' is empty`
+      );
+    }
+
+    return plaintext;
   }
 
   /**
-   * Checks whether a handle exists in registry without decrypting.
+   * Checks whether an encrypted handle file exists on disk without decrypting.
    */
   public hasHandle(handle: string): boolean {
-    try {
-      const { name, version } = parseSecretHandle(handle);
-      return this.registry.has(`${name}@${version}`);
-    } catch {
+    if (!handle || typeof handle !== "string" || !SECRETS_HANDLE_REGEX.test(handle)) {
       return false;
     }
+
+    const match = SECRETS_HANDLE_REGEX.exec(handle);
+    if (!match || !match[1] || !match[2]) {
+      return false;
+    }
+
+    const rawName = match[1];
+    if (rawName === "." || rawName === ".." || rawName.includes("..")) {
+      return false;
+    }
+
+    const version = Number.parseInt(match[2], 10);
+    if (!Number.isSafeInteger(version) || version <= 0) {
+      return false;
+    }
+
+    const { ciphertextPath } = this.resolveCiphertextLocation(handle);
+    return existsSync(ciphertextPath);
   }
 
   /**
-   * Retrieves entry metadata (version, creation timestamp, creator, scope).
+   * Retrieves entry metadata (version, creation timestamp, creator, scope) from registry.json or stat.
    * Notice: ciphertext and raw values are NEVER exposed in metadata.
    */
   public getMetadata(handle: string): Omit<SecretRegistryEntry, "ciphertext"> {
-    const { name, version } = parseSecretHandle(handle);
-    const key = `${name}@${version}`;
-    const entry = this.registry.get(key);
+    const { name, version, storePath, ciphertextPath } = this.resolveCiphertextLocation(handle);
 
-    if (!entry) {
+    if (!existsSync(ciphertextPath)) {
       throw new SecretNotFoundError(name, version);
     }
 
+    const registryPath = path.resolve(storePath, "registry.json");
+    if (existsSync(registryPath)) {
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(readFileSync(registryPath, "utf8"));
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        throw new SecretSecurityError(
+          `Corrupt secrets registry manifest at '${registryPath}': ${message}`
+        );
+      }
+
+      if (!Array.isArray(parsed)) {
+        throw new SecretSecurityError(
+          `Invalid secrets registry manifest at '${registryPath}': expected JSON array`
+        );
+      }
+
+      const match = (parsed as RawRegistryEntry[]).find(
+        (item) => item && item.name === name && Number(item.version) === version
+      );
+
+      if (match) {
+        const rawCreatedAt = match.created_at ?? match.createdAt;
+        const rawCreatedBy = match.created_by ?? match.createdBy;
+        return {
+          name,
+          version,
+          createdAt:
+            typeof rawCreatedAt === "string" && rawCreatedAt.length > 0
+              ? rawCreatedAt
+              : statSync(ciphertextPath).mtime.toISOString(),
+          createdBy:
+            typeof rawCreatedBy === "string" && rawCreatedBy.length > 0
+              ? rawCreatedBy
+              : "sidecar",
+          scope:
+            typeof match.scope === "string" && match.scope.length > 0
+              ? match.scope
+              : "default",
+        };
+      }
+    }
+
+    const stats = statSync(ciphertextPath);
     return {
-      name: entry.name,
-      version: entry.version,
-      createdAt: entry.createdAt,
-      createdBy: entry.createdBy,
-      scope: entry.scope,
+      name,
+      version,
+      createdAt: stats.mtime.toISOString(),
+      createdBy: "filesystem",
+      scope: "default",
     };
   }
 
   /**
    * Secrets sidecar flow (SPEC 4.3):
-   * Initiates a request for missing credentials.
-   * Returns one-time URL (5-min expiry) for user input.
+   * Requests a one-time secret entry URL from pimsai-secrets-sidecar.
    */
-  public requestSecret(label: string, scope: string = "default"): SecretRequestSession {
-    const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    const expiresAt = new Date(Date.now() + SECRETS_TOKEN_TTL_MS).toISOString();
-    const url = `https://${SECRETS_SIDECAR_DOMAIN}:${PIMSAI_PUBLIC_PORT}/s/${token}`;
+  public async requestSecret(
+    label: string,
+    scope: string = "default"
+  ): Promise<SecretRequestSession> {
+    if (!label || typeof label !== "string" || label.trim().length === 0) {
+      throw new SecretSecurityError("Secret label must be a non-empty string");
+    }
 
-    const session: SecretRequestSession = {
-      token,
-      label,
-      scope,
-      url,
-      expiresAt,
-      status: "pending",
+    const cleanLabel = label.trim();
+    const requestUrl = `${this.getSidecarUrl()}/api/secrets/request`;
+
+    const response = await fetch(requestUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        label: cleanLabel,
+        scope,
+      }),
+    });
+
+    if (!response.ok) {
+      const bodyText = await response.text();
+      throw new ConnectorRuntimeError(
+        `secrets-sidecar POST /api/secrets/request failed (HTTP ${response.status}): ${bodyText}`,
+        "SECRETS_SIDECAR_REQUEST_ERROR"
+      );
+    }
+
+    const data = (await response.json()) as {
+      token?: unknown;
+      url?: unknown;
+      expiresAt?: unknown;
     };
 
-    this.sessions.set(token, session);
-    return session;
+    if (
+      typeof data.token !== "string" ||
+      typeof data.url !== "string" ||
+      typeof data.expiresAt !== "string"
+    ) {
+      throw new ConnectorRuntimeError(
+        "secrets-sidecar returned malformed payload from /api/secrets/request",
+        "SECRETS_SIDECAR_REQUEST_ERROR"
+      );
+    }
+
+    return {
+      token: data.token,
+      label: cleanLabel,
+      scope,
+      url: data.url,
+      expiresAt: data.expiresAt,
+      status: "pending",
+    };
   }
 
   /**
-   * Simulates submission from sidecar web form by instructor/user.
+   * Polls sidecar token or handle status via GET /api/secrets/poll/:token.
+   * Supports optional long-poll (`wait: true`, `timeoutSeconds`).
+   * Returns canonical handle (`secret:<name>@v<n>`) if ready, NEVER the secret value.
    */
-  public submitSecret(
-    token: string,
-    rawValue: string,
-    createdBy: string = "web-sidecar"
-  ): { handle: SecretHandle } {
-    const session = this.sessions.get(token);
-    if (!session) {
-      throw new SecretExpiredError(token);
+  public async pollSecret(
+    tokenOrHandle: string,
+    options: PollSecretOptions = {}
+  ): Promise<{ status: SecretRequestStatus; handle?: SecretHandle }> {
+    if (!tokenOrHandle || typeof tokenOrHandle !== "string" || tokenOrHandle.trim().length === 0) {
+      throw new SecretSecurityError("tokenOrHandle must be a non-empty string");
     }
 
-    const now = Date.now();
-    const expiry = new Date(session.expiresAt).getTime();
-    if (now > expiry) {
-      session.status = "expired";
-      throw new SecretExpiredError(token);
+    const pollUrl = new URL(
+      `/api/secrets/poll/${encodeURIComponent(tokenOrHandle.trim())}`,
+      this.getSidecarUrl()
+    );
+
+    if (options.wait === true) {
+      pollUrl.searchParams.set("wait", "true");
+      if (options.timeoutSeconds !== undefined) {
+        if (!Number.isFinite(options.timeoutSeconds) || options.timeoutSeconds <= 0) {
+          throw new SecretSecurityError(
+            `Invalid poll timeoutSeconds: ${String(options.timeoutSeconds)}`
+          );
+        }
+        const clamped = Math.min(Math.floor(options.timeoutSeconds), SECRETS_POLL_MAX_TIMEOUT_SEC);
+        pollUrl.searchParams.set("timeout", String(clamped));
+      }
     }
 
-    const { handle } = this.storeSecret(session.label, rawValue, createdBy, session.scope);
-    session.status = "submitted";
-    session.handle = handle;
+    const response = await fetch(pollUrl.toString(), {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    });
 
-    return { handle };
-  }
-
-  /**
-   * Polls sidecar token status.
-   * Returns handle if ready, NEVER the secret value.
-   */
-  public pollSecret(token: string): { status: SecretRequestStatus; handle?: SecretHandle } {
-    const session = this.sessions.get(token);
-    if (!session) {
+    if (response.status === 410) {
       return { status: "expired" };
     }
 
-    const now = Date.now();
-    const expiry = new Date(session.expiresAt).getTime();
-    if (now > expiry && session.status === "pending") {
-      session.status = "expired";
-      return { status: "expired" };
+    if (response.status === 400 || response.status === 404) {
+      throw new SecretExpiredError(tokenOrHandle);
     }
 
-    if (session.status === "submitted" && session.handle) {
-      return {
-        status: "submitted",
-        handle: session.handle as SecretHandle,
-      };
+    if (!response.ok) {
+      const bodyText = await response.text();
+      throw new ConnectorRuntimeError(
+        `secrets-sidecar GET /api/secrets/poll failed (HTTP ${response.status}): ${bodyText}`,
+        "SECRETS_SIDECAR_POLL_ERROR"
+      );
     }
 
-    return { status: "pending" };
+    const data = (await response.json()) as {
+      status?: unknown;
+      handle?: unknown;
+    };
+
+    switch (data.status) {
+      case "pending":
+        return { status: "pending" };
+      case "expired":
+        return { status: "expired" };
+      case "submitted": {
+        if (typeof data.handle !== "string" || data.handle.length === 0) {
+          throw new ConnectorRuntimeError(
+            "secrets-sidecar returned status 'submitted' without a valid handle",
+            "SECRETS_SIDECAR_POLL_ERROR"
+          );
+        }
+        const parsed = parseSecretHandle(data.handle);
+        return {
+          status: "submitted",
+          handle: formatSecretHandle(parsed.name, parsed.version),
+        };
+      }
+      default:
+        throw new ConnectorRuntimeError(
+          `Unexpected poll status returned by secrets-sidecar: '${String(data.status)}'`,
+          "SECRETS_SIDECAR_POLL_ERROR"
+        );
+    }
   }
 
   /**
    * Resolves secret handle to Docker environment injection at `docker run`.
+   * Accepts either `(handle, envVarName)` or `(envVarName, handle)`.
    */
-  public resolveToDockerEnv(handle: string, envVarName: string): DockerEnvInjection {
+  public resolveToDockerEnv(
+    handleOrEnvVar: string,
+    envVarOrHandle: string
+  ): DockerEnvResolution {
+    const { handle, envVarName } = normalizeDockerEnvArgs(handleOrEnvVar, envVarOrHandle, true);
+    const cleanEnvVar = validateEnvVarName(envVarName);
     const rawValue = this.getDecryptedValue(handle);
-    const flag = `--env ${envVarName}=${rawValue}`;
+    const assignment = `${cleanEnvVar}=${rawValue}`;
 
     return {
-      envVar: envVarName,
-      flag,
+      envVar: cleanEnvVar,
+      flag: `--env ${assignment}`,
+      args: ["--env", assignment],
       getResolvedValue: () => rawValue,
     };
   }
@@ -335,4 +645,16 @@ export class SecretsStore {
     const rawValue = this.getDecryptedValue(handle);
     return await fn(rawValue);
   }
+}
+
+/**
+ * Named module export matching CHECK.md Phase 4 verification (`resolveToDockerEnv("API_KEY", "secret:test@v1")`)
+ * as well as `(handle, envVarName)` order.
+ */
+export function resolveToDockerEnv(
+  envVarOrHandle: string,
+  handleOrEnvVar: string
+): DockerEnvResolution {
+  const { handle, envVarName } = normalizeDockerEnvArgs(envVarOrHandle, handleOrEnvVar, false);
+  return SecretsStore.getInstance().resolveToDockerEnv(handle, envVarName);
 }

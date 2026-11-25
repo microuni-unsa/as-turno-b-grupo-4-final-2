@@ -23,6 +23,7 @@ export const DEFAULT_POLL_TIMEOUT_MINUTES = 5;
 export const DEFAULT_POLL_TIMEOUT_SECONDS = DEFAULT_POLL_TIMEOUT_MINUTES * 60; // 300 seconds
 export const DEFAULT_POLL_TIMEOUT_MS = DEFAULT_POLL_TIMEOUT_MINUTES * 60 * 1000; // 5 min
 export const POLL_TIMEOUT_DEFAULT = DEFAULT_POLL_TIMEOUT_MS;
+export const MAX_POLL_WAIT_SECONDS = 300;
 
 /** Maximum allowed upload size: 50MB cap */
 export const MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024; // 52,428,800 bytes (50 MB)
@@ -311,6 +312,110 @@ export class HttpPimsDocumentsAdapter implements PimsAdapterDocumentsInterface {
 // ============================================================================
 
 export const sessionStore = new Map<string, UploadSession>();
+
+const sessionWaiters = new Map<string, Set<() => void>>();
+
+export function notifySessionWaiters(token: string): void {
+  const waiters = sessionWaiters.get(token);
+  if (!waiters || waiters.size === 0) {
+    return;
+  }
+  const callbacks = Array.from(waiters);
+  sessionWaiters.delete(token);
+  for (const cb of callbacks) {
+    cb();
+  }
+}
+
+function isTerminalSessionStatus(status: SessionStatus): boolean {
+  return status === 'completed' || status === 'failed' || status === 'expired';
+}
+
+function waitForSessionTerminal(
+  session: UploadSession,
+  waitMs: number,
+  signal?: AbortSignal
+): Promise<void> {
+  if (isTerminalSessionStatus(session.status)) {
+    return Promise.resolve();
+  }
+  if (signal?.aborted) {
+    const abortErr = new Error('Wait aborted');
+    abortErr.name = 'AbortError';
+    return Promise.reject(abortErr);
+  }
+
+  return new Promise<void>((resolve, reject) => {
+    let settled = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    const cleanup = () => {
+      if (timer !== null) {
+        clearTimeout(timer);
+        timer = null;
+      }
+      const waiters = sessionWaiters.get(session.token);
+      if (waiters) {
+        waiters.delete(onNotify);
+        if (waiters.size === 0) {
+          sessionWaiters.delete(session.token);
+        }
+      }
+      if (signal) {
+        signal.removeEventListener('abort', onAbort);
+      }
+    };
+
+    const onNotify = () => {
+      if (settled) {
+        return;
+      }
+      if (
+        !isTerminalSessionStatus(session.status) &&
+        Date.now() <= session.expiresAt &&
+        Date.now() - session.createdAt < DEFAULT_POLL_TIMEOUT_MS
+      ) {
+        return;
+      }
+      settled = true;
+      cleanup();
+      resolve();
+    };
+
+    const onTimeout = () => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      cleanup();
+      resolve();
+    };
+
+    const onAbort = () => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      cleanup();
+      const abortErr = new Error('Wait aborted');
+      abortErr.name = 'AbortError';
+      reject(abortErr);
+    };
+
+    let waiters = sessionWaiters.get(session.token);
+    if (!waiters) {
+      waiters = new Set();
+      sessionWaiters.set(session.token, waiters);
+    }
+    waiters.add(onNotify);
+
+    if (signal) {
+      signal.addEventListener('abort', onAbort, { once: true });
+    }
+
+    timer = setTimeout(onTimeout, Math.max(1, waitMs));
+  });
+}
 
 /**
  * Mint a new upload session with explicit 5-min default expiration.
@@ -868,7 +973,12 @@ export function renderUploadHtml(session: UploadSession): string {
 // HTTP ROUTER & REQUEST HANDLERS
 // ============================================================================
 
-export function sendJson(res: http.ServerResponse, statusCode: number, payload: unknown): void {
+export function sendJson(
+  res: http.ServerResponse,
+  statusCode: number,
+  payload: unknown,
+  headOnly: boolean = false
+): void {
   const body = JSON.stringify(payload);
   res.writeHead(statusCode, {
     'Content-Type': 'application/json; charset=utf-8',
@@ -876,16 +986,29 @@ export function sendJson(res: http.ServerResponse, statusCode: number, payload: 
     'Access-Control-Allow-Origin': '*',
     'Cache-Control': 'no-store, no-cache, must-revalidate'
   });
-  res.end(body);
+  if (headOnly) {
+    res.end();
+  } else {
+    res.end(body);
+  }
 }
 
-export function sendHtml(res: http.ServerResponse, statusCode: number, html: string): void {
+export function sendHtml(
+  res: http.ServerResponse,
+  statusCode: number,
+  html: string,
+  headOnly: boolean = false
+): void {
   res.writeHead(statusCode, {
     'Content-Type': 'text/html; charset=utf-8',
     'Content-Length': Buffer.byteLength(html),
     'Cache-Control': 'no-store, no-cache, must-revalidate'
   });
-  res.end(html);
+  if (headOnly) {
+    res.end();
+  } else {
+    res.end(html);
+  }
 }
 
 /**
@@ -905,7 +1028,7 @@ export async function handleRequest(
   if (method === 'OPTIONS') {
     res.writeHead(204, {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, HEAD, POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
       'Access-Control-Max-Age': '86400'
     });
@@ -913,14 +1036,19 @@ export async function handleRequest(
     return;
   }
 
-  // 1. Healthcheck
-  if (method === 'GET' && (pathname === '/health' || pathname === '/healthz')) {
-    sendJson(res, 200, {
-      status: 'ok',
-      service: 'files-sidecar',
-      host: TRAEFIK_HOST,
-      timestamp: new Date().toISOString()
-    });
+  // 1. Healthcheck (GET & HEAD)
+  if ((method === 'GET' || method === 'HEAD') && (pathname === '/health' || pathname === '/healthz')) {
+    sendJson(
+      res,
+      200,
+      {
+        status: 'ok',
+        service: 'files-sidecar',
+        host: TRAEFIK_HOST,
+        timestamp: new Date().toISOString()
+      },
+      method === 'HEAD'
+    );
     return;
   }
 
@@ -998,6 +1126,7 @@ export async function handleRequest(
     const now = Date.now();
     if (now > session.expiresAt || session.status === 'expired') {
       session.status = 'expired';
+      notifySessionWaiters(token);
       sendHtml(
         res,
         410,
@@ -1041,6 +1170,7 @@ export async function handleRequest(
     // Race condition check: late arrival after timeout
     if (now > session.expiresAt || session.status === 'expired') {
       session.status = 'expired';
+      notifySessionWaiters(token);
       sendJson(res, 410, {
         status: 'error',
         stage: 'upload',
@@ -1079,6 +1209,7 @@ export async function handleRequest(
         canRetry: false,
         failedAt: Date.now()
       };
+      notifySessionWaiters(token);
       sendJson(res, 413, {
         status: 'failed',
         stage: 'upload',
@@ -1109,6 +1240,7 @@ export async function handleRequest(
         canRetry: false,
         failedAt: Date.now()
       };
+      notifySessionWaiters(token);
       sendJson(res, 400, {
         status: 'failed',
         stage: 'upload',
@@ -1143,6 +1275,7 @@ export async function handleRequest(
           canRetry: false,
           failedAt: Date.now()
         };
+        notifySessionWaiters(token);
         sendJson(res, 400, {
           status: 'failed',
           stage: 'upload',
@@ -1163,6 +1296,7 @@ export async function handleRequest(
           canRetry: false,
           failedAt: Date.now()
         };
+        notifySessionWaiters(token);
         sendJson(res, 415, {
           status: 'failed',
           stage: 'upload',
@@ -1193,6 +1327,7 @@ export async function handleRequest(
 
       // Process pipeline: Parse -> PIMS Upload
       await processUploadedSession(session, parsed.data, adapter);
+      notifySessionWaiters(token);
 
       if (session.status === 'completed') {
         sendJson(res, 200, {
@@ -1222,7 +1357,7 @@ export async function handleRequest(
     return;
   }
 
-  // 5. Polling endpoint: GET /poll/:token or GET /api/poll/:token
+  // 5. Polling endpoint: GET /poll/:token or GET /api/poll/:token (supports ?wait=true&timeout=<sec>)
   const pollMatch = pathname.match(/^\/(?:api\/)?poll\/([^/]+)$/);
   if (method === 'GET' && pollMatch) {
     const token = pollMatch[1];
@@ -1237,9 +1372,85 @@ export async function handleRequest(
       return;
     }
 
+    const waitParam = parsedUrl.searchParams.get('wait');
+    if (
+      waitParam !== null &&
+      waitParam !== 'true' &&
+      waitParam !== 'false' &&
+      waitParam !== '1' &&
+      waitParam !== '0'
+    ) {
+      sendJson(res, 400, {
+        status: 'error',
+        error: 'VALIDATION_ERROR',
+        message: "El parámetro 'wait' debe ser 'true' o 'false'"
+      });
+      return;
+    }
+    const shouldWait = waitParam === 'true' || waitParam === '1';
+
+    let requestedTimeoutSec: number | null = null;
+    const rawTimeout = parsedUrl.searchParams.get('timeout');
+    if (rawTimeout !== null) {
+      const parsedTimeout = Number(rawTimeout);
+      if (!Number.isFinite(parsedTimeout) || parsedTimeout <= 0) {
+        sendJson(res, 400, {
+          status: 'error',
+          error: 'VALIDATION_ERROR',
+          message: "El parámetro 'timeout' debe ser un número positivo de segundos"
+        });
+        return;
+      }
+      requestedTimeoutSec = Math.min(parsedTimeout, MAX_POLL_WAIT_SECONDS);
+    }
+
+    const limitMs = DEFAULT_POLL_TIMEOUT_MS;
+    const initialNow = Date.now();
+    const initialElapsedMs = initialNow - session.createdAt;
+    const isInitiallyExpired = initialNow > session.expiresAt || initialElapsedMs >= limitMs;
+
+    if (
+      shouldWait &&
+      !isInitiallyExpired &&
+      (session.status === 'minted' || session.status === 'uploading' || session.status === 'processing')
+    ) {
+      const remainingSessionTtlMs = Math.max(
+        0,
+        Math.min(session.expiresAt - initialNow, session.createdAt + limitMs - initialNow)
+      );
+      const maxWaitMs = Math.min(
+        (requestedTimeoutSec ?? MAX_POLL_WAIT_SECONDS) * 1000,
+        remainingSessionTtlMs + 1
+      );
+
+      const abortController = new AbortController();
+      const onDisconnect = () => {
+        if (!res.writableEnded) {
+          abortController.abort();
+        }
+      };
+      req.on('close', onDisconnect);
+      res.on('close', onDisconnect);
+
+      try {
+        await waitForSessionTerminal(session, maxWaitMs, abortController.signal);
+      } catch (err: unknown) {
+        if (abortController.signal.aborted && err instanceof Error && err.name === 'AbortError') {
+          return;
+        }
+        throw err;
+      } finally {
+        req.off('close', onDisconnect);
+        res.off('close', onDisconnect);
+      }
+
+      if (abortController.signal.aborted || res.writableEnded) {
+        return;
+      }
+    }
+
     const now = Date.now();
     const elapsedMs = now - session.createdAt;
-    const limitMs = DEFAULT_POLL_TIMEOUT_MS;
     const elapsedSeconds = Math.floor(elapsedMs / 1000);
     const limitSeconds = Math.floor(limitMs / 1000);
 
@@ -1247,6 +1458,7 @@ export async function handleRequest(
     if (now > session.expiresAt || elapsedMs >= limitMs) {
       if (session.status === 'minted') {
         session.status = 'expired';
+        notifySessionWaiters(token);
       }
       if (session.status === 'expired') {
         sendJson(res, 408, {
@@ -1372,6 +1584,7 @@ export async function handleRequest(
 
     const fileBuffer = fs.readFileSync(session.file.preservedPath);
     await processUploadedSession(session, fileBuffer, adapter);
+    notifySessionWaiters(token);
 
     if (session.status === 'completed' && session.pimsAck) {
       sendJson(res, 200, {
@@ -1505,15 +1718,16 @@ export async function handleRequest(
     return;
   }
 
-  // 8. Serve published deliverable: GET /p/:slug
+  // 8. Serve published deliverable: GET or HEAD /p/:slug
   const publishMatch = pathname.match(/^\/p\/([^/]+)$/);
-  if (method === 'GET' && publishMatch) {
+  if ((method === 'GET' || method === 'HEAD') && publishMatch) {
+    const isHead = method === 'HEAD';
     const safeSlug = decodeURIComponent(publishMatch[1]).replace(/[^a-zA-Z0-9._-]/g, '-');
     const dataPath = path.join(PUBLISHED_DIR, `${safeSlug}.bin`);
     const metaPath = path.join(PUBLISHED_DIR, `${safeSlug}.meta.json`);
 
     if (!fs.existsSync(dataPath) || !fs.existsSync(metaPath)) {
-      sendHtml(res, 404, '<h1>404 — Recurso no encontrado</h1><p>El enlace publicado no existe.</p>');
+      sendHtml(res, 404, '<h1>404 — Recurso no encontrado</h1><p>El enlace publicado no existe.</p>', isHead);
       return;
     }
 
@@ -1525,20 +1739,25 @@ export async function handleRequest(
     };
 
     if (Date.now() > meta.expiresAt) {
-      sendHtml(res, 410, '<h1>410 — Enlace Expirado</h1><p>Este recurso publicado ha expirado.</p>');
+      sendHtml(res, 410, '<h1>410 — Enlace Expirado</h1><p>Este recurso publicado ha expirado.</p>', isHead);
       return;
     }
 
     const forceDownload = parsedUrl.searchParams.get('download') === '1';
     const disposition = forceDownload ? 'attachment' : 'inline';
-    const buf = fs.readFileSync(dataPath);
+    const fileSize = fs.statSync(dataPath).size;
     res.writeHead(200, {
       'Content-Type': meta.contentType,
-      'Content-Length': buf.length,
+      'Content-Length': fileSize,
       'Content-Disposition': `${disposition}; filename="${meta.filename.replace(/"/g, '')}"`,
       'Cache-Control': 'no-store'
     });
-    res.end(buf);
+    if (isHead) {
+      res.end();
+    } else {
+      const buf = fs.readFileSync(dataPath);
+      res.end(buf);
+    }
     return;
   }
 

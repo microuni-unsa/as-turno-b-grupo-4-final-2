@@ -9,6 +9,19 @@ export const PIMSAI_PUBLIC_PORT = 444;
 
 export const SECRETS_SIDECAR_DOMAIN = "secrets.pimsai.mistercricro8.top";
 
+export const SECRETS_SIDECAR_INTERNAL_URL = (
+  process.env.SECRETS_SIDECAR_URL && process.env.SECRETS_SIDECAR_URL.trim().length > 0
+    ? process.env.SECRETS_SIDECAR_URL.trim()
+    : "http://pimsai-secrets-sidecar:3000"
+).replace(/\/+$/, "");
+
+export const DEFAULT_SECRETS_STORE_PATH =
+  process.env.SECRETS_STORE_PATH && process.env.SECRETS_STORE_PATH.trim().length > 0
+    ? process.env.SECRETS_STORE_PATH.trim()
+    : "/app/secrets";
+
+export const SECRETS_POLL_MAX_TIMEOUT_SEC = 300;
+
 export const DEFAULT_SMTP_HOST = "smtp.gmail.com";
 
 export const DEFAULT_SMTP_PORT = 587;

@@ -1,6 +1,6 @@
 /**
  * Template Connector Client Skeleton (REST + Webhook).
- * Canonical live-build target: Evolution API / WhatsApp integration.
+ * Service-agnostic live-build template for external APIs or self-hosted sibling services.
  * Follows the connector convention (SPEC 8.2 & 4.1):
  * - Constructor takes resolved config or secret handle.
  * - Methods per endpoint with typed inputs and outputs.

@@ -69,7 +69,7 @@ export class AgeEncryptor {
 
   private async generateIdentity(identityPath: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      childProcess.execFile('age-keygen', ['-o', identityPath], (error) => {
+      childProcess.execFile('age-keygen', ['-o', identityPath], { env: process.env }, (error) => {
         if (error) {
           reject(new AgeEncryptionError(`Failed to generate age identity key: ${error.message}`));
           return;
@@ -85,7 +85,7 @@ export class AgeEncryptor {
 
   private async deriveRecipient(identityPath: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
-      childProcess.execFile('age-keygen', ['-y', identityPath], (error, stdout) => {
+      childProcess.execFile('age-keygen', ['-y', identityPath], { env: process.env }, (error, stdout) => {
         if (error) {
           reject(new AgeEncryptionError(`Failed to derive recipient from age identity: ${error.message}`));
           return;
@@ -110,7 +110,8 @@ export class AgeEncryptor {
 
     return new Promise<void>((resolve, reject) => {
       const child = childProcess.spawn('age', ['--recipient', recipient, '--output', outputPath], {
-        stdio: ['pipe', 'pipe', 'pipe']
+        stdio: ['pipe', 'pipe', 'pipe'],
+        env: process.env
       });
 
       let stderrOutput = '';

@@ -8,7 +8,7 @@ import { logAudit } from './logger.js';
 
 export interface SecretStoreConfig {
   storeDir?: string;
-  databaseUrl?: string;
+  databaseUrl?: string | null;
   recipientKey?: string;
 }
 
@@ -28,7 +28,10 @@ export class SecretsStoreManager {
 
     this.registryRepo = new SecretsRegistryRepository({
       storeDir: this.storeDir,
-      databaseUrl: config.databaseUrl || process.env.DATABASE_URL
+      databaseUrl:
+        config.databaseUrl === null
+          ? undefined
+          : (config.databaseUrl ?? process.env.DATABASE_URL)
     });
   }
 
@@ -43,7 +46,13 @@ export class SecretsStoreManager {
    */
   public sanitizeLabel(label: string): string {
     const trimmed = label.trim();
-    if (!trimmed || !/^[a-zA-Z0-9_\-\.]+$/.test(trimmed)) {
+    if (
+      !trimmed ||
+      !/^[a-zA-Z0-9_\-\.]+$/.test(trimmed) ||
+      trimmed === '.' ||
+      trimmed === '..' ||
+      trimmed.includes('..')
+    ) {
       throw new SecretValidationError(
         `Invalid secret label: "${label}". Only alphanumeric characters, dashes, dots, and underscores are allowed.`
       );
@@ -57,7 +66,7 @@ export class SecretsStoreManager {
    * 2. Finds next version number.
    * 3. Age-encrypts secret value directly to file at <storeDir>/secrets/<label>/v<version>.age.
    * 4. Inserts row into secrets_registry.
-   * 5. Returns handle: secret:<label>@<version>.
+   * 5. Returns canonical handle: secret:<label>@v<version>.
    */
   public async storeSecret(
     rawLabel: string,
@@ -88,7 +97,7 @@ export class SecretsStoreManager {
       scope
     });
 
-    const handle = `${CONFIG.HANDLE_PREFIX}${label}@${version}`;
+    const handle = `${CONFIG.HANDLE_PREFIX}${label}@v${version}`;
 
     logAudit({
       event: 'secret_stored_and_encrypted',

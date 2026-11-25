@@ -19,10 +19,13 @@ export class SecretsSidecarServer {
   private readonly port: number;
   private readonly host: string;
 
-  constructor(options?: { port?: number; host?: string; storeDir?: string }) {
+  constructor(options?: { port?: number; host?: string; storeDir?: string; databaseUrl?: string | null }) {
     this.port = options?.port ?? CONFIG.PORT;
     this.host = options?.host ?? CONFIG.HOST;
-    this.storeManager = new SecretsStoreManager({ storeDir: options?.storeDir });
+    this.storeManager = new SecretsStoreManager({
+      storeDir: options?.storeDir,
+      databaseUrl: options?.databaseUrl
+    });
     this.requestManager = new SecretRequestManager(this.storeManager);
   }
 
@@ -36,6 +39,14 @@ export class SecretsSidecarServer {
 
   public getStoreManager(): SecretsStoreManager {
     return this.storeManager;
+  }
+
+  public getPort(): number {
+    const addr = this.server?.address();
+    if (addr && typeof addr === 'object') {
+      return addr.port;
+    }
+    return this.port;
   }
 
   public start(): Promise<void> {
@@ -108,10 +119,18 @@ export class SecretsSidecarServer {
     const pathname = parsedUrl.pathname;
     const method = req.method?.toUpperCase();
 
-    // Healthcheck endpoint
-    if (method === 'GET' && (pathname === '/healthz' || pathname === '/health')) {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ status: 'ok' }));
+    // Healthcheck endpoint (GET & HEAD on /healthz and /health)
+    if ((method === 'GET' || method === 'HEAD') && (pathname === '/healthz' || pathname === '/health')) {
+      const body = JSON.stringify({ status: 'ok' });
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body)
+      });
+      if (method === 'HEAD') {
+        res.end();
+      } else {
+        res.end(body);
+      }
       return;
     }
 
@@ -157,7 +176,14 @@ export class SecretsSidecarServer {
 
     // 2. Web paste form: GET /s/:token
     if (method === 'GET' && pathname.startsWith('/s/')) {
-      const token = pathname.slice('/s/'.length);
+      let token = '';
+      try {
+        token = decodeURIComponent(pathname.slice('/s/'.length));
+      } catch {
+        res.writeHead(400, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.end(renderErrorPage('Invalid token encoding in URL path.'));
+        return;
+      }
       if (!token) {
         res.writeHead(400, { 'Content-Type': 'text/html; charset=utf-8' });
         res.end(renderErrorPage('Missing token in URL path.'));
@@ -183,7 +209,21 @@ export class SecretsSidecarServer {
       (pathname.startsWith('/s/') || pathname.startsWith('/api/secrets/submit/'))
     ) {
       const prefix = pathname.startsWith('/s/') ? '/s/' : '/api/secrets/submit/';
-      const token = pathname.slice(prefix.length);
+      const contentType = req.headers['content-type'] || '';
+      const acceptHeader = req.headers.accept || '';
+      const wantsJson =
+        contentType.toLowerCase().includes('application/json') ||
+        acceptHeader.toLowerCase().includes('application/json') ||
+        pathname.startsWith('/api/');
+
+      let token = '';
+      try {
+        token = decodeURIComponent(pathname.slice(prefix.length));
+      } catch {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'INVALID_TOKEN', message: 'Invalid token encoding in URL path.' }));
+        return;
+      }
 
       if (!token) {
         res.writeHead(400, { 'Content-Type': 'application/json' });
@@ -192,7 +232,6 @@ export class SecretsSidecarServer {
       }
 
       const rawBody = await this.parseBody(req);
-      const contentType = req.headers['content-type'] || '';
       let secretValue = '';
 
       if (contentType.includes('application/x-www-form-urlencoded')) {
@@ -214,8 +253,7 @@ export class SecretsSidecarServer {
       try {
         const handle = await this.requestManager.submitSecret(token, secretValue);
 
-        const acceptsJson = (req.headers.accept || '').includes('application/json');
-        if (acceptsJson || pathname.startsWith('/api/')) {
+        if (wantsJson) {
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ status: 'submitted', handle }));
         } else {
@@ -223,12 +261,10 @@ export class SecretsSidecarServer {
           res.end(renderSuccessPage(handle));
         }
       } catch (err) {
-        const isClientJson =
-          (req.headers.accept || '').includes('application/json') || pathname.startsWith('/api/');
         const statusCode = err instanceof SecretsSidecarError ? err.statusCode : 400;
         const message = err instanceof Error ? err.message : 'Submission failed.';
 
-        if (isClientJson) {
+        if (wantsJson) {
           const code = err instanceof SecretsSidecarError ? err.code : 'SUBMIT_FAILED';
           res.writeHead(statusCode, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ error: code, message }));
@@ -240,26 +276,92 @@ export class SecretsSidecarServer {
       return;
     }
 
-    // 4. Poll status: GET /api/secrets/poll/:handleOrToken
+    // 4. Poll status: GET /api/secrets/poll/:handleOrToken (supports ?wait=true&timeout=<sec>)
     if (method === 'GET' && pathname.startsWith('/api/secrets/poll/')) {
-      const pollHandleOrToken = pathname.slice('/api/secrets/poll/'.length);
+      let pollHandleOrToken = '';
+      try {
+        pollHandleOrToken = decodeURIComponent(pathname.slice('/api/secrets/poll/'.length));
+      } catch {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'INVALID_HANDLE', message: 'Invalid handle encoding in URL path' }));
+        return;
+      }
+
       if (!pollHandleOrToken) {
         res.writeHead(400, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: 'MISSING_HANDLE', message: 'Missing handle parameter' }));
         return;
       }
 
+      const waitParam = parsedUrl.searchParams.get('wait');
+      if (
+        waitParam !== null &&
+        waitParam !== 'true' &&
+        waitParam !== 'false' &&
+        waitParam !== '1' &&
+        waitParam !== '0'
+      ) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'VALIDATION_ERROR', message: "Query parameter 'wait' must be 'true' or 'false'" }));
+        return;
+      }
+      const shouldWait = waitParam === 'true' || waitParam === '1';
+
+      let waitTimeoutMs = CONFIG.DEFAULT_POLL_WAIT_SECONDS * 1000;
+      const rawTimeout = parsedUrl.searchParams.get('timeout');
+      if (rawTimeout !== null) {
+        const parsedTimeoutSec = Number(rawTimeout);
+        if (!Number.isFinite(parsedTimeoutSec) || parsedTimeoutSec <= 0) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'VALIDATION_ERROR', message: "Query parameter 'timeout' must be a positive number of seconds" }));
+          return;
+        }
+        const cappedTimeoutSec = Math.min(parsedTimeoutSec, CONFIG.MAX_POLL_WAIT_SECONDS);
+        waitTimeoutMs = Math.round(cappedTimeoutSec * 1000);
+      }
+
+      const abortController = shouldWait ? new AbortController() : undefined;
+      const onClose = () => {
+        if (abortController && !res.writableEnded) {
+          abortController.abort();
+        }
+      };
+      if (shouldWait) {
+        req.on('close', onClose);
+        res.on('close', onClose);
+      }
+
       try {
-        const result = this.requestManager.pollStatus(pollHandleOrToken);
+        const result = shouldWait
+          ? await this.requestManager.waitForStatus(pollHandleOrToken, waitTimeoutMs, abortController?.signal)
+          : this.requestManager.pollStatus(pollHandleOrToken);
+
+        if (abortController?.signal.aborted || res.writableEnded) {
+          return;
+        }
+
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(result));
       } catch (err) {
+        if (abortController?.signal.aborted && err instanceof Error && err.name === 'AbortError') {
+          return;
+        }
         if (err instanceof SecretRequestExpiredError) {
+          res.writeHead(err.statusCode, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({
+            status: 'expired',
+            handle: null,
+            error: err.code,
+            message: err.message
+          }));
+          return;
+        }
+        if (err instanceof SecretTokenInvalidOrExpiredError) {
           res.writeHead(err.statusCode, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ error: err.code, message: err.message }));
           return;
         }
-        if (err instanceof SecretTokenInvalidOrExpiredError) {
+        if (err instanceof SecretValidationError) {
           res.writeHead(err.statusCode, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ error: err.code, message: err.message }));
           return;
@@ -268,6 +370,11 @@ export class SecretsSidecarServer {
         const message = err instanceof Error ? err.message : 'Poll error';
         res.writeHead(statusCode, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: 'POLL_FAILED', message }));
+      } finally {
+        if (shouldWait) {
+          req.off('close', onClose);
+          res.off('close', onClose);
+        }
       }
       return;
     }

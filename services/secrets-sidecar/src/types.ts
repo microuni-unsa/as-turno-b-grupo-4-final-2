@@ -29,6 +29,7 @@ export interface CreateRequestInput {
   label: string;
   scope?: string;
   createdBy?: string;
+  ttlMs?: number;
 }
 
 export interface CreateRequestResponse {
