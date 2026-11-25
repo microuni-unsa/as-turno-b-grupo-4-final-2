@@ -41,6 +41,32 @@ export class PimsReadFailureError extends PimsBaseError {
 }
 
 /**
+ * Thrown when a write operation (POST/PATCH/PUT/DELETE) against PIMS fails.
+ * Carries exact endpoint and status so consumers and CLI report "PIMS write failed at ...".
+ */
+export class PimsWriteFailureError extends PimsBaseError {
+  readonly endpoint: string;
+  readonly status: number;
+  readonly statusText?: string;
+  readonly details?: unknown;
+
+  constructor(
+    endpoint: string,
+    status: number,
+    message: string,
+    details?: unknown,
+    statusText?: string,
+  ) {
+    super(`PIMS write failed at ${endpoint} (HTTP ${status}): ${message}`);
+    this.name = "PimsWriteFailureError";
+    this.endpoint = endpoint;
+    this.status = status;
+    this.statusText = statusText;
+    this.details = details;
+  }
+}
+
+/**
  * Typed error indicating that access to trainings or system-catalogs was rejected with HTTP 403.
  * As documented in SPEC §3.1/13, this is an EXPECTED condition for tenant grupob4
  * (training records live as uploaded documents in PIMS, not as database module rows).
@@ -113,11 +139,23 @@ export class DocumentStatusMappingError extends PimsBaseError {
  */
 export class PimsAuthError extends PimsBaseError {
   readonly reasonCode: string;
+  readonly status?: number;
+  readonly endpoint?: string;
 
-  constructor(message: string, reasonCode = "AUTH_FAILED") {
+  constructor(
+    message: string,
+    reasonCode = "AUTH_FAILED",
+    options?: { status?: number; endpoint?: string },
+  ) {
     super(message);
     this.name = "PimsAuthError";
     this.reasonCode = reasonCode;
+    if (options?.status !== undefined) {
+      this.status = options.status;
+    }
+    if (options?.endpoint !== undefined) {
+      this.endpoint = options.endpoint;
+    }
   }
 }
 
@@ -196,5 +234,32 @@ export class PimsNotFoundError extends PimsBaseError {
     this.name = "PimsNotFoundError";
     this.resource = resource;
     this.id = id;
+  }
+}
+
+/**
+ * Thrown when a specific document version (or its PDF file) cannot be found.
+ * Lists the document code, requested version, and all available version strings.
+ */
+export class PimsVersionNotFoundError extends PimsBaseError {
+  readonly docCode: string;
+  readonly requestedVersion: string;
+  readonly availableVersions: string[];
+  readonly status = 404;
+
+  constructor(
+    docCode: string,
+    requestedVersion: string,
+    availableVersions: string[],
+  ) {
+    const availStr =
+      availableVersions.length > 0 ? availableVersions.join(", ") : "(none)";
+    super(
+      `Document "${docCode}" version "${requestedVersion}" not found or missing file. Available versions: ${availStr}`,
+    );
+    this.name = "PimsVersionNotFoundError";
+    this.docCode = docCode;
+    this.requestedVersion = requestedVersion;
+    this.availableVersions = availableVersions;
   }
 }

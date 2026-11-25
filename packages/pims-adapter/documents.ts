@@ -25,6 +25,8 @@ import {
   PimsNotFoundError,
   PimsReadFailureError,
   PimsValidationError,
+  PimsWriteFailureError,
+  TenantGuardViolationError,
 } from "./errors.ts";
 import { assertG4WriteCode } from "./guards.ts";
 import {
@@ -180,6 +182,12 @@ export class DocumentsModule {
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.timeoutMs);
+    const method = (init.method ?? "GET").toUpperCase();
+    const isWrite =
+      method === "POST" ||
+      method === "PATCH" ||
+      method === "PUT" ||
+      method === "DELETE";
 
     try {
       return await this.fetchFn(url, {
@@ -189,6 +197,13 @@ export class DocumentsModule {
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
+      if (isWrite) {
+        throw new PimsWriteFailureError(
+          endpointName,
+          0,
+          `Network or connection error during call to ${endpointName}: ${message}`,
+        );
+      }
       throw new PimsReadFailureError(
         endpointName,
         0,
@@ -266,7 +281,7 @@ export class DocumentsModule {
       } catch {
         // Keep raw text
       }
-      throw new PimsReadFailureError(
+      throw new PimsWriteFailureError(
         endpoint,
         response.status,
         `Failed to create document ${input.code}: ${errText}`,
@@ -288,12 +303,26 @@ export class DocumentsModule {
     id: number,
     input: AddDocumentVersionInput,
   ): Promise<PimsDocumentVersion> {
+    if (input.docCode !== undefined) {
+      assertG4WriteCode(input.docCode, "Document");
+    }
+
     const fileName = resolvePdfFileName(input.fileName, input.file);
 
     if (!input.change_summary || input.change_summary.trim() === "") {
       throw new PimsValidationError(
         "change_summary",
         "Version creation requires a descriptive change_summary",
+      );
+    }
+
+    // Enforce Group 4 ownership against live document metadata before uploading
+    const doc = await this.getDocument(id);
+    assertG4WriteCode(doc.code, "Document");
+    if (input.docCode !== undefined && doc.code !== input.docCode) {
+      throw new TenantGuardViolationError(
+        `Tenant guard rejection: supplied docCode "${input.docCode}" does not match target document #${id} code "${doc.code}".`,
+        doc.code,
       );
     }
 
@@ -332,7 +361,7 @@ export class DocumentsModule {
       } catch {
         // Keep raw text
       }
-      throw new PimsReadFailureError(
+      throw new PimsWriteFailureError(
         endpoint,
         response.status,
         `Failed to upload version for document id ${id}: ${errText}`,
@@ -597,7 +626,7 @@ export class DocumentsModule {
         throw new PimsApprovalForbiddenError(endpoint, details);
       }
 
-      throw new PimsReadFailureError(
+      throw new PimsWriteFailureError(
         endpoint,
         response.status,
         `Failed to approve document ${id}: ${errText}`,

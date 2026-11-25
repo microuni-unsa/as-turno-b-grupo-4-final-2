@@ -12,25 +12,26 @@ import { accessSync, constants, existsSync, readdirSync, readFileSync, statSync,
 import { basename, dirname, join, resolve } from "node:path";
 import { PimsClient } from "../packages/pims-adapter/client.ts";
 import {
-  DocumentStatusMappingError,
-  PimsAttachmentFormatError,
-  PimsAttachmentSizeError,
-  PimsNotFoundError,
-  PimsReadFailureError,
   PimsValidationError,
-  TenantGuardViolationError,
+  PimsVersionNotFoundError,
+  PimsWriteFailureError,
 } from "../packages/pims-adapter/errors.ts";
-import { assertG4WriteCode } from "../packages/pims-adapter/guards.ts";
-import { assertIncidentAttachment } from "../packages/pims-adapter/incidents.ts";
+import {
+  assertG4IncidentOwnership,
+  assertG4WriteCode,
+} from "../packages/pims-adapter/guards.ts";
+import {
+  assertIncidentAttachment,
+  assertValidIncidentType,
+  ensureG4IncidentTitle,
+} from "../packages/pims-adapter/incidents.ts";
 import type {
   CreateDocumentInput,
   CreateIncidentInput,
   DocumentCategory,
   DocumentStatusAPI,
-  DocumentStatusUI,
   IncidentSeverityAPI,
   IncidentStatusAPI,
-  IncidentTypeCode,
   UpdateIncidentInput,
 } from "../packages/pims-adapter/types.ts";
 import { compareVersions } from "../packages/rag-mirror/diff.ts";
@@ -58,9 +59,10 @@ Subcommands (20 operations per SPEC §3):
   5. docs create --code G4-... --name ... --category PO|PR|RE|IN --status B|R|V|O --responsible ... --file <path.pdf> --file-name <name.pdf>
   6. docs add-version <id_or_code> --file <path.pdf> --file-name <name.pdf> --summary <summary>
   7. incidents list [--status O|P|C] [--severity L|M|H|C] [--search <q>]
-  8. incidents get <id_or_code> [--include-emails]
-  9. incidents create --code G4-... --title ... --description ... --severity L|M|H|C --status O|P|C [--incident-type ...]
-     incidents update <id_or_code> [--code ...] [--title ...] [--description ...] [--severity ...] [--status ...]
+  8. incidents get <id_or_code> [--include-emails] [--with-history]
+  9. incidents create --code G4-... --title ... --incident-type UA|DL|MW|PH|DS|HE|DV|OT [--involves-personal-data true|false] [--description ...] [--severity L|M|H|C] [--status O|P|C]
+     (Note: GESTITEL ignores custom incident_code on POST and auto-assigns INC-NNN; title is auto-prefixed with "<code>: " unless already starting with G4-.)
+     incidents update <id_or_code> [--code ...] [--title ...] [--description ...] [--severity ...] [--status ...] [--incident-type ...] [--involves-personal-data true|false]
   10. incidents attach <id_or_code> --file <path> [--file-name <name>]
   11. audits list [--dedupe]
   12. audits get <id_or_code> [--dedupe] [--overdue-only] [--open-only]
@@ -198,6 +200,30 @@ function handleDryRun(
   process.exit(2);
 }
 
+function parseBooleanOption(
+  raw: string | boolean | undefined,
+  field: string,
+  defaultValue: boolean,
+): boolean {
+  if (raw === undefined) {
+    return defaultValue;
+  }
+  if (typeof raw === "boolean") {
+    return raw;
+  }
+  const normalized = raw.trim().toLowerCase();
+  if (normalized === "true") {
+    return true;
+  }
+  if (normalized === "false") {
+    return false;
+  }
+  throw new PimsValidationError(
+    field,
+    `Invalid boolean value "${raw}" for --${field}. Expected true or false.`,
+  );
+}
+
 function assertPdfFileName(fileName: unknown, context: string): string {
   if (typeof fileName !== "string" || fileName.trim() === "") {
     throw new PimsValidationError(
@@ -307,12 +333,15 @@ async function handleDocs(parsed: ParsedCli): Promise<void> {
       if (isJson) {
         console.log(JSON.stringify(versions, null, 2));
       } else if (isCompact) {
-        const rows = versions.map((v) => [
-          v.version,
-          v.created_at ? v.created_at.slice(0, 10) : "",
-          v.created_by_name || String(v.created_by),
-          v.change_summary.length > 50 ? `${v.change_summary.slice(0, 47)}...` : v.change_summary,
-        ]);
+        const rows = versions.map((v) => {
+          const summary = v.change_summary ?? "";
+          return [
+            v.version,
+            v.created_at ? v.created_at.slice(0, 10) : "",
+            v.created_by_name || String(v.created_by),
+            summary.length > 240 ? `${summary.slice(0, 237)}...` : summary,
+          ];
+        });
         printTable(["VER", "DATE", "AUTHOR", "SUMMARY"], rows);
       } else {
         console.log(`Versions for document ${doc.code} (${versions.length} versions):`);
@@ -337,8 +366,12 @@ async function handleDocs(parsed: ParsedCli): Promise<void> {
       if (targetVer !== undefined) {
         const versions = await client.getDocumentVersions(doc.id);
         const match = versions.find((v) => matchDocumentVersion(v.version, targetVer));
-        if (!match) {
-          throw new PimsNotFoundError("DocumentVersion", `${doc.code} version ${targetVer}`);
+        if (!match || !match.file) {
+          throw new PimsVersionNotFoundError(
+            doc.code,
+            targetVer,
+            versions.map((v) => v.version),
+          );
         }
         fileUrl = match.file;
         effectiveVer = match.version;
@@ -440,19 +473,26 @@ async function handleDocs(parsed: ParsedCli): Promise<void> {
       const sha256 = createHash("sha256").update(fileBytes).digest("hex");
       const stat = statSync(filePath);
 
-      const endpoint = `/api/documents/${idOrCode}/versions/`;
-      const fields = { change_summary: summary };
+      const doc = await client.resolveDocument(idOrCode);
+      assertG4WriteCode(doc.code, "Document");
+
+      const endpoint = `/api/documents/${doc.id}/versions/`;
+      const fields = {
+        document_id: doc.id,
+        document_code: doc.code,
+        change_summary: summary,
+      };
       const fileInfo = { name: fileName, size_bytes: stat.size, sha256 };
 
       if (!isConfirm) {
         handleDryRun("docs add-version", endpoint, "POST", fields, fileInfo, isJson);
       }
 
-      const doc = await client.resolveDocument(idOrCode);
       const versionResult = await client.addDocumentVersion(doc.id, {
         file: fileBytes,
         fileName,
         change_summary: summary,
+        docCode: doc.code,
       });
 
       if (isJson) {
@@ -515,11 +555,17 @@ async function handleIncidents(parsed: ParsedCli): Promise<void> {
       }
       const inc = await client.resolveIncident(idOrCode);
       const includeEmails = Boolean(parsed.options["include-emails"]);
+      const withHistory = Boolean(parsed.options["with-history"]);
+      const historyCount = Array.isArray(inc.history) ? inc.history.length : 0;
 
-      const sanitized = { ...inc };
+      const sanitized: Record<string, unknown> = { ...inc };
       if (!includeEmails) {
         delete sanitized.dpo_contact_email;
         delete sanitized.rep_email;
+      }
+      if (!withHistory) {
+        delete sanitized.history;
+        sanitized.history_count = historyCount;
       }
 
       if (isJson) {
@@ -530,6 +576,13 @@ async function handleIncidents(parsed: ParsedCli): Promise<void> {
         console.log(`${inc.incident_code} | Status:${inc.status} | Sev:${inc.severity} | ${inc.title}`);
         console.log(`  Actions:${actions.length} Evidence:${withEvidence}/${actions.length} Resolved:${inc.resolved_date ?? "-"} Assigned:${inc.assigned_to ?? "-"}`);
         if (includeEmails) console.log(`  DPO:${inc.dpo_contact_email ?? "-"} Rep:${inc.rep_email ?? "-"}`);
+        actions.forEach((a, idx) => {
+          const hasEvidence = typeof a.evidence === "string" && a.evidence.trim() !== "";
+          const evidenceTag = hasEvidence ? "[evidencia: SI]" : "[evidencia: NO]";
+          console.log(
+            `    #${idx} ${a.action_type} | ${a.responsible ?? "-"} | ${a.action_date ?? "-"} | ${evidenceTag}`,
+          );
+        });
       } else {
         console.log(`Incident ${inc.incident_code} (ID: ${inc.id}):`);
         console.log(`  Title: ${inc.title}`);
@@ -549,15 +602,21 @@ async function handleIncidents(parsed: ParsedCli): Promise<void> {
       const code = typeof parsed.options.code === "string" ? parsed.options.code : "";
       assertG4WriteCode(code, "Incident");
 
-      const title = typeof parsed.options.title === "string" ? parsed.options.title : "";
-      if (title.trim() === "") {
+      const rawTitle = typeof parsed.options.title === "string" ? parsed.options.title : "";
+      if (rawTitle.trim() === "") {
         throw new PimsValidationError("title", "Incident creation requires --title");
       }
+      const title = ensureG4IncidentTitle(code, rawTitle);
+      const incidentType = assertValidIncidentType(parsed.options["incident-type"]);
+      const involvesPersonalData = parseBooleanOption(
+        parsed.options["involves-personal-data"],
+        "involves-personal-data",
+        true,
+      );
 
       const description = typeof parsed.options.description === "string" ? parsed.options.description : "";
       const severity = typeof parsed.options.severity === "string" ? (parsed.options.severity as IncidentSeverityAPI) : "M";
       const status = typeof parsed.options.status === "string" ? (parsed.options.status as IncidentStatusAPI) : "P";
-      const incidentType = typeof parsed.options["incident-type"] === "string" ? (parsed.options["incident-type"] as IncidentTypeCode) : undefined;
       const incidentDate = typeof parsed.options["incident-date"] === "string" ? parsed.options["incident-date"] : new Date().toISOString().slice(0, 10);
       const responsible = typeof parsed.options.responsible === "string" ? parsed.options.responsible : undefined;
       const impact = typeof parsed.options.impact === "string" ? parsed.options.impact : undefined;
@@ -570,6 +629,7 @@ async function handleIncidents(parsed: ParsedCli): Promise<void> {
         severity,
         status,
         incident_type: incidentType,
+        involves_personal_data: involvesPersonalData,
         incident_date: incidentDate,
         responsible,
         impact,
@@ -586,6 +646,7 @@ async function handleIncidents(parsed: ParsedCli): Promise<void> {
         severity,
         status,
         incident_type: incidentType,
+        involves_personal_data: involvesPersonalData,
         incident_date: incidentDate,
         responsible,
         impact,
@@ -595,7 +656,7 @@ async function handleIncidents(parsed: ParsedCli): Promise<void> {
       if (isJson) {
         console.log(JSON.stringify(created, null, 2));
       } else {
-        console.log(`Incident created successfully: ${created.incident_code} (ID: ${created.id})`);
+        console.log(`Incident created successfully: ${created.incident_code} (ID: ${created.id}, Title: ${created.title}) [GESTITEL auto-assigns INC-NNN; Group 4 ownership is tracked via the G4- title prefix]`);
       }
       break;
     }
@@ -611,16 +672,33 @@ async function handleIncidents(parsed: ParsedCli): Promise<void> {
         assertG4WriteCode(code, "Incident");
       }
 
+      const rawIncidentType = parsed.options["incident-type"];
+      const incidentType =
+        rawIncidentType !== undefined
+          ? assertValidIncidentType(rawIncidentType)
+          : undefined;
+      const involvesPersonalData =
+        parsed.options["involves-personal-data"] !== undefined
+          ? parseBooleanOption(
+              parsed.options["involves-personal-data"],
+              "involves-personal-data",
+              true,
+            )
+          : undefined;
+
       const title = typeof parsed.options.title === "string" ? parsed.options.title : undefined;
       const description = typeof parsed.options.description === "string" ? parsed.options.description : undefined;
       const severity = typeof parsed.options.severity === "string" ? (parsed.options.severity as IncidentSeverityAPI) : undefined;
       const status = typeof parsed.options.status === "string" ? (parsed.options.status as IncidentStatusAPI) : undefined;
-      const incidentType = typeof parsed.options["incident-type"] === "string" ? (parsed.options["incident-type"] as IncidentTypeCode) : undefined;
       const incidentDate = typeof parsed.options["incident-date"] === "string" ? parsed.options["incident-date"] : undefined;
       const responsible = typeof parsed.options.responsible === "string" ? parsed.options.responsible : undefined;
       const impact = typeof parsed.options.impact === "string" ? parsed.options.impact : undefined;
 
-      const endpoint = `/api/incidents/${idOrCode}/`;
+      // Resolve and enforce Group 4 ownership BEFORE dry-run or live mutation
+      const inc = await client.resolveIncident(idOrCode);
+      assertG4IncidentOwnership(inc);
+
+      const endpoint = `/api/incidents/${inc.id}/`;
       const fields = {
         ...(code !== undefined ? { incident_code: code } : {}),
         ...(title !== undefined ? { title } : {}),
@@ -628,6 +706,7 @@ async function handleIncidents(parsed: ParsedCli): Promise<void> {
         ...(severity !== undefined ? { severity } : {}),
         ...(status !== undefined ? { status } : {}),
         ...(incidentType !== undefined ? { incident_type: incidentType } : {}),
+        ...(involvesPersonalData !== undefined ? { involves_personal_data: involvesPersonalData } : {}),
         ...(incidentDate !== undefined ? { incident_date: incidentDate } : {}),
         ...(responsible !== undefined ? { responsible } : {}),
         ...(impact !== undefined ? { impact } : {}),
@@ -637,7 +716,6 @@ async function handleIncidents(parsed: ParsedCli): Promise<void> {
         handleDryRun("incidents update", endpoint, "PATCH", fields, null, isJson);
       }
 
-      const inc = await client.resolveIncident(idOrCode);
       const updateInput: UpdateIncidentInput = {
         ...fields,
       };
@@ -671,15 +749,25 @@ async function handleIncidents(parsed: ParsedCli): Promise<void> {
       // Validate format and size client-side via SDK
       assertIncidentAttachment(fileName, stat.size);
 
+      // Resolve and enforce Group 4 ownership BEFORE dry-run or live upload
+      const inc = await client.resolveIncident(idOrCode);
+      assertG4IncidentOwnership(inc);
+
       const sha256 = createHash("sha256").update(fileBytes).digest("hex");
-      const endpoint = `/api/incidents/${idOrCode}/attachments/`;
+      const endpoint = `/api/incidents/${inc.id}/attachments/`;
       const fileInfo = { name: fileName, size_bytes: stat.size, sha256 };
 
       if (!isConfirm) {
-        handleDryRun("incidents attach", endpoint, "POST", {}, fileInfo, isJson);
+        handleDryRun(
+          "incidents attach",
+          endpoint,
+          "POST",
+          { incident_id: inc.id, incident_code: inc.incident_code },
+          fileInfo,
+          isJson,
+        );
       }
 
-      const inc = await client.resolveIncident(idOrCode);
       const attachmentResult = await client.uploadIncidentAttachment(inc.id, fileBytes, fileName);
 
       if (isJson) {
@@ -712,17 +800,22 @@ async function handleAudits(parsed: ParsedCli): Promise<void> {
       let results = res.results;
       if (dedupe) {
         results = results.map((audit) => {
-          if (audit.findings && audit.findings.length > 0) {
-            const d = client.dedupeAuditFindings(audit);
-            return {
-              ...audit,
-              findings: d.findings,
-              findings_count: d.dedupedCount,
-            };
-          }
-          return audit;
+          const d = client.dedupeAuditFindings(audit);
+          return {
+            ...audit,
+            findings: d.findings,
+            findings_count: d.uniqueFindingsCount,
+            actions_count: d.uniqueActionsCount,
+            original_actions_count: d.originalActionsCount,
+          };
         });
       }
+
+      const getFindingsCount = (a: (typeof results)[number]): number =>
+        a.findings_count ?? a.findings?.length ?? 0;
+      const getActionsCount = (a: (typeof results)[number]): number =>
+        a.actions_count ??
+        (a.findings ?? []).reduce((sum, f) => sum + (f.actions?.length ?? 0), 0);
 
       if (isJson) {
         console.log(JSON.stringify({ ...res, results }, null, 2));
@@ -731,14 +824,14 @@ async function handleAudits(parsed: ParsedCli): Promise<void> {
           a.audit_code,
           a.status,
           `${a.progress}%`,
-          String(a.findings_count ?? a.findings?.length ?? 0),
+          `Findings: ${getFindingsCount(a)}, Actions: ${getActionsCount(a)}`,
           a.name.length > 40 ? `${a.name.slice(0, 37)}...` : a.name,
         ]);
-        printTable(["CODE", "STATUS", "PROG", "FINDINGS", "NAME"], rows);
+        printTable(["CODE", "STATUS", "PROG", "COUNTS", "NAME"], rows);
       } else {
         console.log(`Found ${res.count} audits (showing ${results.length}):`);
         for (const a of results) {
-          console.log(`  [${a.audit_code}] (${a.status}) Progress:${a.progress}% Findings:${a.findings_count ?? a.findings?.length ?? 0} - ${a.name}`);
+          console.log(`  [${a.audit_code}] (${a.status}) Progress:${a.progress}% Findings: ${getFindingsCount(a)} Actions: ${getActionsCount(a)} - ${a.name}`);
         }
       }
       break;
@@ -760,7 +853,9 @@ async function handleAudits(parsed: ParsedCli): Promise<void> {
         audit = {
           ...audit,
           findings: d.findings,
-          findings_count: d.dedupedCount,
+          findings_count: d.uniqueFindingsCount,
+          actions_count: d.uniqueActionsCount,
+          original_actions_count: d.originalActionsCount,
         };
       }
 
@@ -780,10 +875,15 @@ async function handleAudits(parsed: ParsedCli): Promise<void> {
           })
           .filter((f) => f.actions.length > 0);
 
+        const filteredActionsCount = filteredFindings.reduce(
+          (sum, f) => sum + f.actions.length,
+          0,
+        );
         audit = {
           ...audit,
           findings: filteredFindings,
           findings_count: filteredFindings.length,
+          actions_count: filteredActionsCount,
         };
       }
 
@@ -792,19 +892,27 @@ async function handleAudits(parsed: ParsedCli): Promise<void> {
       } else if (isCompact) {
         const findings = audit.findings ?? [];
         const allActions = findings.flatMap((f) => f.actions ?? []);
+        const findingsCount = audit.findings_count ?? findings.length;
+        const actionsCount = audit.actions_count ?? allActions.length;
         const overdue = allActions.filter((a) => a.is_overdue).length;
         const open = allActions.filter((a) => a.status !== "C").length;
         const noEvidence = findings.filter((f) => (f.evidence ?? "").trim() === "").length;
         const nextDue = allActions.filter((a) => a.status !== "C").map((a) => a.due_date).sort()[0] ?? "-";
-        console.log(`${audit.audit_code} | Status:${audit.status} | Progress:${audit.progress}% | Findings:${audit.findings_count ?? findings.length} | ${audit.name}`);
-        console.log(`  Actions:${allActions.length} Open:${open} Overdue:${overdue} FindingsNoEvidence:${noEvidence} NextDue:${nextDue}`);
+        console.log(`${audit.audit_code} | Status:${audit.status} | Progress:${audit.progress}% | Findings: ${findingsCount} | Actions: ${actionsCount} | ${audit.name}`);
+        console.log(`  Actions: ${actionsCount} Open:${open} Overdue:${overdue} FindingsNoEvidence:${noEvidence} NextDue:${nextDue}`);
       } else {
+        const findings = audit.findings ?? [];
+        const findingsCount = audit.findings_count ?? findings.length;
+        const actionsCount =
+          audit.actions_count ??
+          findings.reduce((sum, f) => sum + (f.actions?.length ?? 0), 0);
         console.log(`Audit ${audit.audit_code} (ID: ${audit.id}):`);
         console.log(`  Name: ${audit.name}`);
         console.log(`  Type: ${audit.audit_type}`);
         console.log(`  Status: ${audit.status}`);
         console.log(`  Progress: ${audit.progress}%`);
-        console.log(`  Findings count: ${audit.findings_count ?? audit.findings?.length ?? 0}`);
+        console.log(`  Findings count: ${findingsCount}`);
+        console.log(`  Actions count: ${actionsCount}`);
         for (const f of audit.findings || []) {
           console.log(`    - [${f.classification}] ${f.description}`);
           for (const act of f.actions || []) {
@@ -1040,32 +1148,58 @@ async function handleDiff(parsed: ParsedCli): Promise<void> {
   }
 
   const client = new PimsClient();
+  let pendingVersionError: PimsVersionNotFoundError | null = null;
+  let pendingFetcherError: Error | null = null;
   const fetcher: PimsDocumentFetcher = async (pimsDocId: string, version: string) => {
-    const doc = await client.resolveDocument(pimsDocId);
-    const versions = await client.getDocumentVersions(doc.id);
-    const match = versions.find((v) => matchDocumentVersion(v.version, version));
+    try {
+      const doc = await client.resolveDocument(pimsDocId);
+      const versions = await client.getDocumentVersions(doc.id);
+      const match = versions.find((v) => matchDocumentVersion(v.version, version));
 
-    let fileUrl = doc.file;
-    let filename = `${doc.code}_v${version}.pdf`;
-    if (match && match.file) {
-      fileUrl = match.file;
+      if (!match || !match.file) {
+        const verErr = new PimsVersionNotFoundError(
+          doc.code,
+          version,
+          versions.map((v) => v.version),
+        );
+        pendingVersionError = verErr;
+        throw verErr;
+      }
+
+      const fileUrl = match.file;
       const parts = match.file.split("/");
-      filename = parts[parts.length - 1] || filename;
-    }
+      const filename = parts[parts.length - 1] || `${doc.code}_v${version}.pdf`;
 
-    const content = await client.downloadDocumentPdf(fileUrl);
-    return {
-      pims_doc_id: String(doc.id),
-      code: doc.code,
-      pims_version: version,
-      status: doc.status,
-      filename,
-      content,
-      supersedes: null,
-    };
+      const content = await client.downloadDocumentPdf(fileUrl);
+      return {
+        pims_doc_id: String(doc.id),
+        code: doc.code,
+        pims_version: version,
+        status: doc.status,
+        filename,
+        content,
+        supersedes: null,
+      };
+    } catch (err) {
+      if (err instanceof Error) {
+        pendingFetcherError = err;
+      }
+      throw err;
+    }
   };
 
-  const diffResult = await compareVersions(codeOrId, fromVer, toVer, { fetcher });
+  let diffResult;
+  try {
+    diffResult = await compareVersions(codeOrId, fromVer, toVer, { fetcher });
+  } catch (err) {
+    if (pendingVersionError !== null) {
+      throw pendingVersionError;
+    }
+    if (pendingFetcherError !== null) {
+      throw pendingFetcherError;
+    }
+    throw err;
+  }
 
   if (parsed.globals.json) {
     console.log(JSON.stringify(diffResult, null, 2));
@@ -1122,7 +1256,7 @@ async function handlePublish(parsed: ParsedCli): Promise<void> {
 
   if (!response.ok) {
     const errText = await response.text();
-    throw new PimsReadFailureError("/api/publish", response.status, `Publish failed: ${errText}`);
+    throw new PimsWriteFailureError("/api/publish", response.status, `Publish failed: ${errText}`);
   }
 
   const result = (await response.json()) as { url: string; [key: string]: unknown };
@@ -1345,8 +1479,24 @@ main().catch((err: unknown) => {
 
   if (isJson) {
     const errName = err instanceof Error ? err.name : "Error";
-    const endpoint = err && typeof err === "object" && "endpoint" in err ? (err as { endpoint: unknown }).endpoint : null;
-    const status = err && typeof err === "object" && "status" in err ? (err as { status: unknown }).status : (errName === "PimsNotFoundError" ? 404 : (errName === "PimsValidationError" || errName === "TenantGuardViolationError" ? 400 : 500));
+    const endpoint =
+      err &&
+      typeof err === "object" &&
+      "endpoint" in err &&
+      (err as { endpoint?: unknown }).endpoint !== undefined
+        ? (err as { endpoint: unknown }).endpoint
+        : null;
+    const status =
+      err &&
+      typeof err === "object" &&
+      "status" in err &&
+      typeof (err as { status?: unknown }).status === "number"
+        ? (err as { status: number }).status
+        : errName === "PimsNotFoundError" || errName === "PimsVersionNotFoundError"
+          ? 404
+          : errName === "PimsValidationError" || errName === "TenantGuardViolationError"
+            ? 400
+            : 500;
     const message = err instanceof Error ? err.message : String(err);
 
     const errorPayload = {

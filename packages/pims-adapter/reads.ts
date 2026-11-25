@@ -54,8 +54,9 @@ export interface PimsSystemCatalog {
 }
 
 export interface DedupeAuditFindingsResult {
-  originalCount: number;
-  dedupedCount: number;
+  uniqueFindingsCount: number;
+  uniqueActionsCount: number;
+  originalActionsCount: number;
   findings: PimsAuditFinding[];
 }
 
@@ -73,7 +74,12 @@ export function dedupeAuditFindings(
   audit: PimsAudit,
 ): DedupeAuditFindingsResult {
   if (!audit?.findings || audit.findings.length === 0) {
-    return { originalCount: 0, dedupedCount: 0, findings: [] };
+    return {
+      uniqueFindingsCount: 0,
+      uniqueActionsCount: 0,
+      originalActionsCount: 0,
+      findings: [],
+    };
   }
 
   interface FindingActionPair {
@@ -106,7 +112,7 @@ export function dedupeAuditFindings(
     }
   }
 
-  const originalCount = pairs.length;
+  const originalActionsCount = pairs.length;
 
   // 2. Deduplicate pairs preserving first-seen order
   const seenKeys = new Set<string>();
@@ -118,7 +124,7 @@ export function dedupeAuditFindings(
     }
   }
 
-  const dedupedCount = dedupedPairs.length;
+  const uniqueActionsCount = dedupedPairs.length;
 
   // 3. Regroup findings preserving first-seen order
   const findingGroups = new Map<
@@ -168,8 +174,9 @@ export function dedupeAuditFindings(
   }
 
   return {
-    originalCount,
-    dedupedCount,
+    uniqueFindingsCount: regroupedFindings.length,
+    uniqueActionsCount,
+    originalActionsCount,
     findings: regroupedFindings,
   };
 }

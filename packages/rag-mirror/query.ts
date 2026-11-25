@@ -87,21 +87,31 @@ export async function query(options: QueryOptions): Promise<QueryResultItem[]> {
   const whereClauses: string[] = [];
   const params: unknown[] = [vectorLiteral];
 
+  const hasExplicitStatus =
+    options.filter?.status !== undefined && options.filter.status.length > 0;
+  const hasExplicitVersion =
+    options.filter?.pims_version !== undefined && options.filter.pims_version.length > 0;
+  const includeObsolete = options.filter?.includeObsolete === true;
+
   if (options.filter !== undefined) {
     if (options.filter.pims_doc_id !== undefined && options.filter.pims_doc_id.length > 0) {
       params.push(options.filter.pims_doc_id);
       whereClauses.push(`pims_doc_id = $${params.length}`);
     }
 
-    if (options.filter.pims_version !== undefined && options.filter.pims_version.length > 0) {
+    if (hasExplicitVersion) {
       params.push(options.filter.pims_version);
       whereClauses.push(`pims_version = $${params.length}`);
     }
 
-    if (options.filter.status !== undefined && options.filter.status.length > 0) {
+    if (hasExplicitStatus) {
       params.push(options.filter.status);
       whereClauses.push(`status = $${params.length}`);
     }
+  }
+
+  if (!includeObsolete && !hasExplicitStatus && !hasExplicitVersion) {
+    whereClauses.push(`status <> 'O'`);
   }
 
   const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : "";

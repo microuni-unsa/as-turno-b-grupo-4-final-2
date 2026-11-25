@@ -9,12 +9,17 @@ import { extractNormalizedText } from "../packages/rag-mirror/pdf.ts";
 import { ingestDocumentToMirrorAndDb } from "./lib/ingest-helpers.ts";
 import { createBunPgClient } from "./lib/pg-client.ts";
 
+interface SyncOptions {
+  readonly force?: boolean;
+  readonly targetCode?: string;
+}
+
 /**
- * Launch-time / periodic sync: checks all documents at GESTITEL PIMS (https://unsa.27k.pe),
+ * Launch-time / periodic sync: checks all documents (or a single --code document) at GESTITEL PIMS (https://unsa.27k.pe),
  * downloads new or changed versions into CORPUS_MIRROR_DIR/<doc.code>/ (PDF + v<n>.txt + manifest.json),
  * re-ingests them into pimsai-db keyed strictly by doc.code, and prunes legacy numeric/stale rows.
  */
-async function syncOnce(tag: string, force?: { docCode?: string }): Promise<void> {
+async function syncOnce(tag: string, options: SyncOptions = {}): Promise<void> {
   const username = process.env.PIMS_USERNAME;
   const password = process.env.PIMS_PASSWORD;
   if (!username || !password) {
@@ -30,7 +35,17 @@ async function syncOnce(tag: string, force?: { docCode?: string }): Promise<void
   const docs = listResult.results ?? [];
   console.log(`${tag} Found ${docs.length} documents in PIMS.`);
 
-  if (docs.length === 0) {
+  const targetCode = options.targetCode;
+  let targetDocs = docs;
+  if (targetCode !== undefined) {
+    targetDocs = docs.filter((doc) => doc.code?.trim() === targetCode);
+    if (targetDocs.length === 0) {
+      throw new Error(
+        `${tag} Document with code '${targetCode}' not found in PIMS (${docs.length} document(s) listed).`,
+      );
+    }
+    console.log(`${tag} Scoped sync to document '${targetCode}' (${targetDocs.length} match).`);
+  } else if (docs.length === 0) {
     return;
   }
 
@@ -39,12 +54,13 @@ async function syncOnce(tag: string, force?: { docCode?: string }): Promise<void
   let syncedCount = 0;
 
   try {
-    if (force !== undefined) {
-      if (force.docCode !== undefined) {
-        console.log(`${tag} FORCE re-ingest scoped to ${force.docCode}: purging cached rows/files.`);
-        await db.query("DELETE FROM chunks WHERE pims_doc_id = $1", [force.docCode]);
-        await db.query("DELETE FROM pims_registry WHERE pims_doc_id = $1", [force.docCode]);
-        const forceDir = getDocMirrorDir(force.docCode, RAG_CONFIG.CORPUS_MIRROR_DIR);
+    if (options.force === true) {
+      if (targetCode !== undefined) {
+        const scopedDocId = targetDocs[0].code.trim().replace(/\//g, "-");
+        console.log(`${tag} FORCE re-ingest scoped to ${scopedDocId}: purging cached rows/files.`);
+        await db.query("DELETE FROM chunks WHERE pims_doc_id = $1", [scopedDocId]);
+        await db.query("DELETE FROM pims_registry WHERE pims_doc_id = $1", [scopedDocId]);
+        const forceDir = getDocMirrorDir(scopedDocId, RAG_CONFIG.CORPUS_MIRROR_DIR);
         if (existsSync(forceDir)) {
           rmSync(forceDir, { recursive: true, force: true });
         }
@@ -62,19 +78,21 @@ async function syncOnce(tag: string, force?: { docCode?: string }): Promise<void
       }
     }
 
-    // 1. Clean up legacy numeric-ID DB rows and numeric mirror directories from older sync runs
-    await db.query("DELETE FROM chunks WHERE pims_doc_id ~ '^[0-9]+$'");
-    await db.query("DELETE FROM pims_registry WHERE pims_doc_id ~ '^[0-9]+$'");
-    if (existsSync(RAG_CONFIG.CORPUS_MIRROR_DIR)) {
-      for (const entry of readdirSync(RAG_CONFIG.CORPUS_MIRROR_DIR, { withFileTypes: true })) {
-        if (entry.isDirectory() && /^[0-9]+$/.test(entry.name)) {
-          rmSync(join(RAG_CONFIG.CORPUS_MIRROR_DIR, entry.name), { recursive: true, force: true });
-          console.log(`${tag} Removed legacy numeric mirror directory: ${entry.name}`);
+    // 1. Clean up legacy numeric-ID DB rows and numeric mirror directories from older sync runs (full sync only)
+    if (targetCode === undefined) {
+      await db.query("DELETE FROM chunks WHERE pims_doc_id ~ '^[0-9]+$'");
+      await db.query("DELETE FROM pims_registry WHERE pims_doc_id ~ '^[0-9]+$'");
+      if (existsSync(RAG_CONFIG.CORPUS_MIRROR_DIR)) {
+        for (const entry of readdirSync(RAG_CONFIG.CORPUS_MIRROR_DIR, { withFileTypes: true })) {
+          if (entry.isDirectory() && /^[0-9]+$/.test(entry.name)) {
+            rmSync(join(RAG_CONFIG.CORPUS_MIRROR_DIR, entry.name), { recursive: true, force: true });
+            console.log(`${tag} Removed legacy numeric mirror directory: ${entry.name}`);
+          }
         }
       }
     }
 
-    for (const doc of docs) {
+    for (const doc of targetDocs) {
       if (doc.id === undefined || doc.id === null) {
         throw new Error(`${tag} Missing document ID for document ${doc.code}`);
       }
@@ -229,10 +247,10 @@ async function main(): Promise<void> {
 
   if (values.help === true) {
     console.log(
-      "Usage: bun scripts/sync-pims-truth.ts [--loop --interval <sec>] [--force [--code <doc.code>]]\n" +
+      "Usage: bun scripts/sync-pims-truth.ts [--loop --interval <sec>] [--code <doc.code>] [--force [--confirm]]\n" +
         "  --loop --interval <sec>  Run delta sync periodically (compose background hook).\n" +
-        "  --force                 Purge cache and re-ingest from PIMS (destructive).\n" +
-        "  --code <doc.code>        Scope --force to one document (e.g. G4-SOA-01).\n" +
+        "  --code <doc.code>        Scope sync (and --force purge) to one document (e.g. G4-SOA-01).\n" +
+        "  --force                  Purge cache and re-ingest from PIMS (destructive).\n" +
         "Full --force without --code requires --confirm.",
     );
     return;
@@ -240,13 +258,17 @@ async function main(): Promise<void> {
 
   const isLoop = Boolean(values.loop);
   const isForce = values.force === true;
-  const forceCode = typeof values.code === "string" ? values.code : undefined;
+  const targetCode = typeof values.code === "string" ? values.code.trim() : undefined;
 
+  if (values.code !== undefined && targetCode === "") {
+    console.error("[sync-pims-truth] ERROR: --code requires a non-empty document code.");
+    process.exit(1);
+  }
   if (isLoop && isForce) {
     console.error("[sync-loop] ERROR: --force is not allowed with --loop (one-shot only).");
     process.exit(1);
   }
-  if (isForce && forceCode === undefined && values.confirm !== true) {
+  if (isForce && targetCode === undefined && values.confirm !== true) {
     console.error("[sync-pims-truth] ERROR: full --force without --code requires --confirm.");
     process.exit(1);
   }
@@ -265,7 +287,7 @@ async function main(): Promise<void> {
     const tag = "[sync-loop]";
     while (true) {
       try {
-        await syncOnce(tag);
+        await syncOnce(tag, { targetCode });
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
         console.error(`${tag} ERROR: ${msg}`);
@@ -274,7 +296,7 @@ async function main(): Promise<void> {
     }
   } else {
     const tag = "[sync-pims-truth]";
-    await syncOnce(tag, isForce ? { docCode: forceCode } : undefined);
+    await syncOnce(tag, { force: isForce, targetCode });
   }
 }
 

@@ -13,6 +13,7 @@ export interface RagConfig {
   readonly DEFAULT_CHUNK_SIZE: number;
   readonly DEFAULT_CHUNK_OVERLAP: number;
   readonly DEFAULT_QUERY_LIMIT: number;
+  readonly MIN_TRAILING_CHUNK_CHARS: number;
 }
 
 function requireEnv(key: string): string {
@@ -46,4 +47,5 @@ export const RAG_CONFIG: RagConfig = {
   DEFAULT_CHUNK_SIZE: 1200,
   DEFAULT_CHUNK_OVERLAP: 2,
   DEFAULT_QUERY_LIMIT: 5,
+  MIN_TRAILING_CHUNK_CHARS: 120,
 };

@@ -26,14 +26,16 @@ import {
   PimsNotFoundError,
   PimsReadFailureError,
   PimsValidationError,
+  PimsWriteFailureError,
 } from "./errors.ts";
-import { assertG4WriteCode } from "./guards.ts";
+import { assertG4IncidentOwnership, assertG4WriteCode } from "./guards.ts";
 import {
   normalizeArrayResponse,
   normalizePaginatedResponse,
 } from "./normalize.ts";
 import type {
   CreateIncidentInput,
+  IncidentTypeCode,
   ListIncidentsParams,
   PaginatedResult,
   PimsAdapterConfig,
@@ -42,6 +44,41 @@ import type {
   PimsIncidentHistory,
   UpdateIncidentInput,
 } from "./types.ts";
+
+/**
+ * Validates incident_type against the explicit PIMS allowed set.
+ * Throws PimsValidationError listing all valid codes when missing or invalid.
+ */
+export function assertValidIncidentType(
+  incidentType: unknown,
+): IncidentTypeCode {
+  const allowed = PIMS_CONFIG.ALLOWED_INCIDENT_TYPES as readonly string[];
+  if (typeof incidentType !== "string" || !allowed.includes(incidentType)) {
+    throw new PimsValidationError(
+      "incident_type",
+      `Incident requires a valid incident_type. Allowed codes: ${allowed.join(", ")} (received: "${String(incidentType ?? "")}").`,
+    );
+  }
+  return incidentType as IncidentTypeCode;
+}
+
+/**
+ * Ensures incident title carries the G4- prefix for Group 4 ownership tracking,
+ * since GESTITEL auto-generates INC-NNN on POST and ignores custom incident_code.
+ */
+export function ensureG4IncidentTitle(code: string, title: string): string {
+  if (typeof title !== "string" || title.trim() === "") {
+    throw new PimsValidationError(
+      "title",
+      "Incident requires a non-empty title.",
+    );
+  }
+  const trimmedTitle = title.trim();
+  if (trimmedTitle.startsWith(PIMS_CONFIG.GROUP_CODE_PREFIX)) {
+    return trimmedTitle;
+  }
+  return `${code}: ${trimmedTitle}`;
+}
 
 /**
  * Validates an incident attachment against allowed formats and the 10MB size cap.
@@ -106,6 +143,12 @@ export class IncidentsModule {
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.timeoutMs);
+    const method = (init.method ?? "GET").toUpperCase();
+    const isWrite =
+      method === "POST" ||
+      method === "PATCH" ||
+      method === "PUT" ||
+      method === "DELETE";
 
     try {
       return await this.fetchFn(url, {
@@ -115,6 +158,13 @@ export class IncidentsModule {
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
+      if (isWrite) {
+        throw new PimsWriteFailureError(
+          endpointName,
+          0,
+          `Network or connection error during call to ${endpointName}: ${message}`,
+        );
+      }
       throw new PimsReadFailureError(
         endpointName,
         0,
@@ -242,19 +292,37 @@ export class IncidentsModule {
 
   /**
    * Creates a new incident via POST /api/incidents/.
-   * Enforces G4- code prefix.
+   * Enforces G4- code prefix, mandatory incident_type validation,
+   * involves_personal_data default (true), and G4- title prefixing.
    */
   async createIncident(input: CreateIncidentInput): Promise<PimsIncident> {
     // Shared-tenant guard: Write enforcement
     const code = input.incident_code ?? input.code ?? "";
     assertG4WriteCode(code, "Incident");
+    const incidentType = assertValidIncidentType(input.incident_type);
+    const title = ensureG4IncidentTitle(code, input.title);
+
+    if (
+      input.involves_personal_data !== undefined &&
+      typeof input.involves_personal_data !== "boolean"
+    ) {
+      throw new PimsValidationError(
+        "involves_personal_data",
+        "involves_personal_data must be a boolean (true or false).",
+      );
+    }
+    const involvesPersonalData = input.involves_personal_data ?? true;
 
     const endpoint = "/api/incidents/";
     const url = `${this.baseUrl}${endpoint}`;
 
+    const { code: _legacyCode, ...rest } = input;
     const payload = {
-      ...input,
+      ...rest,
       incident_code: code,
+      title,
+      incident_type: incidentType,
+      involves_personal_data: involvesPersonalData,
     };
 
     const response = await this.authenticatedFetch(
@@ -278,7 +346,7 @@ export class IncidentsModule {
       } catch {
         // Keep raw text
       }
-      throw new PimsReadFailureError(
+      throw new PimsWriteFailureError(
         endpoint,
         response.status,
         `Failed to create incident ${code}: ${errText}`,
@@ -292,7 +360,8 @@ export class IncidentsModule {
 
   /**
    * Updates an incident via PATCH /api/incidents/{id}/.
-   * If code is provided, enforces G4- prefix.
+   * Fetches existing incident and asserts Group 4 ownership BEFORE PATCH.
+   * If code or incident_type is provided, validates them before network writes.
    */
   async updateIncident(
     id: number,
@@ -302,12 +371,28 @@ export class IncidentsModule {
     if (codeToValidate !== undefined) {
       assertG4WriteCode(codeToValidate, "Incident");
     }
+    if (input.incident_type !== undefined) {
+      assertValidIncidentType(input.incident_type);
+    }
+    if (
+      input.involves_personal_data !== undefined &&
+      typeof input.involves_personal_data !== "boolean"
+    ) {
+      throw new PimsValidationError(
+        "involves_personal_data",
+        "involves_personal_data must be a boolean (true or false).",
+      );
+    }
+
+    const existing = await this.getIncident(id);
+    assertG4IncidentOwnership(existing);
 
     const endpoint = `/api/incidents/${id}/`;
     const url = `${this.baseUrl}${endpoint}`;
 
+    const { code: _legacyCode, ...rest } = input;
     const payload = {
-      ...input,
+      ...rest,
       ...(codeToValidate !== undefined ? { incident_code: codeToValidate } : {}),
     };
 
@@ -332,7 +417,7 @@ export class IncidentsModule {
       } catch {
         // Keep raw text
       }
-      throw new PimsReadFailureError(
+      throw new PimsWriteFailureError(
         endpoint,
         response.status,
         `Failed to update incident ${id}: ${errText}`,
@@ -346,11 +431,11 @@ export class IncidentsModule {
 
   /**
    * Deletes an incident via DELETE /api/incidents/{id}/.
-   * Fetches incident first to assert tenant isolation on live incident_code.
+   * Fetches incident first to assert Group 4 tenant ownership.
    */
   async deleteIncident(id: number): Promise<void> {
     const incident = await this.getIncident(id);
-    assertG4WriteCode(incident.incident_code, "Incident");
+    assertG4IncidentOwnership(incident);
 
     const endpoint = `/api/incidents/${id}/`;
     const url = `${this.baseUrl}${endpoint}`;
@@ -365,7 +450,7 @@ export class IncidentsModule {
 
     if (!response.ok && response.status !== 204) {
       const errText = await response.text();
-      throw new PimsReadFailureError(
+      throw new PimsWriteFailureError(
         endpoint,
         response.status,
         `Failed to delete incident ${id}: ${errText}`,
@@ -475,6 +560,10 @@ export class IncidentsModule {
     // Client-side format & 10MB size validation
     assertIncidentAttachment(fileName, byteLength);
 
+    // Fetch existing incident and assert Group 4 ownership before uploading
+    const existing = await this.getIncident(id);
+    assertG4IncidentOwnership(existing);
+
     const formData = new FormData();
     formData.append("file", blobPart, fileName);
 
@@ -498,7 +587,7 @@ export class IncidentsModule {
       } catch {
         // Keep raw text
       }
-      throw new PimsReadFailureError(
+      throw new PimsWriteFailureError(
         endpoint,
         response.status,
         `Failed to upload attachment to incident ${id}: ${errText}`,

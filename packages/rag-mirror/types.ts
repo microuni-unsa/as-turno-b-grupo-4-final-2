@@ -94,6 +94,7 @@ export interface QueryFilter {
   readonly pims_doc_id?: string;
   readonly pims_version?: string;
   readonly status?: string;
+  readonly includeObsolete?: boolean;
 }
 
 export interface QueryResultItem {

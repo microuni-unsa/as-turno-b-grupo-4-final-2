@@ -40,6 +40,44 @@ export const PIMS_CONFIG = {
   DEFAULT_RETRY_BACKOFF_MS: [500, 1000, 2000] as const,
 
   /**
+   * Persistent disk cache path for JWT access/refresh tokens.
+   * Overridable via PIMS_TOKEN_CACHE_PATH environment variable.
+   */
+  TOKEN_CACHE_PATH:
+    (typeof process !== "undefined"
+      ? process.env?.PIMS_TOKEN_CACHE_PATH
+      : undefined) ?? "/tmp/.pims-jwt-cache.json",
+
+  /**
+   * Safety margin in seconds before JWT expiry when deciding to refresh proactively.
+   */
+  JWT_EXPIRY_SKEW_SECONDS: 30,
+
+  /**
+   * Maximum retry attempts when PIMS auth endpoints respond with HTTP 429.
+   */
+  MAX_RATE_LIMIT_RETRIES: 2,
+
+  /**
+   * Hard cap in seconds on rate-limit Retry-After sleep duration.
+   */
+  MAX_RATE_LIMIT_WAIT_SECONDS: 35,
+
+  /**
+   * Allowed incident_type codes verified against live PIMS /api/incidents/.
+   */
+  ALLOWED_INCIDENT_TYPES: [
+    "UA",
+    "DL",
+    "MW",
+    "PH",
+    "DS",
+    "HE",
+    "DV",
+    "OT",
+  ] as const,
+
+  /**
    * Maximum allowed file size for incident attachments (10 MB).
    */
   MAX_ATTACHMENT_SIZE_BYTES: 10 * 1024 * 1024,

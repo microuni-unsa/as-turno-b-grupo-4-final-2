@@ -70,6 +70,8 @@ export interface PimsAdapterConfig {
   credentials?: PimsCredentials;
   secretHandle?: string;
   fetchFn?: typeof fetch;
+  tokenCachePath?: string;
+  sleepFn?: (ms: number) => Promise<void>;
 }
 
 // ==========================================
@@ -130,6 +132,7 @@ export interface AddDocumentVersionInput {
   file: Blob | Uint8Array | ArrayBuffer | File;
   change_summary: string;
   fileName: string;
+  docCode?: string;
 }
 
 export interface ListDocumentsParams {
@@ -241,7 +244,7 @@ export interface CreateIncidentInput {
   code?: string;
   title: string;
   description?: string;
-  incident_type?: IncidentTypeCode;
+  incident_type: IncidentTypeCode;
   incident_date: string;
   status?: IncidentStatusAPI;
   severity?: IncidentSeverityAPI;
@@ -324,6 +327,8 @@ export interface PimsAudit {
   checklist?: unknown[];
   findings: PimsAuditFinding[];
   findings_count?: number;
+  actions_count?: number;
+  original_actions_count?: number;
   created_at?: string;
   created_by?: number;
   updated_at?: string;

@@ -6,7 +6,8 @@
  * or full normalized document text via --full --doc <code_or_id> [--version <v>].
  *
  * Usage:
- *   bun scripts/rag-query.ts "<query text>" [--limit N] [--doc <pims_doc_id>] [--version <v>] [--status <s>] [--json]
+ *   bun scripts/rag-query.ts "<query text>" [--limit N] [--doc <pims_doc_id>] [--version <v>] [--status <s>] [--include-obsolete] [--json]
+ *   bun scripts/rag-query.ts --query "<query text>" [--limit N] [--doc <pims_doc_id>] [--version <v>] [--status <s>] [--include-obsolete] [--json]
  *   bun scripts/rag-query.ts --full --doc <pims_doc_id> [--version <v>] [--json]
  *   bun scripts/rag-query.ts --help
  */
@@ -24,19 +25,23 @@ import { createBunPgClient } from "./lib/pg-client.ts";
 
 function printHelpAndExit(): never {
   const helpText = `Uso: bun scripts/rag-query.ts "<query text>" [opciones]
+       bun scripts/rag-query.ts -q|--query "<query text>" [opciones]
        bun scripts/rag-query.ts --full --doc <pims_doc_id> [--version <v>] [--json]
 
 Opciones:
+  -q, --query <text>  Texto de consulta (alias de argumento posicional)
   --limit <N>         Número máximo de resultados a retornar (por defecto: ${RAG_CONFIG.DEFAULT_QUERY_LIMIT})
   --doc <pims_doc_id> Filtrar por código o ID de documento PIMS (ej: G4-POL-01)
   --version <v>       Filtrar por versión de documento (ej: 3.00)
   --status <s>        Filtrar por estado (ej: R, V, O)
+  --include-obsolete  Incluir versiones obsoletas (status = 'O') en la búsqueda
   --full              Volcar el texto completo normalizado del documento (--doc obligatorio)
   --json              Imprimir los resultados en formato JSON plano
   -h, --help          Mostrar esta ayuda y salir
 
 Ejemplos:
   bun scripts/rag-query.ts "tratamiento de riesgos"
+  bun scripts/rag-query.ts --query "tratamiento de riesgos" --include-obsolete
   bun scripts/rag-query.ts "politica de privacidad" --limit 3 --status R
   bun scripts/rag-query.ts --full --doc G4-POL-01
   bun scripts/rag-query.ts "auditoria interna" --json
@@ -51,17 +56,20 @@ interface CliArgs {
   doc?: string;
   version?: string;
   status?: string;
+  includeObsolete: boolean;
   full: boolean;
   json: boolean;
 }
 
 function parseCliArgs(args: string[]): CliArgs {
   const result: CliArgs = {
+    includeObsolete: false,
     full: false,
     json: false,
   };
 
   const positional: string[] = [];
+  let flagQuery: string | undefined;
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
@@ -72,6 +80,15 @@ function parseCliArgs(args: string[]): CliArgs {
       result.full = true;
     } else if (arg === "--json") {
       result.json = true;
+    } else if (arg === "--include-obsolete") {
+      result.includeObsolete = true;
+    } else if (arg === "--query" || arg === "-q") {
+      i++;
+      if (i >= args.length) {
+        console.error(`Error: ${arg} requiere un texto de consulta`);
+        process.exit(1);
+      }
+      flagQuery = args[i];
     } else if (arg === "--limit") {
       i++;
       if (i >= args.length) {
@@ -118,14 +135,22 @@ function parseCliArgs(args: string[]): CliArgs {
       console.error("Error: --full requiere especificar --doc <pims_doc_id> (ej: G4-POL-01).");
       process.exit(1);
     }
-  } else if (positional.length === 0) {
+  } else if (flagQuery !== undefined && positional.length > 0) {
+    console.error("Error: Especifique la consulta mediante --query/-q o argumento posicional, no ambos.");
+    process.exit(1);
+  } else if (flagQuery !== undefined) {
+    if (flagQuery.trim() === "") {
+      console.error("Error: --query/-q requiere un texto de consulta no vacío.");
+      process.exit(1);
+    }
+    result.queryText = flagQuery;
+  } else if (positional.length > 0) {
+    result.queryText = positional.join(" ");
+  } else {
     console.error("Error: Se requiere el texto de consulta. Use --help para ver la sintaxis.");
     process.exit(1);
   }
 
-  if (positional.length > 0) {
-    result.queryText = positional.join(" ");
-  }
   return result;
 }
 
@@ -235,17 +260,10 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  let db: ReturnType<typeof createBunPgClient>;
+  const normalizedVersion =
+    cliArgs.version !== undefined ? normalizeDocumentVersion(cliArgs.version) : undefined;
+
   let embedder: ReturnType<typeof createOpenAICompatibleEmbedder>;
-
-  try {
-    db = createBunPgClient();
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error(`Error inicializando conexión a base de datos: ${msg}`);
-    process.exit(1);
-  }
-
   try {
     embedder = createOpenAICompatibleEmbedder();
   } catch (err: unknown) {
@@ -254,18 +272,27 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
+  let db: ReturnType<typeof createBunPgClient>;
+  try {
+    db = createBunPgClient();
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`Error inicializando conexión a base de datos: ${msg}`);
+    process.exit(1);
+  }
+
   const filter: QueryFilter = {
     ...(cliArgs.doc !== undefined ? { pims_doc_id: cliArgs.doc } : {}),
-    ...(cliArgs.version !== undefined
-      ? { pims_version: normalizeDocumentVersion(cliArgs.version) }
-      : {}),
+    ...(normalizedVersion !== undefined ? { pims_version: normalizedVersion } : {}),
     ...(cliArgs.status !== undefined ? { status: cliArgs.status } : {}),
+    ...(cliArgs.includeObsolete ? { includeObsolete: true } : {}),
   };
 
   const hasFilter =
     filter.pims_doc_id !== undefined ||
     filter.pims_version !== undefined ||
-    filter.status !== undefined;
+    filter.status !== undefined ||
+    filter.includeObsolete !== undefined;
 
   let results: QueryResultItem[];
   try {
@@ -281,17 +308,14 @@ async function main(): Promise<void> {
     console.error(`Error ejecutando consulta en mirror pgvector: ${msg}`);
     try {
       await db.close();
-    } catch {
-      // ignore close error on failure exit
+    } catch (closeErr: unknown) {
+      const closeMsg = closeErr instanceof Error ? closeErr.message : String(closeErr);
+      console.error(`Error adicional cerrando conexión a base de datos: ${closeMsg}`);
     }
     process.exit(1);
   }
 
-  try {
-    await db.close();
-  } catch {
-    // ignore
-  }
+  await db.close();
 
   if (cliArgs.json) {
     console.log(JSON.stringify(results, null, 2));
