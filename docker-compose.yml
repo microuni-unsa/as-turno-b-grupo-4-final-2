@@ -1,7 +1,10 @@
 # ==============================================================================
 # Turno B Grupo 4: Agentic Incidents-PIMS for UNSA - Docker Compose
 # ==============================================================================
-# Topology & Architecture Normative Reference: docs/SPEC.md (§4, §4.1, §4.2, §4.3)
+# Topology & Architecture (2-Container Stack: agent + db):
+#   - agent : UNSA PIMS Operator + Unified Web App (Bun/React SPA on port 8082,
+#             with native chat, file uploads/downloads, and age-encrypted secrets)
+#   - db    : PostgreSQL 16 + pgvector mirror & secrets_registry
 #
 # 1. Traefik Hosting Model:
 #    - Host provides Traefik and docker-proxy on the external network 'internal-proxy'.
@@ -19,12 +22,12 @@
 #          traefik.http.routers.pimsai-<slug>.tls.certresolver=cloudflare
 #          traefik.http.services.pimsai-<slug>.loadbalancer.server.port=<port>
 #
-# 3. Reserved Slugs (SPEC §4.1):
-#    The following slugs are strictly RESERVED and MUST NOT be claimed by any
+# 3. Reserved Slugs (2-Container Topology):
+#    The following slug is strictly RESERVED and MUST NOT be claimed by any
 #    agent-spawned deliverable or generated service:
-#      - 'demo'    : Zellij web instructor terminal (port 8082, SPEC §4.2)
-#      - 'files'   : Ephemeral document upload sidecar (port 3000, SPEC §9.3)
-#      - 'secrets' : Age-encrypted secrets injection sidecar (port 3000, SPEC §4.3)
+#      - 'demo' : Unified UNSA PIMS Web App (port 8082; handles chat, file uploads/
+#                 downloads, and age-encrypted secrets natively — 'files' and
+#                 'secrets' sidecars are retired)
 #
 # 4. Cloudflare & Port 444 Routing Edge Case (SPEC §4.1, §13):
 #    - The Cloudflare wildcard rule maps external 443 -> 444 on the VPS.
@@ -40,6 +43,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: pimsai-agent
+    restart: unless-stopped
     init: true
     # Staging-copy topology (P3.8): compose runs with cwd=<staging>/ (see scripts/deploy-sync.sh),
     # so `.:/app` binds the disposable staging copy, never the pristine repo. Secrets come
@@ -53,19 +57,6 @@ services:
         if [ -n "$${AGENT_ENV_VAR:-}" ] && [ -n "$${AGENT_API_KEY:-}" ]; then
           export "$${AGENT_ENV_VAR}=$${AGENT_API_KEY}"
         fi
-        mkdir -p /home/agent/.config/zellij/layouts
-        ZCONF=/home/agent/.config/zellij/config.kdl
-        if [ ! -f "$${ZCONF}" ]; then
-          zellij setup --dump-config > "$${ZCONF}"
-        fi
-        sed -i -E '/^[[:space:]]*(\/\/)?[[:space:]]*(show_release_notes|show_startup_tips|pane_frames|web_sharing|default_mode|default_layout)[[:space:]]/d' "$${ZCONF}"
-        printf '\nshow_release_notes false\nshow_startup_tips false\npane_frames false\nweb_sharing "on"\ndefault_mode "locked"\ndefault_layout "pimsai"\n' >> "$${ZCONF}"
-        rm -f /home/agent/.config/zellij/layouts/default.kdl
-        cat <<'EOF' > /home/agent/.config/zellij/layouts/pimsai.kdl
-        layout {
-          pane borderless=true
-        }
-        EOF
         MEMDIR=/home/agent/.omp/agent/memories/--app--
         if [ -f /app/.omp/memory-seed/memory_summary.md ]; then
           mkdir -p "$${MEMDIR}"
@@ -75,23 +66,7 @@ services:
           fi
         fi
         bun scripts/pims.ts mirror sync --loop --interval 300 > /tmp/pims-mirror-sync.log 2>&1 &
-        zellij web --ip 127.0.0.1 --port 8083 -d
-        zellij delete-session pimsai --force 2>/dev/null || true
-        if [ -n "$${AGENT_MODEL:-}" ]; then
-          zellij --layout pimsai attach -b pimsai -- omp --model "$${AGENT_MODEL}" || true
-        else
-          zellij --layout pimsai attach -b pimsai -- omp || true
-        fi
-        exec bun -e '
-          import net from "node:net";
-          net.createServer((client) => {
-            const target = net.connect(8083, "127.0.0.1");
-            client.pipe(target);
-            target.pipe(client);
-            client.on("error", () => target.destroy());
-            target.on("error", () => client.destroy());
-          }).listen(8082, "0.0.0.0");
-        '
+        exec bun /app/apps/web/server/index.ts
     environment:
       # Docker API connectivity:
       # Default connects to host docker-proxy on internal-proxy network (SPEC §4)
@@ -115,7 +90,21 @@ services:
       - AGENT_API_KEY=${AGENT_API_KEY:-}
       - AGENT_MODEL=${AGENT_MODEL:-opencode-go/muse-spark-1.3-contributor}
 
-      # Secrets store configuration (SPEC §4.3)
+      # Unified Web App (Auth, Dist, Uploads & Runtime Customization)
+      - WEB_PORT=${WEB_PORT:-8082}
+      - WEB_PUBLIC_URL=${WEB_PUBLIC_URL:-https://demo.pimsai.mistercricro8.top:444}
+      - WEB_INTERNAL_URL=http://127.0.0.1:8082
+      - WEB_DIST_DIR=/opt/pimsai-web/dist
+      - WEB_RW_TOKEN=${WEB_RW_TOKEN:?WEB_RW_TOKEN must be set in .env}
+      - WEB_RO_TOKEN=${WEB_RO_TOKEN:-}
+      - WEB_APP_NAME=${WEB_APP_NAME:-}
+      - WEB_APP_SUBTITLE=${WEB_APP_SUBTITLE:-}
+      - WEB_PRIMARY_COLOR=${WEB_PRIMARY_COLOR:-}
+      - WEB_ACCENT_COLOR=${WEB_ACCENT_COLOR:-}
+      - WEB_DEFAULT_THEME=${WEB_DEFAULT_THEME:-}
+      - UPLOADS_DIR=/app/data/preserved_uploads
+
+      # Secrets store configuration (age-encrypted storage)
       - SECRETS_STORE_PATH=/app/secrets
 
       # Runtime Corpus Mirror outside bind-mounted /app
@@ -137,19 +126,19 @@ services:
     volumes:
       # Persistent storage for agent state, cache, and omp configuration
       - agent_data:/home/agent
-      # Secrets store path (SPEC §4.3)
+      # Age-encrypted secrets store path
       - secrets_data:/app/secrets
       # Synced PIMS corpus mirror persisted outside /app bind-mount
       - corpus_mirror_data:/var/lib/pimsai/corpus_mirror
       # Application workspace
       - .:/app
-      # Shared uploaded files from files-sidecar
+      # Preserved user uploads & published deliverables
       - uploads_data:/app/data/preserved_uploads
     networks:
       - internal-proxy
       - agent-internal
     labels:
-      # Traefik routing for reserved 'demo' slug (Zellij Web instructor interface, SPEC §4.2)
+      # Traefik routing for reserved 'demo' slug (Unified UNSA PIMS Web App)
       - "traefik.enable=true"
       - "traefik.docker.network=internal-proxy"
       - "traefik.http.routers.pimsai-demo.rule=Host(`demo.pimsai.mistercricro8.top`)"
@@ -182,70 +171,11 @@ services:
       timeout: 5s
       retries: 5
 
-  files-sidecar:
-    build:
-      context: ./services/files-sidecar
-      dockerfile: Dockerfile
-    container_name: pimsai-files-sidecar
-    restart: unless-stopped
-    environment:
-      - PORT=3000
-      - PUBLIC_BASE_URL=${FILES_BASE_URL:-https://files.pimsai.mistercricro8.top:444}
-      - PIMS_BASE_URL=${PIMS_BASE_URL:-https://unsa.27k.pe}
-      - PIMS_TENANT_SCHEMA=${PIMS_TENANT_SCHEMA:-unsa}
-      - PIMS_JWT_TOKEN=${PIMS_JWT_TOKEN:-}
-      - PIMS_USERNAME=${PIMS_USERNAME:-}
-      - PIMS_PASSWORD=${PIMS_PASSWORD:-}
-    volumes:
-      - uploads_data:/app/data/preserved_uploads
-    networks:
-      - internal-proxy
-    labels:
-      # Traefik routing for reserved 'files' slug (Upload sidecar, SPEC §4.1, §9.3)
-      - "traefik.enable=true"
-      - "traefik.docker.network=internal-proxy"
-      - "traefik.http.routers.pimsai-files.rule=Host(`files.pimsai.mistercricro8.top`)"
-      - "traefik.http.routers.pimsai-files.entrypoints=https"
-      - "traefik.http.routers.pimsai-files.tls=true"
-      - "traefik.http.routers.pimsai-files.tls.certresolver=cloudflare"
-      - "traefik.http.services.pimsai-files.loadbalancer.server.port=3000"
-
-  secrets-sidecar:
-    build:
-      context: ./services/secrets-sidecar
-      dockerfile: Dockerfile
-    container_name: pimsai-secrets-sidecar
-    restart: unless-stopped
-    environment:
-      - PORT=3000
-      - HOST=0.0.0.0
-      - BASE_URL=${SECRETS_BASE_URL:-https://secrets.pimsai.mistercricro8.top:444}
-      - SECRETS_STORE_DIR=/var/lib/secrets-store
-      - DATABASE_URL=${DATABASE_URL:-postgresql://${POSTGRES_USER:-agent}:${POSTGRES_PASSWORD:-changeme}@db:5432/${POSTGRES_DB:-pims_agent}}
-    volumes:
-      # Persistent secrets store (shared age-encrypted volume)
-      - secrets_data:/var/lib/secrets-store
-    networks:
-      - internal-proxy
-      - agent-internal
-    labels:
-      # Traefik routing for reserved 'secrets' slug (Secrets injection sidecar, SPEC §4.1, §4.3)
-      - "traefik.enable=true"
-      - "traefik.docker.network=internal-proxy"
-      - "traefik.http.routers.pimsai-secrets.rule=Host(`secrets.pimsai.mistercricro8.top`)"
-      - "traefik.http.routers.pimsai-secrets.entrypoints=https"
-      - "traefik.http.routers.pimsai-secrets.tls=true"
-      - "traefik.http.routers.pimsai-secrets.tls.certresolver=cloudflare"
-      - "traefik.http.services.pimsai-secrets.loadbalancer.server.port=3000"
-    depends_on:
-      db:
-        condition: service_healthy
-
 networks:
   # Host-provided external network hosting Traefik and docker-proxy (SPEC §4)
   internal-proxy:
     external: true
-  # Isolated bridge network between agent, db, and secrets-sidecar
+  # Isolated bridge network between agent and db
   agent-internal:
     driver: bridge
 

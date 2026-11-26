@@ -16,7 +16,7 @@
 *.age
 *.key
 key.txt
-secrets/
+/secrets/
 
 # Large ISO documents and PDFs (keep build context light and fast)
 docs/*.pdf
@@ -26,8 +26,11 @@ docs/*.pdf
 
 # Node / Bun dependencies and caches
 node_modules/
+apps/web/client/node_modules/
+apps/web/client/dist/
 .bun/
 dist/
+!apps/web/client/public/**
 
 # Corpus mirror storage
 corpus_mirror/
@@ -35,9 +38,6 @@ corpus_mirror/
 # omp sessions and runtime caches
 .omp/sessions/
 .omp/cache/
-
-# Zellij runtime artifacts
-.zellij/
 
 # IDE and OS junk
 .DS_Store

@@ -31,14 +31,11 @@ corpus_mirror/**
 *.age
 *.key
 key.txt
-secrets/
+/secrets/
 
 # omp local runtime sessions and cache
 .omp/sessions/
 .omp/cache/
-
-# Zellij runtime artifacts
-.zellij/
 
 # Operating system and IDE junk
 .DS_Store

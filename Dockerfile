@@ -7,8 +7,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Build arguments for pinned versions
 ARG BUN_VERSION=1.2.4
 ARG NODE_VERSION=22.14.0
+ARG PNPM_VERSION=12.9.0
 ARG TYPST_VERSION=0.15.0
-ARG ZELLIJ_VERSION=0.45.1
 ARG OMP_VERSION=18.18.1
 
 # Install baseline OS dependencies, Chromium, Python, PDF/OCR tools, age, postgresql-client, docker CLI, curl, git
@@ -78,19 +78,6 @@ RUN set -eux; \
     chmod +x /usr/local/bin/typst; \
     rm -rf /tmp/typst*
 
-# Install Zellij (pinned 0.45, full web-server build for zellij web, multi-arch support)
-RUN set -eux; \
-    ARCH="$(uname -m)"; \
-    case "$ARCH" in \
-        x86_64) ZELLIJ_ARCH="x86_64-unknown-linux-musl" ;; \
-        aarch64|arm64) ZELLIJ_ARCH="aarch64-unknown-linux-musl" ;; \
-        *) echo "Unsupported architecture for zellij: $ARCH" && exit 1 ;; \
-    esac; \
-    curl -fsSL "https://github.com/zellij-org/zellij/releases/download/v${ZELLIJ_VERSION}/zellij-${ZELLIJ_ARCH}.tar.gz" -o /tmp/zellij.tar.gz; \
-    tar -xzf /tmp/zellij.tar.gz -C /usr/local/bin; \
-    chmod +x /usr/local/bin/zellij; \
-    rm -f /tmp/zellij.tar.gz
-
 # Install omp via official installer method (pinned with ARG OMP_VERSION)
 RUN set -eux; \
     PI_INSTALL_DIR=/usr/local/bin sh -c "$(curl -fsSL https://omp.sh/install)" -- --binary --ref "v${OMP_VERSION}"; \
@@ -115,11 +102,37 @@ RUN set -eux; \
     mv /tmp/deps/node_modules /node_modules && \
     rm -rf /tmp/deps
 
+# Install pnpm (pinned to match client lockfile, multi-arch support)
+RUN set -eux; \
+    ARCH="$(uname -m)"; \
+    case "$ARCH" in \
+        x86_64) PNPM_ARCH="x64" ;; \
+        aarch64|arm64) PNPM_ARCH="arm64" ;; \
+        *) echo "Unsupported architecture for pnpm: $ARCH" && exit 1 ;; \
+    esac; \
+    mkdir -p /opt/pnpm; \
+    curl -fsSL "https://github.com/pnpm/pnpm/releases/download/v${PNPM_VERSION}/pnpm-linux-${PNPM_ARCH}.tar.gz" -o /tmp/pnpm.tar.gz; \
+    tar -xzf /tmp/pnpm.tar.gz -C /opt/pnpm; \
+    ln -sf /opt/pnpm/pnpm /usr/local/bin/pnpm; \
+    chmod +x /opt/pnpm/pnpm; \
+    rm -f /tmp/pnpm.tar.gz
+
+# Build frontend SPA (apps/web/client) into /opt/pimsai-web/dist outside /app bind-mount
+COPY apps/web/client/package.json apps/web/client/pnpm-lock.yaml apps/web/client/pnpm-workspace.yaml /tmp/web-client/
+RUN set -eux; \
+    cd /tmp/web-client && pnpm install --frozen-lockfile
+COPY apps/web/client/ /tmp/web-client/
+RUN set -eux; \
+    cd /tmp/web-client && pnpm run build; \
+    mkdir -p /opt/pimsai-web; \
+    mv /tmp/web-client/dist /opt/pimsai-web/dist; \
+    rm -rf /tmp/web-client
+
 # Create unprivileged agent user and directories (never run as root)
 RUN groupadd -g 1000 agent && \
     useradd -u 1000 -g agent -m -s /bin/bash agent && \
-    mkdir -p /app /home/agent/.omp /home/agent/.local/share /home/agent/.cache /var/lib/pimsai/corpus_mirror /tmp/playwright-mcp && \
-    chown -R agent:agent /app /home/agent /var/lib/pimsai /tmp/playwright-mcp
+    mkdir -p /app /app/secrets /app/data/preserved_uploads /home/agent/.omp /home/agent/.local/share /home/agent/.cache /var/lib/pimsai/corpus_mirror /tmp/playwright-mcp && \
+    chown -R agent:agent /app /home/agent /var/lib/pimsai /tmp/playwright-mcp /opt/pimsai-web
 
 # Working directory and user configuration
 WORKDIR /app
@@ -133,6 +146,10 @@ ENV HOME=/home/agent \
 
 # Switch to unprivileged user
 USER agent
+
+EXPOSE 8082
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 CMD curl -fsS http://127.0.0.1:8082/healthz || exit 1
 
 # Default entrypoint / command
 CMD ["bash"]
