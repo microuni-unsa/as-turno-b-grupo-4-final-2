@@ -11,11 +11,11 @@ Every connector resides in its own subfolder under `connectors/` and adheres to 
 ```
 connectors/
 ├── README.md                 # Framework architecture & contracts specification
-├── runtime/                  # Secrets handle resolution, sidecar workflow, registration
+├── runtime/                  # Secrets handle resolution, web app workflow, registration
 │   ├── constants.ts          # Centralized domain and operational parameters
 │   ├── errors.ts             # Typed error hierarchy for runtime & security
 │   ├── types.ts              # Type definitions (handles, sessions, docker envs)
-│   ├── secrets.ts            # Handle resolver (secret:<name>@<v>), store, sidecar flow
+│   ├── secrets.ts            # Handle resolver (secret:<name>@<v>), store, web secrets API
 │   ├── register.ts           # Appends SKILL-FRAG.md to active agent skill
 │   └── index.ts              # Unified runtime exports
 ├── _template/                # Canonical skeleton for service-agnostic live builds
@@ -56,12 +56,11 @@ Examples: `secret:gestitel_jwt@v1`, `secret:smtp_creds@v1`, `secret:jira_api_tok
 3. **Rotation Semantics:**
    - Secrets rotation generates a new version (e.g., `@v2`).
    - Old versions remain accessible in memory/store so already-running sibling containers or active sessions continue working without disruption until restarted.
-4. **Missing External Credentials Flow (Secrets Sidecar):**
-   - If an agent or connector requires a **user-owned external SaaS/API credential** that is not yet configured, it calls `secrets_request` (or `POST http://pimsai-secrets-sidecar:3000/api/secrets/request`).
-   - The sidecar returns a one-time URL with a 5-minute expiry:  
-     `https://secrets.pimsai.mistercricro8.top:444/s/<token>`
-   - **Crucial Rule:** Start the `async: true` long-poll (`curl -sS -m 310 "http://pimsai-secrets-sidecar:3000/api/secrets/poll/<token>?wait=true"`, matching `"submitted"|"expired"|"failed"`) **before** replying with the URL so the main session never blocks while waiting for submission.
-   - For **self-hosted sibling containers** spawned directly on `internal-proxy`, generate random admin/API keys at launch (`openssl rand -hex`) and inject them via Docker env rather than prompting via `secrets-sidecar`.
+4. **Missing External Credentials Flow (Unified Web App Inline Card & Bóveda de Secretos):**
+   - If an agent or connector requires a **user-owned external SaaS/API credential** that is not yet configured, it calls `secrets_request` (or `POST http://127.0.0.1:8082/internal/secrets/request`).
+   - The unified web app automatically displays an **inline encrypted password card directly inside the chat** (5-minute expiry, age-encrypted, zero plaintext in chat). Users can also manage or rotate secrets anytime from the **Bóveda de Secretos** drawer.
+   - **Crucial Rule:** Start the `async: true` long-poll (`curl -sS -m 310 "http://127.0.0.1:8082/internal/secrets/poll/<token>?wait=true"` or `secrets_poll(handle, wait: true)`, matching `"submitted"|"expired"`) **before** ending your turn so the main session never blocks while waiting for submission.
+   - For **self-hosted sibling containers** spawned directly on `internal-proxy`, generate random admin/API keys at launch (`openssl rand -hex`) and inject them via Docker env rather than prompting via `secrets_request`.
 
 ---
 
@@ -125,6 +124,6 @@ For live-build integrations (external REST APIs, webhook receivers, self-hosted 
 1. **Preflight Image Inspection**: Inspect the target container image (`docker image inspect` or `docker run --rm --entrypoint sh <image> -c '...'`) to discover entrypoint, required env vars, ports, companion DB dependencies, and native UI paths.
 2. **Isolated Per-Stack Companion DB**: If the service needs a database/cache, spawn a dedicated `pimsai-<slug>-db` container on an isolated `<slug>-net` bridge network with a named volume (`<slug>-db-data`). Never share `pimsai-db`.
 3. **Clone & Implement**: Clone `connectors/_template/` into `connectors/<name>/` with typed `fetch()` methods, `AbortController` timeouts, and uniform PIMS read polling (no `G4-` read filtering; always call `incidents get <CODE> --json` before stating containment/evidence state).
-4. **Native UI on Traefik `:444` & Copy-Never-Bind**: Wire `internal-proxy` + Traefik TLS labels (never claiming `demo`, `files`, or `secrets`; never `-v /app/...`), expose any native admin/setup UI directly on `https://<slug>.pimsai.mistercricro8.top:444` (with generated setup code and browser steps), and construct inbound webhook URLs as `https://<slug>.pimsai.mistercricro8.top:444/webhook`. Build a custom Bun HTTP server ONLY when no native UI exists or a custom webhook/visualizer is needed.
+4. **Native UI on Traefik `:444` & Copy-Never-Bind**: Wire `internal-proxy` + Traefik TLS labels (never claiming reserved slug `demo`; never `-v /app/...`), expose any native admin/setup UI directly on `https://<slug>.pimsai.mistercricro8.top:444` (with generated setup code and browser steps), and construct inbound webhook URLs as `https://<slug>.pimsai.mistercricro8.top:444/webhook`. Build a custom Bun HTTP server ONLY when no native UI exists or a custom webhook/visualizer is needed.
 5. **Fast Boot Diagnostics & Verification**: Within 5–10s of `docker start`, check `docker inspect` + `docker logs --tail 30`, verify internal `healthCheck()` + public `:444` `curl`, and invoke `registerConnector()`.
 6. **Execution Mode**: Dispatch via background subagent (`task`) in interactive sessions so the main session keeps answering PIMS queries; execute inline in non-interactive `omp -p` runs.

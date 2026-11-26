@@ -21,8 +21,8 @@ No necesita memorizar comandos ni sintaxis técnica; formule sus consultas o sol
 - **Comparación e historial de versiones**: Pida comparar versiones de cualquier documento del repositorio PIMS para identificar cambios estructurales, evolución de cláusulas e historial formal de aprobaciones.
 - **Tablero de incidentes, riesgos y auditorías**: Consulte el estado consolidado de incidentes de privacidad, hallazgos de auditoría, no conformidades y acciones correctivas con clasificación semafórica estricta (**Rojo / Ámbar / Verde**), donde el estado Verde exige cierre formal, cumplimiento al 100 % y evidencia documental verificada.
 - **Trazabilidad de auditoría**: Siga la cadena completa desde un hallazgo o incidente hasta su no conformidad, acción correctiva, responsable, plazo y documento de respaldo.
-- **Actualización y emisión de nuevas versiones**: Solicite actualizar un documento o evaluar el impacto en cascada de una nueva Resolución Rectoral o cambio organizacional. El operador genera primero una vista previa publicada en enlace seguro para su revisión y **espera su aprobación explícita antes de registrar la versión oficial** en la plataforma PIMS.
-- **Carga segura de documentos externos**: Solicite subir un informe o documento externo; recibirá un enlace temporal de un solo uso (vigencia de 5 minutos, máximo 50 MB). Tras la carga, el operador revisa el contenido y consulta qué acción desea realizar antes de indexar o registrar el archivo.
+- **Actualización y emisión de nuevas versiones**: Solicite actualizar un documento o evaluar el impacto en cascada de una nueva Resolución Rectoral o cambio organizacional. El operador genera primero una vista previa publicada directamente en la consola web (tarjeta con **Vista previa / Descargar**) para su revisión y **espera su aprobación explícita antes de registrar la versión oficial** en la plataforma PIMS.
+- **Carga directa de documentos externos**: Adjunte o arrastre el archivo directamente en el compositor del chat (ícono de clip o arrastrar y soltar; hasta 50 MB en formatos PDF, DOC, DOCX, TXT, XLSX o PNG). Tras recibir el archivo, el operador revisa el contenido y consulta qué acción desea realizar antes de indexar o registrar en PIMS.
 - **Notificaciones de seguimiento e integraciones**: Redacte citaciones de seguimiento para responsables de acciones correctivas (el envío por correo institucional solo se ejecuta cuando usted escriba literalmente **`envíalo`**) o solicite habilitar conectores y tableros de soporte en vivo cuando la operación lo requiera.
 
 ---
@@ -35,12 +35,11 @@ No necesita memorizar comandos ni sintaxis técnica; formule sus consultas o sol
 2. **Aislamiento de Grupo y Doble Compuerta Humana**:
    - Toda creación o modificación nueva emitida por este operador corresponde exclusivamente al **Grupo 4** (código con prefijo `G4-`).
    - Ninguna mutación en producción (documentos, versiones, incidentes o envío de correos) se ejecuta sin confirmación explícita del usuario tras revisar la vista previa o el detalle propuesto.
-3. **Confidencialidad de Credenciales**:
-   - Las contraseñas, llaves y credenciales institucionales nunca se solicitan por el chat ni se muestran en pantalla. Para credenciales externas de usuario se emplea un formulario cifrado de un solo uso.
-4. **Portales de Soporte (`*.pimsai.mistercricro8.top:444`)**:
-   - **Terminal Web (`demo`)**: Interfaz interactiva de operación.
-   - **Portal de Archivos (`files`)**: Carga temporal de documentos y publicación de reportes y vistas previas para revisión.
-   - **Portal de Secretos (`secrets`)**: Captura cifrada de un solo uso para credenciales externas autorizadas.
+3. **Confidencialidad de Credenciales y Bóveda de Secretos**:
+   - Las contraseñas, llaves y credenciales institucionales nunca se solicitan por el chat en texto plano ni se muestran en pantalla. Para credenciales externas de usuario se despliega una **tarjeta cifrada de contraseña integrada directamente en el chat** (vigencia de 5 minutos, cifrado `age`), y puede gestionar o rotar credenciales en cualquier momento desde el panel **Bóveda de Secretos**.
+4. **Consola Web Unificada (`https://demo.pimsai.mistercricro8.top:444`)**:
+   - Interfaz web única con chat agéntico en tiempo real, adjuntos directos y vista previa/descarga de entregables, además de la **Bóveda de Secretos** integrada.
+   - Los servicios o conectores adicionales desplegados en vivo bajo subdominios dedicados operan bajo `*.pimsai.mistercricro8.top:444`.
 
 ---
 

@@ -30,7 +30,7 @@ Construcción, despliegue en contenedor hermano y registro en caliente de cualqu
   - **Regla estricta**: **NUNCA** compartir `pimsai-db` con servicios desplegados dinámicamente; cada stack mantiene su propia instancia y almacenamiento aislado.
 
 ### 3. Exponer UI Nativa Directamente en Traefik `:444` (Custom Bun Bridge Solo Si Falta UI)
-- Conectar el contenedor del servicio a `internal-proxy` (y a `<slug>-net` si usa BD compañera) con etiquetas Traefik TLS completas (sin reclamar los slugs reservados `demo`, `files` o `secrets`):
+- Conectar el contenedor del servicio a `internal-proxy` (y a `<slug>-net` si usa BD compañera) con etiquetas Traefik TLS completas (sin reclamar el slug reservado `demo`):
   - `traefik.enable=true`
   - `traefik.docker.network=internal-proxy`
   - `traefik.http.routers.pimsai-<slug>.rule=Host(\`<slug>.pimsai.mistercricro8.top\`)`
@@ -58,12 +58,11 @@ Construcción, despliegue en contenedor hermano y registro en caliente de cualqu
 
 ### 6. Modelo de Credenciales (Auto-Alojado vs SaaS Externo)
 - **Servicios Auto-Alojados que Desplegamos Nosotros**:
-  - Generar llaves y contraseñas aleatorias al lanzar (`openssl rand -hex 24`) e inyectarlas vía variables de entorno (`--env`). No solicitar estas claves generadas por `secrets-sidecar`.
+  - Generar llaves y contraseñas aleatorias al lanzar (`openssl rand -hex 24`) e inyectarlas vía variables de entorno (`--env`). No solicitar estas claves generadas por `secrets_request`.
 - **Tokens Externos Propiedad del Usuario (SaaS / APIs externas)**:
-  - Invocar la herramienta `secrets_request` (o `POST http://pimsai-secrets-sidecar:3000/api/secrets/request`).
-  - Iniciar el sondeo obligatorio con `async: true` **ANTES** de responder al usuario:
-    `curl -sS -m 310 "http://pimsai-secrets-sidecar:3000/api/secrets/poll/<token>?wait=true"` (observando estado `"submitted"|"expired"|"failed"`).
-  - Entregar `https://secrets.pimsai.mistercricro8.top:444/s/<token>` al usuario.
+  - Invocar la herramienta `secrets_request` (o `POST http://127.0.0.1:8082/internal/secrets/request`), que abre automáticamente una **tarjeta cifrada de contraseña integrada en el chat web** (el usuario también puede gestionar o rotar secretos desde el cajón **Bóveda de Secretos**).
+  - Iniciar el sondeo obligatorio con `async: true` **ANTES** de finalizar el turno:
+    `curl -sS -m 310 "http://127.0.0.1:8082/internal/secrets/poll/<token>?wait=true"` (o `secrets_poll(handle, wait: true)`, observando estado `"submitted"|"expired"`).
 
 ### 7. Modo de Ejecución y Lectura Uniforme del PIMS
 - **Sesión interactiva**: Confirmar brevemente el objetivo y despachar subagente en segundo plano (`task`) mientras la sesión principal sigue atendiendo consultas del PIMS y espejo RAG sin bloquearse.
@@ -73,5 +72,5 @@ Construcción, despliegue en contenedor hermano y registro en caliente de cualqu
 ## 3. Failure Branches
 
 - **Contenedor hermano en crash-loop o error de arranque**: Capturar `docker inspect` y `docker logs --tail 30` en los primeros 5–10s, corregir variables de entorno/red/BD y re-verificar salud antes de responder.
-- **Error de Exposición Traefik**: Confirmar conexión a `internal-proxy`, etiquetas `traefik.*` completas, slug no reservado (`demo`/`files`/`secrets`) y URL pública con `:444`.
+- **Error de Exposición Traefik**: Confirmar conexión a `internal-proxy`, etiquetas `traefik.*` completas, slug no reservado (`demo`) y URL pública con `:444`.
 - **Credencial Externa No Entregada / Expirada**: Reportar estado `"expired"` o `"failed"` del sondeo `?wait=true` sin bloquear el resto de capacidades PIMS.

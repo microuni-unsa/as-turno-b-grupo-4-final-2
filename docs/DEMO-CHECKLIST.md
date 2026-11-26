@@ -11,12 +11,10 @@
 Before troubleshooting any container or application errors, verify the network edge:
 
 - [ ] **Edge Port Mapping**: The VPS reverse proxy (Traefik) listens on port `:444`. Cloudflare Transform Rules map public `https://*.pimsai.mistercricro8.top:443` to origin `:444`.
-- [ ] **First-Response Diagnostics**: If any announced URL (`demo`, `files`, `secrets`, or deliverable slug) fails to load or yields SSL/timeout errors:
+- [ ] **First-Response Diagnostics**: If any announced URL (`demo` or deliverable sibling slug) fails to load or yields SSL/timeout errors:
   ```bash
   # Test bypass directly against origin port 444:
-  curl -vk https://demo.pimsai.mistercricro8.top:444/
-  curl -vk https://files.pimsai.mistercricro8.top:444/health
-  curl -vk https://secrets.pimsai.mistercricro8.top:444/healthz
+  curl -vk https://demo.pimsai.mistercricro8.top:444/healthz
   ```
   *If port 444 responds correctly but public 443 fails, the issue is strictly the Cloudflare Transform Rule.*
 
@@ -51,13 +49,11 @@ Run this probe sequence before handing access tokens to the instructor:
   - Confirm Traefik router `pimsai-<slug>` picks up the container dynamically.
   - Test public resolution of `https://<slug>.pimsai.mistercricro8.top`.
 
-### 2.4 Sidecars Health & Endpoints Probe
-- [ ] **Files Sidecar (`files.pimsai.mistercricro8.top`)**:
-  - Health check: `curl -f https://files.pimsai.mistercricro8.top/health` (HTTP 200 `{"status":"ok"}`).
-  - Mint check: Verify single-use token generation (`POST /api/mint`) with 5-minute TTL.
-- [ ] **Secrets Sidecar (`secrets.pimsai.mistercricro8.top`)**:
-  - Health check: `curl -f https://secrets.pimsai.mistercricro8.top/healthz` (HTTP 200 `{"status":"ok"}`).
-  - Verification: Age-encrypted volume mounted and PostgreSQL `secrets_registry` reachable.
+### 2.4 Unified Web App Health & Built-In Endpoints Probe
+- [ ] **Unified Web App (`demo.pimsai.mistercricro8.top`)**:
+  - Health check: `curl -f https://demo.pimsai.mistercricro8.top:444/healthz` (HTTP 200 `{"status":"ok"}`).
+  - Internal publish & upload check: Verify `POST http://127.0.0.1:8082/internal/publish` returns `https://demo.pimsai.mistercricro8.top:444/api/files/<slug>` and composer upload persists under `/app/data/preserved_uploads`.
+  - Built-in age secrets check: Verify `POST http://127.0.0.1:8082/internal/secrets/request` emits an inline encrypted password card, `/app/secrets` volume is mounted, and PostgreSQL `secrets_registry` is reachable.
 
 ---
 
@@ -82,11 +78,11 @@ Verify each of the 8 canonical behaviors plus proactive intelligence:
 
 | ID | Behavior | Primary Standard Clause | Verification Action | Expected Artifact / Output |
 |---|---|---|---|---|
-| **1** | `version-compare` | ISO 27701 Cl. 7.5.3 (Control of documented info) | Request comparison of two live PIMS document versions (e.g., v1.00 vs v3.00). | Extracted-text structural diff, change rationale from PIMS version history & PDF revision table (internal files never cited), `:444/p/<slug>` link. |
+| **1** | `version-compare` | ISO 27701 Cl. 7.5.3 (Control of documented info) | Request comparison of two live PIMS document versions (e.g., v1.00 vs v3.00). | Extracted-text structural diff, change rationale from PIMS version history & PDF revision table (internal files never cited), `/api/files/<slug>` inline preview card. |
 | **2** | `incident RAG summons + dispatch` | ISO 27701 Cl. 8.1, A.3.11, A.3.12 | Query full-system incident/audit corrective chain. | Deduplicated Red/Amber/Green status table (strict verified green), persisted email draft using real PIMS emails, real Gmail SMTP dispatch only on `"envíalo"`. |
-| **3** | `upload-and-read + ingest tool` | ISO 27701 Cl. 7.5.2 | Ask *"¿cómo te subo un archivo?"*. | Files sidecar link (`https://files.pimsai.mistercricro8.top:444/upload/<tok>`); `async: true` poll; "Ask First" before vectorize/PIMS upload. |
-| **5** | `live connector-build` | ISO 27701 Cl. 6.1.3 / ISO 42001 Cl. 8.4 | Request integration with external platform (e.g. WhatsApp/Evolution or Jira). | Background subagent via `connectors/_template/` (`fetch()`); self-hosted container keys injected directly + QR surfaced immediately (secrets-sidecar only for external user creds). |
-| **6** | `audit-chain drill-down` | ISO 27701 Cl. 9.2.2, 10.2 (NC & corrective action) | Request drill-down on finding/incident ID. | Trace: Finding/Incident → NC → Corrective Action → Owner/Deadline → Verbatim evidence citation (`pims:<code>:v<v>:<chunk>:lines:<l>`) + `:444/p/<slug>` link. |
+| **3** | `upload-and-read + ingest tool` | ISO 27701 Cl. 7.5.2 | Ask *"¿cómo te subo un archivo?"*. | Direct chat composer attachment/drag-and-drop instructions (up to 50 MB); "Ask First" inspection before vectorize/PIMS upload. |
+| **5** | `live connector-build` | ISO 27701 Cl. 6.1.3 / ISO 42001 Cl. 8.4 | Request integration with external platform (e.g. WhatsApp/Evolution or Jira). | Background subagent via `connectors/_template/` (`fetch()`); self-hosted container keys injected directly + native `:444` UI surfaced immediately (`secrets_request` inline password card only for external user creds). |
+| **6** | `audit-chain drill-down` | ISO 27701 Cl. 9.2.2, 10.2 (NC & corrective action) | Request drill-down on finding/incident ID. | Trace: Finding/Incident → NC → Corrective Action → Owner/Deadline → Verbatim evidence citation (`pims:<code>:v<v>:<chunk>:lines:<l>`) + `/api/files/<slug>` link. |
 | **7** | `directed new-version` | ISO 27701 Cl. 4.1, 7.5.3 | Direct a change on a `G4-` document. | Next PIMS integer aligned on PDF cover/footer/history; copy-then-fill staging with `molds/common/`; preview published via `content_base64`; explicit approval gate before PIMS upload + re-ingest. |
 | **8** | `university-change cascade` | ISO 27701 Cl. 4.1, 6.1.3 (Scope & Risk cascade) | Introduce a new university fact. | Fact recorded in `university-facts/`; scan full mirror + PIMS; propose remake set; await approval; compile via staging & re-ingest after consent. |
 | **+** | **Proactive Suggestions** | Audit 1 ("de la manito" guideline) | Ask any standard operational question. | Operator offers contextually adjacent item (e.g., *"¿Desea examinar también el informe de auditoría que originó esta acción correctiva?"*). |
@@ -96,5 +92,5 @@ Verify each of the 8 canonical behaviors plus proactive intelligence:
 ## 5. Post-Rehearsal Clean-Up
 
 - [ ] Confirm no leftover mock documents were uploaded without `G4-` prefix.
-- [ ] Reset interactive session in Zellij via `/new` so the instructor receives a clean starting banner.
+- [ ] Reset interactive session in the Unified Web App via `/new` so the instructor receives a clean starting banner.
 - [ ] Verify `task.softRequestBudget` is active and clean.

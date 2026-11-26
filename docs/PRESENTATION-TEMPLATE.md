@@ -10,12 +10,10 @@
 
 | Parameter | Specification | Evaluator Access Value |
 |---|---|---|
-| **Zellij Web URL (`:444`)** | Dedicated interactive TUI session (primary) | `https://demo.pimsai.mistercricro8.top:444/[SESSION_NAME]` |
-| **Optional `:443` Edge URL** | Cloudflare 443→444 proxy (optional / pending rule) | `https://demo.pimsai.mistercricro8.top/[SESSION_NAME]` |
-| **Instructor Access Token** | Full read-write session token (`--create-token`) | `CHANGEME_INSTRUCTOR_READ_WRITE_TOKEN` |
-| **Observer Access Token** | Read-only session inspection (`--create-read-only-token`) | `CHANGEME_OBSERVER_READ_ONLY_TOKEN` |
-| **Upload Sidecar URL** | One-time tokenized document ingestion portal | `https://files.pimsai.mistercricro8.top:444` |
-| **Secrets Sidecar URL** | Age-encrypted credential injection portal | `https://secrets.pimsai.mistercricro8.top:444` |
+| **Unified Web App URL (`:444`)** | UNSA PIMS Chat, File Uploads & Secrets Vault (primary) | `https://demo.pimsai.mistercricro8.top:444/` |
+| **Optional `:443` Edge URL** | Cloudflare 443→444 proxy (optional / pending rule) | `https://demo.pimsai.mistercricro8.top/` |
+| **Instructor Access Token (`WEB_RW_TOKEN`)** | Full read-write operator session token | `CHANGEME_WEB_RW_TOKEN` |
+| **Observer Access Token (`WEB_RO_TOKEN`)** | Read-only session inspection (optional) | `CHANGEME_WEB_RO_TOKEN` |
 | **Access Token Expiry** | Session validity window | `YYYY-MM-DD HH:MM UTC` (CHANGEME) |
 
 ---
@@ -68,6 +66,6 @@ To ensure optimal performance and budget preservation:
 
 ## 5. Security, Expiry & Rotation Notice
 
-- **Zero Plaintext Credentials**: All credentials submitted via the secrets sidecar are age-encrypted on the persistent agent volume. No passwords or private tokens exist in conversation history or source files.
-- **Single-Use Upload & Secret Links**: Public links minted by `files.pimsai.mistercricro8.top:444` and `secrets.pimsai.mistercricro8.top:444` expire strictly after **5 minutes** (300 seconds).
-- **Session Expiry**: Access tokens issued for this presentation template expire on `CHANGEME_EXPIRATION_TIMESTAMP`. Following expiry, container access tokens and sidecar handles are automatically rotated and invalidated.
+- **Zero Plaintext Credentials**: All credentials submitted via the inline encrypted password card or **Bóveda de Secretos** drawer are `age`-encrypted on the persistent agent volume. No passwords or private tokens exist in conversation history or source files.
+- **Single-Use Secret Request Cards**: Inline secret request prompts inside the unified web app expire strictly after **5 minutes** (300 seconds); direct file uploads attach straight into the chat composer (up to 50 MB).
+- **Session Expiry**: Access tokens (`WEB_RW_TOKEN` / `WEB_RO_TOKEN`) issued for this presentation template expire on `CHANGEME_EXPIRATION_TIMESTAMP`. Following expiry, web auth tokens and secret handles are automatically rotated and invalidated.

@@ -60,11 +60,11 @@ Ejecución controlada de nuevas versiones documentales (`G4-*`) —incluyendo la
      4. **Auditar texto compilado con `pdftotext -layout`**: confirmar **cero** marcadores sin resolver (`TODO`, `[POR ...]`) y **cero** términos internos filtrados (`Typst`, `Bun`, `RAFA`, `molds/`).
 
 6. **Publicación de Borrador y Compuerta Obligatoria de Aprobación Humana (STOP BEFORE PIMS WRITE)**:
-   - Enviar el PDF compilado a `files-sidecar` vía CLI:
+   - Enviar el PDF compilado a la consola web vía CLI:
      `bun scripts/pims.ts publish --slug preview-<code_slug>-v<nextMajor> --file /tmp/pims-staging/<target_code>-v<nextMajor>/<target_code>_v<nextMajor>.0.pdf --filename <target_code>_v<nextMajor>.0.pdf`
    - Entregar al usuario en español ejecutivo:
-     - Resumen de cambios, clasificación menor vs mayor, resumen de cambio propuesto, aclaración de trazabilidad `G4-` si aplica, y enlace de vista previa:
-       `https://files.pimsai.mistercricro8.top:444/p/preview-<code_slug>-v<nextMajor>`
+     - Resumen de cambios, clasificación menor vs mayor, resumen de cambio propuesto, aclaración de trazabilidad `G4-` si aplica, y enlace de vista previa (tarjeta inline **Vista previa / Descargar** en el chat):
+       `https://demo.pimsai.mistercricro8.top:444/api/files/preview-<code_slug>-v<nextMajor>`
    - **DETENERSE AQUÍ (Compuerta 2)**: NO subir a PIMS ni alterar el espejo oficial hasta recibir autorización explícita humana nombrando documento y versión (`"confirmo subida de G4-XXX v4.00"` o `"confirmo crear G4-XXX v1.00"`). Un `"procede"` genérico solo autoriza compilar y mostrar vista previa, nunca subir a PIMS.
 
 7. **Ejecución Tras Aprobación Explícita (Upload + Re-ingesta + Diff)**:
@@ -72,7 +72,7 @@ Ejecución controlada de nuevas versiones documentales (`G4-*`) —incluyendo la
      - Para nueva versión de documento existente: `bun scripts/pims.ts docs add-version <G4-CODE> --file /tmp/pims-staging/<target_code>-v<nextMajor>/<target_code>_v<nextMajor>.0.pdf --file-name <target_code>_v<nextMajor>.0.pdf --summary "<change_summary>" --confirm` (siempre pasar `--file-name` explícito).
      - Para documento nuevo `G4-`: `bun scripts/pims.ts docs create --code <G4-CODE> --name "<nombre>" --category PO|PR|RE|IN --status B|R|V --responsible "<responsable>" --file <path.pdf> --file-name <target_code>_v1.0.pdf --confirm`.
      - Ejecutar `bun scripts/pims.ts mirror sync` para sincronizar el espejo local y la base vectorial con la nueva versión oficial.
-     - Si es actualización de un documento existente, computar diff estructural con `bun scripts/pims.ts diff <G4-CODE> --from <vPrev> --to <vNext>` y publicar informe en `https://files.pimsai.mistercricro8.top:444/p/<slug>`.
+     - Si es actualización de un documento existente, computar diff estructural con `bun scripts/pims.ts diff <G4-CODE> --from <vPrev> --to <vNext>` y publicar informe en `https://demo.pimsai.mistercricro8.top:444/api/files/<slug>`.
 
 ## 3. Protocolo de Adaptación Cross-Team / PDF Arbitrario No-Typst
 
@@ -83,7 +83,7 @@ Cuando el usuario solicite digerir o versionar un documento de otro grupo (`G1-`
    - Si existe una contraparte equivalente en Grupo 4 (ej. política o procedimiento homólogo), proponer actualizarla (`docs add-version <G4-CODE>`) o, si es un artefacto nuevo, asignar un nuevo código derivado `G4-...` (`docs create --code G4-...`).
    - Registrar explícitamente **`"Basado en <source> v<n>"`** tanto en la fila correspondiente del **Historial de Revisiones** como en la sección de **Documentos de referencia** (`references`).
 4. **Explicación Clara de Aislamiento**: Informar al usuario en español claro por qué el documento resultante adopta código `G4-` (aislamiento del tenant compartido para no alterar registros de otros grupos) manteniendo trazabilidad explícita al documento fuente.
-5. **Vista Previa y Compuerta 2**: Compilar pasando el Checklist de §2.5, publicar la vista previa en `files-sidecar` y **detenerse en la Compuerta 2** antes de cualquier escritura en PIMS.
+5. **Vista Previa y Compuerta 2**: Compilar pasando el Checklist de §2.5, publicar la vista previa vía `bun scripts/pims.ts publish` (tarjeta inline **Vista previa / Descargar** en la consola web) y **detenerse en la Compuerta 2** antes de cualquier escritura en PIMS.
 
 ## 4. Failure Branches
 

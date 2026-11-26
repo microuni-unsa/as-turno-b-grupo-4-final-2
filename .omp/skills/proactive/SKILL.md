@@ -1,6 +1,6 @@
 ---
 name: proactive
-description: Contextual adjacent suggestions and positive routing of unanticipated integration requests to live-build, operating across full PIMS data and publishing artifacts via files-sidecar :444/p/<slug>.
+description: Contextual adjacent suggestions and positive routing of unanticipated integration requests to live-build, operating across full PIMS data and publishing artifacts via the unified web app (/api/files/<slug>).
 ---
 
 # Skill: proactive
@@ -26,10 +26,10 @@ Comportamiento transversal de sugerencias adyacentes útiles y enrutamiento posi
 3. **Derivación Positiva a `live-build`**:
    - Si el usuario solicita una nueva pasarela, conector, servicio auto-alojado o herramienta interactiva (ej. mensajería, mesa de ayuda, receptor de webhooks o dashboard web), **nunca responder "no puedo"**; ofrecer activarla en vivo en contenedor hermano o sidecar.
 
-4. **Publicación Correcta de Entregables (`files-sidecar`)**:
-   - Si una entrega genera un archivo/reporte estático HTML, PDF o Markdown, publicarlo vía `bun scripts/pims.ts publish --slug <slug> --file <path>` (o `POST http://pimsai-files-sidecar:3000/api/publish`) y entregar el enlace exacto:
-     `https://files.pimsai.mistercricro8.top:444/p/<slug>`
-   - Concluir con: `resultado aquí: https://files.pimsai.mistercricro8.top:444/p/<slug>`.
+4. **Publicación Correcta de Entregables (Consola Web Unificada)**:
+   - Si una entrega genera un archivo/reporte estático HTML, PDF o Markdown, publicarlo vía `bun scripts/pims.ts publish --slug <slug> --file <path>` (o `POST http://127.0.0.1:8082/internal/publish`) para desplegar automáticamente la tarjeta inline **Vista previa / Descargar** y entregar el enlace exacto:
+     `https://demo.pimsai.mistercricro8.top:444/api/files/<slug>`
+   - Concluir con: `resultado aquí: https://demo.pimsai.mistercricro8.top:444/api/files/<slug>`.
 
 ## 3. Failure Branches
 

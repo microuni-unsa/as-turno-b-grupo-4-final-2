@@ -1,11 +1,11 @@
 ---
 name: version-compare
-description: Structural comparison and multi-version evolution analysis of live PIMS PDFs via extracted text diff (pdftotext -layout) and version history, silently informed by RAFA without citing internal files, always publishing a files-sidecar report with real UTC timestamps.
+description: Structural comparison and multi-version evolution analysis of live PIMS PDFs via extracted text diff (pdftotext -layout) and version history, silently informed by RAFA without citing internal files, always publishing an inline unified web app report with real UTC timestamps.
 ---
 
 # Skill: version-compare
 
-Comparación estructural y análisis evolutivo entre versiones reales de cualquier documento en el PIMS en vivo (`https://unsa.27k.pe`), leyendo todas las versiones disponibles de forma uniforme (sin filtro `G4-` en lectura) y publicando siempre el informe comparativo o de evolución en `files-sidecar`.
+Comparación estructural y análisis evolutivo entre versiones reales de cualquier documento en el PIMS en vivo (`https://unsa.27k.pe`), leyendo todas las versiones disponibles de forma uniforme (sin filtro `G4-` en lectura) y publicando siempre el informe comparativo o de evolución en la consola web unificada.
 
 ## 1. Trigger Patterns
 
@@ -36,14 +36,14 @@ Comparación estructural y análisis evolutivo entre versiones reales de cualqui
    - **REGLA ESTRICTA DE SILENCIO**: **NUNCA mencionar `RAFA.md`, `RAFA`, nombres de archivos de moldes ni rutas internas (`molds/...`, `corpus_g4_src/`, `scripts/`) en la respuesta al usuario ni en el informe publicado.** Atribuir toda explicación exclusivamente al historial registrado en PIMS, tabla de revisiones del documento y cláusulas ISO/IEC 27701:2025.
    - **Nota de Evidencia de Capacitación**: `/api/trainings/` retorna HTTP 403 para `grupob4`; las evidencias de capacitación viven en documentos `G4-REG-CAP-*` / `G4-PRG-CAP-*`.
 
-4. **Publicación de Informe Visual (`files-sidecar`) — OBLIGATORIA (Diffs y Evoluciones Multiversión)**:
+4. **Publicación de Informe Visual (Consola Web Unificada) — OBLIGATORIA (Diffs y Evoluciones Multiversión)**:
    - Generar **SIEMPRE** el informe (HTML o Markdown en español ejecutivo limpio; PDF solo si el usuario lo pide) tanto para comparaciones puntuales (`vX` vs `vY`) como para **TODAS las consultas de evolución multiversión o línea de tiempo** (`v1 → v2 → v3...`), y publicarlo mediante `bun scripts/pims.ts publish --slug <slug> --file <path> [--filename <name>]`:
-     `https://files.pimsai.mistercricro8.top:444/p/<slug>`
+     `https://demo.pimsai.mistercricro8.top:444/api/files/<slug>` (el chat muestra automáticamente la tarjeta inline **Vista previa / Descargar**).
    - **Convención de slug con timestamp UTC real de shell (PROHIBIDO inventar horas fijas)**:
      `SLUG="version-compare-<code_slug>-$(date -u +%Y%m%d-%H%M)"`
      (Jamás usar timestamps ficticios como `1200`, `0555` o `1430`).
-   - Responder inline un resumen ejecutivo en español + cerrar con la línea exacta: `resultado aquí: https://files.pimsai.mistercricro8.top:444/p/<slug>`.
-   - **Nunca** usar `https://<slug>.pimsai.mistercricro8.top:444` directamente para entregas de archivos estáticos; la ruta correcta de `files-sidecar` es siempre `https://files.pimsai.mistercricro8.top:444/p/<slug>`.
+   - Responder inline un resumen ejecutivo en español + cerrar con la línea exacta: `resultado aquí: https://demo.pimsai.mistercricro8.top:444/api/files/<slug>`.
+   - **Nunca** usar `https://<slug>.pimsai.mistercricro8.top:444` directamente para entregas de archivos estáticos; la ruta correcta de entregables publicados en la consola web es siempre `https://demo.pimsai.mistercricro8.top:444/api/files/<slug>`.
 
 ## 3. Failure Branches
 

@@ -41,9 +41,9 @@ Generación de borradores y despacho real controlado mediante **Gmail SMTP (`nod
      `bun scripts/pims.ts mail dispatch --id <draftId> --phrase envíalo --confirm`
    - El CLI autentica con Gmail SMTP (`SMTP_*` leídos en proceso desde `process.env` — jamás impresos ni leyendo `.env`) y retorna el `messageId` real del servidor SMTP.
 
-4. **Publicación Opcional de Bitácora (`files-sidecar`)**:
-   - Si se publica bitácora HTML/PDF de despachos, usar `bun scripts/pims.ts publish --slug summons-$(date -u +%Y%m%d-%H%M) --file <path>` y devolver:
-     `resultado aquí: https://files.pimsai.mistercricro8.top:444/p/<slug>`.
+4. **Publicación Opcional de Bitácora (Consola Web Unificada)**:
+   - Si se publica bitácora HTML/PDF de despachos, usar `bun scripts/pims.ts publish --slug summons-$(date -u +%Y%m%d-%H%M) --file <path>` (muestra tarjeta inline **Vista previa / Descargar** en el chat) y devolver:
+     `resultado aquí: https://demo.pimsai.mistercricro8.top:444/api/files/<slug>`.
 
 ## 3. Failure Branches
 

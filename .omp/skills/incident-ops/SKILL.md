@@ -48,10 +48,10 @@ Consulta y gestión operativa de incidentes, hallazgos de auditoría, no conform
 4. **Enlace Proactivo con Notificaciones de Seguimiento**:
    - Para las filas Rojas o Ámbar identificadas, indicar los correos de contacto reales obtenidos con `--include-emails` (`dpo_contact_email`, `rep_email`) y ofrecer en español ejecutivo preparar los borradores de notificación de seguimiento (sin mencionar nombres internos de skills ni comandos CLI).
 
-5. **Publicación de Entregable (`files-sidecar`) — OBLIGATORIA**:
+5. **Publicación de Entregable (Consola Web Unificada) — OBLIGATORIA**:
    - Generar SIEMPRE el tablero semafórico como dashboard (HTML o Markdown, en español ejecutivo limpio sin rutas ni comandos internos) y publicarlo mediante `bun scripts/pims.ts publish --slug <slug> --file <path> [--filename <name>]`:
-     `https://files.pimsai.mistercricro8.top:444/p/<slug>`
-   - Convención de slug con timestamp UTC real de shell: `incident-ops-$(date -u +%Y%m%d-%H%M)`. Responder inline el resumen + concluir con: `resultado aquí: https://files.pimsai.mistercricro8.top:444/p/<slug>`.
+     `https://demo.pimsai.mistercricro8.top:444/api/files/<slug>` (el chat muestra automáticamente la tarjeta inline **Vista previa / Descargar**).
+   - Convención de slug con timestamp UTC real de shell: `incident-ops-$(date -u +%Y%m%d-%H%M)`. Responder inline el resumen + concluir con: `resultado aquí: https://demo.pimsai.mistercricro8.top:444/api/files/<slug>`.
 
 ## 3. Escrituras de Incidentes — Compuerta Humana Obligatoria de 2 Turnos
 

@@ -9,7 +9,7 @@ Autonomous Privacy Information Management System (PIMS) operator for the **Unive
 Comprehensive architecture blueprints, operational procedures, and normative references:
 
 - [docs/SPEC.md](docs/SPEC.md) — Normative solution specification, VPS topology, GESTITEL API contracts, and predicted behaviors.
-- [docs/PRESENTATION-TEMPLATE.md](docs/PRESENTATION-TEMPLATE.md) — Evaluator presentation document (Zellij access tokens, budget caps, degraded-at-cap policy, and key tier matrix).
+- [docs/PRESENTATION-TEMPLATE.md](docs/PRESENTATION-TEMPLATE.md) — Evaluator presentation document (web app access tokens `WEB_RW_TOKEN`/`WEB_RO_TOKEN`, budget caps, degraded-at-cap policy, and key tier matrix).
 - [docs/DEMO-CHECKLIST.md](docs/DEMO-CHECKLIST.md) — Pre-demo probe sequence, Cloudflare 443→444 diagnostics, shared-tenant guardrails, and SPEC §9 behavior rehearsal matrix.
 - [docs/DEPLOY-VPS.md](docs/DEPLOY-VPS.md) — Human-run production deployment runbook on target VPS with Let's Encrypt verification and rollback procedures.
 - [AGENTS.md](AGENTS.md) — Agentic operator identity, interactive commands (`/new`, `/resume`, `mas ayuda`), conventions, and skills roster.
@@ -32,8 +32,8 @@ The repository is structured into modular components covering all system boundar
 
 ```text
 .
-├── Dockerfile                   # Unified base image (Debian Bookworm, Bun 1.2.4, Typst 0.15, Zellij 0.45, omp 18.18.1)
-├── docker-compose.yml           # Orchestration for agent, pgvector db, files-sidecar, and secrets-sidecar
+├── Dockerfile                   # Unified base image (Debian Bookworm, Bun 1.2.4, Node 22, Typst 0.15, omp 18.18.1, prebuilt React SPA)
+├── docker-compose.yml           # 2-container orchestration for agent (unified web app + omp) and pgvector db
 ├── .dockerignore                # Docker build context exclusions (docs, artifacts, node_modules)
 ├── .gitignore                   # Git VCS exclusions (tokens, local databases, build caches)
 ├── .env.example                 # Environment configuration template (all placeholders marked CHANGEME)
@@ -53,11 +53,10 @@ The repository is structured into modular components covering all system boundar
 ├── packages/                    # Core TypeScript libraries
 │   ├── pims-adapter/            # Typed GESTITEL REST client (see packages/pims-adapter/README.md)
 │   └── rag-mirror/              # Vector database client, chunking, and diff engine (see packages/rag-mirror/README.md)
+├── apps/                        # Unified Web App (Bun backend + React 19 SPA on port 8082)
+│   └── web/                     # Chat UI, direct file uploads/downloads, and age-encrypted Bóveda de Secretos
 ├── scripts/                     # Operational scripts and companion CLI
 │   └── pims.ts                  # Canonical PIMS CLI (reads, gated writes, mirror sync, diff, publish)
-├── services/                    # Autonomous HTTP sidecar services
-│   ├── files-sidecar/           # Ephemeral upload receiver (5-min token TTL, see services/files-sidecar/README.md)
-│   └── secrets-sidecar/         # Zero-knowledge age-encrypted credentials store (see services/secrets-sidecar/README.md)
 ├── university-facts/            # Dated, sourced institutional facts for cascade mutations (see university-facts/facts.json)
 └── .omp/                        # Open Multi-Agent Platform agent configuration
     ├── config.yml               # Agent runtime configuration (budgets, memory, models)
@@ -107,10 +106,8 @@ docker compose build
 ```
 
 This compiles:
-1. `agent`: Full operator environment with Bun runtime, Typst 0.15, Zellij 0.45, and omp.
+1. `agent`: Full operator environment with Bun runtime, Node 22, Typst 0.15, omp, `age`, and prebuilt React web SPA (`/opt/pimsai-web/dist`).
 2. `db`: PostgreSQL 16 with pgvector extension enabled.
-3. `files-sidecar`: Node 22 upload receiver service.
-4. `secrets-sidecar`: Node 20 age-encryption secrets service.
 
 ### Step 5: Start and Verify Services
 
@@ -130,11 +127,9 @@ docker compose ps
 docker compose logs -f agent
 ```
 
-All 4 services will report healthy or running:
-- `pimsai-agent`: Active, serving Zellij Web on port 8082.
+Both services will report healthy or running:
+- `pimsai-agent`: Healthy, serving the unified UNSA PIMS Web App + `omp` on port 8082 (`/healthz`).
 - `pimsai-db`: Healthy, listening on port 5432 with pgvector support.
-- `pimsai-files-sidecar`: Active, serving upload portal on port 3000.
-- `pimsai-secrets-sidecar`: Active, serving age secrets store on port 3000.
 
 ---
 
@@ -147,9 +142,7 @@ Host(`<slug>.pimsai.mistercricro8.top`)
 ```
 
 ### Reserved Subdomains (DO NOT REUSE FOR DELIVERABLES):
-- `demo.pimsai.mistercricro8.top`: Zellij Web terminal interface (SPEC §4.2).
-- `files.pimsai.mistercricro8.top`: Ephemeral document upload sidecar (SPEC §9.3).
-- `secrets.pimsai.mistercricro8.top`: Age-encrypted secrets injection sidecar (SPEC §4.3).
+- `demo.pimsai.mistercricro8.top`: Unified UNSA PIMS Web App (chat interface, direct file uploads/downloads, and age-encrypted secrets vault on port 8082). (`files` and `secrets` sidecars are retired.)
 
 ---
 

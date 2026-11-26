@@ -43,7 +43,7 @@ cp connectors/_template/SKILL-FRAG.md connectors/<connector-name>/SKILL-FRAG.md
 
 ### Step 4: Isolated Companion DBs, Native UI & Traefik `:444` Hosting
 1. **Isolated Per-Stack Companion DB/Cache**: Whenever a service requires a database or cache, spawn a dedicated companion container (`pimsai-<slug>-db`) on an isolated per-stack Docker bridge network (`<slug>-net`) with a named volume (`<slug>-db-data`). Never share `pimsai-db` with dynamically spawned services.
-2. **Expose Native Admin/Setup UI on Traefik `:444`**: Connect the service container to `internal-proxy` with full Traefik TLS labels (never claiming reserved slugs `demo`, `files`, `secrets`):
+2. **Expose Native Admin/Setup UI on Traefik `:444`**: Connect the service container to `internal-proxy` with full Traefik TLS labels (never claiming reserved slug `demo`):
    - `traefik.enable=true`
    - `traefik.docker.network=internal-proxy`
    - `traefik.http.routers.pimsai-<slug>.rule=Host(\`<slug>.pimsai.mistercricro8.top\`)`
@@ -56,8 +56,8 @@ cp connectors/_template/SKILL-FRAG.md connectors/<connector-name>/SKILL-FRAG.md
 4. **Inbound Webhooks**: Always include `:444` in callback URLs: `https://<slug>.pimsai.mistercricro8.top:444/webhook`.
 
 ### Step 5: Credentials Model & Uniform PIMS Reads
-- **Self-Hosted Spawned Services**: Generate random keys/passwords at launch (`openssl rand -hex`) and inject them via `--env`; do NOT prompt via `secrets-sidecar`.
-- **External User-Owned SaaS/API Tokens**: Request via `secrets_request` tool (or `POST http://pimsai-secrets-sidecar:3000/api/secrets/request`), start the `async: true` long-poll (`curl -sS -m 310 "http://pimsai-secrets-sidecar:3000/api/secrets/poll/<token>?wait=true"`, matching `"submitted"|"expired"|"failed"`) **before** replying, and hand `https://secrets.pimsai.mistercricro8.top:444/s/<token>` to the user.
+- **Self-Hosted Spawned Services**: Generate random keys/passwords at launch (`openssl rand -hex`) and inject them via `--env`; do NOT prompt via `secrets_request`.
+- **External User-Owned SaaS/API Tokens**: Request via `secrets_request` tool (or `POST http://127.0.0.1:8082/internal/secrets/request`), which displays an **inline encrypted password card inside the web chat** (also manageable via the **Bóveda de Secretos** drawer), and start the `async: true` long-poll (`curl -sS -m 310 "http://127.0.0.1:8082/internal/secrets/poll/<token>?wait=true"` or `secrets_poll(handle, wait: true)`, matching `"submitted"|"expired"`) **before** ending the turn.
 - **Uniform PIMS Reads**: Incident/audit pollers and watchers read all PIMS records uniformly (no `G4-` read filtering) and always inspect `incidents get <CODE> --json` before reporting containment or evidence state. (`G4-` applies strictly to PIMS writes.)
 
 ### Step 6: Fast Boot Diagnostics & Health Probe

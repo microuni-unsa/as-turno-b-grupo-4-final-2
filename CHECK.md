@@ -3,7 +3,7 @@
 > **System**: UNSA PIMS Agentic Operator (Turno B Grupo 4)  
 > **Normative Framework**: ISO/IEC 27701:2025 (PII Controller Role: Admissions & Payroll Scope)  
 > **Primary Source of Truth**: GESTITEL PIMS (`https://unsa.27k.pe`, tenant `unsa`, prefix `G4-`)  
-> **Target Topology**: Debian Bookworm / Bun / Typst / Zellij Web / Traefik `:444` / Cloudflare  
+> **Target Topology**: Debian Bookworm / Bun / React 19 Unified Web App / Typst / Traefik `:444` / Cloudflare  
 
 ---
 
@@ -13,7 +13,7 @@ This manual review checklist provides a complete, step-by-step verification prot
 
 ```mermaid
 flowchart TD
-    P1["Phase 1: Environment & Orchestration\n(Docker, Traefik, Port :444, Zellij)"] --> P2["Phase 2: Sidecar Services\n(Files Sidecar, Secrets Sidecar)"]
+    P1["Phase 1: Environment & Orchestration\n(2-Container Docker, Traefik, Port :444, Web App)"] --> P2["Phase 2: Unified Web App Capabilities\n(Composer Uploads, Deliverables, Inline Secrets)"]
     P2 --> P3["Phase 3: Core Packages & Data Pipeline\n(PIMS Adapter, Typst Molds, pgvector)"]
     P3 --> P4["Phase 4: Connectors & Runtime\n(Documents, Mail Summons, Secret Handles)"]
     P4 --> P5["Phase 5: Agentic Operator & Runtime\n(OMP Config, Banner, /new, /resume, Redaction)"]
@@ -54,49 +54,36 @@ flowchart TD
   docker compose build
   ```
 - [ ] Verify clean compilation of:
-  - `pimsai-agent` (from [Dockerfile](Dockerfile): Debian Bookworm, Bun 1.2.4, Node 22, Chromium + `/node_modules` `@playwright/mcp` & `nodemailer`, Typst 0.15, Zellij 0.45, omp 18.18.1, `age`, `poppler-utils`, `tesseract-ocr`, `/var/lib/pimsai/corpus_mirror`)
-  - `pimsai-files-sidecar` (from [services/files-sidecar/Dockerfile](services/files-sidecar/Dockerfile): Node 22 native TS)
-  - `pimsai-secrets-sidecar` (from [services/secrets-sidecar/Dockerfile](services/secrets-sidecar/Dockerfile): Node 20, Age CLI)
+  - `pimsai-agent` (from [Dockerfile](Dockerfile): Debian Bookworm, Bun 1.2.4, Node 22 + pnpm prebuilt SPA at `/opt/pimsai-web/dist`, Chromium + `/node_modules` `@playwright/mcp` & `nodemailer`, Typst 0.15, omp 18.18.1, `age`, `poppler-utils`, `tesseract-ocr`, `/var/lib/pimsai/corpus_mirror`)
+  - `pimsai-db` (`pgvector/pgvector:pg16`)
 
 ### Task 1.4: Stack Startup & Healthcheck
 - [ ] Start the stack:
   ```bash
   docker compose up -d
   ```
-- [ ] Verify that all 4 containers are running and healthy:
+- [ ] Verify that both containers are running and healthy:
   ```bash
   docker compose ps
   ```
   - `pimsai-db`: `healthy` (PostgreSQL 16 + pgvector listening on 5432)
-  - `pimsai-agent`: `running` (`init: true`, Zellij Web listening on 8082, background `mirror sync --loop --interval 300` logging to `/tmp/pims-mirror-sync.log`)
-  - `pimsai-files-sidecar`: `running` (Upload service listening on 3000)
-  - `pimsai-secrets-sidecar`: `running` (Secrets service listening on 3000)
+  - `pimsai-agent`: `healthy` (`init: true`, Unified Web App listening on 8082, `/healthz` returning 200, background `mirror sync --loop --interval 300` logging to `/tmp/pims-mirror-sync.log`)
 
 ### Task 1.5: Reverse Proxy Edge & Port 444 Verification
-- [ ] Verify Traefik `:444` public endpoints (primary) and optional Cloudflare `:443` edge rule:
+- [ ] Verify Traefik `:444` public endpoint (primary) and optional Cloudflare `:443` edge rule:
   ```bash
-  # Primary verified public endpoints on port 444
-  curl -vk https://demo.pimsai.mistercricro8.top:444/
-  curl -vk https://files.pimsai.mistercricro8.top:444/health
-  curl -vk https://secrets.pimsai.mistercricro8.top:444/healthz
+  # Primary verified public endpoint on port 444
+  curl -vk https://demo.pimsai.mistercricro8.top:444/healthz
 
   # Optional / Pending Cloudflare 443->444 edge rule
-  curl -f https://files.pimsai.mistercricro8.top/health || echo "Optional :443 edge pending"
-  curl -f https://secrets.pimsai.mistercricro8.top/healthz || echo "Optional :443 edge pending"
+  curl -f https://demo.pimsai.mistercricro8.top/healthz || echo "Optional :443 edge pending"
   ```
 - [ ] Verify that HTTP status 200 is returned on `:444`.
 
-### Task 1.6: Zellij Web Session & Token Generation
-- [ ] Generate authentication tokens for the instructor session:
-  ```bash
-  # Read-Write token (for active evaluator)
-  docker compose exec agent zellij web --create-token
-
-  # Read-Only token (for passive observers)
-  docker compose exec agent zellij web --create-read-only-token
-  ```
+### Task 1.6: Unified Web App Session & Token Authentication
+- [ ] Configure `WEB_RW_TOKEN` (and optional `WEB_RO_TOKEN`) in host `.env`.
 - [ ] Access `https://demo.pimsai.mistercricro8.top:444` in a browser.
-- [ ] Enter the Read-Write token and verify that the `omp` interactive terminal attaches cleanly in locked mode using the single full-bleed `pimsai` layout (no Release Notes modal, no extra tab/status bar).
+- [ ] Sign in with `WEB_RW_TOKEN` (or `WEB_RO_TOKEN` for read-only observer mode) and verify that the unified React chat interface connects to the `omp` operator cleanly.
 
 ### Task 1.7: Headless Browser / Playwright MCP Verification
 - [ ] Inside `pimsai-agent`, confirm Chromium and `@playwright/mcp` resolve cleanly:
@@ -108,86 +95,44 @@ flowchart TD
 
 ---
 
-## Phase 2: Sidecar Services Manual Functional Testing
+## Phase 2: Unified Web App Functional Testing (Files & Age Secrets)
 
-### Task 2.1: Files Sidecar (`files-sidecar`)
+### Task 2.1: Direct Composer Uploads & Deliverable Publishing (`/internal/publish`, `/api/files/*`)
 - [ ] **Health Check**:
   ```bash
-  curl -s http://localhost:3000/health
+  curl -s http://127.0.0.1:8082/healthz
   ```
-  Expected: `{"status":"ok","service":"files-sidecar",...}`.
-- [ ] **Session Minting (`upload-and-read`)**:
-  ```bash
-  MINT_RESP=$(curl -s -X POST http://localhost:3000/api/mint \
-    -H "Content-Type: application/json" \
-    -d '{"flow":"upload-and-read"}')
-  echo "$MINT_RESP"
-  TOKEN=$(echo "$MINT_RESP" | jq -r '.token')
-  ```
-  Verify: `token` is non-empty, `expires_in_seconds` is 300 (5 minutes), `upload_to_pims` is `false`.
-- [ ] **Web Form Display**:
-  Open `http://localhost:3000/upload/$TOKEN` (or `https://files.pimsai.mistercricro8.top:444/upload/$TOKEN`) in a browser. Confirm modern drag-and-drop form renders.
-- [ ] **File Upload Submission & Preservation**:
-  Upload a test document via cURL:
-  ```bash
-  echo "Test file content for PIMS verification" > /tmp/test-upload.txt
-  curl -s -X POST http://localhost:3000/upload/$TOKEN \
-    -F "file=@/tmp/test-upload.txt;filename=test-upload.txt"
-  ```
-  Verify: Response status 200/completed and file saved to `/app/data/preserved_uploads/<token>_test-upload.txt`.
-- [ ] **Upload Polling (Immediate & Long-Poll `?wait=true`)**:
-  ```bash
-  curl -s "http://localhost:3000/poll/$TOKEN?wait=true"
-  ```
-  Verify: Returns `{"status":"completed","preserved_file_path":"/app/data/preserved_uploads/..."}` immediately upon completion (while bare `/poll/$TOKEN` remains non-blocking for status probes).
-- [ ] **Single-Use Enforcement**:
-  Attempt to upload again using the same `$TOKEN`.
-  Verify: HTTP 409 Conflict (`TOKEN_ALREADY_USED`).
+  Expected: `{"status":"ok",...}` (HTTP 200).
+- [ ] **Direct Composer Attachment**:
+  Attach or drag-and-drop a test document (up to 50 MB; PDF/DOC/DOCX/TXT/XLSX/PNG) directly in the web chat composer.
+  Verify: File persists under `/app/data/preserved_uploads/` and the operator inspects it via `pdftotext -layout -nopgbrk` (or OCR) without auto-vectorizing or auto-uploading to PIMS.
 - [ ] **50MB File Size Guard**:
-  Attempt to upload a payload exceeding 50 MB (`MAX_FILE_SIZE_BYTES`).
-  Verify: HTTP 413 (`FILE_TOO_LARGE`).
-- [ ] **Deliverable Publishing (`/api/publish`)**:
+  Attempt to upload a payload exceeding 50 MB (`MAX_UPLOAD_BYTES`).
+  Verify: HTTP 413.
+- [ ] **Deliverable Publishing (`/internal/publish`)**:
   ```bash
-  PUB_RESP=$(curl -s -X POST http://localhost:3000/api/publish \
+  PUB_RESP=$(curl -s -X POST http://127.0.0.1:8082/internal/publish \
     -H "Content-Type: application/json" \
     -d '{"slug":"manual-qa-report","filename":"report.html","content":"<h1>QA Verification Passed</h1>"}')
   echo "$PUB_RESP"
   ```
-  Verify: Returns `url` pointing to `https://files.pimsai.mistercricro8.top:444/p/manual-qa-report`.
-  Fetch `http://localhost:3000/p/manual-qa-report` and verify HTML is served inline.
-  Fetch `http://localhost:3000/p/manual-qa-report?download=1` and verify `Content-Disposition: attachment`.
+  Verify: Returns `url` pointing to `https://demo.pimsai.mistercricro8.top:444/api/files/manual-qa-report` and renders an inline **Vista previa / Descargar** card inside chat.
 - [ ] **Post-Upload "Ask First" Rule**:
   Verify the operator does **not** auto-vectorize or auto-upload to PIMS upon upload completion, but rather presents the received file metadata and asks the user what to do with it.
 
-### Task 2.2: Secrets Sidecar (`secrets-sidecar`)
-- [ ] **Health Check**:
-  ```bash
-  curl -s http://localhost:3000/healthz
-  ```
-  Expected: `{"status":"ok"}`.
+### Task 2.2: Built-In Age Secrets Flow & Bóveda de Secretos (`/internal/secrets/*`)
 - [ ] **Secret Request Generation**:
   ```bash
-  SEC_RESP=$(curl -s -X POST http://localhost:3000/api/secrets/request \
+  SEC_RESP=$(curl -s -X POST http://127.0.0.1:8082/internal/secrets/request \
     -H "Content-Type: application/json" \
     -d '{"label":"jira_api_token","scope":"connectors"}')
   echo "$SEC_RESP"
   SEC_TOKEN=$(echo "$SEC_RESP" | jq -r '.token')
-  SEC_URL=$(echo "$SEC_RESP" | jq -r '.url')
   ```
-  Verify: `SEC_URL` equals `https://secrets.pimsai.mistercricro8.top:444/s/<token>`, expires in 300s.
-- [ ] **Web Paste Form**:
-  Open `http://localhost:3000/s/$SEC_TOKEN` in a browser. Confirm password-masked input form renders.
+  Verify: Opens an **inline encrypted password card inside the web chat** (5-minute expiry; also manageable in **Bóveda de Secretos** drawer).
 - [ ] **Secret Submission & Age Encryption**:
-  Submit a test secret:
-  ```bash
-  SUB_RESP=$(curl -s -X POST http://localhost:3000/s/$SEC_TOKEN \
-    -H "Content-Type: application/json" \
-    -d '{"secretValue":"super-secret-key-12345"}')
-  echo "$SUB_RESP"
-  HANDLE=$(echo "$SUB_RESP" | jq -r '.handle')
-  ```
-  Verify: `HANDLE` follows format `secret:jira_api_token@v1`.
-  Verify disk storage: Check `/var/lib/secrets-store/` contains age-encrypted ciphertext, never plaintext.
+  Submit a test secret in the inline password card or **Bóveda de Secretos** drawer.
+  Verify: Handle follows format `secret:jira_api_token@v1` and `/app/secrets/` contains `age`-encrypted ciphertext, never plaintext.
 - [ ] **PostgreSQL Registry Entry**:
   Verify entry in table `secrets_registry`:
   ```sql
@@ -195,11 +140,11 @@ flowchart TD
   ```
 - [ ] **Secret Polling (Immediate & Long-Poll `?wait=true`)**:
   ```bash
-  curl -s "http://localhost:3000/api/secrets/poll/$SEC_TOKEN?wait=true"
+  curl -s "http://127.0.0.1:8082/internal/secrets/poll/$SEC_TOKEN?wait=true"
   ```
-  Verify: Response returns `{"status":"submitted","handle":"secret:jira_api_token@v1",...}` (or `"completed"`) with **zero** plaintext secret value.
+  Verify: Response returns `{"status":"submitted","handle":"secret:jira_api_token@v1",...}` with **zero** plaintext secret value.
 - [ ] **Zero-Leak Guarantee**:
-  Confirm that the plaintext `"super-secret-key-12345"` does not appear in terminal logs, database rows, or JSON responses.
+  Confirm that plaintext secrets never appear in terminal logs, database rows, or JSON responses.
 
 ---
 
@@ -352,7 +297,7 @@ flowchart TD
 ## Phase 5: Agentic Operator Interface & Extension Controls (`.omp/`)
 
 ### Task 5.1: Startup Banner & Branding
-- [ ] Start an interactive session in Zellij Web or terminal:
+- [ ] Open the unified web app (`https://demo.pimsai.mistercricro8.top:444`) or an interactive `omp` session:
   ```bash
   omp
   ```
@@ -418,7 +363,7 @@ Verify all 12 `.omp/skills/*/SKILL.md` skills carry valid YAML frontmatter (`nam
 - [ ] **Expected Output**:
   - Diffs **live PIMS PDFs** via extracted text (`pdftotext -layout`, `bun scripts/pims.ts diff G4-POL-01 --from 1.00 --to 3.00`, or `v<n>.txt`) without relying on `corpus_g4_src/`.
   - Extracts `change_summary` and PDF revision history table; uses internal template rationale **silently (never mentions `RAFA.md` or `RAFA`)** and flags expired `validity` dates if applicable.
-  - Publishes via `bun scripts/pims.ts publish` with a **real shell UTC timestamp slug** (`version-compare-...-$(date -u +%Y%m%d-%H%M)`) for BOTH two-version diffs and multi-version evolution queries, returning `https://files.pimsai.mistercricro8.top:444/p/<slug>`.
+  - Publishes via `bun scripts/pims.ts publish` with a **real shell UTC timestamp slug** (`version-compare-...-$(date -u +%Y%m%d-%H%M)`) for BOTH two-version diffs and multi-version evolution queries, returning `https://demo.pimsai.mistercricro8.top:444/api/files/<slug>` (inline **Vista previa / Descargar** card).
 
 ### Skill 4: `incident-ops`
 - [ ] **Prompt**: `"Muestra el tablero semafórico de acciones correctivas de incidentes."`
@@ -426,7 +371,7 @@ Verify all 12 `.omp/skills/*/SKILL.md` skills carry valid YAML frontmatter (`nam
   - Reads **all** system incidents (`INC-001`..`INC-012`) and audits (`AUD-2026-001`..`003`) uniformly; deduplicates cloned rows on `AUD-2026-003` and reports separate **`Findings`** vs **`Actions`** counts (`incidents get --json` uses `--with-history` when full history is needed).
   - Strict green verification: `🟢 VERDE` ONLY when `status === "C"`, `progress === 100`, `closed_at !== null`, and verifiable evidence exists (e.g., `INC-001` remains 🟡/🔴 while `AUD-2026-002` CAPA is open or evidence is missing).
   - Proactively offers to prepare summons in executive Spanish (no internal skill/CLI leaks).
-  - Publishes deliverable via `https://files.pimsai.mistercricro8.top:444/p/<slug>` using real UTC timestamp slug.
+  - Publishes deliverable via `https://demo.pimsai.mistercricro8.top:444/api/files/<slug>` using real UTC timestamp slug.
 - [ ] **Two-Turn Incident Write Check**:
   - Prompt to register or update a `G4-INC-...` incident -> Turn 1 runs `--dry-run`, prints full payload (including `--incident-type`, `--involves-personal-data`, and `G4-` title/code), and **HALTS**; Turn 2 passes `--confirm` ONLY after explicit user confirmation naming the incident.
 
@@ -439,7 +384,7 @@ Verify all 12 `.omp/skills/*/SKILL.md` skills carry valid YAML frontmatter (`nam
 - [ ] **Prompt**: `"envíalo"`
 - [ ] **Expected Output (Phase B)**:
   - Dispatches real email via Gmail SMTP (`nodemailer`) using `SMTP_*` env without printing credentials.
-  - Ends with `resultado aquí: https://files.pimsai.mistercricro8.top:444/p/<slug>` if report generated.
+  - Ends with `resultado aquí: https://demo.pimsai.mistercricro8.top:444/api/files/<slug>` if report generated.
 
 ### Skill 6: `audit-chain`
 - [ ] **Prompt**: `"Rastrea la cadena de auditoría del hallazgo o incidente pendiente y muestra su evidencia exacta en PIMS."`
@@ -447,7 +392,7 @@ Verify all 12 `.omp/skills/*/SKILL.md` skills carry valid YAML frontmatter (`nam
   - Reads audits & incidents uniformly (no `G4-` read gate); reports separate `Findings` vs `Actions` counts when using `--dedupe`.
   - Maintains strict consistent traffic lights (`INC-001` = 🟡/🔴 while `AUD-2026-002` CAPA is open or evidence is missing).
   - Traces Finding/Incident → NC → Corrective Action → Owner/Deadline → verbatim RAG chunk citation `pims:<doc.code>:v<version>:<chunk_id>:<lines>` (`--full` when needed).
-  - Publishes via `files-sidecar` at `https://files.pimsai.mistercricro8.top:444/p/<slug>` using real UTC timestamp slug (`$(date -u +%Y%m%d-%H%M)`).
+  - Publishes via unified web app at `https://demo.pimsai.mistercricro8.top:444/api/files/<slug>` using real UTC timestamp slug (`$(date -u +%Y%m%d-%H%M)`).
 
 ### Skill 7: `directed-version`
 - [ ] **Prompt (Existing `G4-` Document)**: `"Actualiza el procedimiento de incidentes G4-PRC-INC-01 para formalizar el canal de reporte en la filial Camaná."`
@@ -473,7 +418,7 @@ Verify all 12 `.omp/skills/*/SKILL.md` skills carry valid YAML frontmatter (`nam
   - Compiles approved documents via copy-then-fill staging (checking `\@`, `reviewer`, zero internal terms), publishes previews via `bun scripts/pims.ts publish`, and **HALTS at Gate 2** (preview gate is SEPARATE from upload gate).
 - [ ] **Prompt**: `"confirmo subida de <doc> v<ver>"` (names doc+version explicitly)
 - [ ] **Expected Output (Phase C — upload)**:
-  - Uploads new versions with `change_summary` via `bun scripts/pims.ts docs add-version ... --confirm`, runs `bun scripts/pims.ts mirror sync` (or canonical `sync-pims-truth.ts`), and publishes report at `https://files.pimsai.mistercricro8.top:444/p/<slug>`.
+  - Uploads new versions with `change_summary` via `bun scripts/pims.ts docs add-version ... --confirm`, runs `bun scripts/pims.ts mirror sync` (or canonical `sync-pims-truth.ts`), and publishes report at `https://demo.pimsai.mistercricro8.top:444/api/files/<slug>`.
 
 ### Skill 9: `live-build`
 - [ ] **Prompt**: `"Despliega un servicio interactivo o portal de alertas en vivo (con su base de datos si la requiere) e intégralo con los incidentes del SGPI."`
@@ -481,8 +426,8 @@ Verify all 12 `.omp/skills/*/SKILL.md` skills carry valid YAML frontmatter (`nam
   - Interactive session: confirms target immediately and dispatches background subagent (`task`) while main chat remains responsive to PIMS queries (`omp -p` non-interactive mode runs inline).
   - Performs **preflight image inspection** (`docker image inspect`, `docker run --rm --entrypoint sh <image> -c '...'`) before launching via `docker-proxy:2375`.
   - If the service needs a database or cache, spawns an **isolated per-stack companion DB** (`pimsai-<slug>-db` on `<slug>-net` with named volume `<slug>-db-data`, never sharing `pimsai-db`).
-  - Exposes any **native web admin/setup UI directly on Traefik `:444`** (`internal-proxy`, full TLS labels, never claiming `demo`/`files`/`secrets`), handing the user the verified `:444` URL, generated setup/admin access code, and concise browser steps (building custom Bun HTTP server ONLY if no native UI exists).
-  - Enforces **copy-never-bind** (no `-v /app/...`), runs **fast 5–10s boot diagnostics** (`docker inspect` + `docker logs --tail 30`), verifies internal `healthCheck()` + public `:444` `curl`, registers via `registerConnector({ connectorDir: "connectors/<name>" })`, reads PIMS incidents uniformly (including `incidents get <CODE> --json`), and uses generated random keys for self-hosted services vs `secrets_request` + `async: true` `?wait=true` poll for external user credentials.
+  - Exposes any **native web admin/setup UI directly on Traefik `:444`** (`internal-proxy`, full TLS labels, never claiming `demo`), handing the user the verified `:444` URL, generated setup/admin access code, and concise browser steps (building custom Bun HTTP server ONLY if no native UI exists).
+  - Enforces **copy-never-bind** (no `-v /app/...`), runs **fast 5–10s boot diagnostics** (`docker inspect` + `docker logs --tail 30`), verifies internal `healthCheck()` + public `:444` `curl`, registers via `registerConnector({ connectorDir: "connectors/<name>" })`, reads PIMS incidents uniformly (including `incidents get <CODE> --json`), and uses generated random keys for self-hosted services vs `secrets_request` (inline encrypted password card + `async: true` `?wait=true` poll) for external user credentials.
 
 ### Skill 10: `ingest`
 - [ ] **Prompt**: `"Sincroniza y re-ingesta el documento G4-SOA-01 en la base de datos vectorial."`
@@ -514,8 +459,8 @@ Conduct this unbroken sequence simulating the course instructor's live evaluatio
 
 ```
 [Step 1: Welcome & Setup]
-  1. Access Zellij Web via instructor token on :444.
-  2. Confirm session banner displays clean identity and commands (no Release Notes modal).
+  1. Access the Unified Web App via WEB_RW_TOKEN at https://demo.pimsai.mistercricro8.top:444.
+  2. Confirm session banner displays clean identity and commands.
   3. Send: mas ayuda -> Confirm clean Spanish user guide prints (zero internal leaks).
   4. Send: /new -> Confirm session resets cleanly.
 
@@ -531,17 +476,17 @@ Conduct this unbroken sequence simulating the course instructor's live evaluatio
   8. Ask: "Prepara las citaciones para los responsables en rojo."
      -> Verify: summons-dispatch persisted draft showing full verbatim subject + body using real PIMS emails; pauses at human gate.
   9. Send: envíalo
-     -> Verify: real Gmail SMTP dispatch executed and delivery log published at `:444/p/<slug>`.
+     -> Verify: real Gmail SMTP dispatch executed and delivery log published at `https://demo.pimsai.mistercricro8.top:444/api/files/<slug>`.
 
 [Step 4: Evidence & Version Control]
   10. Ask: "Explica el hallazgo o incidente pendiente y muestra su evidencia auditable."
       -> Verify: audit-chain trace with strict traffic light, verbatim quote, and canonical pims:<doc.code>:v<version>:<chunk_id>:<lines> citation.
   11. Ask: "¿Qué cambió entre la v1 y v3 del procedimiento de incidentes G4-PRC-INC-01?"
-      -> Verify: version-compare extracted-text structural diff, history rationale (no internal leaks), and published :444/p/<slug> report with UTC timestamp.
+      -> Verify: version-compare extracted-text structural diff, history rationale (no internal leaks), and published `/api/files/<slug>` report with UTC timestamp.
 
 [Step 5: Live Mutation & Dynamic Build]
   12. Ask: "¿Cómo te subo un archivo de auditoría externo?"
-      -> Verify: files-sidecar minting link; single-call async: true ?wait=true long-poll; "Ask First" inspection upon upload.
+      -> Verify: directs user to attach/drag-and-drop directly in the chat composer (up to 50 MB); "Ask First" inspection upon attachment arrival.
   13. Ask: "Despliega un servicio de alertas o panel interactivo en vivo y conéctalo a los incidentes."
       -> Verify: live-build background dispatch; preflight image inspection; isolated companion DB if needed; native UI exposed on :444 with access code & browser steps; uninterrupted main chat.
 ```
@@ -552,8 +497,8 @@ Conduct this unbroken sequence simulating the course instructor's live evaluatio
 
 | Subsystem / Feature Area | Verification Status | Tested By | Date | Notes |
 |---|---|---|---|---|
-| **1. Docker & VPS Orchestration** | ⬜ PASS / ⬜ FAIL | | | |
-| **2. Sidecars (Files & Secrets)** | ⬜ PASS / ⬜ FAIL | | | |
+| **1. Docker & VPS Orchestration (2-Container)** | ⬜ PASS / ⬜ FAIL | | | |
+| **2. Unified Web App (Uploads, Deliverables, Secrets)** | ⬜ PASS / ⬜ FAIL | | | |
 | **3. PIMS Adapter & Tenant Isolation** | ⬜ PASS / ⬜ FAIL | | | |
 | **4. Typst Molds & XLSX Compilers** | ⬜ PASS / ⬜ FAIL | | | |
 | **5. pgvector RAG Mirror & Citations** | ⬜ PASS / ⬜ FAIL | | | |

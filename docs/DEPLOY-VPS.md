@@ -65,7 +65,8 @@ Ensure the following variables are configured:
 - `AGENT_ENV_VAR` & `AGENT_API_KEY`: Provider environment variable name (e.g. `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `OPENCODE_API_KEY`) and API key for `omp`.
 - `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USERNAME`, `SMTP_PASSWORD`: Gmail SMTP credentials (Google App Password) for `summons-dispatch`.
 - `CORPUS_MIRROR_DIR`: Set to `/var/lib/pimsai/corpus_mirror` (mounted outside bind-mounted `/app` via `corpus_mirror_data`).
-- `AGE_SECRET_KEY`: Private X25519 identity key for encrypting secrets sidecar storage.
+- `WEB_PUBLIC_URL`, `WEB_RW_TOKEN`, `WEB_RO_TOKEN`: Unified Web App URL (`https://demo.pimsai.mistercricro8.top:444`) and read-write / optional read-only access tokens.
+- `AGE_SECRET_KEY`: Private X25519 identity key for decrypting age-encrypted secrets stored under `/app/secrets`.
 
 > **Warning**: Never commit `.env` into Git or share it across insecure channels.
 
@@ -73,23 +74,25 @@ Ensure the following variables are configured:
 From the workstation, sync the working tree to the PRISTINE repo dir (no runtime state lives there, so plain `--delete` is safe):
 ```bash
 rsync -avz --delete \
-  --exclude='.env' \
-  --exclude='.enc.env' \
-  --exclude='.sops.yaml' \
-  --exclude='data/' \
-  --exclude='secrets/' \
-  --exclude='corpus_mirror/' \
-  --exclude='.playwright-mcp/' \
-  --exclude='prompt*' \
-  --exclude='omp-session-*' \
-  --exclude='docs/' \
-  --exclude='corpus_g4_src/' \
-  --exclude='CHECK.md' \
-  --exclude='CHECK*' \
-  --exclude='FIXUP_PLAN.md' \
+  --exclude='/.env' \
+  --exclude='/.enc.env' \
+  --exclude='/.sops.yaml' \
+  --exclude='/data/' \
+  --exclude='/secrets/' \
+  --exclude='/corpus_mirror/' \
+  --exclude='/.playwright-mcp/' \
+  --exclude='/prompt*' \
+  --exclude='/omp-session-*' \
+  --exclude='/docs/' \
+  --exclude='/corpus_g4_src/' \
+  --exclude='/CHECK.md' \
+  --exclude='/CHECK*' \
+  --exclude='/FIXUP_PLAN.md' \
   --exclude='.git/' \
-  --exclude='flake.*' \
+  --exclude='/flake.*' \
   --exclude='node_modules/' \
+  --exclude='/apps/web/client/node_modules/' \
+  --exclude='/apps/web/client/dist/' \
   --exclude='.direnv/' \
   ./ <user>@<vps>:~/server-data/pimsai/repo/
 ```
@@ -106,14 +109,13 @@ Live-built connectors in staging are DEMO-LOCAL; promote deliberately with `scri
 > fails interpolation — that is by design (no secrets in staging).
 
 ### Step 4: Build the Container Images
-Build the 3 customized container images:
+Build the 2-container stack (`agent` + `db`):
 ```bash
 docker compose build
 ```
 This builds:
-- `agent` (Debian Bookworm, Bun 1.2.4, Node 22, Chromium + `@playwright/mcp` + `nodemailer` at `/node_modules`, Typst 0.15, Zellij 0.45, omp 18.18.1, Docker CLI, PostgreSQL client, `CORPUS_MIRROR_DIR=/var/lib/pimsai/corpus_mirror`)
-- `files-sidecar` (Node 22 Bookworm, multipart upload engine, 5-min ephemeral minting)
-- `secrets-sidecar` (Node 20 Bookworm, Age encryption engine, PostgreSQL registry client)
+- `agent` (Debian Bookworm, Bun 1.2.4, Node 22 + pnpm prebuilt React SPA at `/opt/pimsai-web/dist`, Chromium + `@playwright/mcp` + `nodemailer` at `/node_modules`, Typst 0.15, omp 18.18.1, `age`, Docker CLI, PostgreSQL client, `CORPUS_MIRROR_DIR=/var/lib/pimsai/corpus_mirror`)
+- `db` (`pgvector/pgvector:pg16` with `rag-mirror` and `secrets_registry` schema initialization)
 
 ### Step 5: Clean-Reset & Start Services
 When resetting state before a clean evaluation run:
@@ -138,58 +140,52 @@ Verify initial sync populates `/var/lib/pimsai/corpus_mirror/<doc.code>/` (`v<n>
 docker compose ps
 docker compose logs -n 60 agent
 ```
-All four services (`pimsai-agent`, `pimsai-db`, `pimsai-files-sidecar`, `pimsai-secrets-sidecar`) should be `running`, with `pimsai-db` showing `healthy`.
+Both services (`pimsai-agent` and `pimsai-db`) should be `healthy`.
 
-### Step 5: Traefik Router Verification & Let's Encrypt Cert Check
-Check that host Traefik discovers the containers and binds the routers:
+### Step 5b: Traefik Router Verification & Let's Encrypt Cert Check
+Check that host Traefik discovers the `pimsai-agent` container and binds the `pimsai-demo` router:
 ```bash
 # Check Traefik logs on the host
-docker logs traefik | grep -E "pimsai-(demo|files|secrets)"
+docker logs traefik | grep -E "pimsai-demo"
 ```
 
 Perform edge TLS certificate checks against port 444:
 ```bash
-# Verify TLS handshake and certificate SAN
-curl -vk https://demo.pimsai.mistercricro8.top:444/
-curl -vk https://files.pimsai.mistercricro8.top:444/health
-curl -vk https://secrets.pimsai.mistercricro8.top:444/healthz
+# Verify TLS handshake, certificate SAN, and /healthz
+curl -vk https://demo.pimsai.mistercricro8.top:444/healthz
 ```
 
 Verify public resolution through Cloudflare edge (port 443):
 ```bash
-curl -f https://files.pimsai.mistercricro8.top/health
-curl -f https://secrets.pimsai.mistercricro8.top/healthz
+curl -f https://demo.pimsai.mistercricro8.top/healthz
 ```
 
-### Step 6: Generate Zellij Web Tokens for Instructor
-Enter the running agent container to generate session tokens (SPEC §4.2, §10):
+### Step 6: Configure Unified Web App Access Tokens for Instructor
+Set strong random `WEB_RW_TOKEN` (full operator access) and optional `WEB_RO_TOKEN` (observer read-only mode) in `PIMSAI_HOME/.env`:
 ```bash
-# Generate Instructor Read-Write Token
-docker compose exec agent zellij web --create-token
-
-# Generate Observer Read-Only Token
-docker compose exec agent zellij web --create-read-only-token
+openssl rand -hex 24
 ```
-Record the resulting hashed token strings into `docs/PRESENTATION-TEMPLATE.md` before sharing the link with the evaluator.
+Record the access URL (`https://demo.pimsai.mistercricro8.top:444`) and tokens into `docs/PRESENTATION-TEMPLATE.md` before sharing with the evaluator.
 
-### Step 7: Sidecars Smoke Testing
-Run quick smoke tests against the sidecar APIs:
+### Step 7: Unified Web App Smoke Testing
+Run quick internal smoke tests inside `pimsai-agent` against port `8082`:
 
-1. **Files Sidecar Minting Probe**:
+1. **Web App Health & Deliverable Publish Probe**:
    ```bash
-   curl -s -X POST https://files.pimsai.mistercricro8.top/api/mint \
+   docker compose exec agent curl -fsS http://127.0.0.1:8082/healthz
+   docker compose exec agent curl -fsS -X POST http://127.0.0.1:8082/internal/publish \
      -H "Content-Type: application/json" \
-     -d '{"flow":"upload-and-read"}'
+     -d '{"slug":"smoke-test","filename":"smoke.md","content":"# Smoke Test"}'
    ```
-   *Expected response*: JSON containing `upload_url` (`https://files.pimsai.mistercricro8.top/upload/<token>`) and 300s TTL.
+   *Expected response*: JSON containing `url` (`https://demo.pimsai.mistercricro8.top:444/api/files/smoke-test`).
 
-2. **Secrets Sidecar Request Probe**:
+2. **Built-In Age Secrets Request Probe**:
    ```bash
-   curl -s -X POST https://secrets.pimsai.mistercricro8.top/request \
+   docker compose exec agent curl -fsS -X POST http://127.0.0.1:8082/internal/secrets/request \
      -H "Content-Type: application/json" \
      -d '{"label":"smoke_test"}'
    ```
-   *Expected response*: JSON containing `url` (`https://secrets.pimsai.mistercricro8.top/s/<token>`) and 300s TTL.
+   *Expected response*: JSON containing `token`, `pollHandle`, and 300s TTL (`mode: "webapp-inline"`).
 
 ---
 

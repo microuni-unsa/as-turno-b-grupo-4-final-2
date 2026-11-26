@@ -57,14 +57,14 @@ skills:
 # Skills Registry: Complete registry of all 12 skills (3 core + 9 behavior) with one-line contracts
 skillsRegistry:
   pims-reader: "Standardized full-system readers over PIMS REST API via bun scripts/pims.ts with write-only G4- enforcement, mirror fallback, and credential hygiene"
-  connector-builder: "Service-agnostic connector generation with preflight image inspection, isolated companion DBs, native :444 UI exposure, real fetch(), secrets-sidecar, and self-heal loop"
+  connector-builder: "Service-agnostic connector generation with preflight image inspection, isolated companion DBs, native :444 UI exposure, real fetch(), inline age-encrypted secrets_request, and self-heal loop"
   ingest: "Ingest PIMS documents into CORPUS_MIRROR_DIR/<doc.code>/ (PDF + pdftotext -layout -nopgbrk / OCR v<n>.txt), semantic chunks, 1024-dim mistral-embed, and pgvector sync"
   version-compare: "Compare live PIMS PDFs via extracted text diff and version history, silently informed by RAFA without citing internal files"
   incident-ops: "Full-system incident & audit ops table with deduplicated findings, verified strict green status, and summons-dispatch cross-offers"
-  audit-chain: "Trace full-system finding -> NC -> corrective action chains with verified RAG citations and files-sidecar :444/p/<slug> output"
+  audit-chain: "Trace full-system finding -> NC -> corrective action chains with verified RAG citations and unified web app /api/files/<slug> output"
   directed-version: "Copy-then-fill Typst mold versioning (including cross-team/arbitrary PDF adaptation via molds/generic) aligned to next PIMS integer, staged PDF preview, and two-gate human approval"
   cascade: "Record university fact, scan full PIMS + RAG mirror, propose remake batch, and execute copy-then-fill versioning after approval"
-  proactive: "Contextual adjacent suggestions across full PIMS data, live-build routing, and files-sidecar :444/p/<slug> deliverable publishing"
+  proactive: "Contextual adjacent suggestions across full PIMS data, live-build routing, and unified web app /api/files/<slug> deliverable publishing"
   summons-dispatch: "Draft NC/incident follow-up summons from live emails & RAG evidence, gating Gmail SMTP dispatch strictly on 'envíalo'"
   live-build: "Service-agnostic live sibling container and connector builder (:444) with preflight image inspection, isolated companion DBs, native UI exposure, fast boot checks, and uniform PIMS reads"
   doc-necessity: "Evaluate 3-tier ISO/IEC 27701:2025 document necessity against reference/iso-27701-2025.md and live full-system PIMS state"

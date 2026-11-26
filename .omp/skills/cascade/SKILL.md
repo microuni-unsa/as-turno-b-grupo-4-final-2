@@ -39,12 +39,12 @@ Evaluación y propagación controlada de cambios institucionales (*university fa
      2. Extraer texto completo vigente (`bun scripts/pims.ts mirror read <doc.code>` o `pdftotext -layout -nopgbrk` / OCR para escaneados), inspeccionar firma exacta en `molds/<category>/mold*.typ` (o `molds/generic/mold.typ`), y consultar `molds/<category>/RAFA.md` **silenciosamente (nunca mencionarlo)**.
      3. Copiar `molds/common/` a `/tmp/pims-staging/common/` y `molds/<category>/*.typ` a `/tmp/pims-staging/<doc.code>-v<next>/`.
      4. Redactar invocador nuevo incorporando el hecho universitario, historial de revisiones actualizado, `reviewer` desde `university-facts/organigrama.md`, `@` escapado como `\@` en bloques `[...]`, compilar con `typst compile` y verificar vía `pdftotext` cero marcadores sin resolver y cero términos internos (`Typst`, `Bun`, `RAFA`, `molds/`).
-   - Publicar vistas previas vía `bun scripts/pims.ts publish --slug <slug> --file <path>` (retorna `https://files.pimsai.mistercricro8.top:444/p/<slug>`) y **DETENERSE de nuevo**: la compuerta de vista previa es SEPARADA de la compuerta de subida. Solo subir tras SEGUNDA confirmación explícita que nombre documento+versión (`"confirmo subida de G4-XXX v4.00"` o equivalente).
+   - Publicar vistas previas vía `bun scripts/pims.ts publish --slug <slug> --file <path>` (retorna `https://demo.pimsai.mistercricro8.top:444/api/files/<slug>` y muestra tarjeta inline **Vista previa / Descargar**) y **DETENERSE de nuevo**: la compuerta de vista previa es SEPARADA de la compuerta de subida. Solo subir tras SEGUNDA confirmación explícita que nombre documento+versión (`"confirmo subida de G4-XXX v4.00"` o equivalente).
 
 5. **Carga a PIMS, Sincronización y Reporte Final**:
    - Subir con `bun scripts/pims.ts docs add-version <id_or_code> --file <path.pdf> --file-name <name.pdf> --summary "..." --confirm` (solo códigos `G4-`, `--file-name` explícito obligatorio).
    - Ejecutar `bun scripts/pims.ts mirror sync` para actualizar `CORPUS_MIRROR_DIR/<doc.code>/` (`v<n>.pdf` + `v<n>.txt`) y `pimsai-db`.
-   - Entregar informe final con slug `cascade-$(date -u +%Y%m%d-%H%M)` publicado vía `bun scripts/pims.ts publish --slug <slug> --file <path>` (`https://files.pimsai.mistercricro8.top:444/p/<slug>`) con enlaces y SHA-256.
+   - Entregar informe final con slug `cascade-$(date -u +%Y%m%d-%H%M)` publicado vía `bun scripts/pims.ts publish --slug <slug> --file <path>` (`https://demo.pimsai.mistercricro8.top:444/api/files/<slug>`) con enlaces y SHA-256.
 
 ## 3. Failure Branches
 

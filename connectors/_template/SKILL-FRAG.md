@@ -2,7 +2,7 @@
 
 > **Connector Type:** REST API + Inbound Webhook / Native Service UI  
 > **Scope:** Service-Agnostic External API or Self-Hosted Sibling Stack  
-> **Hosting Slug Convention:** `https://<slug>.pimsai.mistercricro8.top:444` (Mandatory `:444` port; never claim `demo`, `files`, or `secrets`)
+> **Hosting Slug Convention:** `https://<slug>.pimsai.mistercricro8.top:444` (Mandatory `:444` port; never claim reserved slug `demo`)
 
 ---
 
@@ -32,7 +32,7 @@
 
 - **Protocol:** Connector operations MUST supply a secret handle: `secret:<name>@<v>` (e.g., `secret:service_api_key@v1`).
 - **Zero-Exposure Policy:** The agent process never inspects `/app/.env` or prints raw PIMS/SMTP secrets. For self-hosted spawned sibling services, generate random credentials (`openssl rand -hex`), inject via Docker env, and hand only that spawned service's admin setup/access code to the user alongside the verified `:444` UI URL and browser steps.
-- **External User-Owned Credentials:** If prompting for external SaaS/API tokens, use `secrets_request` (or `POST http://pimsai-secrets-sidecar:3000/api/secrets/request`), start the `async: true` poll (`curl -sS -m 310 "http://pimsai-secrets-sidecar:3000/api/secrets/poll/<token>?wait=true"`, matching `"submitted"|"expired"|"failed"`) **before** replying, and hand `https://secrets.pimsai.mistercricro8.top:444/s/<token>` to the user.
+- **External User-Owned Credentials:** If prompting for external SaaS/API tokens, use `secrets_request` (or `POST http://127.0.0.1:8082/internal/secrets/request`) to pop up an **inline encrypted password card inside the web chat** (users can also rotate secrets in the **Bóveda de Secretos** drawer), and start the `async: true` poll (`curl -sS -m 310 "http://127.0.0.1:8082/internal/secrets/poll/<token>?wait=true"` or `secrets_poll(handle, wait: true)`) **before** ending the turn.
 
 ---
 
@@ -48,7 +48,7 @@
 
 | Failure Signature | Probable Cause | Self-Heal Action (SPEC 8.3) |
 | :--- | :--- | :--- |
-| `HTTP 401 Unauthorized` | Invalid or rotated token | Request updated credentials via Secrets Sidecar (`?wait=true` poll); resolve new handle. |
+| `HTTP 401 Unauthorized` | Invalid or rotated token | Request updated credentials via `secrets_request` (`?wait=true` poll); resolve new handle. |
 | `HTTP 404 Not Found` | Outdated API endpoint path | Probe alternate routes; patch wrapper method in `client.ts`; update fragment map. |
 | `HTTP 429 Too Many Requests` | Rate limit breached | Backoff deterministically; notify coordinator without failing task. |
 | `Connection Refused / ETIMEDOUT` | Container or network down | Inspect sibling container status & logs (`docker inspect` / `docker logs --tail 30`), verify `internal-proxy` and `:444` Traefik routing. |

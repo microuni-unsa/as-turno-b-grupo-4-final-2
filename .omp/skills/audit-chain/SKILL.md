@@ -46,12 +46,12 @@ Trazabilidad determinista de la cadena completa de auditoría (**Hallazgo → No
    - Si en PIMS el campo `evidence` está vacío y no existe documento respaldatorio, reportar la brecha de auditoría explícitamente (`Evidencia faltante / Brecha abierta`).
    - **Nota de Evidencias de Capacitación**: `/api/trainings/` retorna HTTP 403 para `grupob4`; las evidencias de capacitación viven en documentos subidos `G4-REG-CAP-*` / `G4-PRG-CAP-*` (e.g., `G4-REG-CAP-01`, `G4-PRG-CAP-01`).
 
-4. **Publicación de Ficha de Evidencia (`files-sidecar`) — OBLIGATORIA**:
+4. **Publicación de Ficha de Evidencia (Consola Web Unificada) — OBLIGATORIA**:
    - Generar SIEMPRE la ficha de evidencia (HTML o Markdown en español ejecutivo limpio, sin rutas ni comandos internos: cadena hallazgo→NC→acción→evidencia con citas `pims:`) y publicarla vía `bun scripts/pims.ts publish --slug <slug> --file <path> [--filename <name>]`:
-     `https://files.pimsai.mistercricro8.top:444/p/<slug>`
+     `https://demo.pimsai.mistercricro8.top:444/api/files/<slug>` (el chat muestra automáticamente la tarjeta inline **Vista previa / Descargar**).
    - **Convención de slug con timestamp UTC real de shell (PROHIBIDO inventar horas fijas)**:
      `SLUG="audit-chain-<audit_slug>-$(date -u +%Y%m%d-%H%M)"`
-   - Responder inline el veredicto + cerrar obligatoriamente con: `resultado aquí: https://files.pimsai.mistercricro8.top:444/p/<slug>`.
+   - Responder inline el veredicto + cerrar obligatoriamente con: `resultado aquí: https://demo.pimsai.mistercricro8.top:444/api/files/<slug>`.
 
 ## 3. Failure Branches
 

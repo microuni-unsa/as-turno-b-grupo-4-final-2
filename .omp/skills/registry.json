@@ -6,7 +6,7 @@
     },
     {
       "name": "connector-builder",
-      "contract": "Dynamic connector generation with real fetch(), Traefik :444, self-hosted vs secrets-sidecar provisioning, and self-heal loop"
+      "contract": "Dynamic connector generation with real fetch(), Traefik :444, self-hosted vs inline age-encrypted secrets_request provisioning, and self-heal loop"
     },
     {
       "name": "ingest",
@@ -22,7 +22,7 @@
     },
     {
       "name": "audit-chain",
-      "contract": "Trace full-system finding -> NC -> corrective action chains with verified RAG citations and files-sidecar :444/p/<slug> output"
+      "contract": "Trace full-system finding -> NC -> corrective action chains with verified RAG citations and unified web app /api/files/<slug> output"
     },
     {
       "name": "directed-version",
@@ -34,7 +34,7 @@
     },
     {
       "name": "proactive",
-      "contract": "Contextual adjacent suggestions across full PIMS data, live-build routing, and files-sidecar :444/p/<slug> deliverable publishing"
+      "contract": "Contextual adjacent suggestions across full PIMS data, live-build routing, and unified web app /api/files/<slug> deliverable publishing"
     },
     {
       "name": "summons-dispatch",

@@ -3,7 +3,7 @@ import * as path from "node:path";
 import {
   SECRETS_HANDLE_REGEX,
   SECRETS_POLL_MAX_TIMEOUT_SEC,
-  SECRETS_SIDECAR_INTERNAL_URL,
+  WEB_INTERNAL_URL,
 } from "../../connectors/runtime/constants";
 
 interface MessageContent {
@@ -26,6 +26,8 @@ const SENSITIVE_ENV_VARS = [
   "AGENT_API_KEY",
   "POSTGRES_PASSWORD",
   "AGE_SECRET_KEY",
+  "WEB_RW_TOKEN",
+  "WEB_RO_TOKEN",
 ] as const;
 
 const OPAQUE_HANDLE_GLOBAL_REGEX = /\bsecret:[a-zA-Z0-9_.-]+@v?[0-9]+\b/g;
@@ -34,12 +36,12 @@ function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-function getSecretSidecarBaseUrl(): string {
-  const envUrl = process.env.SECRETS_SIDECAR_URL;
+function getWebInternalBaseUrl(): string {
+  const envUrl = process.env.WEB_INTERNAL_URL;
   if (envUrl && envUrl.trim().length > 0) {
     return envUrl.trim().replace(/\/+$/, "");
   }
-  return SECRETS_SIDECAR_INTERNAL_URL;
+  return WEB_INTERNAL_URL;
 }
 
 /**
@@ -106,7 +108,7 @@ export function redactSecrets(text: string): string {
 
   // 6. Scrub explicit credential assignments (preserving quotes and protected handles).
   const sensitiveKeys =
-    "PIMS_PASSWORD|SMTP_PASSWORD|EMBEDDINGS_API_KEY|AGENT_API_KEY|POSTGRES_PASSWORD|AGE_SECRET_KEY|password|passwd|secret_value|secretValue|api_key|apiKey";
+    "PIMS_PASSWORD|SMTP_PASSWORD|EMBEDDINGS_API_KEY|AGENT_API_KEY|POSTGRES_PASSWORD|AGE_SECRET_KEY|WEB_RW_TOKEN|WEB_RO_TOKEN|password|passwd|secret_value|secretValue|api_key|apiKey";
   const sentinelEscaped = escapeRegExp(sentinelPrefix);
 
   const quotedAssignRegex = new RegExp(
@@ -134,7 +136,7 @@ export function redactSecrets(text: string): string {
 }
 
 const SENSITIVE_KEY_NAME_REGEX =
-  /^(?:PIMS_PASSWORD|SMTP_PASSWORD|EMBEDDINGS_API_KEY|AGENT_API_KEY|POSTGRES_PASSWORD|AGE_SECRET_KEY|password|passwd|secret_value|secretValue|api_key|apiKey)$/i;
+  /^(?:PIMS_PASSWORD|SMTP_PASSWORD|EMBEDDINGS_API_KEY|AGENT_API_KEY|POSTGRES_PASSWORD|AGE_SECRET_KEY|WEB_RW_TOKEN|WEB_RO_TOKEN|password|passwd|secret_value|secretValue|api_key|apiKey)$/i;
 
 function redactDeep(value: unknown): { value: unknown; changed: boolean } {
   if (typeof value === "string") {
@@ -197,11 +199,11 @@ export default function (pi: any) {
   const BANNER_TEXT = `UNSA PIMS — OPERADOR AGÉNTICO DEL SGPI (GRUPO 4)
 ISO/IEC 27701:2025 — Universidad Nacional de San Agustín
 
-Capacidades:
+Capacidades en la consola web unificada:
 • Documentos y versiones: búsqueda, comparación, trazabilidad y citación pims:.
 • Incidentes, riesgos y capacitación: registro, severidad, tratamiento y evidencias.
 • Auditorías y mejora: hallazgos, NC, acciones correctivas y estado semafórico.
-• Consultas generales del SGPI: alcance, política, objetivos, control documental.
+• Carga directa de archivos (clip / arrastrar hasta 50 MB) y Bóveda de Secretos cifrada.
 
 Comandos iniciales útiles:
 • /new              Iniciar una nueva conversación limpia
@@ -347,7 +349,7 @@ Comandos iniciales útiles:
     label: "Secrets Request",
     loadMode: "essential" as const,
     description:
-      "Request an external secret or credential by label via pimsai-secrets-sidecar. Generates a one-time URL (https://secrets.pimsai.mistercricro8.top:444/s/<token>) with 5-minute expiry. Never handles plaintext values.",
+      "Request an external secret or credential by label via the unified web app. Opens an inline encrypted password card directly inside the web chat (5-minute expiry, age-encrypted, zero plaintext in chat). Also manageable from the Bóveda de Secretos drawer.",
     parameters: {
       type: "object",
       properties: {
@@ -364,8 +366,8 @@ Comandos iniciales útiles:
       required: ["label"],
     },
     async execute(_toolCallId: string, params: { label: string; scope?: string }) {
-      const baseUrl = getSecretSidecarBaseUrl();
-      const resp = await fetch(`${baseUrl}/api/secrets/request`, {
+      const baseUrl = getWebInternalBaseUrl();
+      const resp = await fetch(`${baseUrl}/internal/secrets/request`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -378,7 +380,7 @@ Comandos iniciales útiles:
       });
       if (!resp.ok) {
         const body = await resp.text();
-        throw new Error(`secrets-sidecar /api/secrets/request failed (${resp.status}): ${body}`);
+        throw new Error(`web app /internal/secrets/request failed (${resp.status}): ${body}`);
       }
       const data = (await resp.json()) as Record<string, unknown>;
       return {
@@ -398,7 +400,7 @@ Comandos iniciales útiles:
     label: "Secrets Poll",
     loadMode: "essential" as const,
     description:
-      "Poll pimsai-secrets-sidecar for an ingested credential handle. Returns an opaque handle (secret:<name>@v<version>), NEVER the plaintext value. Pass wait=true to long-poll until submitted or expired.",
+      "Poll the unified web app (/internal/secrets/poll) for an age-encrypted credential submitted via the inline encrypted password card or Bóveda de Secretos. Returns an opaque handle (secret:<name>@v<version>), NEVER the plaintext value. Pass wait=true to long-poll until submitted or expired.",
     parameters: {
       type: "object",
       properties: {
@@ -409,7 +411,7 @@ Comandos iniciales útiles:
         wait: {
           type: "boolean",
           description:
-            "When true, passes ?wait=true so the sidecar waits until status becomes 'submitted', 'expired', or timeout elapses.",
+            "When true, passes ?wait=true so the server waits until status becomes 'submitted', 'expired', or timeout elapses.",
         },
         timeout: {
           type: "number",
@@ -423,9 +425,9 @@ Comandos iniciales útiles:
       _toolCallId: string,
       params: { handle: string; wait?: boolean; timeout?: number }
     ) {
-      const baseUrl = getSecretSidecarBaseUrl();
+      const baseUrl = getWebInternalBaseUrl();
       const pollUrl = new URL(
-        `/api/secrets/poll/${encodeURIComponent(params.handle)}`,
+        `/internal/secrets/poll/${encodeURIComponent(params.handle)}`,
         baseUrl
       );
       if (params.wait === true) {
@@ -448,7 +450,7 @@ Comandos iniciales útiles:
       });
       if (!resp.ok) {
         const body = await resp.text();
-        throw new Error(`secrets-sidecar /api/secrets/poll failed (${resp.status}): ${body}`);
+        throw new Error(`web app /internal/secrets/poll failed (${resp.status}): ${body}`);
       }
       const data = (await resp.json()) as Record<string, unknown>;
       return {

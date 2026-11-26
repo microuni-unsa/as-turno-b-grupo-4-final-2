@@ -55,8 +55,7 @@
 - `MailConnectorClient` resolves credentials cleanly in-process from `SMTP_USERNAME` + `SMTP_PASSWORD` (Google App Password) OR a `SecretsStore` handle (`secret:<name>@<v>`). Drafts persist at `MAIL_DRAFTS_PATH` (`/tmp/pims-mail-drafts.json`).
 - **Recipient Email Resolution**: Check PIMS incident fields (`dpo_contact_email`, `rep_email`) first; for audit findings whose `responsible` has no email stored in PIMS, ask the user for the recipient email before calling `createDraftSummons`.
 - Mail credentials MUST NEVER be echoed or printed to stdout/logs.
-- If credentials are not present and external input is required, trigger `secrets-sidecar`:
-  `https://secrets.pimsai.mistercricro8.top:444/s/<token>`
+- If credentials are not present and external input is required, trigger `secrets_request` (opens an inline encrypted password card in the web chat or Bóveda de Secretos drawer at `https://demo.pimsai.mistercricro8.top:444`).
 
 ---
 

@@ -12,7 +12,7 @@ Currently, PIMS access is split across:
 2. `packages/pims-adapter/` (whose initial TypeScript types assumed mocked schemas such as numeric `version_number` and `code` on incidents rather than live strings `"3.00"` and `incident_code`).
 3. Ad-hoc `bun -e` inline invocations scattered across agent skills.
 
-The target architecture consolidates **all** GESTITEL PIMS interactions into a single authoritative TypeScript SDK (evolving `packages/pims-adapter/`) paired with one ergonomic Bun CLI (`scripts/pims.ts`) that covers live reads, gated writes, mirror management, RAG ingestion, PDF diffs, and sidecar publishing.
+The target architecture consolidates **all** GESTITEL PIMS interactions into a single authoritative TypeScript SDK (evolving `packages/pims-adapter/`) paired with one ergonomic Bun CLI (`scripts/pims.ts`) that covers live reads, gated writes, mirror management, RAG ingestion, PDF diffs, and unified web app deliverable publishing.
 
 ### Core Design Principles
 - **Strict Write-Only Tenant Isolation (`G4-`)**: All `POST`, `PATCH`, `PUT`, and `DELETE` mutations against documents, incidents, or related resources MUST enforce the `G4-` prefix on entity codes (`assertG4WriteCode`), fail fast before HTTP requests, and halt at an explicit human confirmation gate.
@@ -153,7 +153,7 @@ Invoked strictly as `bun scripts/pims.ts <command> [subcommand] [flags]` with **
 17. `mirror sync [--loop] [--interval 300]` (unified wrapper over `CORPUS_MIRROR_DIR` keyed by `doc.code` + `v<n>.txt`)
 18. `mirror read <code_or_id> [--ver <v>]` (dumps extracted text from `CORPUS_MIRROR_DIR` or `pimsai-db`)
 19. `diff <code_or_id> --from <v1> --to <v2>` (extracts PDF text via `pdftotext` before running line diff — never raw PDF binary)
-20. `publish --slug <slug> --file <path> [--filename <name>]` (reads file bytes in-process, sends `content_base64` to `http://pimsai-files-sidecar:3000/api/publish`, returns `https://files.pimsai.mistercricro8.top:444/p/<slug>`)
+20. `publish --slug <slug> --file <path> [--filename <name>]` (reads file bytes in-process, sends `content_base64` to `http://127.0.0.1:8082/internal/publish`, returns `https://demo.pimsai.mistercricro8.top:444/api/files/<slug>`)
 
 ### Structured Fallback Contract (`--json` on Read Errors)
 When a REST call fails (`HTTP >= 500`, connection timeout, etc.), `scripts/pims.ts` exits non-zero and prints a structured JSON diagnostic on stderr/stdout:
