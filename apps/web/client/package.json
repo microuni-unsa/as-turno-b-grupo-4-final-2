@@ -1,0 +1,46 @@
+{
+  "name": "@unsa-pims/web-client",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@radix-ui/react-use-controllable-state": "^1.3.0",
+    "@streamdown/cjk": "^1.0.5",
+    "@streamdown/code": "^2.0.1",
+    "@streamdown/math": "^1.0.4",
+    "@streamdown/mermaid": "^1.0.4",
+    "ai": "^7.0.181",
+    "ansi-to-react": "^6.2.6",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
+    "cn": "^0.5.2",
+    "lucide-react": "^0.511.0",
+    "motion": "^14.14.0",
+    "nanoid": "^6.0.2",
+    "radix-ui": "^1.8.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "shiki": "^4.6.0",
+    "streamdown": "^2.8.1",
+    "tailwind-merge": "^3.3.0",
+    "use-stick-to-bottom": "^1.0.0",
+    "zustand": "^5.0.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.7",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react": "^4.4.1",
+    "tailwindcss": "^4.1.7",
+    "tw-animate-css": "^1.3.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
+  }
+}
