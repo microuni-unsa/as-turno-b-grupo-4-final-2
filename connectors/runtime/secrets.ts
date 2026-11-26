@@ -1,5 +1,5 @@
 /**
- * Secrets handle resolution and sidecar workflow.
+ * Secrets handle resolution and unified web app workflow.
  * Strictly adheres to SPEC 4.3 and zero-exposure security rules:
  * - Canonical handles follow format: secret:<name>@v<version> (accepts secret:<name>@<version> on input).
  * - Resolves via real `age` CLI decryption from SECRETS_STORE_PATH/secrets/<name>/v<version>.age.
@@ -15,7 +15,7 @@ import {
   SECRETS_HANDLE_PREFIX,
   SECRETS_HANDLE_REGEX,
   SECRETS_POLL_MAX_TIMEOUT_SEC,
-  SECRETS_SIDECAR_INTERNAL_URL,
+  WEB_INTERNAL_URL,
 } from "./constants";
 import {
   ConnectorRuntimeError,
@@ -41,7 +41,7 @@ export interface SecretsStoreConfig {
   storePath?: string;
   identityPath?: string;
   identityKey?: string;
-  sidecarUrl?: string;
+  webInternalUrl?: string;
   ageBinary?: string;
 }
 
@@ -165,7 +165,7 @@ interface RawRegistryEntry {
 }
 
 /**
- * Age-backed Secrets Store and secrets-sidecar HTTP client.
+ * Age-backed Secrets Store and unified web app secrets HTTP client.
  */
 export class SecretsStore {
   private static instance: SecretsStore | null = null;
@@ -173,7 +173,7 @@ export class SecretsStore {
   private readonly explicitStorePath?: string;
   private readonly explicitIdentityPath?: string;
   private readonly explicitIdentityKey?: string;
-  private readonly explicitSidecarUrl?: string;
+  private readonly explicitWebInternalUrl?: string;
   private readonly ageBinary: string;
 
   constructor(config: SecretsStoreConfig = {}) {
@@ -186,8 +186,8 @@ export class SecretsStore {
     if (config.identityKey !== undefined && config.identityKey.trim().length > 0) {
       this.explicitIdentityKey = config.identityKey.trim();
     }
-    if (config.sidecarUrl !== undefined && config.sidecarUrl.trim().length > 0) {
-      this.explicitSidecarUrl = config.sidecarUrl.trim().replace(/\/+$/, "");
+    if (config.webInternalUrl !== undefined && config.webInternalUrl.trim().length > 0) {
+      this.explicitWebInternalUrl = config.webInternalUrl.trim().replace(/\/+$/, "");
     }
     this.ageBinary =
       config.ageBinary !== undefined && config.ageBinary.trim().length > 0
@@ -226,15 +226,15 @@ export class SecretsStore {
     return DEFAULT_SECRETS_STORE_PATH;
   }
 
-  public getSidecarUrl(): string {
-    if (this.explicitSidecarUrl !== undefined) {
-      return this.explicitSidecarUrl;
+  public getWebInternalUrl(): string {
+    if (this.explicitWebInternalUrl !== undefined) {
+      return this.explicitWebInternalUrl;
     }
-    const envUrl = process.env.SECRETS_SIDECAR_URL;
+    const envUrl = process.env.WEB_INTERNAL_URL;
     if (envUrl && envUrl.trim().length > 0) {
       return envUrl.trim().replace(/\/+$/, "");
     }
-    return SECRETS_SIDECAR_INTERNAL_URL;
+    return WEB_INTERNAL_URL;
   }
 
   private resolveCiphertextLocation(handle: string): {
@@ -438,8 +438,8 @@ export class SecretsStore {
   }
 
   /**
-   * Secrets sidecar flow (SPEC 4.3):
-   * Requests a one-time secret entry URL from pimsai-secrets-sidecar.
+   * Unified web app secrets flow (SPEC 4.3):
+   * Requests a one-time inline secret entry card via /internal/secrets/request.
    */
   public async requestSecret(
     label: string,
@@ -450,7 +450,7 @@ export class SecretsStore {
     }
 
     const cleanLabel = label.trim();
-    const requestUrl = `${this.getSidecarUrl()}/api/secrets/request`;
+    const requestUrl = `${this.getWebInternalUrl()}/internal/secrets/request`;
 
     const response = await fetch(requestUrl, {
       method: "POST",
@@ -467,8 +467,8 @@ export class SecretsStore {
     if (!response.ok) {
       const bodyText = await response.text();
       throw new ConnectorRuntimeError(
-        `secrets-sidecar POST /api/secrets/request failed (HTTP ${response.status}): ${bodyText}`,
-        "SECRETS_SIDECAR_REQUEST_ERROR"
+        `web app POST /internal/secrets/request failed (HTTP ${response.status}): ${bodyText}`,
+        "WEB_SECRETS_REQUEST_ERROR"
       );
     }
 
@@ -484,8 +484,8 @@ export class SecretsStore {
       typeof data.expiresAt !== "string"
     ) {
       throw new ConnectorRuntimeError(
-        "secrets-sidecar returned malformed payload from /api/secrets/request",
-        "SECRETS_SIDECAR_REQUEST_ERROR"
+        "web app returned malformed payload from /internal/secrets/request",
+        "WEB_SECRETS_REQUEST_ERROR"
       );
     }
 
@@ -500,7 +500,7 @@ export class SecretsStore {
   }
 
   /**
-   * Polls sidecar token or handle status via GET /api/secrets/poll/:token.
+   * Polls token or handle status via GET /internal/secrets/poll/:token.
    * Supports optional long-poll (`wait: true`, `timeoutSeconds`).
    * Returns canonical handle (`secret:<name>@v<n>`) if ready, NEVER the secret value.
    */
@@ -513,8 +513,8 @@ export class SecretsStore {
     }
 
     const pollUrl = new URL(
-      `/api/secrets/poll/${encodeURIComponent(tokenOrHandle.trim())}`,
-      this.getSidecarUrl()
+      `/internal/secrets/poll/${encodeURIComponent(tokenOrHandle.trim())}`,
+      this.getWebInternalUrl()
     );
 
     if (options.wait === true) {
@@ -548,8 +548,8 @@ export class SecretsStore {
     if (!response.ok) {
       const bodyText = await response.text();
       throw new ConnectorRuntimeError(
-        `secrets-sidecar GET /api/secrets/poll failed (HTTP ${response.status}): ${bodyText}`,
-        "SECRETS_SIDECAR_POLL_ERROR"
+        `web app GET /internal/secrets/poll failed (HTTP ${response.status}): ${bodyText}`,
+        "WEB_SECRETS_POLL_ERROR"
       );
     }
 
@@ -566,8 +566,8 @@ export class SecretsStore {
       case "submitted": {
         if (typeof data.handle !== "string" || data.handle.length === 0) {
           throw new ConnectorRuntimeError(
-            "secrets-sidecar returned status 'submitted' without a valid handle",
-            "SECRETS_SIDECAR_POLL_ERROR"
+            "web app returned status 'submitted' without a valid handle",
+            "WEB_SECRETS_POLL_ERROR"
           );
         }
         const parsed = parseSecretHandle(data.handle);
@@ -578,8 +578,8 @@ export class SecretsStore {
       }
       default:
         throw new ConnectorRuntimeError(
-          `Unexpected poll status returned by secrets-sidecar: '${String(data.status)}'`,
-          "SECRETS_SIDECAR_POLL_ERROR"
+          `Unexpected poll status returned by web app: '${String(data.status)}'`,
+          "WEB_SECRETS_POLL_ERROR"
         );
     }
   }

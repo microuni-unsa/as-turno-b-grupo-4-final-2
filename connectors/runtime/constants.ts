@@ -7,12 +7,12 @@ export const PIMSAI_BASE_DOMAIN = "pimsai.mistercricro8.top";
 
 export const PIMSAI_PUBLIC_PORT = 444;
 
-export const SECRETS_SIDECAR_DOMAIN = "secrets.pimsai.mistercricro8.top";
+export const WEB_APP_DOMAIN = "demo.pimsai.mistercricro8.top";
 
-export const SECRETS_SIDECAR_INTERNAL_URL = (
-  process.env.SECRETS_SIDECAR_URL && process.env.SECRETS_SIDECAR_URL.trim().length > 0
-    ? process.env.SECRETS_SIDECAR_URL.trim()
-    : "http://pimsai-secrets-sidecar:3000"
+export const WEB_INTERNAL_URL = (
+  process.env.WEB_INTERNAL_URL && process.env.WEB_INTERNAL_URL.trim().length > 0
+    ? process.env.WEB_INTERNAL_URL.trim()
+    : "http://127.0.0.1:8082"
 ).replace(/\/+$/, "");
 
 export const DEFAULT_SECRETS_STORE_PATH =

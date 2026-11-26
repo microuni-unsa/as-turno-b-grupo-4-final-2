@@ -5,7 +5,8 @@ import path from "node:path";
 import introExtension, { redactSecrets } from "../../.omp/extensions/intro";
 import {
   DEFAULT_SECRETS_STORE_PATH,
-  SECRETS_SIDECAR_INTERNAL_URL,
+  WEB_APP_DOMAIN,
+  WEB_INTERNAL_URL,
   SecretExpiredError,
   SecretHandleFormatError,
   SecretNotFoundError,
@@ -85,7 +86,8 @@ afterEach(() => {
 
 describe("constants and exports", () => {
   test("centralized constants and named resolveToDockerEnv export exist on runtime index", () => {
-    expect(SECRETS_SIDECAR_INTERNAL_URL).toContain("http");
+    expect(WEB_APP_DOMAIN).toBe("demo.pimsai.mistercricro8.top");
+    expect(WEB_INTERNAL_URL).toContain("http");
     expect(DEFAULT_SECRETS_STORE_PATH.length).toBeGreaterThan(0);
     expect(indexResolveToDockerEnv).toBe(resolveToDockerEnv);
   });
@@ -255,8 +257,8 @@ describe("SecretsStore real age decryption & failure semantics", () => {
   });
 });
 
-describe("SecretsStore sidecar HTTP client wiring", () => {
-  test("requestSecret and pollSecret wire real fetch() with wait=true and canonical handles", async () => {
+describe("SecretsStore unified web app HTTP client wiring", () => {
+  test("requestSecret and pollSecret wire real fetch() to /internal/secrets/* with wait=true and canonical handles", async () => {
     const requestsSeen: string[] = [];
     let pollCalls = 0;
 
@@ -267,11 +269,11 @@ describe("SecretsStore sidecar HTTP client wiring", () => {
         const u = new URL(req.url);
         requestsSeen.push(`${req.method} ${u.pathname}${u.search}`);
 
-        if (req.method === "POST" && u.pathname === "/api/secrets/request") {
+        if (req.method === "POST" && u.pathname === "/internal/secrets/request") {
           return Response.json(
             {
               token: "tok_abc123",
-              url: "https://secrets.pimsai.mistercricro8.top:444/s/tok_abc123",
+              url: "https://demo.pimsai.mistercricro8.top:444/?secret_token=tok_abc123",
               expiresAt: new Date(Date.now() + 300_000).toISOString(),
               pollHandle: "hash_abc123",
             },
@@ -279,7 +281,7 @@ describe("SecretsStore sidecar HTTP client wiring", () => {
           );
         }
 
-        if (req.method === "GET" && u.pathname === "/api/secrets/poll/tok_abc123") {
+        if (req.method === "GET" && u.pathname === "/internal/secrets/poll/tok_abc123") {
           pollCalls += 1;
           if (u.searchParams.get("wait") === "true") {
             return Response.json({
@@ -290,14 +292,14 @@ describe("SecretsStore sidecar HTTP client wiring", () => {
           return Response.json({ status: "pending", handle: null });
         }
 
-        if (req.method === "GET" && u.pathname === "/api/secrets/poll/expired_tok") {
+        if (req.method === "GET" && u.pathname === "/internal/secrets/poll/expired_tok") {
           return Response.json(
             { status: "expired", handle: null, error: "REQUEST_EXPIRED" },
             { status: 410 }
           );
         }
 
-        if (req.method === "GET" && u.pathname === "/api/secrets/poll/bad_tok") {
+        if (req.method === "GET" && u.pathname === "/internal/secrets/poll/bad_tok") {
           return Response.json({ error: "TOKEN_INVALID_OR_EXPIRED" }, { status: 400 });
         }
 
@@ -306,7 +308,7 @@ describe("SecretsStore sidecar HTTP client wiring", () => {
     });
 
     try {
-      const store = new SecretsStore({ sidecarUrl: server.url.toString() });
+      const store = new SecretsStore({ webInternalUrl: server.url.toString() });
       const session = await store.requestSecret("jira_api", "connectors");
       expect(session.token).toBe("tok_abc123");
       expect(session.status).toBe("pending");
@@ -316,7 +318,7 @@ describe("SecretsStore sidecar HTTP client wiring", () => {
 
       const waited = await store.pollSecret(session.token, { wait: true, timeoutSeconds: 999 });
       expect(waited).toEqual({ status: "submitted", handle: "secret:jira_api@v1" });
-      expect(requestsSeen).toContain("GET /api/secrets/poll/tok_abc123?wait=true&timeout=300");
+      expect(requestsSeen).toContain("GET /internal/secrets/poll/tok_abc123?wait=true&timeout=300");
       expect(pollCalls).toBe(2);
 
       const expired = await store.pollSecret("expired_tok");

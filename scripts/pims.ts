@@ -4,7 +4,7 @@
  *
  * Unified CLI for GESTITEL PIMS covering all 20 subcommands specified in docs/PIMS-SDK-SPEC.md §3:
  * Live reads, gated writes (G4- write isolation, --confirm requirement), mirror sync/read delegation,
- * structural PDF diffs, and sidecar publishing.
+ * structural PDF diffs, and web app deliverable publishing.
  */
 
 import { createHash } from "node:crypto";
@@ -1241,8 +1241,8 @@ async function handlePublish(parsed: ParsedCli): Promise<void> {
   const content_base64 = fileBytes.toString("base64");
   const effectiveFileName = filename ?? basename(filePath);
 
-  const sidecarBase = (process.env.FILES_SIDECAR_URL || "http://pimsai-files-sidecar:3000").replace(/\/+$/, "");
-  const publishUrl = `${sidecarBase}/api/publish`;
+  const webInternalBase = (process.env.WEB_INTERNAL_URL || "http://127.0.0.1:8082").replace(/\/+$/, "");
+  const publishUrl = `${webInternalBase}/internal/publish`;
 
   const response = await fetch(publishUrl, {
     method: "POST",
@@ -1256,7 +1256,7 @@ async function handlePublish(parsed: ParsedCli): Promise<void> {
 
   if (!response.ok) {
     const errText = await response.text();
-    throw new PimsWriteFailureError("/api/publish", response.status, `Publish failed: ${errText}`);
+    throw new PimsWriteFailureError("/internal/publish", response.status, `Publish failed: ${errText}`);
   }
 
   const result = (await response.json()) as { url: string; [key: string]: unknown };

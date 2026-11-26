@@ -50,23 +50,25 @@ mkdir -p "$STAGING"
 
 echo "syncing repo -> staging (excludes keep runtime-only + dev-only out)..."
 rsync -a --delete \
-  --exclude='.env' \
-  --exclude='.enc.env' \
-  --exclude='.sops.yaml' \
-  --exclude='data/' \
-  --exclude='secrets/' \
-  --exclude='corpus_mirror/' \
-  --exclude='.playwright-mcp/' \
-  --exclude='prompt*' \
-  --exclude='omp-session-*' \
-  --exclude='docs/' \
-  --exclude='corpus_g4_src/' \
-  --exclude='CHECK.md' \
-  --exclude='CHECK*' \
-  --exclude='FIXUP_PLAN.md' \
+  --exclude='/.env' \
+  --exclude='/.enc.env' \
+  --exclude='/.sops.yaml' \
+  --exclude='/data/' \
+  --exclude='/secrets/' \
+  --exclude='/corpus_mirror/' \
+  --exclude='/.playwright-mcp/' \
+  --exclude='/prompt*' \
+  --exclude='/omp-session-*' \
+  --exclude='/docs/' \
+  --exclude='/corpus_g4_src/' \
+  --exclude='/CHECK.md' \
+  --exclude='/CHECK*' \
+  --exclude='/FIXUP_PLAN.md' \
   --exclude='.git/' \
-  --exclude='flake.*' \
+  --exclude='/flake.*' \
   --exclude='node_modules/' \
+  --exclude='/apps/web/client/node_modules/' \
+  --exclude='/apps/web/client/dist/' \
   --exclude='.direnv/' \
   "$REPO/" "$STAGING/"
 

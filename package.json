@@ -3,10 +3,17 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "scripts": {
+    "web:server": "bun run apps/web/server/index.ts",
+    "web:build": "pnpm --dir apps/web/client build",
+    "web:test": "bun test apps/web/server/"
+  },
   "dependencies": {
+    "@hono/bun": "^1.0.1",
     "@playwright/mcp": "latest",
     "@types/diff": "^7.0.2",
     "diff": "^9.0.0",
+    "hono": "^4.13.22",
     "nodemailer": "^7.0.3"
   },
   "devDependencies": {
